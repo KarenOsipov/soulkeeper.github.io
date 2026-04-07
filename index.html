@@ -35,7 +35,7 @@
   --sans: 'DM Sans', system-ui, sans-serif;
   --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --shadow: 0 8px 40px rgba(0,0,0,0.5);
-  --shadow-gold: 0 0 30px rgba(201,168,76,0.1);
+  --shadow-gold: 0 0 30px #c9a84c1a;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -103,7 +103,6 @@ body::before {
 .l-nav-btn:hover { background: var(--gold-d3); border-color: var(--gold2); }
 .l-nav-btn.primary { background: linear-gradient(135deg, var(--gold), var(--amber)); border-color: transparent; color: var(--ink); font-weight: 500; }
 .l-nav-btn.primary:hover { opacity: 0.88; }
-
 /* ════════════════════════════════════════════
    LANDING — HERO
 ════════════════════════════════════════════ */
@@ -3709,7 +3708,7 @@ function _injectDemoPending() {
   if (!email) return;
   if (DB.load('conn_demo_injected_' + email)) return;
   const pending = DB.load('conn_pending_' + email, []);
-  pending.push({ name: 'Алия Серікқызы', fromEmail: 'demo@family.sk', role: 'observer', relation: 'Сестра', date: new Date().toLocaleDateString('ru') });
+  pending.push({ name: 'Максим Иванов', fromEmail: 'demo@family.sk', role: 'observer', relation: 'Сестра', date: new Date().toLocaleDateString('ru') });
   DB.save('conn_pending_' + email, pending);
   DB.save('conn_demo_injected_' + email, true);
 }
