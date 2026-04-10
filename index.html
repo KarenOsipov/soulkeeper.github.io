@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-site-verification" content="googlea74d2bfe770f75a9.html"/>
+<link rel="icon" type="image/png" href="icon.png">
 <title>SoulKeeper — Хранитель твоей жизни</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1306,7 +1307,7 @@ body::before {
         <span class="notif-badge" id="notif-count">3</span>
       </button>
       <div class="user-avatar" id="user-avatar-btn">А</div>
-      <span class="user-name" id="user-name-top">Пользователь</span>
+      <span class="user-name" id="user-name-top">Пользователь</span>  
       <button class="tb-logout" onclick="doLogout()">Выйти</button>
     </div>
   </div>
@@ -3708,7 +3709,7 @@ function _injectDemoPending() {
   if (!email) return;
   if (DB.load('conn_demo_injected_' + email)) return;
   const pending = DB.load('conn_pending_' + email, []);
-  pending.push({ name: 'Максим Иванов', fromEmail: 'demo@family.sk', role: 'observer', relation: 'Сестра', date: new Date().toLocaleDateString('ru') });
+  pending.push({ name: 'Алия Серікқызы', fromEmail: 'demo@family.sk', role: 'observer', relation: 'Сестра', date: new Date().toLocaleDateString('ru') });
   DB.save('conn_pending_' + email, pending);
   DB.save('conn_demo_injected_' + email, true);
 }
