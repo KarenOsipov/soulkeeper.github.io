@@ -9,6 +9,32 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@200;300;400;500&display=swap" rel="stylesheet">
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAtuyHPfuccq6wKKcWBw6B8O8t__-1FFHA",
+    authDomain: "soulkeeper-c32ed.firebaseapp.com",
+    projectId: "soulkeeper-c32ed",
+    storageBucket: "soulkeeper-c32ed.firebasestorage.app",
+    messagingSenderId: "95739760853",
+    appId: "1:95739760853:web:d2d5d6cdfd055cfa58525c",
+    measurementId: "G-32EPBYPNED"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Делаем функции доступными глобально
+  window.auth = auth;
+  window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+  window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+  window.sendPasswordResetEmail = sendPasswordResetEmail;
+  window.updateProfile = updateProfile;
+  window.signOut = signOut;
+</script>
 <style>
 /* ════════════════════════════════════════════
    DESIGN TOKENS
@@ -1261,13 +1287,15 @@ body::before {
     </div>
 
     <!-- LOGIN -->
-    <div class="auth-form active" id="form-login">
+    < class="auth-form active" id="form-login">
       <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"></div>
       <div class="field"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="btn-gold" onclick="doLogin()">Войти</button>
       <button class="btn-outline-sm" onclick="doDemoLogin()">◆ Демо-вход (без регистрации)</button>
       <div class="auth-err" id="login-err">Неверный email или пароль</div>
-    </div>
+      <div style="text-align: right; margin-top: -0.5rem; margin-bottom: 1rem;">
+  <a href="#" onclick="resetPassword(); return false;" style="font-size: 0.65rem; color: var(--muted); text-decoration: none;">Забыли пароль?</a>
+</div>
 
     <!-- REGISTER -->
     <div class="auth-form" id="form-register">
