@@ -1313,36 +1313,31 @@ body::before {
     </div>
 
     <!-- LOGIN -->
-    <div class="auth-form active" id="form-login">
-      <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"></div>
-      <div class="field"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <button class="btn-gold" onclick="doLogin()">Войти</button>
-      <button class="btn-outline-sm" onclick="doDemoLogin()">◆ Демо-вход (без регистрации)</button>
+    <!-- LOGIN -->
+<div class="auth-form active" id="form-login">
+  <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"></div>
+  <div class="field"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+  <button class="btn-gold" onclick="doLogin()">Войти</button>
+  <button class="btn-outline-sm" onclick="doDemoLogin()">◆ Демо-вход (без регистрации)</button>
 
-<!-- ДОБАВИТЬ ЭТУ СТРОКУ: -->
-<div style="text-align:center;margin-top:0.8rem">
-  <span style="font-size:0.75rem;color:var(--muted);cursor:pointer" onclick="showResetPass()">Забыли пароль?</span>
-</div>
-
-<button id="resend-verify-btn" class="btn-outline-sm" 
-  style="display:none;margin-top:0.5rem" 
-  onclick="resendVerify()">
-  Отправить письмо повторно
-</button>
-
-<div class="auth-err" id="login-err">Неверный email или пароль</div>
-
-    <!-- REGISTER -->
-    <div class="auth-form" id="form-register">
-      <div class="field"><label>Имя</label><input type="text" id="reg-name" placeholder="Ваше имя" autocomplete="name"></div>
-      <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"></div>
-      <div class="field"><label>Пароль</label><input type="password" id="reg-pass" placeholder="Минимум 6 символов" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"></div>
-      <button class="btn-gold" onclick="doRegister()">Создать аккаунт</button>
-      <div class="auth-err" id="reg-err"></div>
-    </div>
-
-    <div class="auth-back" onclick="showLanding()">← Вернуться на главную</div>
+  <div style="text-align:center;margin-top:0.8rem">
+    <span style="font-size:0.75rem;color:var(--muted);cursor:pointer" onclick="showResetPass()">Забыли пароль?</span>
   </div>
+
+  <button id="resend-verify-btn" class="btn-outline-sm" style="display:none;margin-top:0.5rem" onclick="resendVerify()">
+    Отправить письмо повторно
+  </button>
+
+  <div class="auth-err" id="login-err"></div>
+</div>  <!-- ← ЭТОТ ЗАКРЫВАЮЩИЙ ТЕГ БЫЛ ОТСУТСТВУЕТ! -->
+
+<!-- REGISTER -->
+<div class="auth-form" id="form-register">
+  <div class="field"><label>Имя</label><input type="text" id="reg-name" placeholder="Ваше имя" autocomplete="name"></div>
+  <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"></div>
+  <div class="field"><label>Пароль</label><input type="password" id="reg-pass" placeholder="Минимум 6 символов" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"></div>
+  <button class="btn-gold" onclick="doRegister()">Создать аккаунт</button>
+  <div class="auth-err" id="reg-err"></div>
 </div>
 
 
