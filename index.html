@@ -968,7 +968,8 @@ body::before {
         SoulKeeper — хранилище твоей жизни. Тайны, биография, послания близким, семейное дерево и автоматическая передача наследства. Всё под защитой военного шифрования.
       </p>
       <div class="l-hero-actions">
-        <button class="l-btn-primary" onclick="showAuth('register')">Начать бесплатно</button>
+        <!-- Вместо существующих кнопок, вставьте эти: -->
+        <button class="l-plan-btn" onclick="upgradeFromLanding('free')">Начать бесплатно</button>
         <button class="l-btn-secondary" onclick="document.getElementById('l-features').scrollIntoView({behavior:'smooth'})">Смотреть возможности</button>
       </div>
     </div>
@@ -1158,7 +1159,8 @@ body::before {
             <li><span class="x">—</span> Страж жизни</li>
             <li><span class="x">—</span> Экспорт данных</li>
           </ul>
-          <button class="l-plan-btn" onclick="showAuth('register')">Начать бесплатно</button>
+          <!-- Вместо существующих кнопок, вставьте эти: -->
+          <button class="l-plan-btn" onclick="upgradeFromLanding('free')">Начать бесплатно</button>
         </div>
         <div class="l-plan featured anim-reveal">
           <div class="l-plan-name">Хранитель</div>
@@ -1172,7 +1174,7 @@ body::before {
             <li><span class="check">✓</span> Страж жизни</li>
             <li><span class="check">✓</span> Экспорт PDF + JSON</li>
           </ul>
-          <button class="l-plan-btn" onclick="showAuthAndUpgrade('keeper')">Выбрать план</button>
+          <button class="l-plan-btn" onclick="upgradeFromLanding('keeper')">Выбрать план</button>
         </div>
         <div class="l-plan anim-reveal">
           <div class="l-plan-name">Наследие</div>
@@ -1186,7 +1188,7 @@ body::before {
             <li><span class="check">✓</span> Личный менеджер</li>
             <li><span class="check">✓</span> Приоритетная поддержка</li>
           </ul>
-          <button class="l-plan-btn" onclick="showAuth('register')">Для семьи</button>
+          <button class="l-plan-btn" onclick="upgradeFromLanding('legacy')">Для семьи</button>
         </div>
       </div>
     </div>
@@ -1652,10 +1654,6 @@ body::before {
               <div class="field"><label>Дата рождения</label><input type="date" id="set-birth"></div>
               <div class="field"><label>Город</label><input type="text" id="set-city" placeholder="Ваш город"></div>
               <button class="btn-gold" onclick="saveSettings()">Сохранить</button>
-            </div>
-              <div class="section-label" style="margin-top:1rem">💎 Подписка</div>
-              <div class="card" id="settings-sub-card">
-  <!-- сюда динамически подставится информация -->
             </div>
           </div>
           <div>
@@ -2286,12 +2284,18 @@ function initApp() {
   setTimeout(() => initGlobe(), 400);
   setTimeout(() => { _injectDemoPending(); initConnections(); }, 300);
    const plan = getUserPlan();
-  const subBadge = document.getElementById('sub-badge');
+const subBadge = document.getElementById('sub-badge');
+if(subBadge) subBadge.textContent = plan.name === 'Страж' ? 'бесплатно' : 'активна';
+
+// Создаем план-бейдж, если его нет
+if(!document.querySelector('.plan-badge')) {
+  const planBadge = document.createElement('div');
   planBadge.className = 'plan-badge';
   planBadge.style.cssText = 'position:fixed; bottom:16px; left:16px; background:var(--ink3); border:1px solid var(--gold); padding:6px 12px; border-radius:20px; font-size:0.7rem; z-index:100; backdrop-filter:blur(8px); cursor:pointer';
   planBadge.innerHTML = `💎 ${plan.name} ${plan.price > 0 ? '• активна' : ''}`;
   planBadge.onclick = () => openModal('modal-upgrade');
-  if(subBadge) subBadge.textContent = plan.name === 'Страж' ? 'бесплатно' : 'активна';
+  document.body.appendChild(planBadge);
+}
   
   
   // Проверка доступа к Стражу
@@ -3909,6 +3913,8 @@ let currentPaymentPlan = null;
 function renderSubscriptionPage() {
   const container = document.getElementById('subscription-container');
   if(!container) return;
+  if(!STATE.user) return;
+  
   const plan = getUserPlan();
   const expiry = DB.load('plan_expiry_' + STATE.user.email, 0);
   const daysLeft = expiry ? Math.max(0, Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
@@ -3954,7 +3960,7 @@ function renderSubscriptionPage() {
         <ul class="l-plan-features" style="font-size:0.75rem">
           <li>✓ Безлимит тайн</li><li>✓ Безлимит биографии</li><li>✓ Страж жизни</li>
         </ul>
-        <button class="l-plan-btn" onclick="openPaymentModal('keeper')">Купить</button>
+        <button class="l-plan-btn" onclick="openPaymentModal('keeper')">💎 Купить</button>
       </div>
       <div class="l-plan" style="padding:1.5rem">
         <div class="l-plan-name">Наследие</div>
@@ -3962,21 +3968,31 @@ function renderSubscriptionPage() {
         <ul class="l-plan-features" style="font-size:0.75rem">
           <li>✓ Всё из Хранителя</li><li>✓ 5 аккаунтов семьи</li><li>✓ Печатная книга</li>
         </ul>
-        <button class="l-plan-btn" onclick="openPaymentModal('legacy')">Купить</button>
+        <button class="l-plan-btn" onclick="openPaymentModal('legacy')">💎 Купить</button>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem; padding:1rem; background:var(--ink2); border:1px solid rgba(201,168,76,0.1); text-align:center">
+      <div style="font-size:0.7rem; color:var(--muted); margin-bottom:0.5rem">💳 Все тарифы включают:</div>
+      <div style="display:flex; flex-wrap:wrap; gap:0.8rem; justify-content:center; font-size:0.75rem">
+        <span>✅ Безопасное хранение</span>
+        <span>✅ Шифрование AES-256</span>
+        <span>✅ Круглосуточная поддержка</span>
+        <span>✅ Автоматические бэкапы</span>
       </div>
     </div>
   `;
   
-  // Обновить в настройках
+  // Обновить в настройках (карточка подписки)
   const settingsCard = document.getElementById('settings-sub-card');
   if(settingsCard) {
     settingsCard.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem">
         <div>
           <div style="font-weight:400">Тариф: <span style="color:var(--gold2)">${plan.name}</span></div>
           <div style="font-size:0.75rem; color:var(--muted)">${plan.price > 0 ? `${plan.price} ₸/мес` : 'Бесплатный'}</div>
+          ${daysLeft > 0 ? `<div style="font-size:0.7rem; color:var(--green)">Действует до ${new Date(expiry).toLocaleDateString('ru')}</div>` : ''}
         </div>
-        <button class="btn btn-ghost btn-sm" onclick="goPage('subscription')">Управлять →</button>
+        <button class="btn btn-primary-sm" onclick="openPaymentModal('keeper')">💎 Купить подписку</button>
       </div>
     `;
   }
@@ -4047,6 +4063,24 @@ function upgradeToPlan(planId) {
 // Добавить в goPage вызов отрисовки подписки
 // Найти функцию goPage и добавить внутри:
 // if(name === 'subscription') renderSubscriptionPage();
+function upgradeFromLanding(planId) {
+  if(STATE.user) {
+    // Пользователь уже вошел - открываем оплату
+    if(planId === 'free') {
+      if(confirm('Переключиться на бесплатный тариф?')) {
+        setUserPlan('free', 0);
+        toast('✅ Бесплатный тариф активирован');
+      }
+    } else {
+      openPaymentModal(planId);
+    }
+  } else {
+    // Пользователь не вошел - показываем регистрацию и запоминаем план
+    sessionStorage.setItem('pendingPlan', planId);
+    showAuth('register');
+    toast('Зарегистрируйтесь, и тариф активируется автоматически!');
+  }
+}
 
 </script>
 <!-- MODAL UPGRADE (добавить перед </body>) -->
