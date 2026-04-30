@@ -327,6 +327,27 @@ body::before {
 .auth-form { display: none; }
 .auth-form.active { display: block; }
 
+.auth-card {
+  /* добавить к существующим: */
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.12);
+  backdrop-filter: blur(20px);
+}
+.auth-form.active {
+  animation: fadeUp 0.3s ease forwards;
+}
+.field input:focus {
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+  border-color: var(--gold) !important;
+}
+.btn-gold {
+  letter-spacing: 0.2em;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.25);
+  transition: opacity 0.3s, box-shadow 0.3s;
+}
+.btn-gold:hover {
+  box-shadow: 0 6px 28px rgba(201,168,76,0.4);
+}
+
 /* ════════════════════════════════════════════
    SHARED FORM ELEMENTS
 ════════════════════════════════════════════ */
@@ -925,7 +946,28 @@ body::before {
   /* Switch ring smaller */
   #sw-canvas { width: 200px !important; height: 200px !important; }
 }
+
 </style>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "ВСТАВЬТЕ_ВАШ_API_KEY",
+    authDomain: "ВАШ_PROJECT.firebaseapp.com",
+    projectId: "ВАШ_PROJECT_ID",
+    storageBucket: "ВАШ_PROJECT.appspot.com",
+    messagingSenderId: "ВАШ_SENDER_ID",
+    appId: "ВАШ_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window._fbAuth = getAuth(app);
+  window._fbDb   = getFirestore(app);
+  window._fbFns  = { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, doc, setDoc, getDoc };
+</script>
 </head>
 <body>
 
@@ -2148,21 +2190,30 @@ function switchAuthTab(tab) {
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('form-'+tab).classList.add('active');
 }
-
-function doLogin() {
+async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  const err = document.getElementById('login-err');
+  const pass  = document.getElementById('login-pass').value;
+  const err   = document.getElementById('login-err');
   err.style.display = 'none';
+  if (!email || !pass) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; return; }
 
-  const users = DB.load('users', []);
-  const user = users.find(u => u.email === email && u.pass === btoa(pass));
-  if(!user) { err.style.display = 'block'; return; }
-
-  DB.save('user', user);
-  STATE.user = user;
-  loadUserData();
-  showApp();
+  if (window._fbAuth) {
+    try {
+      const cred = await window._fbFns.signInWithEmailAndPassword(window._fbAuth, email, pass);
+      const snap = await window._fbFns.getDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid));
+      STATE.user = snap.exists() ? snap.data() : { name: email.split('@')[0], email, uid: cred.user.uid };
+      loadUserData(); showApp();
+    } catch(e) {
+      err.textContent = e.code === 'auth/invalid-credential' ? 'Неверный email или пароль' : e.message;
+      err.style.display = 'block';
+    }
+  } else {
+    // Оставить старую логику как fallback
+    const users = DB.load('users', []);
+    const user  = users.find(u => u.email === email && u.pass === btoa(pass));
+    if (!user) { err.textContent = 'Неверный email или пароль'; err.style.display = 'block'; return; }
+    DB.save('user', user); STATE.user = user; loadUserData(); showApp();
+  }
 }
 
 function doDemoLogin() {
@@ -2191,32 +2242,43 @@ function doDemoLogin() {
   setTimeout(() => showOnboarding(), 600);
 }
 
-function doRegister() {
-  const name = document.getElementById('reg-name').value.trim();
+async function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  const err = document.getElementById('reg-err');
+  const pass  = document.getElementById('reg-pass').value;
+  const err   = document.getElementById('reg-err');
+  err.style.display = 'none';
+  if (!name || !email || !pass) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; return; }
+  if (pass.length < 6) { err.textContent = 'Пароль минимум 6 символов'; err.style.display = 'block'; return; }
 
-  if(!name || !email || !pass) { err.textContent = 'Заполните все поля'; err.style.display='block'; return; }
-  if(pass.length < 6) { err.textContent = 'Пароль минимум 6 символов'; err.style.display='block'; return; }
-
-  const users = DB.load('users', []);
-  if(users.find(u => u.email === email)) { err.textContent = 'Email уже используется'; err.style.display='block'; return; }
-
-  const user = {id:uid(), name, email, pass: btoa(pass), created: new Date().toISOString()};
-  users.push(user);
-  DB.save('users', users);
-  DB.save('user', user);
-  STATE.user = user;
-  STATE.notifications = [{id:uid(), title:'Добро пожаловать в SoulKeeper!', sub:'Аккаунт создан', time:new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}];
-  saveUserData();
-  showApp();
-  setTimeout(() => showOnboarding(), 600);
+  if (window._fbAuth) {
+    try {
+      const cred = await window._fbFns.createUserWithEmailAndPassword(window._fbAuth, email, pass);
+      const user = { uid: cred.user.uid, name, email, created: new Date().toISOString() };
+      await window._fbFns.setDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid), user);
+      STATE.user = user;
+      STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}) }];
+      saveUserData(); showApp(); setTimeout(() => showOnboarding(), 600);
+    } catch(e) {
+      err.textContent = e.code === 'auth/email-already-in-use' ? 'Email уже используется' : e.message;
+      err.style.display = 'block';
+    }
+  } else {
+    // Старая логика fallback
+    const users = DB.load('users', []);
+    if (users.find(u => u.email === email)) { err.textContent = 'Email уже используется'; err.style.display = 'block'; return; }
+    const user = { id: uid(), name, email, pass: btoa(pass), created: new Date().toISOString() };
+    users.push(user); DB.save('users', users); DB.save('user', user);
+    STATE.user = user;
+    STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}) }];
+    saveUserData(); showApp(); setTimeout(() => showOnboarding(), 600);
+  }
 }
 
-function doLogout() {
+async function doLogout() {
+  if (window._fbAuth?.currentUser) await window._fbFns.signOut(window._fbAuth);
   DB.remove('user');
-  STATE = {user:null, secrets:[], bio:[], messages:[], relatives:[], notifications:[], settings:{}, swPeriod:7, swDays:7, executor:null};
+  STATE = { user:null, secrets:[], bio:[], messages:[], relatives:[], notifications:[], settings:{}, swPeriod:7, swDays:7, executor:null };
   showLanding();
 }
 
