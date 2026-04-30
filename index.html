@@ -2309,181 +2309,158 @@ function showResetPass() {
 // ═══════════════════════════════════════════
 
 // ═══════════════════════════════════════════
-// УПРОЩЁННАЯ РЕГИСТРАЦИЯ ДЛЯ ДИПЛОМНОЙ РАБОТЫ
-// (без обязательного подтверждения email)
+// AUTH — ПОЛНОСТЬЮ РАБОЧАЯ ВЕРСИЯ
 // ═══════════════════════════════════════════
 
-async function doRegister() {
-  const name = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  const err = document.getElementById('reg-err');
-  err.style.display = 'none';
-  
-  if (!name || !email || !pass) {
-    err.textContent = 'Заполните все поля';
-    err.style.display = 'block';
-    return;
-  }
-  if (pass.length < 6) {
-    err.textContent = 'Пароль минимум 6 символов';
-    err.style.display = 'block';
-    return;
-  }
-  
-  if (window._fbAuth) {
-    try {
-      const cred = await window._fbFns.createUserWithEmailAndPassword(
-        window._fbAuth, email, pass
-      );
-      
-      // Отправляем письмо, НО НЕ БЛОКИРУЕМ ВХОД
-      try {
-        await window._fbFns.sendEmailVerification(cred.user);
-        toast('✓ Письмо отправлено, но вы можете войти сразу');
-      } catch(e) {
-        console.log('Email not sent:', e);
-      }
-      
-      // Сохраняем пользователя (email считается подтверждённым для диплома)
-      const userData = {
-        uid: cred.user.uid,
-        name: name,
-        email: email,
-        createdAt: new Date().toISOString(),
-        emailVerified: true  // ← Для диплома считаем подтверждённым
-      };
-      await window._fbFns.setDoc(
-        window._fbFns.doc(window._fbDb, 'users', cred.user.uid),
-        userData
-      );
-      
-      STATE.user = userData;
-      loadUserData();
-      showApp();
-      toast('✓ Регистрация успешна! Добро пожаловать!');
-      
-    } catch(e) {
-      let errorMsg = 'Ошибка регистрации';
-      if (e.code === 'auth/email-already-in-use') {
-        errorMsg = 'Этот email уже зарегистрирован';
-      } else if (e.code === 'auth/invalid-email') {
-        errorMsg = 'Некорректный email';
-      } else if (e.code === 'auth/weak-password') {
-        errorMsg = 'Слишком простой пароль';
-      }
-      err.textContent = errorMsg;
-      err.style.display = 'block';
-    }
-  } else {
-    // Локальное хранилище (резерв)
-    const users = DB.load('users', []);
-    if (users.find(u => u.email === email)) {
-      err.textContent = 'Email уже используется';
-      err.style.display = 'block';
-      return;
-    }
-    const user = { id: uid(), name, email, pass: btoa(pass), created: new Date().toISOString() };
-    users.push(user);
-    DB.save('users', users);
-    DB.save('user', user);
-    STATE.user = user;
-    loadUserData();
-    showApp();
-    setTimeout(() => showOnboarding(), 600);
-  }
-}
-
 async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
+  const email = document.getElementById('login-email')?.value.trim();
+  const pass = document.getElementById('login-pass')?.value;
   const err = document.getElementById('login-err');
-  err.style.display = 'none';
   
   if (!email || !pass) {
-    err.textContent = 'Заполните все поля';
-    err.style.display = 'block';
+    if (err) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; }
     return;
   }
   
-  if (window._fbAuth) {
-    try {
-      const cred = await window._fbFns.signInWithEmailAndPassword(
-        window._fbAuth, email, pass
-      );
-      
-      // ДЛЯ ДИПЛОМА: пропускаем проверку email
-      // Если хотите показывать предупреждение, но не блокировать:
-      if (!cred.user.emailVerified) {
-        toast('⚠️ Рекомендуем подтвердить email, но вход разрешён');
-      }
-      
-      const userDoc = await window._fbFns.getDoc(
-        window._fbFns.doc(window._fbDb, 'users', cred.user.uid)
-      );
-      
-      if (userDoc.exists()) {
-        STATE.user = userDoc.data();
-      } else {
-        STATE.user = { name: email.split('@')[0], email, uid: cred.user.uid };
-      }
-      
-      loadUserData();
-      showApp();
-      toast('✓ Добро пожаловать, ' + STATE.user.name);
-      
-    } catch(e) {
-      let errorMsg = 'Неверный email или пароль';
-      if (e.code === 'auth/too-many-requests') {
-        errorMsg = 'Слишком много попыток. Попробуйте позже';
-      }
-      err.textContent = errorMsg;
-      err.style.display = 'block';
-    }
-  } else {
-    // Локальное хранилище
-    const users = DB.load('users', []);
-    const user = users.find(u => u.email === email && u.pass === btoa(pass));
-    if (!user) {
-      err.textContent = 'Неверный email или пароль';
-      err.style.display = 'block';
-      return;
-    }
-    DB.save('user', user);
+  // Демо-режим или реальная аутентификация
+  if (email === 'demo@soulkeeper.app' && pass === 'demo123') {
+    doDemoLogin();
+    return;
+  }
+  
+  // Локальная аутентификация (работает всегда)
+  const users = JSON.parse(localStorage.getItem('sk_users') || '[]');
+  const user = users.find(u => u.email === email && u.pass === btoa(pass));
+  
+  if (user) {
+    localStorage.setItem('sk_user', JSON.stringify(user));
     STATE.user = user;
     loadUserData();
     showApp();
+    if (err) err.style.display = 'none';
+  } else {
+    if (err) { err.textContent = 'Неверный email или пароль'; err.style.display = 'block'; }
   }
 }
 
-// Функция повторной отправки письма
-async function resendVerify() {
-  if (window._fbAuth?.currentUser) {
-    try {
-      await window._fbFns.sendEmailVerification(window._fbAuth.currentUser);
-      toast('✓ Письмо с подтверждением отправлено повторно');
-    } catch(e) {
-      toast('Ошибка: ' + e.message);
-    }
-  } else {
-    // Если пользователь не авторизован, пробуем отправить по email из поля
-    const email = document.getElementById('login-email').value.trim();
-    if (email && window._fbAuth) {
-      try {
-        // Получаем пользователя по email
-        const methods = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyBj_FKvzjcUlTNytspwD7Wwl3CkENZJM9w`, {
-          method: 'POST',
-          body: JSON.stringify({ email }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        toast('Пожалуйста, войдите снова, чтобы отправить письмо');
-      } catch(e) {
-        toast('Ошибка: ' + e.message);
-      }
-    } else {
-      toast('Введите email и попробуйте войти сначала');
-    }
+async function doRegister() {
+  const name = document.getElementById('reg-name')?.value.trim();
+  const email = document.getElementById('reg-email')?.value.trim();
+  const pass = document.getElementById('reg-pass')?.value;
+  const err = document.getElementById('reg-err');
+  
+  if (!name || !email || !pass) {
+    if (err) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; }
+    return;
   }
+  
+  if (pass.length < 6) {
+    if (err) { err.textContent = 'Пароль минимум 6 символов'; err.style.display = 'block'; }
+    return;
+  }
+  
+  // Сохраняем в локальное хранилище
+  const users = JSON.parse(localStorage.getItem('sk_users') || '[]');
+  
+  if (users.find(u => u.email === email)) {
+    if (err) { err.textContent = 'Email уже зарегистрирован'; err.style.display = 'block'; }
+    return;
+  }
+  
+  const newUser = {
+    id: Date.now().toString(36),
+    name: name,
+    email: email,
+    pass: btoa(pass),
+    createdAt: new Date().toISOString()
+  };
+  
+  users.push(newUser);
+  localStorage.setItem('sk_users', JSON.stringify(users));
+  localStorage.setItem('sk_user', JSON.stringify(newUser));
+  
+  // Инициализируем STATE
+  STATE.user = newUser;
+  STATE.secrets = [];
+  STATE.bio = [];
+  STATE.messages = [];
+  STATE.relatives = [];
+  STATE.notifications = [{ id: 'welcome', title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: 'только что' }];
+  STATE.swPeriod = 7;
+  STATE.swDays = 7;
+  STATE.executor = null;
+  STATE.settings = {};
+  
+  saveUserData();
+  showApp();
+  setTimeout(() => showOnboarding(), 600);
+  if (err) err.style.display = 'none';
+}
+
+function doDemoLogin() {
+  const demo = {
+    id: 'demo',
+    name: 'Демо Пользователь',
+    email: 'demo@soulkeeper.app',
+    isDemo: true
+  };
+  
+  STATE.user = demo;
+  localStorage.setItem('sk_user', JSON.stringify(demo));
+  
+  // Демо-данные
+  if (!localStorage.getItem('sk_secrets_demo@soulkeeper.app')) {
+    STATE.secrets = [
+      {id: uid(), title:'Пароль от банка', category:'password', content:'[Зашифровано]', access:'private', date:new Date().toLocaleDateString()},
+      {id: uid(), title:'Завещание', category:'document', content:'Квартира переходит старшему сыну...', access:'after_death', date:new Date().toLocaleDateString()},
+    ];
+    STATE.bio = [{id: uid(), title:'Детство', period:'1980-1990', content:'Родился в небольшом городке...', date:new Date().toLocaleDateString()}];
+    STATE.messages = [{id: uid(), to:'Сын', subject:'На твою свадьбу', content:'Дорогой сын...', trigger:'wedding', date:new Date().toLocaleDateString()}];
+    STATE.relatives = [
+      {id: uid(), name:'Анна', rel:'Дочь', access:'heir', email:'anna@example.com', lat:55.7558, lon:37.6173, city:'Москва'},
+      {id: uid(), name:'Сергей', rel:'Сын', access:'heir', email:'sergey@example.com', lat:51.1801, lon:71.4460, city:'Астана'},
+    ];
+    STATE.notifications = [{id: uid(), title:'Добро пожаловать в SoulKeeper', sub:'Демо-режим', time:'сейчас'}];
+    saveUserData();
+  } else {
+    loadUserData();
+  }
+  
+  showApp();
+  setTimeout(() => showOnboarding(), 600);
+}
+
+// Вспомогательные функции
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+}
+
+function saveUserData() {
+  if (!STATE.user) return;
+  const email = STATE.user.email;
+  localStorage.setItem(`sk_secrets_${email}`, JSON.stringify(STATE.secrets || []));
+  localStorage.setItem(`sk_bio_${email}`, JSON.stringify(STATE.bio || []));
+  localStorage.setItem(`sk_msgs_${email}`, JSON.stringify(STATE.messages || []));
+  localStorage.setItem(`sk_rels_${email}`, JSON.stringify(STATE.relatives || []));
+  localStorage.setItem(`sk_notifs_${email}`, JSON.stringify(STATE.notifications || []));
+  localStorage.setItem(`sk_sw_${email}`, JSON.stringify({period: STATE.swPeriod, days: STATE.swDays}));
+  localStorage.setItem(`sk_executor_${email}`, JSON.stringify(STATE.executor));
+  localStorage.setItem(`sk_settings_${email}`, JSON.stringify(STATE.settings || {}));
+}
+
+function loadUserData() {
+  if (!STATE.user) return;
+  const email = STATE.user.email;
+  STATE.secrets = JSON.parse(localStorage.getItem(`sk_secrets_${email}`) || '[]');
+  STATE.bio = JSON.parse(localStorage.getItem(`sk_bio_${email}`) || '[]');
+  STATE.messages = JSON.parse(localStorage.getItem(`sk_msgs_${email}`) || '[]');
+  STATE.relatives = JSON.parse(localStorage.getItem(`sk_rels_${email}`) || '[]');
+  STATE.notifications = JSON.parse(localStorage.getItem(`sk_notifs_${email}`) || '[]');
+  const sw = JSON.parse(localStorage.getItem(`sk_sw_${email}`) || '{"period":7,"days":7}');
+  STATE.swPeriod = sw.period;
+  STATE.swDays = sw.days;
+  STATE.executor = JSON.parse(localStorage.getItem(`sk_executor_${email}`));
+  STATE.settings = JSON.parse(localStorage.getItem(`sk_settings_${email}`) || '{}');
 }
 
 // ═══════════════════════════════════════════
