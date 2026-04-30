@@ -327,27 +327,6 @@ body::before {
 .auth-form { display: none; }
 .auth-form.active { display: block; }
 
-.auth-card {
-  /* добавить к существующим: */
-  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.12);
-  backdrop-filter: blur(20px);
-}
-.auth-form.active {
-  animation: fadeUp 0.3s ease forwards;
-}
-.field input:focus {
-  box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
-  border-color: var(--gold) !important;
-}
-.btn-gold {
-  letter-spacing: 0.2em;
-  box-shadow: 0 4px 20px rgba(201,168,76,0.25);
-  transition: opacity 0.3s, box-shadow 0.3s;
-}
-.btn-gold:hover {
-  box-shadow: 0 6px 28px rgba(201,168,76,0.4);
-}
-
 /* ════════════════════════════════════════════
    SHARED FORM ELEMENTS
 ════════════════════════════════════════════ */
@@ -946,64 +925,7 @@ body::before {
   /* Switch ring smaller */
   #sw-canvas { width: 200px !important; height: 200px !important; }
 }
-
 </style>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-           signOut, onAuthStateChanged, sendPasswordResetEmail }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBj_FKvzjcUlTNytspwD7Wwl3CkENZJM9w",
-    authDomain: "soulkeeper-001.firebaseapp.com",
-    projectId: "soulkeeper-001",
-    storageBucket: "soulkeeper-001.firebasestorage.app",
-    messagingSenderId: "959264625043",
-    appId: "1:959264625043:web:ccbb1dcdd789bc4ddd9866"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  window._fbAuth = auth;
-  window._fbDb = db;
-  window._fbFns = {
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    signOut,
-    onAuthStateChanged,
-    sendPasswordResetEmail,
-    doc, setDoc, getDoc
-  };
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
-    try {
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      const profile = snap.exists() ? snap.data() : {};
-      window._fbCurrentUser = {
-        uid: user.uid,
-        email: user.email,
-        name: profile.name || user.email.split('@')[0]
-      };
-      // Вызываем через timeout чтобы основной скрипт успел загрузиться
-      setTimeout(() => {
-        if (typeof STATE !== 'undefined' && !STATE.user) {
-          STATE.user = window._fbCurrentUser;
-          loadUserData();
-          showScreen('app');
-          initApp();
-        }
-      }, 500);
-    } catch(e) {
-      console.error('Firebase auth state error:', e);
-    }
-  });
-</script>
 </head>
 <body>
 
@@ -1327,7 +1249,7 @@ body::before {
 <!-- ════════════════════════════════════════════
      AUTH SCREEN
 ════════════════════════════════════════════ -->
-  <div id="screen-auth" class="screen">
+<div id="screen-auth" class="screen">
   <div class="auth-card">
     <div class="auth-logo">
       <svg width="28" height="28" viewBox="0 0 32 32" fill="none" style="display:inline-block;vertical-align:middle;margin-right:10px"><polygon points="16,2 28,12 22,30 10,30 4,12" fill="rgba(201,168,76,0.18)" stroke="#c9a84c" stroke-width="1"/><polygon points="16,2 28,12 16,10" fill="rgba(201,168,76,0.3)"/></svg>SoulKeeper
@@ -1338,30 +1260,27 @@ body::before {
       <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Регистрация</button>
     </div>
 
-    
- <!-- LOGIN -->
-<div class="auth-form active" id="form-login">
-  <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"></div>
-  <div class="field"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-  <button class="btn-gold" onclick="doLogin()">Войти</button>
-  <button class="btn-outline-sm" onclick="doDemoLogin()">◆ Демо-вход (без регистрации)</button>
-  <div style="text-align:center;margin-top:0.8rem">
-    <span style="font-size:0.75rem;color:var(--muted);cursor:pointer" onclick="showResetPass()">Забыли пароль?</span>
+    <!-- LOGIN -->
+    <div class="auth-form active" id="form-login">
+      <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="field"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn-gold" onclick="doLogin()">Войти</button>
+      <button class="btn-outline-sm" onclick="doDemoLogin()">◆ Демо-вход (без регистрации)</button>
+      <div class="auth-err" id="login-err">Неверный email или пароль</div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="auth-form" id="form-register">
+      <div class="field"><label>Имя</label><input type="text" id="reg-name" placeholder="Ваше имя" autocomplete="name"></div>
+      <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="field"><label>Пароль</label><input type="password" id="reg-pass" placeholder="Минимум 6 символов" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"></div>
+      <button class="btn-gold" onclick="doRegister()">Создать аккаунт</button>
+      <div class="auth-err" id="reg-err"></div>
+    </div>
+
+    <div class="auth-back" onclick="showLanding()">← Вернуться на главную</div>
   </div>
-  <div class="auth-err" id="login-err"></div>
 </div>
-
-<!-- REGISTER -->
-<div class="auth-form" id="form-register">
-  <div class="field"><label>Имя</label><input type="text" id="reg-name" placeholder="Ваше имя" autocomplete="name"></div>
-  <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"></div>
-  <div class="field"><label>Пароль</label><input type="password" id="reg-pass" placeholder="Минимум 6 символов" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"></div>
-  <button class="btn-gold" onclick="doRegister()">Создать аккаунт</button>
-  <div class="auth-err" id="reg-err"></div>
-</div>
-
-  </div> <!-- /auth-card -->
-</div> <!-- /screen-auth -->
 
 
 <!-- ════════════════════════════════════════════
@@ -2175,39 +2094,51 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 
 function saveUserData() {
   if(!STATE.user) return;
-  const e = STATE.user.uid || STATE.user.email;
-  localStorage.setItem('sk_secrets_'+e, JSON.stringify(STATE.secrets));
-  localStorage.setItem('sk_bio_'+e, JSON.stringify(STATE.bio));
-  localStorage.setItem('sk_msgs_'+e, JSON.stringify(STATE.messages));
-  localStorage.setItem('sk_rels_'+e, JSON.stringify(STATE.relatives));
-  localStorage.setItem('sk_notifs_'+e, JSON.stringify(STATE.notifications));
-  localStorage.setItem('sk_sw_'+e, JSON.stringify({period: STATE.swPeriod, days: STATE.swDays}));
-  localStorage.setItem('sk_executor_'+e, JSON.stringify(STATE.executor));
-  localStorage.setItem('sk_settings_'+e, JSON.stringify(STATE.settings));
+  const e = STATE.user.email;
+  DB.save('secrets_'+e, STATE.secrets);
+  DB.save('bio_'+e, STATE.bio);
+  DB.save('msgs_'+e, STATE.messages);
+  DB.save('rels_'+e, STATE.relatives);
+  DB.save('notifs_'+e, STATE.notifications);
+  DB.save('sw_'+e, {period: STATE.swPeriod, days: STATE.swDays});
+  DB.save('executor_'+e, STATE.executor);
+  DB.save('settings_'+e, STATE.settings);
   updateDbStats();
 }
 
-// ОСТАВЬ ТОЛЬКО ЭТУ, вторую удали:
 function loadUserData() {
   if(!STATE.user) return;
-  const e = STATE.user.uid || STATE.user.email;
-  const load = (key, def) => {
-    try {
-      const v = localStorage.getItem('sk_'+key+'_'+e);
-      return v ? JSON.parse(v) : def;
-    } catch { return def; }
-  };
-  STATE.secrets = load('secrets', []);
-  STATE.bio = load('bio', []);
-  STATE.messages = load('msgs', []);
-  STATE.relatives = load('rels', []);
-  STATE.notifications = load('notifs', []);
-  const sw = load('sw', {period:7, days:7});
-  STATE.swPeriod = sw.period;
-  STATE.swDays = sw.days;
-  STATE.executor = load('executor', null);
-  STATE.settings = load('settings', {});
+  const e = STATE.user.email;
+  STATE.secrets = DB.load('secrets_'+e, []);
+  STATE.bio = DB.load('bio_'+e, []);
+  STATE.messages = DB.load('msgs_'+e, []);
+  STATE.relatives = DB.load('rels_'+e, []);
+  STATE.notifications = DB.load('notifs_'+e, []);
+  const sw = DB.load('sw_'+e, {period:7, days:7});
+  STATE.swPeriod = sw.period; STATE.swDays = sw.days;
+  STATE.executor = DB.load('executor_'+e, null);
+  STATE.settings = DB.load('settings_'+e, {});
+  DB._addLog('INFO', `Данные пользователя загружены (${e})`);
 }
+
+// ═══════════════════════════════════════════
+// SCREEN ROUTING
+// ═══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  if(id === 'landing') window.scrollTo(0,0);
+}
+function showLanding() { showScreen('landing'); }
+function showAuth(tab = 'login') {
+  showScreen('auth');
+  switchAuthTab(tab);
+}
+function showApp() {
+  showScreen('app');
+  initApp();
+}
+
 // ═══════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════
@@ -2218,128 +2149,32 @@ function switchAuthTab(tab) {
   document.getElementById('form-'+tab).classList.add('active');
 }
 
-async function doLogin() {
-  const email = document.getElementById('login-email')?.value.trim();
-  const pass = document.getElementById('login-pass')?.value;
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
   const err = document.getElementById('login-err');
-  if (err) { err.style.display = 'none'; err.style.color = 'var(--red)'; }
+  err.style.display = 'none';
 
-  if (!email || !pass) {
-    if (err) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; }
-    return;
-  }
+  const users = DB.load('users', []);
+  const user = users.find(u => u.email === email && u.pass === btoa(pass));
+  if(!user) { err.style.display = 'block'; return; }
 
-  const btn = document.querySelector('#form-login .btn-gold');
-  if (btn) btn.textContent = 'Входим...';
-
-  try {
-    const cred = await window._fbFns.signInWithEmailAndPassword(window._fbAuth, email, pass);
-    const snap = await window._fbFns.getDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid));
-    const profile = snap.exists() ? snap.data() : {};
-    STATE.user = {
-      uid: cred.user.uid,
-      email: cred.user.email,
-      name: profile.name || email.split('@')[0]
-    };
-    loadUserData();
-    showApp();
-  } catch(e) {
-    const msgs = {
-      'auth/user-not-found': 'Пользователь не найден',
-      'auth/wrong-password': 'Неверный пароль',
-      'auth/invalid-email': 'Неверный формат email',
-      'auth/too-many-requests': 'Слишком много попыток. Подождите',
-      'auth/invalid-credential': 'Неверный email или пароль',
-    };
-    if (err) { err.textContent = msgs[e.code] || 'Ошибка: ' + e.message; err.style.display = 'block'; }
-  } finally {
-    if (btn) btn.textContent = 'Войти';
-  }
-}
-
-async function doRegister() {
-  const name = document.getElementById('reg-name')?.value.trim();
-  const email = document.getElementById('reg-email')?.value.trim();
-  const pass = document.getElementById('reg-pass')?.value;
-  const err = document.getElementById('reg-err');
-  if (err) { err.style.display = 'none'; err.style.color = 'var(--red)'; }
-
-  if (!name || !email || !pass) {
-    if (err) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; }
-    return;
-  }
-  if (pass.length < 6) {
-    if (err) { err.textContent = 'Пароль минимум 6 символов'; err.style.display = 'block'; }
-    return;
-  }
-
-  const btn = document.querySelector('#form-register .btn-gold');
-  if (btn) btn.textContent = 'Создаём...';
-
-  try {
-    const cred = await window._fbFns.createUserWithEmailAndPassword(window._fbAuth, email, pass);
-    await window._fbFns.setDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid), {
-      name, email, createdAt: new Date().toISOString()
-    });
-    STATE.user = { uid: cred.user.uid, email, name };
-    STATE.secrets = [];
-    STATE.bio = [];
-    STATE.messages = [];
-    STATE.relatives = [];
-    STATE.notifications = [{ id: 'welcome', title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: 'только что' }];
-    STATE.swPeriod = 7;
-    STATE.swDays = 7;
-    STATE.executor = null;
-    STATE.settings = {};
-    saveUserData();
-    showApp();
-    setTimeout(() => showOnboarding(), 600);
-  } catch(e) {
-    const msgs = {
-      'auth/email-already-in-use': 'Email уже зарегистрирован',
-      'auth/invalid-email': 'Неверный формат email',
-      'auth/weak-password': 'Пароль слишком простой',
-    };
-    if (err) { err.textContent = msgs[e.code] || 'Ошибка: ' + e.message; err.style.display = 'block'; }
-  } finally {
-    if (btn) btn.textContent = 'Создать аккаунт';
-  }
-}
-
-async function doLogout() {
-  try { if (window._fbAuth) await window._fbFns.signOut(window._fbAuth); } catch(e) {}
-  STATE = { user:null, secrets:[], bio:[], messages:[], relatives:[], notifications:[], settings:{}, swPeriod:7, swDays:7, executor:null };
-  showLanding();
-}
-
-async function showResetPass() {
-  const email = document.getElementById('login-email')?.value.trim();
-  const err = document.getElementById('login-err');
-  if (!email) {
-    if (err) { err.style.color='var(--red)'; err.textContent = 'Введите email выше'; err.style.display = 'block'; }
-    return;
-  }
-  try {
-    await window._fbFns.sendPasswordResetEmail(window._fbAuth, email);
-    if (err) { err.style.color='var(--green)'; err.textContent = '✓ Письмо отправлено на ' + email + '. Проверьте Спам'; err.style.display = 'block'; }
-  } catch(e) {
-    const msgs = {
-      'auth/user-not-found': 'Email не найден',
-      'auth/invalid-email': 'Неверный формат email',
-      'auth/too-many-requests': 'Слишком много запросов',
-    };
-    if (err) { err.style.color='var(--red)'; err.textContent = msgs[e.code] || e.message; err.style.display = 'block'; }
-  }
+  DB.save('user', user);
+  STATE.user = user;
+  loadUserData();
+  showApp();
 }
 
 function doDemoLogin() {
-  const demo = { name: 'Демо Пользователь', email: 'demo@soulkeeper.app', uid: 'demo-uid', isDemo: true };
+  const demo = {name: 'Демо Пользователь', email: 'demo@soulkeeper.app', pass: btoa('demo123'), isDemo: true};
   STATE.user = demo;
-  const existing = localStorage.getItem('sk_secrets_demo-uid');
-  if (!existing) {
+  DB.save('user', demo);
+  // Seed demo data
+  if(!DB.load('secrets_'+demo.email)) {
     STATE.secrets = [
-      {id:uid(), title:'Пароль от банка', category:'password', content:'[Зашифровано]', access:'private', date:new Date().toLocaleDateString('ru')},
+      {id:uid(), title:'Пароль от банка', category:'password', content:'[Зашифровано] •••••••••', access:'private', date:new Date().toLocaleDateString('ru')},
       {id:uid(), title:'Завещание', category:'document', content:'Квартира переходит старшему сыну...', access:'after_death', date:new Date().toLocaleDateString('ru')},
+      {id:uid(), title:'Тайна семьи', category:'personal', content:'Никто не знает что...', access:'heir', date:new Date().toLocaleDateString('ru')},
     ];
     STATE.bio = [{id:uid(), title:'Детство', period:'1970–1985', content:'Родился в небольшом городке...', date:new Date().toLocaleDateString('ru')}];
     STATE.messages = [{id:uid(), to:'Сын', subject:'На твою свадьбу', content:'Дорогой сын...', trigger:'wedding', date:new Date().toLocaleDateString('ru')}];
@@ -2350,17 +2185,39 @@ function doDemoLogin() {
       {id:uid(), name:'Игорь Козлов', rel:'Брат', access:'observer', email:'igor@example.com', lat:40.7128, lon:-74.0060, city:'Нью-Йорк, США'},
     ];
     STATE.notifications = [{id:uid(), title:'Добро пожаловать в SoulKeeper', sub:'Демо-режим', time:'сейчас'}];
-    STATE.swPeriod = 7; STATE.swDays = 7; STATE.executor = null; STATE.settings = {};
     saveUserData();
-  } else {
-    loadUserData();
-  }
+  } else { loadUserData(); }
   showApp();
   setTimeout(() => showOnboarding(), 600);
 }
 
-function checkAutoLogin() {
-  // Управляется через onAuthStateChanged в Firebase модуле
+function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const err = document.getElementById('reg-err');
+
+  if(!name || !email || !pass) { err.textContent = 'Заполните все поля'; err.style.display='block'; return; }
+  if(pass.length < 6) { err.textContent = 'Пароль минимум 6 символов'; err.style.display='block'; return; }
+
+  const users = DB.load('users', []);
+  if(users.find(u => u.email === email)) { err.textContent = 'Email уже используется'; err.style.display='block'; return; }
+
+  const user = {id:uid(), name, email, pass: btoa(pass), created: new Date().toISOString()};
+  users.push(user);
+  DB.save('users', users);
+  DB.save('user', user);
+  STATE.user = user;
+  STATE.notifications = [{id:uid(), title:'Добро пожаловать в SoulKeeper!', sub:'Аккаунт создан', time:new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}];
+  saveUserData();
+  showApp();
+  setTimeout(() => showOnboarding(), 600);
+}
+
+function doLogout() {
+  DB.remove('user');
+  STATE = {user:null, secrets:[], bio:[], messages:[], relatives:[], notifications:[], settings:{}, swPeriod:7, swDays:7, executor:null};
+  showLanding();
 }
 
 // ═══════════════════════════════════════════
@@ -2382,7 +2239,6 @@ function initApp() {
   initSwitchCanvas();
   goPage('dash');
   setTimeout(() => initGlobe(), 400);
-  setTimeout(() => { _injectDemoPending(); initConnections(); }, 300);
 }
 
 function setText(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
@@ -2407,10 +2263,6 @@ function goPage(name) {
     else { renderGlobeList(); updateGlobeMarkers(); }
   }
   if(name === 'db') { updateDbStats(); renderDbLog(); }
-  // ДОБАВЬ ЭТО:
-  if(name === 'connections') renderConnections();
-  const mainTabs = ['dash','secrets','connections','tree'];
-  if(mainTabs.includes(name)) mobSetActive(name);
 }
 
 // ═══════════════════════════════════════════
@@ -2978,13 +2830,6 @@ function initGlobe() {
   }
   animateGlobe();
   globeInit = true;
-}
-
-async function resendVerify() {
-  if (window._fbAuth?.currentUser) {
-    await window._fbFns.sendEmailVerification(window._fbAuth.currentUser);
-    toast('✓ Письмо отправлено повторно');
-  }
 }
 
 function updateGlobeMarkers() {
@@ -3594,8 +3439,13 @@ function initTicker() {
 // AUTO-LOGIN CHECK
 // ═══════════════════════════════════════════
 function checkAutoLogin() {
-  // Теперь обрабатывается через onAuthStateChanged в Firebase модуле
-  // Оставляем пустой чтобы не было ошибок
+  const saved = DB.load('user');
+  if(saved) {
+    STATE.user = saved;
+    loadUserData();
+    showScreen('app');
+    initApp();
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -3864,28 +3714,29 @@ function _injectDemoPending() {
   DB.save('conn_demo_injected_' + email, true);
 }
 
+// ═══════════════════════════════════════════
+// PATCH goPage — add connections rendering + mobile nav sync
+// ═══════════════════════════════════════════
+const _origGoPage = goPage;
+goPage = function(name) {
+  _origGoPage(name);
+  if (name === 'connections') renderConnections();
+  // sync mobile nav for main tabs
+  const mainTabs = ['dash','secrets','connections','tree'];
+  if (mainTabs.includes(name)) mobSetActive(name);
+};
 
 // ═══════════════════════════════════════════
 // PATCH initApp — init connections after app loads
 // ═══════════════════════════════════════════
-function initApp() {
-  const u = STATE.user;
-  if(!u) return;
-  const firstName = u.name.split(' ')[0];
-  setText('user-name-top', firstName);
-  setText('dash-name', firstName);
-  setText('user-avatar-btn', firstName.charAt(0).toUpperCase());
-  setText('dash-date', new Date().toLocaleDateString('ru', {weekday:'long', year:'numeric', month:'long', day:'numeric'}));
-  fillSettings();
-  renderAll();
-  updateSwitchUI();
-  renderNotifs();
-  updateDbStats();
-  initSwitchCanvas();
-  goPage('dash');
-  setTimeout(() => initGlobe(), 400);
-  setTimeout(() => { _injectDemoPending(); initConnections(); }, 300);
-}
+const _origInitApp = initApp;
+initApp = function() {
+  _origInitApp();
+  setTimeout(() => {
+    _injectDemoPending();
+    initConnections();
+  }, 300);
+};
 
 // ═══════════════════════════════════════════
 // MOBILE NAV JS
