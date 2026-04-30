@@ -2413,19 +2413,33 @@ function doLogout() {
   STATE = { user:null, secrets:[], bio:[], messages:[], relatives:[], notifications:[], settings:{}, swPeriod:7, swDays:7, executor:null };
   showLanding();
 }
-
 function showResetPass() {
   const email = document.getElementById('login-email')?.value.trim();
+  const err = document.getElementById('login-err');
+  
   if (!email) {
-    const err = document.getElementById('login-err');
-    if (err) { err.textContent = 'Введите email выше'; err.style.display = 'block'; }
+    if (err) { err.textContent = 'Сначала введите email выше'; err.style.display = 'block'; }
     return;
   }
+
   try {
     await window._fbFns.sendPasswordResetEmail(window._fbAuth, email);
-    toast('✓ Письмо для сброса пароля отправлено на ' + email);
+    if (err) { 
+      err.style.color = 'var(--green)';
+      err.textContent = '✓ Письмо отправлено на ' + email + '. Проверьте папку Спам'; 
+      err.style.display = 'block'; 
+    }
   } catch(e) {
-    toast('Ошибка: ' + e.message);
+    const msgs = {
+      'auth/user-not-found': 'Пользователь с таким email не найден',
+      'auth/invalid-email': 'Неверный формат email',
+      'auth/too-many-requests': 'Слишком много запросов, подождите',
+    };
+    if (err) { 
+      err.style.color = 'var(--red)';
+      err.textContent = msgs[e.code] || e.message; 
+      err.style.display = 'block'; 
+    }
   }
 }
 
