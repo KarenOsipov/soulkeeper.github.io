@@ -1172,7 +1172,7 @@ body::before {
             <li><span class="check">✓</span> Страж жизни</li>
             <li><span class="check">✓</span> Экспорт PDF + JSON</li>
           </ul>
-          <button class="l-plan-btn" onclick="showAuth('register')">Выбрать план</button>
+          <button class="l-plan-btn" onclick="showAuthAndUpgrade('keeper')">Выбрать план</button>
         </div>
         <div class="l-plan anim-reveal">
           <div class="l-plan-name">Наследие</div>
@@ -1338,6 +1338,11 @@ body::before {
       <div class="nav-item" onclick="goPage('ai')" id="nav-ai"><span class="nav-icon">🤖</span><span>AI Мудрец</span></div>
       <div class="nav-item" onclick="goPage('db')" id="nav-db"><span class="nav-icon">🗄️</span><span>База данных</span></div>
       <div class="nav-item" onclick="goPage('settings')" id="nav-settings"><span class="nav-icon">⚙️</span><span>Настройки</span></div>
+      <div class="nav-item" onclick="goPage('subscription')" id="nav-subscription">
+        <span class="nav-icon">💎</span>
+        <span>Подписка</span>
+        <span class="nav-badge" id="sub-badge" style="background:var(--gold)">активна</span>
+      </div>
 
       <div class="sidebar-switch">
         <div class="sw-label">Страж жизни</div>
@@ -1648,6 +1653,10 @@ body::before {
               <div class="field"><label>Город</label><input type="text" id="set-city" placeholder="Ваш город"></div>
               <button class="btn-gold" onclick="saveSettings()">Сохранить</button>
             </div>
+              <div class="section-label" style="margin-top:1rem">💎 Подписка</div>
+              <div class="card" id="settings-sub-card">
+  <!-- сюда динамически подставится информация -->
+            </div>
           </div>
           <div>
             <div class="section-label">Безопасность</div>
@@ -1748,6 +1757,13 @@ body::before {
           </div>
         </div>
       </div>
+      <!-- Subscription Page -->
+<div class="page" id="page-subscription">
+  <div class="page-header">
+    <div><div class="page-title">Моя <em>подписка</em></div><div class="page-sub">Управление тарифом и оплата</div></div>
+  </div>
+  <div id="subscription-container"></div>
+</div>
 
     </main>
   </div>
@@ -2270,12 +2286,13 @@ function initApp() {
   setTimeout(() => initGlobe(), 400);
   setTimeout(() => { _injectDemoPending(); initConnections(); }, 300);
    const plan = getUserPlan();
-  const planBadge = document.createElement('div');
+  const subBadge = document.getElementById('sub-badge');
   planBadge.className = 'plan-badge';
   planBadge.style.cssText = 'position:fixed; bottom:16px; left:16px; background:var(--ink3); border:1px solid var(--gold); padding:6px 12px; border-radius:20px; font-size:0.7rem; z-index:100; backdrop-filter:blur(8px); cursor:pointer';
   planBadge.innerHTML = `💎 ${plan.name} ${plan.price > 0 ? '• активна' : ''}`;
   planBadge.onclick = () => openModal('modal-upgrade');
-  if(!document.querySelector('.plan-badge')) document.body.appendChild(planBadge);
+  if(subBadge) subBadge.textContent = plan.name === 'Страж' ? 'бесплатно' : 'активна';
+  
   
   // Проверка доступа к Стражу
   if(window.location.hash === '#switch' || document.getElementById('page-switch').classList.contains('active')) {
@@ -2308,6 +2325,7 @@ function goPage(name) {
   if(name === 'connections') renderConnections();
   const mainTabs = ['dash','secrets','connections','tree'];
   if(mainTabs.includes(name)) mobSetActive(name);
+  if(name === 'subscription') renderSubscriptionPage();
 }
 
 // ═══════════════════════════════════════════
@@ -2449,6 +2467,25 @@ function deleteBio(id) {
   STATE.bio = STATE.bio.filter(c => c.id !== id);
   saveUserData(); renderBio(); updateDashStats();
   toast('Глава удалена');
+}
+
+function showAuthAndUpgrade(planId) {
+  if(STATE.user) {
+    openPaymentModal(planId);
+  } else {
+    showAuth('register');
+    // Сохраняем план для активации после регистрации
+    sessionStorage.setItem('pendingPlan', planId);
+  }
+}
+
+// В doRegister и doDemoLogin добавить проверку:
+// После STATE.user = user; добавить:
+const pendingPlan = sessionStorage.getItem('pendingPlan');
+if(pendingPlan && PLANS[pendingPlan]) {
+  setUserPlan(pendingPlan, 1);
+  sessionStorage.removeItem('pendingPlan');
+  toast(`🎉 Тариф «${PLANS[pendingPlan].name}» активирован!`);
 }
 
 // ═══════════════════════════════════════════
@@ -3865,6 +3902,152 @@ function closeMobDrawer() {
   document.getElementById('mob-drawer-scrim')?.classList.remove('open');
 }
 function mobFabAction() { openModal('modal-secret'); }
+
+// ========== ПОДПИСКА И ОПЛАТА ==========
+let currentPaymentPlan = null;
+
+function renderSubscriptionPage() {
+  const container = document.getElementById('subscription-container');
+  if(!container) return;
+  const plan = getUserPlan();
+  const expiry = DB.load('plan_expiry_' + STATE.user.email, 0);
+  const daysLeft = expiry ? Math.max(0, Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
+  
+  container.innerHTML = `
+    <div class="card-grid grid-2">
+      <div>
+        <div class="section-label">Текущий тариф</div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:3rem; margin-bottom:0.5rem">${plan.name === 'Страж' ? '🛡️' : plan.name === 'Хранитель' ? '🔱' : '👑'}</div>
+          <div style="font-family:var(--serif); font-size:2rem; color:var(--gold2)">${plan.name}</div>
+          ${plan.price > 0 ? `<div style="color:var(--muted); margin-top:0.3rem">${plan.price} ₸ / месяц</div>` : '<div style="color:var(--green)">Бесплатно · навсегда</div>'}
+          ${daysLeft > 0 ? `<div class="tag tag-green" style="margin-top:0.8rem">✅ Активна до ${new Date(expiry).toLocaleDateString('ru')} (${daysLeft} дн.)</div>` : plan.price > 0 ? '<div class="tag tag-red" style="margin-top:0.8rem">❌ Истекла</div>' : ''}
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Доступные возможности</div>
+        <div class="card">
+          <ul style="list-style:none">
+            <li style="padding:0.3rem 0">🔐 Тайны: ${plan.maxSecrets === 999 ? '∞' : plan.maxSecrets}</li>
+            <li style="padding:0.3rem 0">📖 Главы биографии: ${plan.maxBioChapters === 999 ? '∞' : plan.maxBioChapters}</li>
+            <li style="padding:0.3rem 0">👥 Родственники: ${plan.maxRelatives === 999 ? '∞' : plan.maxRelatives}</li>
+            <li style="padding:0.3rem 0">⏳ Страж жизни: ${plan.hasSwitch ? '✅ Да' : '❌ Нет'}</li>
+            <li style="padding:0.3rem 0">📤 Экспорт данных: ${plan.hasExport ? '✅ Да' : '❌ Нет'}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="section-label" style="margin-top:1.5rem">Доступные тарифы</div>
+    <div class="l-pricing-grid" style="grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:0.5rem">
+      <div class="l-plan" style="padding:1.5rem">
+        <div class="l-plan-name">Страж</div>
+        <div class="l-plan-price">₸0</div>
+        <div class="l-plan-period">навсегда</div>
+        <ul class="l-plan-features" style="font-size:0.75rem">
+          <li>✓ До 5 тайн</li><li>✓ 3 главы</li><li>✓ 5 родственников</li>
+        </ul>
+        <button class="l-plan-btn" onclick="upgradeToPlan('free')">Выбрать</button>
+      </div>
+      <div class="l-plan featured" style="padding:1.5rem">
+        <div class="l-plan-name">Хранитель</div>
+        <div class="l-plan-price">₸2 490 <span>/мес</span></div>
+        <ul class="l-plan-features" style="font-size:0.75rem">
+          <li>✓ Безлимит тайн</li><li>✓ Безлимит биографии</li><li>✓ Страж жизни</li>
+        </ul>
+        <button class="l-plan-btn" onclick="openPaymentModal('keeper')">Купить</button>
+      </div>
+      <div class="l-plan" style="padding:1.5rem">
+        <div class="l-plan-name">Наследие</div>
+        <div class="l-plan-price">₸5 990 <span>/мес</span></div>
+        <ul class="l-plan-features" style="font-size:0.75rem">
+          <li>✓ Всё из Хранителя</li><li>✓ 5 аккаунтов семьи</li><li>✓ Печатная книга</li>
+        </ul>
+        <button class="l-plan-btn" onclick="openPaymentModal('legacy')">Купить</button>
+      </div>
+    </div>
+  `;
+  
+  // Обновить в настройках
+  const settingsCard = document.getElementById('settings-sub-card');
+  if(settingsCard) {
+    settingsCard.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <div>
+          <div style="font-weight:400">Тариф: <span style="color:var(--gold2)">${plan.name}</span></div>
+          <div style="font-size:0.75rem; color:var(--muted)">${plan.price > 0 ? `${plan.price} ₸/мес` : 'Бесплатный'}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="goPage('subscription')">Управлять →</button>
+      </div>
+    `;
+  }
+}
+
+function openPaymentModal(planId) {
+  currentPaymentPlan = planId;
+  const plan = PLANS[planId];
+  document.getElementById('pay-plan-name').textContent = plan.name;
+  document.getElementById('pay-plan-price').innerHTML = `${plan.price} <span style="font-size:1rem">₸</span>`;
+  document.getElementById('pay-plan-period').textContent = '/мес';
+  openModal('modal-payment');
+}
+
+function processPayment() {
+  const period = document.getElementById('payment-period').value;
+  const months = parseInt(period);
+  const planId = currentPaymentPlan;
+  if(!planId || !PLANS[planId]) return;
+  
+  // Симуляция оплаты
+  const loading = toast('⏳ Обработка платежа...');
+  
+  setTimeout(() => {
+    const success = setUserPlan(planId, months);
+    if(success) {
+      const plan = PLANS[planId];
+      toast(`✅ Оплачено! Тариф «${plan.name}» активирован на ${months} месяц(ев)`);
+      closeModal('modal-payment');
+      renderSubscriptionPage();
+      // Обновить план-бейдж
+      const badge = document.querySelector('.plan-badge');
+      if(badge) badge.innerHTML = `💎 ${plan.name} • активна`;
+      // Обновить настройки
+      const planBadge = document.getElementById('sub-badge');
+      if(planBadge) planBadge.textContent = plan.name === 'Страж' ? 'бесплатно' : 'активна';
+      // Перерисовать страницы с учетом новых лимитов
+      renderSecrets();
+      renderBio();
+      renderMessages();
+      renderRelatives();
+    } else {
+      toast('❌ Ошибка активации');
+    }
+  }, 1500);
+}
+
+function cancelSubscription() {
+  if(!confirm('Отменить подписку? Доступ к платным функциям сохранится до конца оплаченного периода.')) return;
+  // В реальном приложении — отмена через API
+  toast('Подписка отменена. Тариф останется активным до окончания срока.');
+}
+
+// Переопределяем upgradeToPlan (чтобы работало с лендинга)
+function upgradeToPlan(planId) {
+  if(planId === 'free') {
+    if(confirm('Переключиться на бесплатный тариф? Платные функции станут недоступны.')) {
+      setUserPlan('free', 0);
+      toast('✅ Бесплатный тариф активирован');
+      if(globeInit) location.reload();
+      else renderSubscriptionPage();
+    }
+    return;
+  }
+  openPaymentModal(planId);
+}
+
+// Добавить в goPage вызов отрисовки подписки
+// Найти функцию goPage и добавить внутри:
+// if(name === 'subscription') renderSubscriptionPage();
+
 </script>
 <!-- MODAL UPGRADE (добавить перед </body>) -->
 <div class="modal-overlay" id="modal-upgrade">
@@ -3901,6 +4084,39 @@ function mobFabAction() { openModal('modal-secret'); }
         </div>
       </div>
       <div style="margin-top:1rem; font-size:0.7rem; text-align:center; color:var(--gold)">💳 После оплаты тариф активируется мгновенно</div>
+    </div>
+  </div>
+</div>
+<!-- Modal Payment -->
+<div class="modal-overlay" id="modal-payment">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><div class="modal-title">Оплата подписки</div><button class="modal-close" onclick="closeModal('modal-payment')">✕</button></div>
+    <div class="modal-body">
+      <div id="payment-plan-info" style="text-align:center; margin-bottom:1.5rem">
+        <div class="l-plan-name" id="pay-plan-name">Хранитель</div>
+        <div class="l-plan-price" id="pay-plan-price" style="font-size:2.5rem">₸2 490</div>
+        <div class="l-plan-period" id="pay-plan-period">/мес</div>
+      </div>
+      <div class="field"><label>Способ оплаты</label>
+        <select id="payment-method" style="width:100%; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.2); color:var(--ivory)">
+          <option value="card">💳 Банковская карта (Visa/Mastercard)</option>
+          <option value="kaspi">🏦 Kaspi.kz</option>
+          <option value="halyk">🏦 Halyk Bank</option>
+        </select>
+      </div>
+      <div class="field"><label>Период</label>
+        <select id="payment-period" style="width:100%; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.2); color:var(--ivory)">
+          <option value="1">1 месяц</option>
+          <option value="12">12 месяцев (скидка 26%)</option>
+        </select>
+      </div>
+      <div style="background:var(--ink3); padding:1rem; margin:1rem 0; border-radius:4px; font-size:0.8rem">
+        🔒 Демо-режим: оплата не списывается. Нажмите "Оплатить" для активации подписки.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-payment')">Отмена</button>
+      <button class="btn btn-primary-sm" onclick="processPayment()">💳 Оплатить</button>
     </div>
   </div>
 </div>
