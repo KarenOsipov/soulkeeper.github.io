@@ -948,13 +948,12 @@ body::before {
 }
 
 </style>
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
            signOut, onAuthStateChanged, sendPasswordResetEmail }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, collection }
+  import { getFirestore, doc, setDoc, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -978,27 +977,30 @@ body::before {
     signOut,
     onAuthStateChanged,
     sendPasswordResetEmail,
-    doc, setDoc, getDoc, collection
+    doc, setDoc, getDoc
   };
 
-  // Автологин через Firebase
   onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      try {
-        const snap = await getDoc(doc(db, 'users', user.uid));
-        const profile = snap.exists() ? snap.data() : {};
-        STATE.user = {
-          uid: user.uid,
-          email: user.email,
-          name: profile.name || user.email.split('@')[0]
-        };
-        loadUserData();
-        if (document.getElementById('screen-app').classList.contains('active')) return;
-        showScreen('app');
-        initApp();
-      } catch(e) {
-        console.error('Auth state error:', e);
-      }
+    if (!user) return;
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      const profile = snap.exists() ? snap.data() : {};
+      window._fbCurrentUser = {
+        uid: user.uid,
+        email: user.email,
+        name: profile.name || user.email.split('@')[0]
+      };
+      // Вызываем через timeout чтобы основной скрипт успел загрузиться
+      setTimeout(() => {
+        if (typeof STATE !== 'undefined' && !STATE.user) {
+          STATE.user = window._fbCurrentUser;
+          loadUserData();
+          showScreen('app');
+          initApp();
+        }
+      }, 500);
+    } catch(e) {
+      console.error('Firebase auth state error:', e);
     }
   });
 </script>
@@ -2185,6 +2187,7 @@ function saveUserData() {
   updateDbStats();
 }
 
+// ОСТАВЬ ТОЛЬКО ЭТУ, вторую удали:
 function loadUserData() {
   if(!STATE.user) return;
   const e = STATE.user.uid || STATE.user.email;
@@ -2205,46 +2208,6 @@ function loadUserData() {
   STATE.executor = load('executor', null);
   STATE.settings = load('settings', {});
 }
-
-function loadUserData() {
-  if(!STATE.user) return;
-  const e = STATE.user.email;
-  const load = (key, def) => {
-    try {
-      const v = localStorage.getItem('sk_'+key+'_'+e);
-      return v ? JSON.parse(v) : def;
-    } catch { return def; }
-  };
-  STATE.secrets = load('secrets', []);
-  STATE.bio = load('bio', []);
-  STATE.messages = load('msgs', []);
-  STATE.relatives = load('rels', []);
-  STATE.notifications = load('notifs', []);
-  const sw = load('sw', {period:7, days:7});
-  STATE.swPeriod = sw.period;
-  STATE.swDays = sw.days;
-  STATE.executor = load('executor', null);
-  STATE.settings = load('settings', {});
-}
-
-// ═══════════════════════════════════════════
-// SCREEN ROUTING
-// ═══════════════════════════════════════════
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-'+id).classList.add('active');
-  if(id === 'landing') window.scrollTo(0,0);
-}
-function showLanding() { showScreen('landing'); }
-function showAuth(tab = 'login') {
-  showScreen('auth');
-  switchAuthTab(tab);
-}
-function showApp() {
-  showScreen('app');
-  initApp();
-}
-
 // ═══════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════
@@ -2254,11 +2217,12 @@ function switchAuthTab(tab) {
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('form-'+tab).classList.add('active');
 }
-function doLogin() {
+
+async function doLogin() {
   const email = document.getElementById('login-email')?.value.trim();
   const pass = document.getElementById('login-pass')?.value;
   const err = document.getElementById('login-err');
-  if (err) err.style.display = 'none';
+  if (err) { err.style.display = 'none'; err.style.color = 'var(--red)'; }
 
   if (!email || !pass) {
     if (err) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; }
@@ -2287,68 +2251,18 @@ function doLogin() {
       'auth/too-many-requests': 'Слишком много попыток. Подождите',
       'auth/invalid-credential': 'Неверный email или пароль',
     };
-    if (err) {
-      err.textContent = msgs[e.code] || 'Ошибка: ' + e.message;
-      err.style.display = 'block';
-    }
+    if (err) { err.textContent = msgs[e.code] || 'Ошибка: ' + e.message; err.style.display = 'block'; }
   } finally {
     if (btn) btn.textContent = 'Войти';
   }
 }
-  
-  const usersRaw = localStorage.getItem('sk_users');
-  const users = usersRaw ? JSON.parse(usersRaw) : [];
-  const user = users.find(u => u.email === email && u.pass === btoa(pass));
-  
-  if (user) {
-    localStorage.setItem('sk_user', JSON.stringify(user));
-    STATE.user = user;
-    loadUserData();
-    showApp();
-  } else {
-    if (err) { err.textContent = 'Неверный email или пароль'; err.style.display = 'block'; }
-  }
-}
 
-function doDemoLogin() {
-  const demo = {name: 'Демо Пользователь', email: 'demo@soulkeeper.app', pass: btoa('demo123'), isDemo: true};
-  STATE.user = demo;
-  localStorage.setItem('sk_user', JSON.stringify(demo));
-  
-  const existing = localStorage.getItem('sk_secrets_demo@soulkeeper.app');
-  if(!existing) {
-    STATE.secrets = [
-      {id:uid(), title:'Пароль от банка', category:'password', content:'[Зашифровано] •••••••••', access:'private', date:new Date().toLocaleDateString('ru')},
-      {id:uid(), title:'Завещание', category:'document', content:'Квартира переходит старшему сыну...', access:'after_death', date:new Date().toLocaleDateString('ru')},
-      {id:uid(), title:'Тайна семьи', category:'personal', content:'Никто не знает что...', access:'heir', date:new Date().toLocaleDateString('ru')},
-    ];
-    STATE.bio = [{id:uid(), title:'Детство', period:'1970–1985', content:'Родился в небольшом городке...', date:new Date().toLocaleDateString('ru')}];
-    STATE.messages = [{id:uid(), to:'Сын', subject:'На твою свадьбу', content:'Дорогой сын...', trigger:'wedding', date:new Date().toLocaleDateString('ru')}];
-    STATE.relatives = [
-      {id:uid(), name:'Анна Иванова', rel:'Дочь', access:'heir', email:'anna@example.com', lat:55.7558, lon:37.6173, city:'Москва, Россия'},
-      {id:uid(), name:'Сергей Иванов', rel:'Сын', access:'heir', email:'sergey@example.com', lat:51.1801, lon:71.4460, city:'Астана, Казахстан'},
-      {id:uid(), name:'Мария Петрова', rel:'Сестра', access:'trusted', email:'maria@example.com', lat:48.8566, lon:2.3522, city:'Париж, Франция'},
-      {id:uid(), name:'Игорь Козлов', rel:'Брат', access:'observer', email:'igor@example.com', lat:40.7128, lon:-74.0060, city:'Нью-Йорк, США'},
-    ];
-    STATE.notifications = [{id:uid(), title:'Добро пожаловать в SoulKeeper', sub:'Демо-режим', time:'сейчас'}];
-    STATE.swPeriod = 7;
-    STATE.swDays = 7;
-    STATE.executor = null;
-    STATE.settings = {};
-    saveUserData();
-  } else {
-    loadUserData();
-  }
-  showApp();
-  setTimeout(() => showOnboarding(), 600);
-}
-
-function doRegister() {
+async function doRegister() {
   const name = document.getElementById('reg-name')?.value.trim();
   const email = document.getElementById('reg-email')?.value.trim();
   const pass = document.getElementById('reg-pass')?.value;
   const err = document.getElementById('reg-err');
-  if (err) err.style.display = 'none';
+  if (err) { err.style.display = 'none'; err.style.color = 'var(--red)'; }
 
   if (!name || !email || !pass) {
     if (err) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; }
@@ -2364,19 +2278,10 @@ function doRegister() {
 
   try {
     const cred = await window._fbFns.createUserWithEmailAndPassword(window._fbAuth, email, pass);
-    
-    // Сохраняем профиль в Firestore
     await window._fbFns.setDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid), {
-      name: name,
-      email: email,
-      createdAt: new Date().toISOString()
+      name, email, createdAt: new Date().toISOString()
     });
-
-    STATE.user = {
-      uid: cred.user.uid,
-      email: email,
-      name: name
-    };
+    STATE.user = { uid: cred.user.uid, email, name };
     STATE.secrets = [];
     STATE.bio = [];
     STATE.messages = [];
@@ -2386,7 +2291,6 @@ function doRegister() {
     STATE.swDays = 7;
     STATE.executor = null;
     STATE.settings = {};
-
     saveUserData();
     showApp();
     setTimeout(() => showOnboarding(), 600);
@@ -2396,51 +2300,67 @@ function doRegister() {
       'auth/invalid-email': 'Неверный формат email',
       'auth/weak-password': 'Пароль слишком простой',
     };
-    if (err) {
-      err.textContent = msgs[e.code] || 'Ошибка: ' + e.message;
-      err.style.display = 'block';
-    }
+    if (err) { err.textContent = msgs[e.code] || 'Ошибка: ' + e.message; err.style.display = 'block'; }
   } finally {
     if (btn) btn.textContent = 'Создать аккаунт';
   }
 }
 
-
-function doLogout() {
-  try {
-    if (window._fbAuth) await window._fbFns.signOut(window._fbAuth);
-  } catch(e) {}
+async function doLogout() {
+  try { if (window._fbAuth) await window._fbFns.signOut(window._fbAuth); } catch(e) {}
   STATE = { user:null, secrets:[], bio:[], messages:[], relatives:[], notifications:[], settings:{}, swPeriod:7, swDays:7, executor:null };
   showLanding();
 }
-function showResetPass() {
+
+async function showResetPass() {
   const email = document.getElementById('login-email')?.value.trim();
   const err = document.getElementById('login-err');
-  
   if (!email) {
-    if (err) { err.textContent = 'Сначала введите email выше'; err.style.display = 'block'; }
+    if (err) { err.style.color='var(--red)'; err.textContent = 'Введите email выше'; err.style.display = 'block'; }
     return;
   }
-
   try {
     await window._fbFns.sendPasswordResetEmail(window._fbAuth, email);
-    if (err) { 
-      err.style.color = 'var(--green)';
-      err.textContent = '✓ Письмо отправлено на ' + email + '. Проверьте папку Спам'; 
-      err.style.display = 'block'; 
-    }
+    if (err) { err.style.color='var(--green)'; err.textContent = '✓ Письмо отправлено на ' + email + '. Проверьте Спам'; err.style.display = 'block'; }
   } catch(e) {
     const msgs = {
-      'auth/user-not-found': 'Пользователь с таким email не найден',
+      'auth/user-not-found': 'Email не найден',
       'auth/invalid-email': 'Неверный формат email',
-      'auth/too-many-requests': 'Слишком много запросов, подождите',
+      'auth/too-many-requests': 'Слишком много запросов',
     };
-    if (err) { 
-      err.style.color = 'var(--red)';
-      err.textContent = msgs[e.code] || e.message; 
-      err.style.display = 'block'; 
-    }
+    if (err) { err.style.color='var(--red)'; err.textContent = msgs[e.code] || e.message; err.style.display = 'block'; }
   }
+}
+
+function doDemoLogin() {
+  const demo = { name: 'Демо Пользователь', email: 'demo@soulkeeper.app', uid: 'demo-uid', isDemo: true };
+  STATE.user = demo;
+  const existing = localStorage.getItem('sk_secrets_demo-uid');
+  if (!existing) {
+    STATE.secrets = [
+      {id:uid(), title:'Пароль от банка', category:'password', content:'[Зашифровано]', access:'private', date:new Date().toLocaleDateString('ru')},
+      {id:uid(), title:'Завещание', category:'document', content:'Квартира переходит старшему сыну...', access:'after_death', date:new Date().toLocaleDateString('ru')},
+    ];
+    STATE.bio = [{id:uid(), title:'Детство', period:'1970–1985', content:'Родился в небольшом городке...', date:new Date().toLocaleDateString('ru')}];
+    STATE.messages = [{id:uid(), to:'Сын', subject:'На твою свадьбу', content:'Дорогой сын...', trigger:'wedding', date:new Date().toLocaleDateString('ru')}];
+    STATE.relatives = [
+      {id:uid(), name:'Анна Иванова', rel:'Дочь', access:'heir', email:'anna@example.com', lat:55.7558, lon:37.6173, city:'Москва, Россия'},
+      {id:uid(), name:'Сергей Иванов', rel:'Сын', access:'heir', email:'sergey@example.com', lat:51.1801, lon:71.4460, city:'Астана, Казахстан'},
+      {id:uid(), name:'Мария Петрова', rel:'Сестра', access:'trusted', email:'maria@example.com', lat:48.8566, lon:2.3522, city:'Париж, Франция'},
+      {id:uid(), name:'Игорь Козлов', rel:'Брат', access:'observer', email:'igor@example.com', lat:40.7128, lon:-74.0060, city:'Нью-Йорк, США'},
+    ];
+    STATE.notifications = [{id:uid(), title:'Добро пожаловать в SoulKeeper', sub:'Демо-режим', time:'сейчас'}];
+    STATE.swPeriod = 7; STATE.swDays = 7; STATE.executor = null; STATE.settings = {};
+    saveUserData();
+  } else {
+    loadUserData();
+  }
+  showApp();
+  setTimeout(() => showOnboarding(), 600);
+}
+
+function checkAutoLogin() {
+  // Управляется через onAuthStateChanged в Firebase модуле
 }
 
 // ═══════════════════════════════════════════
@@ -2462,6 +2382,7 @@ function initApp() {
   initSwitchCanvas();
   goPage('dash');
   setTimeout(() => initGlobe(), 400);
+  setTimeout(() => { _injectDemoPending(); initConnections(); }, 300);
 }
 
 function setText(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
