@@ -950,27 +950,33 @@ body::before {
 </style>
 <!-- Firebase SDK -->
 <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+           signOut, sendEmailVerification, sendPasswordResetEmail }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   const firebaseConfig = {
     apiKey: "AIzaSyBj_FKvzjcUlTNytspwD7Wwl3CkENZJM9w",
     authDomain: "soulkeeper-001.firebaseapp.com",
     projectId: "soulkeeper-001",
     storageBucket: "soulkeeper-001.firebasestorage.app",
     messagingSenderId: "959264625043",
-    appId: "1:959264625043:web:ccbb1dcdd789bc4ddd9866",
-    measurementId: "G-07SK4LWQ0L"
+    appId: "1:959264625043:web:ccbb1dcdd789bc4ddd9866"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  window._fbAuth = getAuth(app);
+  window._fbDb   = getFirestore(app);
+  window._fbFns  = {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut,
+    sendEmailVerification,
+    sendPasswordResetEmail,
+    doc, setDoc, getDoc
+  };
 </script>
 </head>
 <body>
@@ -1295,7 +1301,7 @@ body::before {
 <!-- ════════════════════════════════════════════
      AUTH SCREEN
 ════════════════════════════════════════════ -->
-<div id="screen-auth" class="screen">
+  <div id="screen-auth" class="screen">
   <div class="auth-card">
     <div class="auth-logo">
       <svg width="28" height="28" viewBox="0 0 32 32" fill="none" style="display:inline-block;vertical-align:middle;margin-right:10px"><polygon points="16,2 28,12 22,30 10,30 4,12" fill="rgba(201,168,76,0.18)" stroke="#c9a84c" stroke-width="1"/><polygon points="16,2 28,12 16,10" fill="rgba(201,168,76,0.3)"/></svg>SoulKeeper
@@ -1312,8 +1318,19 @@ body::before {
       <div class="field"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="btn-gold" onclick="doLogin()">Войти</button>
       <button class="btn-outline-sm" onclick="doDemoLogin()">◆ Демо-вход (без регистрации)</button>
-      <div class="auth-err" id="login-err">Неверный email или пароль</div>
-    </div>
+
+<!-- ДОБАВИТЬ ЭТУ СТРОКУ: -->
+<div style="text-align:center;margin-top:0.8rem">
+  <span style="font-size:0.75rem;color:var(--muted);cursor:pointer" onclick="showResetPass()">Забыли пароль?</span>
+</div>
+
+<button id="resend-verify-btn" class="btn-outline-sm" 
+  style="display:none;margin-top:0.5rem" 
+  onclick="resendVerify()">
+  Отправить письмо повторно
+</button>
+
+<div class="auth-err" id="login-err">Неверный email или пароль</div>
 
     <!-- REGISTER -->
     <div class="auth-form" id="form-register">
@@ -2199,24 +2216,52 @@ async function doLogin() {
   const pass  = document.getElementById('login-pass').value;
   const err   = document.getElementById('login-err');
   err.style.display = 'none';
-  if (!email || !pass) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; return; }
+
+  if (!email || !pass) { 
+    err.textContent = 'Заполните все поля'; 
+    err.style.display = 'block'; 
+    return; 
+  }
 
   if (window._fbAuth) {
     try {
       const cred = await window._fbFns.signInWithEmailAndPassword(window._fbAuth, email, pass);
+      
+      if (!cred.user.emailVerified) {
+        err.textContent = 'Подтвердите email — проверьте почту';
+        err.style.display = 'block';
+        const resendBtn = document.getElementById('resend-verify-btn');
+        if (resendBtn) resendBtn.style.display = 'block';
+        return;
+      }
+
       const snap = await window._fbFns.getDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid));
       STATE.user = snap.exists() ? snap.data() : { name: email.split('@')[0], email, uid: cred.user.uid };
-      loadUserData(); showApp();
+      loadUserData(); 
+      showApp();
     } catch(e) {
-      err.textContent = e.code === 'auth/invalid-credential' ? 'Неверный email или пароль' : e.message;
+      const msgs = {
+        'auth/invalid-credential': 'Неверный email или пароль',
+        'auth/user-not-found': 'Пользователь не найден',
+        'auth/wrong-password': 'Неверный пароль',
+        'auth/invalid-email': 'Некорректный email',
+        'auth/too-many-requests': 'Слишком много попыток. Подождите'
+      };
+      err.textContent = msgs[e.code] || e.message;
       err.style.display = 'block';
     }
   } else {
-    // Оставить старую логику как fallback
     const users = DB.load('users', []);
-    const user  = users.find(u => u.email === email && u.pass === btoa(pass));
-    if (!user) { err.textContent = 'Неверный email или пароль'; err.style.display = 'block'; return; }
-    DB.save('user', user); STATE.user = user; loadUserData(); showApp();
+    const user = users.find(u => u.email === email && u.pass === btoa(pass));
+    if (!user) { 
+      err.textContent = 'Неверный email или пароль'; 
+      err.style.display = 'block'; 
+      return; 
+    }
+    DB.save('user', user); 
+    STATE.user = user; 
+    loadUserData(); 
+    showApp();
   }
 }
 
@@ -2246,6 +2291,24 @@ function doDemoLogin() {
   setTimeout(() => showOnboarding(), 600);
 }
 
+function showResetPass() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { 
+    const err = document.getElementById('login-err');
+    err.textContent = 'Введите email выше, затем нажмите «Забыли пароль?»';
+    err.style.display = 'block';
+    return; 
+  }
+  if (window._fbAuth && window._fbFns) {
+    import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js')
+      .then(m => m.sendPasswordResetEmail(window._fbAuth, email))
+      .then(() => toast('✓ Письмо для сброса пароля отправлено на ' + email))
+      .catch(e => toast('Ошибка: ' + e.message));
+  } else {
+    toast('Восстановление пароля доступно только через Firebase');
+  }
+}
+
 async function doRegister() {
   const name  = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim();
@@ -2260,6 +2323,8 @@ async function doRegister() {
       const cred = await window._fbFns.createUserWithEmailAndPassword(window._fbAuth, email, pass);
       const user = { uid: cred.user.uid, name, email, created: new Date().toISOString() };
       await window._fbFns.setDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid), user);
+      await window._fbFns.sendEmailVerification(cred.user);
+toast('✓ Аккаунт создан! Проверьте email — отправили письмо для подтверждения');
       STATE.user = user;
       STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}) }];
       saveUserData(); showApp(); setTimeout(() => showOnboarding(), 600);
@@ -2896,6 +2961,13 @@ function initGlobe() {
   }
   animateGlobe();
   globeInit = true;
+}
+
+async function resendVerify() {
+  if (window._fbAuth?.currentUser) {
+    await window._fbFns.sendEmailVerification(window._fbAuth.currentUser);
+    toast('✓ Письмо отправлено повторно');
+  }
 }
 
 function updateGlobeMarkers() {
