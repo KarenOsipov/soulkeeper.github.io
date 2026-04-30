@@ -952,9 +952,9 @@ body::before {
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-           signOut, sendEmailVerification, sendPasswordResetEmail }
+           signOut, onAuthStateChanged, sendPasswordResetEmail }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc }
+  import { getFirestore, doc, setDoc, getDoc, collection }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -967,16 +967,40 @@ body::before {
   };
 
   const app = initializeApp(firebaseConfig);
-  window._fbAuth = getAuth(app);
-  window._fbDb   = getFirestore(app);
-  window._fbFns  = {
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  window._fbAuth = auth;
+  window._fbDb = db;
+  window._fbFns = {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
-    sendEmailVerification,
+    onAuthStateChanged,
     sendPasswordResetEmail,
-    doc, setDoc, getDoc
+    doc, setDoc, getDoc, collection
   };
+
+  // Автологин через Firebase
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        const profile = snap.exists() ? snap.data() : {};
+        STATE.user = {
+          uid: user.uid,
+          email: user.email,
+          name: profile.name || user.email.split('@')[0]
+        };
+        loadUserData();
+        if (document.getElementById('screen-app').classList.contains('active')) return;
+        showScreen('app');
+        initApp();
+      } catch(e) {
+        console.error('Auth state error:', e);
+      }
+    }
+  });
 </script>
 </head>
 <body>
@@ -2149,7 +2173,7 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 
 function saveUserData() {
   if(!STATE.user) return;
-  const e = STATE.user.email;
+  const e = STATE.user.uid || STATE.user.email;
   localStorage.setItem('sk_secrets_'+e, JSON.stringify(STATE.secrets));
   localStorage.setItem('sk_bio_'+e, JSON.stringify(STATE.bio));
   localStorage.setItem('sk_msgs_'+e, JSON.stringify(STATE.messages));
@@ -2159,6 +2183,27 @@ function saveUserData() {
   localStorage.setItem('sk_executor_'+e, JSON.stringify(STATE.executor));
   localStorage.setItem('sk_settings_'+e, JSON.stringify(STATE.settings));
   updateDbStats();
+}
+
+function loadUserData() {
+  if(!STATE.user) return;
+  const e = STATE.user.uid || STATE.user.email;
+  const load = (key, def) => {
+    try {
+      const v = localStorage.getItem('sk_'+key+'_'+e);
+      return v ? JSON.parse(v) : def;
+    } catch { return def; }
+  };
+  STATE.secrets = load('secrets', []);
+  STATE.bio = load('bio', []);
+  STATE.messages = load('msgs', []);
+  STATE.relatives = load('rels', []);
+  STATE.notifications = load('notifs', []);
+  const sw = load('sw', {period:7, days:7});
+  STATE.swPeriod = sw.period;
+  STATE.swDays = sw.days;
+  STATE.executor = load('executor', null);
+  STATE.settings = load('settings', {});
 }
 
 function loadUserData() {
@@ -2214,11 +2259,42 @@ function doLogin() {
   const pass = document.getElementById('login-pass')?.value;
   const err = document.getElementById('login-err');
   if (err) err.style.display = 'none';
-  
+
   if (!email || !pass) {
     if (err) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; }
     return;
   }
+
+  const btn = document.querySelector('#form-login .btn-gold');
+  if (btn) btn.textContent = 'Входим...';
+
+  try {
+    const cred = await window._fbFns.signInWithEmailAndPassword(window._fbAuth, email, pass);
+    const snap = await window._fbFns.getDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid));
+    const profile = snap.exists() ? snap.data() : {};
+    STATE.user = {
+      uid: cred.user.uid,
+      email: cred.user.email,
+      name: profile.name || email.split('@')[0]
+    };
+    loadUserData();
+    showApp();
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found': 'Пользователь не найден',
+      'auth/wrong-password': 'Неверный пароль',
+      'auth/invalid-email': 'Неверный формат email',
+      'auth/too-many-requests': 'Слишком много попыток. Подождите',
+      'auth/invalid-credential': 'Неверный email или пароль',
+    };
+    if (err) {
+      err.textContent = msgs[e.code] || 'Ошибка: ' + e.message;
+      err.style.display = 'block';
+    }
+  } finally {
+    if (btn) btn.textContent = 'Войти';
+  }
+}
   
   const usersRaw = localStorage.getItem('sk_users');
   const users = usersRaw ? JSON.parse(usersRaw) : [];
@@ -2273,7 +2349,7 @@ function doRegister() {
   const pass = document.getElementById('reg-pass')?.value;
   const err = document.getElementById('reg-err');
   if (err) err.style.display = 'none';
-  
+
   if (!name || !email || !pass) {
     if (err) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; }
     return;
@@ -2282,47 +2358,75 @@ function doRegister() {
     if (err) { err.textContent = 'Пароль минимум 6 символов'; err.style.display = 'block'; }
     return;
   }
-  
-  const usersRaw = localStorage.getItem('sk_users');
-  const users = usersRaw ? JSON.parse(usersRaw) : [];
-  
-  if (users.find(u => u.email === email)) {
-    if (err) { err.textContent = 'Email уже зарегистрирован'; err.style.display = 'block'; }
-    return;
+
+  const btn = document.querySelector('#form-register .btn-gold');
+  if (btn) btn.textContent = 'Создаём...';
+
+  try {
+    const cred = await window._fbFns.createUserWithEmailAndPassword(window._fbAuth, email, pass);
+    
+    // Сохраняем профиль в Firestore
+    await window._fbFns.setDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid), {
+      name: name,
+      email: email,
+      createdAt: new Date().toISOString()
+    });
+
+    STATE.user = {
+      uid: cred.user.uid,
+      email: email,
+      name: name
+    };
+    STATE.secrets = [];
+    STATE.bio = [];
+    STATE.messages = [];
+    STATE.relatives = [];
+    STATE.notifications = [{ id: 'welcome', title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: 'только что' }];
+    STATE.swPeriod = 7;
+    STATE.swDays = 7;
+    STATE.executor = null;
+    STATE.settings = {};
+
+    saveUserData();
+    showApp();
+    setTimeout(() => showOnboarding(), 600);
+  } catch(e) {
+    const msgs = {
+      'auth/email-already-in-use': 'Email уже зарегистрирован',
+      'auth/invalid-email': 'Неверный формат email',
+      'auth/weak-password': 'Пароль слишком простой',
+    };
+    if (err) {
+      err.textContent = msgs[e.code] || 'Ошибка: ' + e.message;
+      err.style.display = 'block';
+    }
+  } finally {
+    if (btn) btn.textContent = 'Создать аккаунт';
   }
-  
-  const newUser = {
-    id: Date.now().toString(36),
-    name: name,
-    email: email,
-    pass: btoa(pass),
-    createdAt: new Date().toISOString()
-  };
-  
-  users.push(newUser);
-  localStorage.setItem('sk_users', JSON.stringify(users));
-  localStorage.setItem('sk_user', JSON.stringify(newUser));
-  
-  STATE.user = newUser;
-  STATE.secrets = [];
-  STATE.bio = [];
-  STATE.messages = [];
-  STATE.relatives = [];
-  STATE.notifications = [{ id: 'welcome', title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: 'только что' }];
-  STATE.swPeriod = 7;
-  STATE.swDays = 7;
-  STATE.executor = null;
-  STATE.settings = {};
-  
-  saveUserData();
-  showApp();
-  setTimeout(() => showOnboarding(), 600);
 }
 
+
 function doLogout() {
-  localStorage.removeItem('sk_user');
+  try {
+    if (window._fbAuth) await window._fbFns.signOut(window._fbAuth);
+  } catch(e) {}
   STATE = { user:null, secrets:[], bio:[], messages:[], relatives:[], notifications:[], settings:{}, swPeriod:7, swDays:7, executor:null };
   showLanding();
+}
+
+function showResetPass() {
+  const email = document.getElementById('login-email')?.value.trim();
+  if (!email) {
+    const err = document.getElementById('login-err');
+    if (err) { err.textContent = 'Введите email выше'; err.style.display = 'block'; }
+    return;
+  }
+  try {
+    await window._fbFns.sendPasswordResetEmail(window._fbAuth, email);
+    toast('✓ Письмо для сброса пароля отправлено на ' + email);
+  } catch(e) {
+    toast('Ошибка: ' + e.message);
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -3555,19 +3659,8 @@ function initTicker() {
 // AUTO-LOGIN CHECK
 // ═══════════════════════════════════════════
 function checkAutoLogin() {
-  const savedRaw = localStorage.getItem('sk_user');
-  if (!savedRaw) return;
-  try {
-    const saved = JSON.parse(savedRaw);
-    if (saved && saved.email) {
-      STATE.user = saved;
-      loadUserData();
-      showScreen('app');
-      initApp();
-    }
-  } catch(e) {
-    localStorage.removeItem('sk_user');
-  }
+  // Теперь обрабатывается через onAuthStateChanged в Firebase модуле
+  // Оставляем пустой чтобы не было ошибок
 }
 
 // ═══════════════════════════════════════════
