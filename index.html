@@ -2304,46 +2304,202 @@ function showResetPass() {
   }
 }
 
-async function doRegister() {
-  const name  = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass  = document.getElementById('reg-pass').value;
-  const err   = document.getElementById('reg-err');
-  err.style.display = 'none';
-  if (!name || !email || !pass) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; return; }
-  if (pass.length < 6) { err.textContent = 'Пароль минимум 6 символов'; err.style.display = 'block'; return; }
+// ═══════════════════════════════════════════
+// ПОЛНОСТЬЮ ИСПРАВЛЕННЫЕ ФУНКЦИИ АУТЕНТИФИКАЦИИ
+// ═══════════════════════════════════════════
 
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const err = document.getElementById('reg-err');
+  err.style.display = 'none';
+  
+  // Валидация
+  if (!name || !email || !pass) {
+    err.textContent = 'Заполните все поля';
+    err.style.display = 'block';
+    return;
+  }
+  if (pass.length < 6) {
+    err.textContent = 'Пароль должен быть минимум 6 символов';
+    err.style.display = 'block';
+    return;
+  }
+  
   if (window._fbAuth) {
     try {
-      const cred = await window._fbFns.createUserWithEmailAndPassword(window._fbAuth, email, pass);
-      const user = { uid: cred.user.uid, name, email, created: new Date().toISOString() };
-      await window._fbFns.setDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid), user);
+      // 1. Создаем пользователя
+      const cred = await window._fbFns.createUserWithEmailAndPassword(
+        window._fbAuth, email, pass
+      );
+      
+      // 2. Отправляем письмо с подтверждением
       await window._fbFns.sendEmailVerification(cred.user);
-toast('✓ Аккаунт создан! Проверьте email — отправили письмо для подтверждения');
-      STATE.user = user;
-      STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}) }];
-      saveUserData(); showApp(); setTimeout(() => showOnboarding(), 600);
+      
+      // 3. Сохраняем данные пользователя в Firestore
+      const userData = {
+        uid: cred.user.uid,
+        name: name,
+        email: email,
+        createdAt: new Date().toISOString(),
+        emailVerified: false
+      };
+      await window._fbFns.setDoc(
+        window._fbFns.doc(window._fbDb, 'users', cred.user.uid),
+        userData
+      );
+      
+      // 4. Показываем сообщение об успехе
+      toast('✓ Регистрация успешна! Письмо с подтверждением отправлено на ' + email);
+      
+      // 5. Переключаемся на форму входа
+      switchAuthTab('login');
+      document.getElementById('login-email').value = email;
+      document.getElementById('login-err').innerHTML = 
+        'Подтвердите email, перейдя по ссылке в письме.<br>После подтверждения войдите снова.';
+      document.getElementById('login-err').style.display = 'block';
+      
     } catch(e) {
-      err.textContent = e.code === 'auth/email-already-in-use' ? 'Email уже используется' : e.message;
+      let errorMsg = 'Ошибка регистрации';
+      switch(e.code) {
+        case 'auth/email-already-in-use':
+          errorMsg = 'Этот email уже зарегистрирован';
+          break;
+        case 'auth/invalid-email':
+          errorMsg = 'Некорректный email';
+          break;
+        case 'auth/weak-password':
+          errorMsg = 'Слишком простой пароль';
+          break;
+        default:
+          errorMsg = e.message;
+      }
+      err.textContent = errorMsg;
       err.style.display = 'block';
     }
   } else {
-    // Старая логика fallback
+    // Локальное хранилище (резерв)
     const users = DB.load('users', []);
-    if (users.find(u => u.email === email)) { err.textContent = 'Email уже используется'; err.style.display = 'block'; return; }
+    if (users.find(u => u.email === email)) {
+      err.textContent = 'Email уже используется';
+      err.style.display = 'block';
+      return;
+    }
     const user = { id: uid(), name, email, pass: btoa(pass), created: new Date().toISOString() };
-    users.push(user); DB.save('users', users); DB.save('user', user);
+    users.push(user);
+    DB.save('users', users);
+    DB.save('user', user);
     STATE.user = user;
-    STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}) }];
-    saveUserData(); showApp(); setTimeout(() => showOnboarding(), 600);
+    loadUserData();
+    showApp();
+    setTimeout(() => showOnboarding(), 600);
   }
 }
 
-async function doLogout() {
-  if (window._fbAuth?.currentUser) await window._fbFns.signOut(window._fbAuth);
-  DB.remove('user');
-  STATE = { user:null, secrets:[], bio:[], messages:[], relatives:[], notifications:[], settings:{}, swPeriod:7, swDays:7, executor:null };
-  showLanding();
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-err');
+  err.style.display = 'none';
+  
+  if (!email || !pass) {
+    err.textContent = 'Заполните все поля';
+    err.style.display = 'block';
+    return;
+  }
+  
+  if (window._fbAuth) {
+    try {
+      const cred = await window._fbFns.signInWithEmailAndPassword(
+        window._fbAuth, email, pass
+      );
+      
+      // ПРОВЕРКА ПОДТВЕРЖДЕНИЯ EMAIL
+      if (!cred.user.emailVerified) {
+        err.innerHTML = '❌ Email не подтверждён.<br>Проверьте почту или <a href="#" onclick="resendVerify();return false">отправить письмо повторно</a>';
+        err.style.display = 'block';
+        const resendBtn = document.getElementById('resend-verify-btn');
+        if (resendBtn) resendBtn.style.display = 'block';
+        return;
+      }
+      
+      // Получаем данные пользователя из Firestore
+      const userDoc = await window._fbFns.getDoc(
+        window._fbFns.doc(window._fbDb, 'users', cred.user.uid)
+      );
+      
+      if (userDoc.exists()) {
+        STATE.user = userDoc.data();
+      } else {
+        STATE.user = { name: email.split('@')[0], email, uid: cred.user.uid };
+      }
+      
+      loadUserData();
+      showApp();
+      toast('✓ Добро пожаловать, ' + STATE.user.name);
+      
+    } catch(e) {
+      let errorMsg = 'Ошибка входа';
+      switch(e.code) {
+        case 'auth/invalid-credential':
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          errorMsg = 'Неверный email или пароль';
+          break;
+        case 'auth/too-many-requests':
+          errorMsg = 'Слишком много попыток. Попробуйте позже';
+          break;
+        default:
+          errorMsg = e.message;
+      }
+      err.textContent = errorMsg;
+      err.style.display = 'block';
+    }
+  } else {
+    // Локальное хранилище (резерв для демо)
+    const users = DB.load('users', []);
+    const user = users.find(u => u.email === email && u.pass === btoa(pass));
+    if (!user) {
+      err.textContent = 'Неверный email или пароль';
+      err.style.display = 'block';
+      return;
+    }
+    DB.save('user', user);
+    STATE.user = user;
+    loadUserData();
+    showApp();
+  }
+}
+
+// Функция повторной отправки письма
+async function resendVerify() {
+  if (window._fbAuth?.currentUser) {
+    try {
+      await window._fbFns.sendEmailVerification(window._fbAuth.currentUser);
+      toast('✓ Письмо с подтверждением отправлено повторно');
+    } catch(e) {
+      toast('Ошибка: ' + e.message);
+    }
+  } else {
+    // Если пользователь не авторизован, пробуем отправить по email из поля
+    const email = document.getElementById('login-email').value.trim();
+    if (email && window._fbAuth) {
+      try {
+        // Получаем пользователя по email
+        const methods = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyBj_FKvzjcUlTNytspwD7Wwl3CkENZJM9w`, {
+          method: 'POST',
+          body: JSON.stringify({ email }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        toast('Пожалуйста, войдите снова, чтобы отправить письмо');
+      } catch(e) {
+        toast('Ошибка: ' + e.message);
+      }
+    } else {
+      toast('Введите email и попробуйте войти сначала');
+    }
+  }
 }
 
 // ═══════════════════════════════════════════
