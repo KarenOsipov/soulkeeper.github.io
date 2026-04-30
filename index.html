@@ -2308,6 +2308,11 @@ function showResetPass() {
 // ПОЛНОСТЬЮ ИСПРАВЛЕННЫЕ ФУНКЦИИ АУТЕНТИФИКАЦИИ
 // ═══════════════════════════════════════════
 
+// ═══════════════════════════════════════════
+// УПРОЩЁННАЯ РЕГИСТРАЦИЯ ДЛЯ ДИПЛОМНОЙ РАБОТЫ
+// (без обязательного подтверждения email)
+// ═══════════════════════════════════════════
+
 async function doRegister() {
   const name = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim();
@@ -2315,65 +2320,57 @@ async function doRegister() {
   const err = document.getElementById('reg-err');
   err.style.display = 'none';
   
-  // Валидация
   if (!name || !email || !pass) {
     err.textContent = 'Заполните все поля';
     err.style.display = 'block';
     return;
   }
   if (pass.length < 6) {
-    err.textContent = 'Пароль должен быть минимум 6 символов';
+    err.textContent = 'Пароль минимум 6 символов';
     err.style.display = 'block';
     return;
   }
   
   if (window._fbAuth) {
     try {
-      // 1. Создаем пользователя
       const cred = await window._fbFns.createUserWithEmailAndPassword(
         window._fbAuth, email, pass
       );
       
-      // 2. Отправляем письмо с подтверждением
-      await window._fbFns.sendEmailVerification(cred.user);
+      // Отправляем письмо, НО НЕ БЛОКИРУЕМ ВХОД
+      try {
+        await window._fbFns.sendEmailVerification(cred.user);
+        toast('✓ Письмо отправлено, но вы можете войти сразу');
+      } catch(e) {
+        console.log('Email not sent:', e);
+      }
       
-      // 3. Сохраняем данные пользователя в Firestore
+      // Сохраняем пользователя (email считается подтверждённым для диплома)
       const userData = {
         uid: cred.user.uid,
         name: name,
         email: email,
         createdAt: new Date().toISOString(),
-        emailVerified: false
+        emailVerified: true  // ← Для диплома считаем подтверждённым
       };
       await window._fbFns.setDoc(
         window._fbFns.doc(window._fbDb, 'users', cred.user.uid),
         userData
       );
       
-      // 4. Показываем сообщение об успехе
-      toast('✓ Регистрация успешна! Письмо с подтверждением отправлено на ' + email);
-      
-      // 5. Переключаемся на форму входа
-      switchAuthTab('login');
-      document.getElementById('login-email').value = email;
-      document.getElementById('login-err').innerHTML = 
-        'Подтвердите email, перейдя по ссылке в письме.<br>После подтверждения войдите снова.';
-      document.getElementById('login-err').style.display = 'block';
+      STATE.user = userData;
+      loadUserData();
+      showApp();
+      toast('✓ Регистрация успешна! Добро пожаловать!');
       
     } catch(e) {
       let errorMsg = 'Ошибка регистрации';
-      switch(e.code) {
-        case 'auth/email-already-in-use':
-          errorMsg = 'Этот email уже зарегистрирован';
-          break;
-        case 'auth/invalid-email':
-          errorMsg = 'Некорректный email';
-          break;
-        case 'auth/weak-password':
-          errorMsg = 'Слишком простой пароль';
-          break;
-        default:
-          errorMsg = e.message;
+      if (e.code === 'auth/email-already-in-use') {
+        errorMsg = 'Этот email уже зарегистрирован';
+      } else if (e.code === 'auth/invalid-email') {
+        errorMsg = 'Некорректный email';
+      } else if (e.code === 'auth/weak-password') {
+        errorMsg = 'Слишком простой пароль';
       }
       err.textContent = errorMsg;
       err.style.display = 'block';
@@ -2415,16 +2412,12 @@ async function doLogin() {
         window._fbAuth, email, pass
       );
       
-      // ПРОВЕРКА ПОДТВЕРЖДЕНИЯ EMAIL
+      // ДЛЯ ДИПЛОМА: пропускаем проверку email
+      // Если хотите показывать предупреждение, но не блокировать:
       if (!cred.user.emailVerified) {
-        err.innerHTML = '❌ Email не подтверждён.<br>Проверьте почту или <a href="#" onclick="resendVerify();return false">отправить письмо повторно</a>';
-        err.style.display = 'block';
-        const resendBtn = document.getElementById('resend-verify-btn');
-        if (resendBtn) resendBtn.style.display = 'block';
-        return;
+        toast('⚠️ Рекомендуем подтвердить email, но вход разрешён');
       }
       
-      // Получаем данные пользователя из Firestore
       const userDoc = await window._fbFns.getDoc(
         window._fbFns.doc(window._fbDb, 'users', cred.user.uid)
       );
@@ -2440,24 +2433,15 @@ async function doLogin() {
       toast('✓ Добро пожаловать, ' + STATE.user.name);
       
     } catch(e) {
-      let errorMsg = 'Ошибка входа';
-      switch(e.code) {
-        case 'auth/invalid-credential':
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-          errorMsg = 'Неверный email или пароль';
-          break;
-        case 'auth/too-many-requests':
-          errorMsg = 'Слишком много попыток. Попробуйте позже';
-          break;
-        default:
-          errorMsg = e.message;
+      let errorMsg = 'Неверный email или пароль';
+      if (e.code === 'auth/too-many-requests') {
+        errorMsg = 'Слишком много попыток. Попробуйте позже';
       }
       err.textContent = errorMsg;
       err.style.display = 'block';
     }
   } else {
-    // Локальное хранилище (резерв для демо)
+    // Локальное хранилище
     const users = DB.load('users', []);
     const user = users.find(u => u.email === email && u.pass === btoa(pass));
     if (!user) {
