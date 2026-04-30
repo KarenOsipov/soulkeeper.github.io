@@ -2150,30 +2150,36 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 function saveUserData() {
   if(!STATE.user) return;
   const e = STATE.user.email;
-  DB.save('secrets_'+e, STATE.secrets);
-  DB.save('bio_'+e, STATE.bio);
-  DB.save('msgs_'+e, STATE.messages);
-  DB.save('rels_'+e, STATE.relatives);
-  DB.save('notifs_'+e, STATE.notifications);
-  DB.save('sw_'+e, {period: STATE.swPeriod, days: STATE.swDays});
-  DB.save('executor_'+e, STATE.executor);
-  DB.save('settings_'+e, STATE.settings);
+  localStorage.setItem('sk_secrets_'+e, JSON.stringify(STATE.secrets));
+  localStorage.setItem('sk_bio_'+e, JSON.stringify(STATE.bio));
+  localStorage.setItem('sk_msgs_'+e, JSON.stringify(STATE.messages));
+  localStorage.setItem('sk_rels_'+e, JSON.stringify(STATE.relatives));
+  localStorage.setItem('sk_notifs_'+e, JSON.stringify(STATE.notifications));
+  localStorage.setItem('sk_sw_'+e, JSON.stringify({period: STATE.swPeriod, days: STATE.swDays}));
+  localStorage.setItem('sk_executor_'+e, JSON.stringify(STATE.executor));
+  localStorage.setItem('sk_settings_'+e, JSON.stringify(STATE.settings));
   updateDbStats();
 }
 
 function loadUserData() {
   if(!STATE.user) return;
   const e = STATE.user.email;
-  STATE.secrets = DB.load('secrets_'+e, []);
-  STATE.bio = DB.load('bio_'+e, []);
-  STATE.messages = DB.load('msgs_'+e, []);
-  STATE.relatives = DB.load('rels_'+e, []);
-  STATE.notifications = DB.load('notifs_'+e, []);
-  const sw = DB.load('sw_'+e, {period:7, days:7});
-  STATE.swPeriod = sw.period; STATE.swDays = sw.days;
-  STATE.executor = DB.load('executor_'+e, null);
-  STATE.settings = DB.load('settings_'+e, {});
-  DB._addLog('INFO', `Данные пользователя загружены (${e})`);
+  const load = (key, def) => {
+    try {
+      const v = localStorage.getItem('sk_'+key+'_'+e);
+      return v ? JSON.parse(v) : def;
+    } catch { return def; }
+  };
+  STATE.secrets = load('secrets', []);
+  STATE.bio = load('bio', []);
+  STATE.messages = load('msgs', []);
+  STATE.relatives = load('rels', []);
+  STATE.notifications = load('notifs', []);
+  const sw = load('sw', {period:7, days:7});
+  STATE.swPeriod = sw.period;
+  STATE.swDays = sw.days;
+  STATE.executor = load('executor', null);
+  STATE.settings = load('settings', {});
 }
 
 // ═══════════════════════════════════════════
@@ -2203,7 +2209,7 @@ function switchAuthTab(tab) {
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('form-'+tab).classList.add('active');
 }
-async function doLogin() {
+function doLogin() {
   const email = document.getElementById('login-email')?.value.trim();
   const pass = document.getElementById('login-pass')?.value;
   const err = document.getElementById('login-err');
@@ -2214,8 +2220,8 @@ async function doLogin() {
     return;
   }
   
-  // Локальная аутентификация (работает без писем)
-  const users = JSON.parse(localStorage.getItem('sk_users') || '[]');
+  const usersRaw = localStorage.getItem('sk_users');
+  const users = usersRaw ? JSON.parse(usersRaw) : [];
   const user = users.find(u => u.email === email && u.pass === btoa(pass));
   
   if (user) {
@@ -2231,9 +2237,10 @@ async function doLogin() {
 function doDemoLogin() {
   const demo = {name: 'Демо Пользователь', email: 'demo@soulkeeper.app', pass: btoa('demo123'), isDemo: true};
   STATE.user = demo;
-  DB.save('user', demo);
-  // Seed demo data
-  if(!DB.load('secrets_'+demo.email)) {
+  localStorage.setItem('sk_user', JSON.stringify(demo));
+  
+  const existing = localStorage.getItem('sk_secrets_demo@soulkeeper.app');
+  if(!existing) {
     STATE.secrets = [
       {id:uid(), title:'Пароль от банка', category:'password', content:'[Зашифровано] •••••••••', access:'private', date:new Date().toLocaleDateString('ru')},
       {id:uid(), title:'Завещание', category:'document', content:'Квартира переходит старшему сыну...', access:'after_death', date:new Date().toLocaleDateString('ru')},
@@ -2248,31 +2255,19 @@ function doDemoLogin() {
       {id:uid(), name:'Игорь Козлов', rel:'Брат', access:'observer', email:'igor@example.com', lat:40.7128, lon:-74.0060, city:'Нью-Йорк, США'},
     ];
     STATE.notifications = [{id:uid(), title:'Добро пожаловать в SoulKeeper', sub:'Демо-режим', time:'сейчас'}];
+    STATE.swPeriod = 7;
+    STATE.swDays = 7;
+    STATE.executor = null;
+    STATE.settings = {};
     saveUserData();
-  } else { loadUserData(); }
+  } else {
+    loadUserData();
+  }
   showApp();
   setTimeout(() => showOnboarding(), 600);
 }
 
-function showResetPass() {
-  const email = document.getElementById('login-email').value.trim();
-  if (!email) { 
-    const err = document.getElementById('login-err');
-    err.textContent = 'Введите email выше, затем нажмите «Забыли пароль?»';
-    err.style.display = 'block';
-    return; 
-  }
-  if (window._fbAuth && window._fbFns) {
-    import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js')
-      .then(m => m.sendPasswordResetEmail(window._fbAuth, email))
-      .then(() => toast('✓ Письмо для сброса пароля отправлено на ' + email))
-      .catch(e => toast('Ошибка: ' + e.message));
-  } else {
-    toast('Восстановление пароля доступно только через Firebase');
-  }
-}
-
-async function doRegister() {
+function doRegister() {
   const name = document.getElementById('reg-name')?.value.trim();
   const email = document.getElementById('reg-email')?.value.trim();
   const pass = document.getElementById('reg-pass')?.value;
@@ -2288,7 +2283,9 @@ async function doRegister() {
     return;
   }
   
-  const users = JSON.parse(localStorage.getItem('sk_users') || '[]');
+  const usersRaw = localStorage.getItem('sk_users');
+  const users = usersRaw ? JSON.parse(usersRaw) : [];
+  
   if (users.find(u => u.email === email)) {
     if (err) { err.textContent = 'Email уже зарегистрирован'; err.style.display = 'block'; }
     return;
@@ -2322,9 +2319,8 @@ async function doRegister() {
   setTimeout(() => showOnboarding(), 600);
 }
 
-async function doLogout() {
-  if (window._fbAuth?.currentUser) await window._fbFns.signOut(window._fbAuth);
-  DB.remove('user');
+function doLogout() {
+  localStorage.removeItem('sk_user');
   STATE = { user:null, secrets:[], bio:[], messages:[], relatives:[], notifications:[], settings:{}, swPeriod:7, swDays:7, executor:null };
   showLanding();
 }
@@ -3559,12 +3555,18 @@ function initTicker() {
 // AUTO-LOGIN CHECK
 // ═══════════════════════════════════════════
 function checkAutoLogin() {
-  const saved = DB.load('user');
-  if(saved) {
-    STATE.user = saved;
-    loadUserData();
-    showScreen('app');
-    initApp();
+  const savedRaw = localStorage.getItem('sk_user');
+  if (!savedRaw) return;
+  try {
+    const saved = JSON.parse(savedRaw);
+    if (saved && saved.email) {
+      STATE.user = saved;
+      loadUserData();
+      showScreen('app');
+      initApp();
+    }
+  } catch(e) {
+    localStorage.removeItem('sk_user');
   }
 }
 
