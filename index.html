@@ -480,6 +480,28 @@ body::before {
 /* ════════════════════════════════════════════
    NOTIFICATION PANEL
 ════════════════════════════════════════════ */
+.period-btn {
+  background: var(--ink3);
+  border: 1px solid rgba(201,168,76,0.15);
+  color: var(--ivory2);
+  padding: 8px 16px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+.period-btn.active {
+  background: linear-gradient(135deg, var(--gold), var(--amber));
+  border-color: transparent;
+  color: var(--ink);
+  font-weight: 500;
+}
+.period-btn:hover:not(.active) {
+  border-color: var(--gold);
+  background: var(--gold-d);
+}
+
 .notif-panel {
   position: fixed; top: 54px; right: 0; width: 320px; background: var(--ink2);
   border-left: 1px solid rgba(201,168,76,0.1); border-bottom: 1px solid rgba(201,168,76,0.1);
@@ -1761,71 +1783,93 @@ body::before {
   </div>
   <div id="subscription-container"></div>
   <!-- КРАСИВЫЙ БЛОК ТАРИФОВ -->
-<div style="margin: 1.5rem 0;">
-  <div style="text-align: center; margin-bottom: 1.5rem;">
-    <div class="l-label">💎 ВЫБЕРИТЕ ТАРИФ</div>
-    <h3 style="font-family: var(--serif); font-size: 1.5rem; color: var(--ivory); font-weight: 300;">План, который подходит <em style="color: var(--gold2);">именно вам</em></h3>
-  </div>
-  
-  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem;">
-    
-    <!-- СТРАЖ - бесплатный -->
-    <div style="background: var(--ink3); border: 1px solid rgba(201,168,76,0.1); border-radius: 20px; padding: 1.5rem; text-align: center; transition: all 0.3s; position: relative;">
-      <div style="font-size: 0.7rem; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 0.8rem;">Бесплатно</div>
-      <div style="font-family: var(--serif); font-size: 1.8rem; font-weight: 300; color: var(--ivory);">Страж</div>
-      <div style="font-size: 2rem; font-family: var(--serif); color: var(--gold2); margin: 0.8rem 0;">₸0</div>
-      <div style="font-size: 0.7rem; color: var(--muted); margin-bottom: 1rem;">навсегда</div>
-      <ul style="list-style: none; margin: 1rem 0; text-align: left;">
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ До 5 тайн в сейфе</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ Биография (3 главы)</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ До 5 родственников</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ AI‑Мудрец (10/мес)</li>
-      </ul>
-      <button class="subscribe-btn" data-plan="free" onclick="upgradeToPlan('free')" style="width: 100%; padding: 0.8rem; background: transparent; border: 1px solid rgba(201,168,76,0.3); border-radius: 40px; color: var(--ivory); cursor: pointer; transition: all 0.3s; font-family: var(--sans); font-size: 0.7rem; letter-spacing: 1px;">ТЕКУЩИЙ</button>
-    </div>
-    
-    <!-- ХРАНИТЕЛЬ - популярный -->
-    <div style="background: linear-gradient(135deg, var(--ink2), var(--ink3)); border: 2px solid var(--gold); border-radius: 20px; padding: 1.8rem 1.5rem; text-align: center; transition: all 0.3s; position: relative; box-shadow: 0 8px 25px rgba(201,168,76,0.15);">
-      <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--gold), var(--amber)); color: var(--ink); font-size: 0.6rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; letter-spacing: 1px;">★ ПОПУЛЯРНЫЙ ★</div>
-      <div style="font-size: 0.7rem; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 0.8rem;">Самый выбираемый</div>
-      <div style="font-family: var(--serif); font-size: 2rem; font-weight: 300; color: var(--ivory);">Хранитель</div>
-      <div style="font-size: 2rem; font-family: var(--serif); color: var(--gold2); margin: 0.8rem 0;">
-        ₸2 490 <span style="font-size: 1rem;">/мес</span>
+<!-- 💳 КРУТАЯ ПЛАТЕЖНАЯ ФОРМА -->
+<div class="modal-overlay" id="modal-payment-real">
+  <div class="modal" style="max-width: 520px; background: linear-gradient(135deg, var(--ink2), var(--ink3)); border: 1px solid rgba(201,168,76,0.3); border-radius: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+    <div class="modal-head" style="border-bottom: 1px solid rgba(201,168,76,0.1); padding: 1.5rem 1.8rem 1rem;">
+      <div class="modal-title" style="display: flex; align-items: center; gap: 10px; font-size: 1.2rem;">
+        <span style="font-size: 28px;">💳</span>
+        <span>Оплата подписки <em style="color: var(--gold2); font-style: normal; font-weight: 400;" id="pay-title-modal">Хранитель</em></span>
       </div>
-      <div style="font-size: 0.65rem; color: var(--green); margin-bottom: 1rem;">✦ Экономия 26% при оплате на год</div>
-      <ul style="list-style: none; margin: 1rem 0; text-align: left;">
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ Неограниченный сейф</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ Биография без лимитов</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ До 50 родственников</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ Страж жизни</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ Экспорт PDF + JSON</li>
-      </ul>
-      <button class="subscribe-btn" data-plan="keeper" onclick="openPaymentModalReal('keeper')" style="width: 100%; padding: 0.9rem; background: linear-gradient(135deg, var(--gold), var(--amber)); border: none; border-radius: 40px; color: var(--ink); cursor: pointer; transition: all 0.3s; font-family: var(--sans); font-size: 0.75rem; font-weight: 600; letter-spacing: 1px;">💎 ВЫБРАТЬ</button>
+      <button class="modal-close" onclick="closeModal('modal-payment-real')" style="font-size: 1.2rem;">✕</button>
     </div>
-    
-    <!-- НАСЛЕДИЕ -->
-    <div style="background: var(--ink3); border: 1px solid rgba(201,168,76,0.1); border-radius: 20px; padding: 1.5rem; text-align: center; transition: all 0.3s;">
-      <div style="font-size: 0.7rem; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 0.8rem;">Максимальный</div>
-      <div style="font-family: var(--serif); font-size: 2rem; font-weight: 300; color: var(--ivory);">Наследие</div>
-      <div style="font-size: 2rem; font-family: var(--serif); color: var(--gold2); margin: 0.8rem 0;">
-        ₸5 990 <span style="font-size: 1rem;">/мес</span>
+    <div class="modal-body" style="padding: 1.5rem 1.8rem;">
+      
+      <!-- Банковские иконки -->
+      <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; padding: 8px; background: rgba(201,168,76,0.05); border-radius: 50px; flex-wrap: wrap;">
+        <div style="background: var(--ink); padding: 4px 12px; border-radius: 30px; border: 1px solid rgba(201,168,76,0.12);">
+          <span style="font-size: 18px;">💳</span> <span style="font-size: 10px; color: var(--ivory2);">Visa</span>
+        </div>
+        <div style="background: var(--ink); padding: 4px 12px; border-radius: 30px; border: 1px solid rgba(201,168,76,0.12);">
+          <span style="font-size: 18px;">💳</span> <span style="font-size: 10px; color: var(--ivory2);">Mastercard</span>
+        </div>
+        <div style="background: var(--ink); padding: 4px 12px; border-radius: 30px; border: 1px solid rgba(201,168,76,0.12);">
+          <span style="font-size: 18px;">💳</span> <span style="font-size: 10px; color: var(--ivory2);">Amex</span>
+        </div>
+        <div style="background: var(--ink); padding: 4px 12px; border-radius: 30px; border: 1px solid rgba(201,168,76,0.12);">
+          <span style="font-size: 18px;">🏦</span> <span style="font-size: 10px; color: var(--ivory2);">Kaspi</span>
+        </div>
+        <div style="background: var(--ink); padding: 4px 12px; border-radius: 30px; border: 1px solid rgba(201,168,76,0.12);">
+          <span style="font-size: 18px;">📱</span> <span style="font-size: 10px; color: var(--ivory2);">Apple Pay</span>
+        </div>
       </div>
-      <div style="font-size: 0.65rem; color: var(--muted); margin-bottom: 1rem;">или ₸54 000/год</div>
-      <ul style="list-style: none; margin: 1rem 0; text-align: left;">
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ Всё из Хранителя</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ До 5 аккаунтов семьи</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ Видео-послания</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ Печатная книга жизни</li>
-        <li style="padding: 0.3rem 0; font-size: 0.75rem; color: var(--ivory2);">✓ Личный менеджер</li>
-      </ul>
-      <button class="subscribe-btn" data-plan="legacy" onclick="openPaymentModalReal('legacy')" style="width: 100%; padding: 0.8rem; background: transparent; border: 1px solid rgba(201,168,76,0.3); border-radius: 40px; color: var(--ivory); cursor: pointer; transition: all 0.3s; font-family: var(--sans); font-size: 0.7rem; letter-spacing: 1px;">ВЫБРАТЬ</button>
+      
+      <!-- Сумма и план -->
+      <div style="background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(212,129,58,0.03)); border-radius: 24px; padding: 20px; margin-bottom: 24px; text-align: center; border: 1px solid rgba(201,168,76,0.12);">
+        <div style="font-size: 0.65rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase;">К ОПЛАТЕ</div>
+        <div style="font-size: 3rem; font-family: var(--serif); color: var(--gold2); font-weight: 300; line-height: 1.2;" id="pay-amount-modal">₸2 490</div>
+        <div style="font-size: 0.7rem; color: var(--muted);" id="pay-period-modal">за 1 месяц</div>
+      </div>
+      
+      <!-- Выбор периода -->
+      <div style="margin-bottom: 24px;">
+        <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--gold); margin-bottom: 12px;">📅 ВЫБЕРИТЕ ПЕРИОД</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="period-btn active" data-months="1" data-price="2490" data-price-legacy="5990" onclick="selectPeriod(1, 2490, 5990)">1 мес</button>
+          <button type="button" class="period-btn" data-months="3" data-price="6990" data-price-legacy="16990" onclick="selectPeriod(3, 6990, 16990)">3 мес <span style="font-size: 0.55rem; color: var(--green);">-7%</span></button>
+          <button type="button" class="period-btn" data-months="6" data-price="12990" data-price-legacy="29990" onclick="selectPeriod(6, 12990, 29990)">6 мес <span style="font-size: 0.55rem; color: var(--green);">-13%</span></button>
+          <button type="button" class="period-btn" data-months="12" data-price="22000" data-price-legacy="54000" onclick="selectPeriod(12, 22000, 54000)">12 мес <span style="font-size: 0.55rem; color: var(--green);">-26%</span></button>
+        </div>
+      </div>
+      
+      <!-- Поля карты -->
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--gold); margin-bottom: 10px;">💳 ДАННЫЕ КАРТЫ</div>
+        <div style="background: var(--ink); border-radius: 16px; padding: 14px; border: 1px solid rgba(201,168,76,0.12);">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+            <span style="font-size: 22px;" id="card-icon">💳</span>
+            <input type="text" id="card-number" placeholder="Номер карты" style="flex: 1; background: transparent; border: none; color: var(--ivory); font-size: 0.9rem; outline: none; font-family: monospace; letter-spacing: 1px;" maxlength="19" oninput="formatCardNumber(this); detectCardType(this.value)">
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <input type="text" id="card-expiry" placeholder="MM/YY" style="flex: 1; background: transparent; border: none; color: var(--ivory); font-size: 0.9rem; outline: none; padding: 8px 0;" maxlength="5" oninput="formatExpiry(this)">
+            <input type="password" id="card-cvv" placeholder="CVV" style="flex: 1; background: transparent; border: none; color: var(--ivory); font-size: 0.9rem; outline: none; padding: 8px 0;" maxlength="4">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Имя держателя -->
+      <div style="margin-bottom: 24px;">
+        <input type="text" id="card-name" placeholder="Имя держателя карты (как на карте)" style="width: 100%; background: var(--ink); border: 1px solid rgba(201,168,76,0.12); border-radius: 16px; padding: 14px; color: var(--ivory); font-size: 0.85rem; outline: none; transition: all 0.2s;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='rgba(201,168,76,0.12)'">
+      </div>
+      
+      <!-- Кнопка оплаты -->
+      <button class="btn-gold" id="pay-button" style="width: 100%; padding: 16px; font-size: 0.85rem; letter-spacing: 2px; border-radius: 40px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600;" onclick="processPaymentReal()">
+        <span>💳</span> ОПЛАТИТЬ <span id="pay-button-amount">₸2 490</span>
+      </button>
+      
+      <!-- Безопасность -->
+      <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.6rem; color: var(--muted2); text-align: center; flex-wrap: wrap;">
+        <span>🔒 SSL Secure</span>
+        <span>✅ 3D Secure</span>
+        <span>🛡️ PCI DSS</span>
+        <span>🔐 Безопасно</span>
+      </div>
+      
+      <div style="font-size: 0.65rem; color: var(--muted2); text-align: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(201,168,76,0.08);">
+        ⚡ Демо-режим: введите любые данные → подписка активируется
+      </div>
     </div>
   </div>
-  
-  <div style="text-align: center; margin-top: 1.5rem; font-size: 0.7rem; color: var(--muted2);">
-    💳 После оплаты тариф активируется мгновенно
-  </div>
-</div>
 </div>
 
     </main>
@@ -2923,6 +2967,33 @@ function processPaymentReal() {
     payBtn.disabled = false;
     payBtn.style.opacity = '1';
   }, 1800);
+}
+
+function detectCardType(cardNumber) {
+  const cleanNumber = cardNumber.replace(/\s/g, '');
+  const cardIcon = document.getElementById('card-icon');
+  
+  if(!cardIcon) return;
+  
+  if(cleanNumber.startsWith('4')) {
+    cardIcon.innerHTML = '💳';
+    cardIcon.title = 'Visa';
+  } else if(cleanNumber.match(/^5[1-5]/)) {
+    cardIcon.innerHTML = '💳';
+    cardIcon.title = 'Mastercard';
+  } else if(cleanNumber.startsWith('34') || cleanNumber.startsWith('37')) {
+    cardIcon.innerHTML = '💳';
+    cardIcon.title = 'American Express';
+  } else if(cleanNumber.startsWith('6')) {
+    cardIcon.innerHTML = '💳';
+    cardIcon.title = 'Discover';
+  } else if(cleanNumber.startsWith('2')) {
+    cardIcon.innerHTML = '💳';
+    cardIcon.title = 'Mir';
+  } else {
+    cardIcon.innerHTML = '💳';
+    cardIcon.title = 'Card';
+  }
 }
 
 // Эффект конфетти при успешной оплате
