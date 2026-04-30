@@ -2372,6 +2372,10 @@ function goPage(name) {
     else { renderGlobeList(); updateGlobeMarkers(); }
   }
   if(name === 'db') { updateDbStats(); renderDbLog(); }
+  // ДОБАВЬ ЭТО:
+  if(name === 'connections') renderConnections();
+  const mainTabs = ['dash','secrets','connections','tree'];
+  if(mainTabs.includes(name)) mobSetActive(name);
 }
 
 // ═══════════════════════════════════════════
@@ -3830,29 +3834,28 @@ function _injectDemoPending() {
   DB.save('conn_demo_injected_' + email, true);
 }
 
-// ═══════════════════════════════════════════
-// PATCH goPage — add connections rendering + mobile nav sync
-// ═══════════════════════════════════════════
-const _origGoPage = goPage;
-goPage = function(name) {
-  _origGoPage(name);
-  if (name === 'connections') renderConnections();
-  // sync mobile nav for main tabs
-  const mainTabs = ['dash','secrets','connections','tree'];
-  if (mainTabs.includes(name)) mobSetActive(name);
-};
 
 // ═══════════════════════════════════════════
 // PATCH initApp — init connections after app loads
 // ═══════════════════════════════════════════
-const _origInitApp = initApp;
-initApp = function() {
-  _origInitApp();
-  setTimeout(() => {
-    _injectDemoPending();
-    initConnections();
-  }, 300);
-};
+function initApp() {
+  const u = STATE.user;
+  if(!u) return;
+  const firstName = u.name.split(' ')[0];
+  setText('user-name-top', firstName);
+  setText('dash-name', firstName);
+  setText('user-avatar-btn', firstName.charAt(0).toUpperCase());
+  setText('dash-date', new Date().toLocaleDateString('ru', {weekday:'long', year:'numeric', month:'long', day:'numeric'}));
+  fillSettings();
+  renderAll();
+  updateSwitchUI();
+  renderNotifs();
+  updateDbStats();
+  initSwitchCanvas();
+  goPage('dash');
+  setTimeout(() => initGlobe(), 400);
+  setTimeout(() => { _injectDemoPending(); initConnections(); }, 300);
+}
 
 // ═══════════════════════════════════════════
 // MOBILE NAV JS
