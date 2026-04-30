@@ -2239,6 +2239,7 @@ function initApp() {
   initSwitchCanvas();
   goPage('dash');
   setTimeout(() => initGlobe(), 400);
+  setTimeout(() => { _injectDemoPending(); initConnections(); }, 300);
 }
 
 function setText(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
@@ -2263,6 +2264,9 @@ function goPage(name) {
     else { renderGlobeList(); updateGlobeMarkers(); }
   }
   if(name === 'db') { updateDbStats(); renderDbLog(); }
+  if(name === 'connections') renderConnections();
+  const mainTabs = ['dash','secrets','connections','tree'];
+  if(mainTabs.includes(name)) mobSetActive(name);
 }
 
 // ═══════════════════════════════════════════
@@ -3714,29 +3718,7 @@ function _injectDemoPending() {
   DB.save('conn_demo_injected_' + email, true);
 }
 
-// ═══════════════════════════════════════════
-// PATCH goPage — add connections rendering + mobile nav sync
-// ═══════════════════════════════════════════
-const _origGoPage = goPage;
-goPage = function(name) {
-  _origGoPage(name);
-  if (name === 'connections') renderConnections();
-  // sync mobile nav for main tabs
-  const mainTabs = ['dash','secrets','connections','tree'];
-  if (mainTabs.includes(name)) mobSetActive(name);
-};
-
-// ═══════════════════════════════════════════
-// PATCH initApp — init connections after app loads
-// ═══════════════════════════════════════════
-const _origInitApp = initApp;
-initApp = function() {
-  _origInitApp();
-  setTimeout(() => {
-    _injectDemoPending();
-    initConnections();
-  }, 300);
-};
+// connections + mobile nav уже встроены в goPage и initApp выше
 
 // ═══════════════════════════════════════════
 // MOBILE NAV JS
