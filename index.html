@@ -2121,6 +2121,35 @@ function loadUserData() {
   DB._addLog('INFO', `Данные пользователя загружены (${e})`);
 }
 
+// ПОДПИСКИ: структура и лимиты
+const PLANS = {
+  free: { name: 'Страж', price: 0, maxSecrets: 5, maxBioChapters: 3, maxRelatives: 5, maxMessages: 3, hasSwitch: false, hasExport: false, aiLimit: 10 },
+  keeper: { name: 'Хранитель', price: 2490, maxSecrets: 999, maxBioChapters: 999, maxRelatives: 50, maxMessages: 999, hasSwitch: true, hasExport: true, aiLimit: 999 },
+  legacy: { name: 'Наследие', price: 5990, maxSecrets: 999, maxBioChapters: 999, maxRelatives: 999, maxMessages: 999, hasSwitch: true, hasExport: true, aiLimit: 999 }
+};
+
+function getUserPlan() {
+  if (!STATE.user) return PLANS.free;
+  const savedPlan = DB.load('user_plan_' + STATE.user.email, null);
+  if (savedPlan && PLANS[savedPlan]) return PLANS[savedPlan];
+  // По умолчанию бесплатный, но если пользователь оплатил — восстановить
+  const paidUntil = DB.load('plan_expiry_' + STATE.user.email, 0);
+  if (paidUntil > Date.now()) {
+    const plan = DB.load('user_plan_' + STATE.user.email, 'keeper');
+    return PLANS[plan] || PLANS.keeper;
+  }
+  return PLANS.free;
+}
+
+function setUserPlan(planId, months = 1) {
+  if (!STATE.user) return false;
+  if (!PLANS[planId]) return false;
+  DB.save('user_plan_' + STATE.user.email, planId);
+  const expiry = Date.now() + (months * 30 * 24 * 60 * 60 * 1000);
+  DB.save('plan_expiry_' + STATE.user.email, expiry);
+  return true;
+}
+
 // ═══════════════════════════════════════════
 // SCREEN ROUTING
 // ═══════════════════════════════════════════
@@ -2240,6 +2269,18 @@ function initApp() {
   goPage('dash');
   setTimeout(() => initGlobe(), 400);
   setTimeout(() => { _injectDemoPending(); initConnections(); }, 300);
+   const plan = getUserPlan();
+  const planBadge = document.createElement('div');
+  planBadge.className = 'plan-badge';
+  planBadge.style.cssText = 'position:fixed; bottom:16px; left:16px; background:var(--ink3); border:1px solid var(--gold); padding:6px 12px; border-radius:20px; font-size:0.7rem; z-index:100; backdrop-filter:blur(8px); cursor:pointer';
+  planBadge.innerHTML = `💎 ${plan.name} ${plan.price > 0 ? '• активна' : ''}`;
+  planBadge.onclick = () => openModal('modal-upgrade');
+  if(!document.querySelector('.plan-badge')) document.body.appendChild(planBadge);
+  
+  // Проверка доступа к Стражу
+  if(window.location.hash === '#switch' || document.getElementById('page-switch').classList.contains('active')) {
+    checkSwitchAccess();
+  }
 }
 
 function setText(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
@@ -2300,6 +2341,14 @@ const accessTags = {private:'tag-gold', after_death:'tag-red', heir:'tag-green',
 function saveSecret() {
   const title = document.getElementById('s-title').value.trim();
   if(!title) { toast('Введите название'); return; }
+  
+  const plan = getUserPlan();
+  if(STATE.secrets.length >= plan.maxSecrets) {
+    toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxSecrets} тайн. Перейдите на тариф «Хранитель» или «Наследие»`);
+    openModal('modal-upgrade');
+    return;
+  }
+  
   const secret = {
     id: uid(), title,
     category: document.getElementById('s-cat').value,
@@ -2357,6 +2406,14 @@ function deleteSecret(id) {
 function saveBio() {
   const title = document.getElementById('b-title').value.trim();
   if(!title) { toast('Введите название главы'); return; }
+  
+  const plan = getUserPlan();
+  if(STATE.bio.length >= plan.maxBioChapters) {
+    toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxBioChapters} глав биографии. Апгрейдитете тариф!`);
+    openModal('modal-upgrade');
+    return;
+  }
+  
   const chapter = {
     id: uid(), title,
     period: document.getElementById('b-period').value,
@@ -2404,6 +2461,14 @@ function saveMessage() {
   const to = document.getElementById('m-to').value.trim();
   const subj = document.getElementById('m-subject').value.trim();
   if(!to || !subj) { toast('Заполните получателя и тему'); return; }
+  
+  const plan = getUserPlan();
+  if(STATE.messages.length >= plan.maxMessages) {
+    toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxMessages} посланий. Перейдите на расширенный тариф.`);
+    openModal('modal-upgrade');
+    return;
+  }
+  
   const msg = {
     id: uid(), to, subject: subj,
     content: document.getElementById('m-content').value,
@@ -2450,6 +2515,14 @@ const accessColor = {heir:'var(--green)', observer:'var(--blue)', trusted:'var(-
 function saveRelative() {
   const name = document.getElementById('r-name').value.trim();
   if(!name) { toast('Введите имя'); return; }
+  
+  const plan = getUserPlan();
+  if(STATE.relatives.length >= plan.maxRelatives) {
+    toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxRelatives} родственников. Апгрейд до «Хранителя» или «Наследия»`);
+    openModal('modal-upgrade');
+    return;
+  }
+  
   const rel = {
     id: uid(), name,
     rel: document.getElementById('r-rel').value,
@@ -2491,6 +2564,22 @@ function renderRelatives(targetId) {
         </div>
       </div>`).join('');
   });
+}
+
+function checkSwitchAccess() {
+  const plan = getUserPlan();
+  if(!plan.hasSwitch) {
+    document.getElementById('page-switch').innerHTML = `
+      <div class="empty" style="padding:4rem">
+        <div class="empty-icon">🔒</div>
+        <div class="empty-text">Страж жизни доступен на тарифах «Хранитель» и «Наследие»</div>
+        <div class="empty-sub">Апгрейдите, чтобы настроить автоматическую передачу наследства</div>
+        <button class="l-btn-primary" style="margin-top:1.5rem" onclick="openModal('modal-upgrade')">📈 Улучшить тариф</button>
+      </div>
+    `;
+    return false;
+  }
+  return true;
 }
 
 function deleteRel(id) {
@@ -3343,6 +3432,24 @@ function closeOnboard() {
   DB.save('onboard_done_'+(STATE.user?.email||''), true);
 }
 
+function upgradeToPlan(planId) {
+  if(!STATE.user) { toast('Войдите в аккаунт'); return; }
+  if(planId === 'free') {
+    setUserPlan('free', 0);
+    toast('Бесплатный тариф активен');
+    closeModal('modal-upgrade');
+    location.reload();
+    return;
+  }
+  // Симуляция оплаты (в реальном проекте — платёжный шлюз)
+  if(confirm(`Оплатить ${PLANS[planId].price} ₸ за месяц? (Демо-режим: нажмите ОК для активации)`)) {
+    setUserPlan(planId, 1);
+    toast(`✅ Тариф «${PLANS[planId].name}» активирован на 30 дней!`);
+    closeModal('modal-upgrade');
+    location.reload(); // перезагрузить для обновления лимитов
+  }
+}
+
 // ═══════════════════════════════════════════
 // TOAST
 // ═══════════════════════════════════════════
@@ -3759,5 +3866,43 @@ function closeMobDrawer() {
 }
 function mobFabAction() { openModal('modal-secret'); }
 </script>
+<!-- MODAL UPGRADE (добавить перед </body>) -->
+<div class="modal-overlay" id="modal-upgrade">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-head"><div class="modal-title">Выберите <em>тариф</em></div><button class="modal-close" onclick="closeModal('modal-upgrade')">✕</button></div>
+    <div class="modal-body">
+      <div class="l-pricing-grid" style="grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:0">
+        <!-- Бесплатный -->
+        <div class="l-plan" style="padding:1.5rem">
+          <div class="l-plan-name">Страж</div>
+          <div class="l-plan-price">₸0</div>
+          <ul class="l-plan-features" style="font-size:0.75rem">
+            <li>✓ 5 тайн</li><li>✓ 3 главы</li><li>✓ 5 родственников</li>
+          </ul>
+          <button class="l-plan-btn" onclick="upgradeToPlan('free')">Текущий</button>
+        </div>
+        <!-- Хранитель -->
+        <div class="l-plan featured" style="padding:1.5rem">
+          <div class="l-plan-name">Хранитель</div>
+          <div class="l-plan-price">₸2 490 <span>/мес</span></div>
+          <ul class="l-plan-features" style="font-size:0.75rem">
+            <li>✓ Безлимит тайн</li><li>✓ Безлимит биографии</li><li>✓ Страж жизни</li>
+          </ul>
+          <button class="l-plan-btn" onclick="upgradeToPlan('keeper')">Выбрать</button>
+        </div>
+        <!-- Наследие -->
+        <div class="l-plan" style="padding:1.5rem">
+          <div class="l-plan-name">Наследие</div>
+          <div class="l-plan-price">₸5 990 <span>/мес</span></div>
+          <ul class="l-plan-features" style="font-size:0.75rem">
+            <li>✓ Всё из Хранителя</li><li>✓ 5 аккаунтов семьи</li><li>✓ Печатная книга</li>
+          </ul>
+          <button class="l-plan-btn" onclick="upgradeToPlan('legacy')">Выбрать</button>
+        </div>
+      </div>
+      <div style="margin-top:1rem; font-size:0.7rem; text-align:center; color:var(--gold)">💳 После оплаты тариф активируется мгновенно</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
