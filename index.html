@@ -2304,45 +2304,46 @@ function showResetPass() {
   }
 }
 
-// ═══════════════════════════════════════════
-// ПОЛНОСТЬЮ ИСПРАВЛЕННЫЕ ФУНКЦИИ АУТЕНТИФИКАЦИИ
-// ═══════════════════════════════════════════
+async function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const err   = document.getElementById('reg-err');
+  err.style.display = 'none';
+  if (!name || !email || !pass) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; return; }
+  if (pass.length < 6) { err.textContent = 'Пароль минимум 6 символов'; err.style.display = 'block'; return; }
 
-// ═══════════════════════════════════════════
-// AUTH — ПОЛНОСТЬЮ РАБОЧАЯ ВЕРСИЯ
-// ══════════════════════════════════════════
-
-// Вспомогательные функции
-function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+  if (window._fbAuth) {
+    try {
+      const cred = await window._fbFns.createUserWithEmailAndPassword(window._fbAuth, email, pass);
+      const user = { uid: cred.user.uid, name, email, created: new Date().toISOString() };
+      await window._fbFns.setDoc(window._fbFns.doc(window._fbDb, 'users', cred.user.uid), user);
+      await window._fbFns.sendEmailVerification(cred.user);
+toast('✓ Аккаунт создан! Проверьте email — отправили письмо для подтверждения');
+      STATE.user = user;
+      STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}) }];
+      saveUserData(); showApp(); setTimeout(() => showOnboarding(), 600);
+    } catch(e) {
+      err.textContent = e.code === 'auth/email-already-in-use' ? 'Email уже используется' : e.message;
+      err.style.display = 'block';
+    }
+  } else {
+    // Старая логика fallback
+    const users = DB.load('users', []);
+    if (users.find(u => u.email === email)) { err.textContent = 'Email уже используется'; err.style.display = 'block'; return; }
+    const user = { id: uid(), name, email, pass: btoa(pass), created: new Date().toISOString() };
+    users.push(user); DB.save('users', users); DB.save('user', user);
+    STATE.user = user;
+    STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}) }];
+    saveUserData(); showApp(); setTimeout(() => showOnboarding(), 600);
+  }
 }
 
-function saveUserData() {
-  if (!STATE.user) return;
-  const email = STATE.user.email;
-  localStorage.setItem(`sk_secrets_${email}`, JSON.stringify(STATE.secrets || []));
-  localStorage.setItem(`sk_bio_${email}`, JSON.stringify(STATE.bio || []));
-  localStorage.setItem(`sk_msgs_${email}`, JSON.stringify(STATE.messages || []));
-  localStorage.setItem(`sk_rels_${email}`, JSON.stringify(STATE.relatives || []));
-  localStorage.setItem(`sk_notifs_${email}`, JSON.stringify(STATE.notifications || []));
-  localStorage.setItem(`sk_sw_${email}`, JSON.stringify({period: STATE.swPeriod, days: STATE.swDays}));
-  localStorage.setItem(`sk_executor_${email}`, JSON.stringify(STATE.executor));
-  localStorage.setItem(`sk_settings_${email}`, JSON.stringify(STATE.settings || {}));
-}
-
-function loadUserData() {
-  if (!STATE.user) return;
-  const email = STATE.user.email;
-  STATE.secrets = JSON.parse(localStorage.getItem(`sk_secrets_${email}`) || '[]');
-  STATE.bio = JSON.parse(localStorage.getItem(`sk_bio_${email}`) || '[]');
-  STATE.messages = JSON.parse(localStorage.getItem(`sk_msgs_${email}`) || '[]');
-  STATE.relatives = JSON.parse(localStorage.getItem(`sk_rels_${email}`) || '[]');
-  STATE.notifications = JSON.parse(localStorage.getItem(`sk_notifs_${email}`) || '[]');
-  const sw = JSON.parse(localStorage.getItem(`sk_sw_${email}`) || '{"period":7,"days":7}');
-  STATE.swPeriod = sw.period;
-  STATE.swDays = sw.days;
-  STATE.executor = JSON.parse(localStorage.getItem(`sk_executor_${email}`));
-  STATE.settings = JSON.parse(localStorage.getItem(`sk_settings_${email}`) || '{}');
+async function doLogout() {
+  if (window._fbAuth?.currentUser) await window._fbFns.signOut(window._fbAuth);
+  DB.remove('user');
+  STATE = { user:null, secrets:[], bio:[], messages:[], relatives:[], notifications:[], settings:{}, swPeriod:7, swDays:7, executor:null };
+  showLanding();
 }
 
 // ═══════════════════════════════════════════
