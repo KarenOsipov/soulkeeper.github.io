@@ -441,6 +441,9 @@ body::after {
 .dock-item:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
 
 .app-main { flex: 1; overflow-y: auto; padding: 2rem 2rem 2rem 5.5rem; position: relative; }
+@media (max-width: 640px) {
+  .app-main { padding: 0.5rem 0 72px 0; }
+}
 .sw-checkin:hover { background: rgba(90,219,138,0.07); }
 .app-main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
 .page { display: none; padding: 2rem; animation: fadeIn 0.3s ease; }
@@ -910,6 +913,9 @@ body::after {
 
   /* Hide desktop sidebar */
   .app-sidebar { display: none !important; }
+  .floating-dock { display: none !important; }
+  .app-main { padding-left: 1rem; }
+  .page { padding: 1rem 0.9rem; }
 
   /* Bottom padding so content clears nav */
   .app-main { padding-bottom: 72px; }
@@ -1455,7 +1461,7 @@ body::after {
 
               <div class="brain-node brain-node-center" onclick="goPage('settings')">
                 <div class="brain-center-icon">🧠</div>
-                <div class="brain-label">Ваш<br>Наследие</div>
+                <div class="brain-label">Ваше<br>Наследие</div>
               </div>
               
               <div class="brain-node brain-node-item" style="top:20%; left:25%;" onclick="openModal('modal-secret')">
@@ -2793,13 +2799,15 @@ function checkSwitchAccess() {
   const plan = getUserPlan();
   if(!plan.hasSwitch) {
     document.getElementById('page-switch').innerHTML = `
-      <div class="empty" style="padding:4rem">
-        <div class="empty-icon">🔒</div>
-        <div class="empty-text">Страж жизни доступен на тарифах «Хранитель» и «Наследие»</div>
-        <div class="empty-sub">Апгрейдите, чтобы настроить автоматическую передачу наследства</div>
-        <button class="l-btn-primary" style="margin-top:1.5rem" onclick="openModal('modal-upgrade')">📈 Улучшить тариф</button>
+      <div class="page-header">
+        <div><div class="page-title">Страж <em>жизни</em></div></div>
       </div>
-    `;
+      <div class="empty" style="padding:4rem">
+        <div class="empty-icon">⏳</div>
+        <div class="empty-text">Доступно на тарифах «Хранитель» и «Наследие»</div>
+        <div class="empty-sub" style="margin-bottom:1.5rem">Автоматическая передача наследства при неактивности</div>
+        <button class="btn btn-primary-sm" onclick="openPaymentModal('keeper')">💎 Улучшить тариф</button>
+      </div>`;
     return false;
   }
   return true;
@@ -4340,8 +4348,7 @@ let currentPaymentPlan = null;
 
 function renderSubscriptionPage() {
   const container = document.getElementById('subscription-container');
-  if(!container) return;
-  if(!STATE.user) return;
+  if(!container || !STATE.user) return;
   
   const plan = getUserPlan();
   const expiry = DB.load('plan_expiry_' + STATE.user.email, 0);
@@ -4352,63 +4359,31 @@ function renderSubscriptionPage() {
       <div>
         <div class="section-label">Текущий тариф</div>
         <div class="card" style="text-align:center">
-          <div style="font-size:3rem; margin-bottom:0.5rem">${plan.name === 'Страж' ? '🛡️' : plan.name === 'Хранитель' ? '🔱' : '👑'}</div>
-          <div style="font-family:var(--serif); font-size:2rem; color:var(--gold2)">${plan.name}</div>
-          ${plan.price > 0 ? `<div style="color:var(--muted); margin-top:0.3rem">${plan.price} ₸ / месяц</div>` : '<div style="color:var(--green)">Бесплатно · навсегда</div>'}
-          ${daysLeft > 0 ? `<div class="tag tag-green" style="margin-top:0.8rem">✅ Активна до ${new Date(expiry).toLocaleDateString('ru')} (${daysLeft} дн.)</div>` : plan.price > 0 ? '<div class="tag tag-red" style="margin-top:0.8rem">❌ Истекла</div>' : ''}
+          <div style="font-size:3rem;margin-bottom:0.5rem">${plan.name==='Страж'?'🛡️':plan.name==='Хранитель'?'🔱':'👑'}</div>
+          <div style="font-family:var(--serif);font-size:2rem;color:var(--gold2)">${plan.name}</div>
+          ${plan.price > 0 ? `<div style="color:var(--muted);margin-top:0.3rem">${plan.price} ₸ / месяц</div>` : '<div style="color:var(--green)">Бесплатно</div>'}
+          ${daysLeft > 0 ? `<div class="tag tag-green" style="display:inline-block;margin-top:0.8rem">✅ Активна до ${new Date(expiry).toLocaleDateString('ru')} (${daysLeft} дн.)</div>` : plan.price > 0 ? '<div class="tag tag-red" style="display:inline-block;margin-top:0.8rem">❌ Истекла</div>' : ''}
+          ${plan.price === 0 ? `<button class="btn btn-primary-sm" style="margin-top:1rem" onclick="openPaymentModal('keeper')">💎 Улучшить тариф</button>` : `<button class="btn btn-ghost" style="margin-top:1rem" onclick="cancelSubscription()">Отменить подписку</button>`}
         </div>
       </div>
       <div>
-        <div class="section-label">Доступные возможности</div>
+        <div class="section-label">Что включено</div>
         <div class="card">
           <ul style="list-style:none">
-            <li style="padding:0.3rem 0">🔐 Тайны: ${plan.maxSecrets === 999 ? '∞' : plan.maxSecrets}</li>
-            <li style="padding:0.3rem 0">📖 Главы биографии: ${plan.maxBioChapters === 999 ? '∞' : plan.maxBioChapters}</li>
-            <li style="padding:0.3rem 0">👥 Родственники: ${plan.maxRelatives === 999 ? '∞' : plan.maxRelatives}</li>
-            <li style="padding:0.3rem 0">⏳ Страж жизни: ${plan.hasSwitch ? '✅ Да' : '❌ Нет'}</li>
-            <li style="padding:0.3rem 0">📤 Экспорт данных: ${plan.hasExport ? '✅ Да' : '❌ Нет'}</li>
+            <li style="padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.06)">🔐 Тайны: <strong style="color:var(--gold2)">${plan.maxSecrets===999?'∞':plan.maxSecrets}</strong></li>
+            <li style="padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.06)">📖 Главы биографии: <strong style="color:var(--gold2)">${plan.maxBioChapters===999?'∞':plan.maxBioChapters}</strong></li>
+            <li style="padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.06)">👥 Родственники: <strong style="color:var(--gold2)">${plan.maxRelatives===999?'∞':plan.maxRelatives}</strong></li>
+            <li style="padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.06)">⏳ Страж жизни: <strong>${plan.hasSwitch?'✅ Да':'❌ Нет'}</strong></li>
+            <li style="padding:0.4rem 0">📤 Экспорт данных: <strong>${plan.hasExport?'✅ Да':'❌ Нет'}</strong></li>
           </ul>
         </div>
       </div>
     </div>
-    <div class="section-label" style="margin-top:1.5rem">Доступные тарифы</div>
-    <div class="l-pricing-grid" style="grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:0.5rem">
-      <div class="l-plan" style="padding:1.5rem">
-        <div class="l-plan-name">Страж</div>
-        <div class="l-plan-price">₸0</div>
-        <div class="l-plan-period">навсегда</div>
-        <ul class="l-plan-features" style="font-size:0.75rem">
-          <li>✓ До 5 тайн</li><li>✓ 3 главы</li><li>✓ 5 родственников</li>
-        </ul>
-        <button class="l-plan-btn" onclick="upgradeToPlan('free')">Выбрать</button>
-      </div>
-      <div class="l-plan featured" style="padding:1.5rem">
-        <div class="l-plan-name">Хранитель</div>
-        <div class="l-plan-price">₸2 490 <span>/мес</span></div>
-        <ul class="l-plan-features" style="font-size:0.75rem">
-          <li>✓ Безлимит тайн</li><li>✓ Безлимит биографии</li><li>✓ Страж жизни</li>
-        </ul>
-        <button class="l-plan-btn" onclick="openPaymentModal('keeper')">💎 Купить</button>
-      </div>
-      <div class="l-plan" style="padding:1.5rem">
-        <div class="l-plan-name">Наследие</div>
-        <div class="l-plan-price">₸5 990 <span>/мес</span></div>
-        <ul class="l-plan-features" style="font-size:0.75rem">
-          <li>✓ Всё из Хранителя</li><li>✓ 5 аккаунтов семьи</li><li>✓ Печатная книга</li>
-        </ul>
-        <button class="l-plan-btn" onclick="openPaymentModal('legacy')">💎 Купить</button>
-      </div>
-    </div>
-    <div style="margin-top:1.5rem; padding:1rem; background:var(--ink2); border:1px solid rgba(201,168,76,0.1); text-align:center">
-      <div style="font-size:0.7rem; color:var(--muted); margin-bottom:0.5rem">💳 Все тарифы включают:</div>
-      <div style="display:flex; flex-wrap:wrap; gap:0.8rem; justify-content:center; font-size:0.75rem">
-        <span>✅ Безопасное хранение</span>
-        <span>✅ Шифрование AES-256</span>
-        <span>✅ Круглосуточная поддержка</span>
-        <span>✅ Автоматические бэкапы</span>
-      </div>
+    <div style="margin-top:1rem;text-align:center;font-size:0.78rem;color:var(--muted)">
+      Изменить тариф можно на <a href="#" onclick="showLanding();setTimeout(()=>document.getElementById('l-pricing').scrollIntoView({behavior:'smooth'}),300)" style="color:var(--gold)">странице тарифов</a>
     </div>
   `;
+}
   
   // Обновить в настройках (карточка подписки)
   const settingsCard = document.getElementById('settings-sub-card');
@@ -4424,7 +4399,7 @@ function renderSubscriptionPage() {
       </div>
     `;
   }
-}
+
 
 function openPaymentModal(planId) {
   currentPaymentPlan = planId;
@@ -4511,7 +4486,7 @@ function upgradeFromLanding(planId) {
 }
 
 </script>
-<!-- MODAL UPGRADE (добавить перед </body>
+<!-- MODAL UPGRADE -->
 <div class="modal-overlay" id="modal-upgrade">
   <div class="modal" style="max-width:600px">
     <div class="modal-head"><div class="modal-title">Выберите <em>тариф</em></div><button class="modal-close" onclick="closeModal('modal-upgrade')">✕</button></div>
