@@ -137,13 +137,19 @@
    LANDING — NAV
 ════════════════════════════════════════════ */
     .l-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 800;
-      display: flex; align-items: center; justify-content: space-between;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 800;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 1.2rem 3rem;
-      background: rgba(13, 11, 24, 0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--glass-border);
-      transition: all 0.4s;
+      background: linear-gradient(to bottom, rgba(13, 11, 24, 0.96) 0%, transparent 100%);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.4s;
     }
 
     .l-nav.scrolled {
@@ -228,10 +234,14 @@
    LANDING — HERO
 ════════════════════════════════════════════ */
     .l-hero {
-      position: relative; min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      overflow: hidden; padding: 8rem 2rem 10rem;
-      background: radial-gradient(circle at 50% 50%, rgba(20, 15, 35, 0.5) 0%, var(--ink) 100%);
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 8rem 2rem 5rem;
     }
 
     #hero-canvas {
@@ -1413,28 +1423,11 @@
    APP — LAYOUT & DOCK
 ════════════════════════════════════════════ */
     .app-body {
-      display: flex; flex: 1; overflow: hidden; position: relative;
-      background: var(--ink);
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
     }
-
-    .mind-map-wrap {
-      width: 100%; height: 100%; position: relative; overflow: hidden;
-      background: radial-gradient(circle at center, #0f0d16 0%, #050508 100%);
-    }
-
-    .mind-map-svg { width: 100%; height: 100%; cursor: grab; }
-    .mind-map-svg:active { cursor: grabbing; }
-
-    .node { cursor: pointer; transition: filter 0.3s; }
-    .node:hover { filter: drop-shadow(0 0 8px var(--gold)); }
-
-    .node-circle { fill: var(--ink2); stroke: var(--gold); stroke-width: 1.5; transition: all 0.3s; }
-    .node:hover .node-circle { fill: var(--gold-d); stroke-width: 2.5; }
-
-    .node-label { font-size: 10px; fill: var(--ivory); font-family: var(--sans); pointer-events: none; text-anchor: middle; font-weight: 400; opacity: 0.8; }
-
-    .link { stroke: rgba(201, 168, 76, 0.15); stroke-width: 1; stroke-dasharray: 4 4; animation: dash 20s linear infinite; }
-    @keyframes dash { to { stroke-dashoffset: -100; } }
 
     .floating-dock {
       position: absolute;
@@ -3758,24 +3751,7 @@
   <!-- ════════════════════════════════════════════
      LANDING SCREEN
 ════════════════════════════════════════════ -->
-        <!-- ── MIND MAP (SECOND BRAIN) ── -->
-        <div class="page" id="page-brain" style="padding:0; height:100%; overflow:hidden;">
-          <div class="mind-map-wrap">
-            <div style="position:absolute; top:1.5rem; left:1.5rem; z-index:10; pointer-events:none;">
-              <div class="page-title">Second <em>Brain</em></div>
-              <div class="page-sub">Визуализация ваших связей и воспоминаний</div>
-            </div>
-            <div style="position:absolute; bottom:1.5rem; right:1.5rem; z-index:10; background:rgba(15,13,22,0.7); padding:1rem; border:1px solid var(--glass-border); border-radius:12px; backdrop-filter:blur(10px);">
-              <div class="section-label" style="margin-bottom:0.5rem">Легенда</div>
-              <div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.7rem; color:var(--muted)">
-                <div style="display:flex; align-items:center; gap:0.5rem"><span style="width:8px; height:8px; background:var(--gold); border-radius:50%"></span> Тайны</div>
-                <div style="display:flex; align-items:center; gap:0.5rem"><span style="width:8px; height:8px; background:var(--blue); border-radius:50%"></span> Биография</div>
-                <div style="display:flex; align-items:center; gap:0.5rem"><span style="width:8px; height:8px; background:var(--green); border-radius:50%"></span> Родственники</div>
-              </div>
-            </div>
-            <svg id="mind-map-svg" class="mind-map-svg"></svg>
-          </div>
-        </div>
+  <div id="screen-landing" class="screen active">
 
     <!-- NAV -->
     <nav class="l-nav" id="l-nav">
