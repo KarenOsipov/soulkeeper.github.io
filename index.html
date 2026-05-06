@@ -12,6 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap"
     rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     /* ════════════════════════════════════════════
    DESIGN TOKENS
@@ -693,6 +694,337 @@
       font-size: 0.8rem;
       color: var(--muted);
       line-height: 1.7;
+    }
+
+    /* Pricing Toggle */
+    .pricing-toggle-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .pricing-toggle-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      transition: color 0.3s;
+      font-weight: 500;
+    }
+
+    .pricing-toggle-label.active {
+      color: var(--gold2);
+    }
+
+    .pricing-switch {
+      position: relative;
+      display: inline-block;
+      width: 54px;
+      height: 28px;
+    }
+
+    .pricing-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .pricing-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: var(--ink3);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .pricing-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: linear-gradient(135deg, var(--gold), var(--amber));
+      transition: .4s;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    }
+
+    input:checked+.pricing-slider:before {
+      transform: translateX(26px);
+    }
+
+    .discount-badge {
+      background: rgba(46, 204, 113, 0.15);
+      color: var(--green);
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 5px;
+      border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+
+    /* ── APP SUBSCRIPTION PAGE ── */
+    .sub-status-card {
+      background: linear-gradient(135deg, rgba(201, 168, 76, 0.12), rgba(212, 129, 58, 0.05));
+      border: 1px solid rgba(201, 168, 76, 0.25);
+      border-radius: 24px;
+      padding: 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .sub-status-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(201, 168, 76, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      animation: subRotate 20s linear infinite;
+    }
+
+    @keyframes subRotate {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .sub-info-main h3 {
+      font-family: var(--serif);
+      font-size: 2.8rem;
+      color: var(--gold2);
+      margin: 0.5rem 0;
+      letter-spacing: 1px;
+      font-weight: 300;
+    }
+
+    .sub-plan-tag {
+      display: inline-block;
+      padding: 4px 14px;
+      background: rgba(201, 168, 76, 0.15);
+      color: var(--gold);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      border-radius: 100px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .sub-meta {
+      display: flex;
+      gap: 3.5rem;
+      margin-top: 1.8rem;
+    }
+
+    .sub-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .sub-meta-label {
+      color: var(--muted2);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .sub-meta-value {
+      font-size: 0.95rem;
+      color: var(--ivory);
+    }
+
+    .sub-comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin-top: 1.5rem;
+    }
+
+    .plan-card-mini {
+      background: var(--ink);
+      border: 1px solid rgba(201, 168, 76, 0.1);
+      border-radius: 16px;
+      padding: 1.8rem;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .plan-card-mini:hover {
+      border-color: var(--gold);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(212, 175, 55, 0.1);
+    }
+
+    .plan-card-mini.active {
+      border-color: var(--gold);
+      background: var(--ink3);
+    }
+
+    /* ── Visual Credit Card & Payment Form ── */
+    .credit-card-viz {
+      width: 100%;
+      height: 220px;
+      background: linear-gradient(135deg, #1a1a1a, #000);
+      border-radius: 24px;
+      padding: 30px;
+      position: relative;
+      color: white;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(15px);
+      background-size: 200% 200%;
+    }
+
+    .credit-card-viz::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      bottom: -50%;
+      left: -50%;
+      background: radial-gradient(circle at center, rgba(201, 168, 76, 0.15), transparent 70%);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .credit-card-viz::after {
+      content: "";
+      position: absolute;
+      width: 150%;
+      height: 150%;
+      background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px);
+      top: -25%;
+      left: -25%;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .card-viz-chip {
+      width: 55px;
+      height: 42px;
+      background: linear-gradient(135deg, #f1d38a, #c9a84c);
+      border-radius: 10px;
+      position: relative;
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.3), 0 2px 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-viz-chip::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0, 0, 0, 0.15) 8px, rgba(0, 0, 0, 0.15) 9px);
+    }
+
+    .card-viz-number {
+      font-family: 'OCR A Std', 'Courier New', Courier, monospace;
+      font-size: 1.7rem;
+      letter-spacing: 4px;
+      margin-top: 25px;
+      text-shadow: 2px 3px 6px rgba(0, 0, 0, 0.9);
+      color: #fff;
+      filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+    }
+
+    .card-viz-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 2;
+    }
+
+    .card-viz-label {
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      letter-spacing: 2px;
+      font-weight: 500;
+    }
+
+    .card-viz-name {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #fff;
+      font-weight: 400;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-viz-expiry {
+      font-size: 1.1rem;
+      color: #fff;
+      font-family: monospace;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-viz-type {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      font-size: 2.5rem;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)) brightness(1.2);
+    }
+
+    .plan-mini-name {
+      font-size: 1.1rem;
+      color: var(--gold2);
+      margin-bottom: 0.8rem;
+    }
+
+    .plan-mini-price {
+      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
+      color: var(--ivory);
+    }
+
+    .plan-mini-price span {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .plan-mini-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem 0;
+      flex: 1;
+    }
+
+    .plan-mini-features li {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .plan-mini-features li span {
+      color: var(--gold);
     }
 
     /* ── PRICING ── */
@@ -3803,13 +4135,14 @@
           Сохрани всё, что<br><em>важно тебе</em>
         </h1>
         <p class="l-hero-sub">
-          SoulKeeper — хранилище твоей жизни. Тайны, биография, послания близким, семейное дерево и автоматическая
-          передача наследства. Всё под защитой военного шифрования.
+          SoulKeeper — хранилище твоей жизни. Тайны, биография, послания близким, семейное дерево и
+          автоматическая передача наследства. Всё под защитой военного шифрования.
         </p>
         <div class="l-hero-actions">
           <button class="l-btn-primary" onclick="upgradeFromLanding('free')">Создать Хранилище</button>
           <button class="l-btn-secondary"
-            onclick="document.getElementById('l-features').scrollIntoView({behavior:'smooth'})">Узнать больше</button>
+            onclick="document.getElementById('l-features').scrollIntoView({behavior:'smooth'})">Узнать
+            больше</button>
         </div>
       </div>
       <div class="l-hero-scroll">
@@ -3823,12 +4156,13 @@
       <div class="ticker-track" id="ticker-track">
         <div class="ticker-item"><span class="ticker-val">12 847</span><span class="ticker-lbl">Хранителей</span></div>
         <div class="ticker-sep"></div>
-        <div class="ticker-item"><span class="ticker-val">84 293</span><span class="ticker-lbl">Сохранённых тайн</span>
-        </div>
+        <div class="ticker-item"><span class="ticker-val">84 293</span><span class="ticker-lbl">Сохранённых
+            тайн</span></div>
         <div class="ticker-sep"></div>
         <div class="ticker-item"><span class="ticker-val">AES‑256</span><span class="ticker-lbl">Шифрование</span></div>
         <div class="ticker-sep"></div>
-        <div class="ticker-item"><span class="ticker-val">99.9%</span><span class="ticker-lbl">Uptime</span></div>
+        <div class="ticker-item"><span class="ticker-val">99.9%</span><span class="ticker-lbl">Uptime</span>
+        </div>
         <div class="ticker-sep"></div>
         <div class="ticker-item"><span class="ticker-val">3 континента</span><span class="ticker-lbl">Серверы</span>
         </div>
@@ -3852,43 +4186,43 @@
             <div class="l-feat-num">01</div>
             <div class="l-feat-icon">🔐</div>
             <div class="l-feat-title">Цифровой сейф</div>
-            <div class="l-feat-desc">Храните пароли, документы, завещания и самые сокровенные тайны под защитой AES‑256.
-              Доступ только у вас — даже мы не можем прочесть.</div>
+            <div class="l-feat-desc">Храните пароли, документы, завещания и самые сокровенные тайны под
+              защитой AES‑256. Доступ только у вас — даже мы не можем прочесть.</div>
           </div>
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">02</div>
             <div class="l-feat-icon">📖</div>
             <div class="l-feat-title">Биография жизни</div>
-            <div class="l-feat-desc">Записывайте историю своей жизни по главам. AI‑Мудрец помогает находить слова и
-              структурировать воспоминания в литературный нарратив.</div>
+            <div class="l-feat-desc">Записывайте историю своей жизни по главам. AI‑Мудрец помогает находить
+              слова и структурировать воспоминания в литературный нарратив.</div>
           </div>
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">03</div>
             <div class="l-feat-icon">💌</div>
             <div class="l-feat-title">Послания близким</div>
-            <div class="l-feat-desc">Создавайте письма, которые откроются в нужный момент — на свадьбу, юбилей, после
-              вашего ухода. Персональный капсулы времени.</div>
+            <div class="l-feat-desc">Создавайте письма, которые откроются в нужный момент — на свадьбу,
+              юбилей, после вашего ухода. Персональный капсулы времени.</div>
           </div>
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">04</div>
             <div class="l-feat-icon">🌳</div>
             <div class="l-feat-title">Древо рода</div>
-            <div class="l-feat-desc">Интерактивное генеалогическое дерево с разграничением прав доступа. Наследники,
-              наблюдатели, доверенные лица — каждый видит своё.</div>
+            <div class="l-feat-desc">Интерактивное генеалогическое дерево с разграничением прав доступа.
+              Наследники, наблюдатели, доверенные лица — каждый видит своё.</div>
           </div>
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">05</div>
             <div class="l-feat-icon">⏳</div>
             <div class="l-feat-title">Страж жизни</div>
-            <div class="l-feat-desc">Dead man's switch — умная система мониторинга активности. При неактивности
-              автоматически передаёт наследство Душеприказчику.</div>
+            <div class="l-feat-desc">Dead man's switch — умная система мониторинга активности. При
+              неактивности автоматически передаёт наследство Душеприказчику.</div>
           </div>
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">06</div>
             <div class="l-feat-icon">🤖</div>
             <div class="l-feat-title">AI Мудрец</div>
-            <div class="l-feat-desc">Персональный AI‑наставник помогает формулировать мысли, анализирует тональность
-              текстов и задаёт вопросы для биографии.</div>
+            <div class="l-feat-desc">Персональный AI‑наставник помогает формулировать мысли, анализирует
+              тональность текстов и задаёт вопросы для биографии.</div>
           </div>
         </div>
       </div>
@@ -3904,26 +4238,26 @@
           <div class="l-step anim-reveal">
             <div class="l-step-num">I</div>
             <div class="l-step-title">Регистрация</div>
-            <div class="l-step-desc">Создайте аккаунт за 30 секунд. Только вы знаете свой мастер-пароль — мы его не
-              храним.</div>
+            <div class="l-step-desc">Создайте аккаунт за 30 секунд. Только вы знаете свой мастер-пароль — мы
+              его не храним.</div>
           </div>
           <div class="l-step anim-reveal">
             <div class="l-step-num">II</div>
             <div class="l-step-title">Наполните сейф</div>
-            <div class="l-step-desc">Добавьте тайны, биографию, послания. AI поможет найти слова для самого важного.
-            </div>
+            <div class="l-step-desc">Добавьте тайны, биографию, послания. AI поможет найти слова для самого
+              важного.</div>
           </div>
           <div class="l-step anim-reveal">
             <div class="l-step-num">III</div>
             <div class="l-step-title">Настройте наследие</div>
-            <div class="l-step-desc">Добавьте родственников, назначьте Душеприказчика и настройте права доступа для
-              каждого.</div>
+            <div class="l-step-desc">Добавьте родственников, назначьте Душеприказчика и настройте права
+              доступа для каждого.</div>
           </div>
           <div class="l-step anim-reveal">
             <div class="l-step-num">IV</div>
             <div class="l-step-title">Живите спокойно</div>
-            <div class="l-step-desc">Страж жизни следит за вашей активностью и в нужный момент передаст всё кому надо.
-            </div>
+            <div class="l-step-desc">Страж жизни следит за вашей активностью и в нужный момент передаст всё
+              кому надо.</div>
           </div>
         </div>
       </div>
@@ -3937,36 +4271,36 @@
             <div class="l-label">Безопасность</div>
             <h2 class="l-title">Военный уровень<br><em>защиты данных</em></h2>
             <div class="l-divider"></div>
-            <p class="l-desc">Ваши данные зашифрованы ещё на вашем устройстве. Мы не можем прочитать ничего — это не
-              маркетинговый приём, это архитектура zero-knowledge.</p>
+            <p class="l-desc">Ваши данные зашифрованы ещё на вашем устройстве. Мы не можем прочитать ничего
+              — это не маркетинговый приём, это архитектура zero-knowledge.</p>
             <br>
-            <p class="l-desc">Серверы в трёх юрисдикциях. GDPR‑совместимость. Открытый исходный код криптографического
-              ядра.</p>
+            <p class="l-desc">Серверы в трёх юрисдикциях. GDPR‑совместимость. Открытый исходный код
+              криптографического ядра.</p>
           </div>
           <div class="l-security-cards">
             <div class="l-sec-card anim-reveal">
               <div class="l-sec-icon">🔑</div>
               <div class="l-sec-title">AES‑256‑GCM</div>
-              <div class="l-sec-desc">Военный стандарт шифрования. Ключ создаётся из вашего пароля и никогда не покидает
-                устройство.</div>
+              <div class="l-sec-desc">Военный стандарт шифрования. Ключ создаётся из вашего пароля и
+                никогда не покидает устройство.</div>
             </div>
             <div class="l-sec-card anim-reveal">
               <div class="l-sec-icon">🛡️</div>
               <div class="l-sec-title">Zero-Knowledge</div>
-              <div class="l-sec-desc">Мы не видим ваши данные. Физически. Даже при взломе наших серверов — данные
-                бесполезны без вашего ключа.</div>
+              <div class="l-sec-desc">Мы не видим ваши данные. Физически. Даже при взломе наших серверов —
+                данные бесполезны без вашего ключа.</div>
             </div>
             <div class="l-sec-card anim-reveal">
               <div class="l-sec-icon">🌐</div>
               <div class="l-sec-title">Geo-Redundancy</div>
-              <div class="l-sec-desc">3 дата-центра на разных континентах. Encrypted backups каждые 6 часов. SLA 99.9%.
-              </div>
+              <div class="l-sec-desc">3 дата-центра на разных континентах. Encrypted backups каждые 6
+                часов. SLA 99.9%.</div>
             </div>
             <div class="l-sec-card anim-reveal">
               <div class="l-sec-icon">📋</div>
               <div class="l-sec-title">GDPR + Open Core</div>
-              <div class="l-sec-desc">Полное соответствие GDPR. Криптографическое ядро — открытый код на GitHub.
-                Независимый аудит ежегодно.</div>
+              <div class="l-sec-desc">Полное соответствие GDPR. Криптографическое ядро — открытый код на
+                GitHub. Независимый аудит ежегодно.</div>
             </div>
           </div>
         </div>
@@ -3981,20 +4315,21 @@
         <div class="l-divider"></div>
         <div class="l-test-grid">
           <div class="l-testi anim-reveal">
-            <p class="l-testi-quote">«После болезни отца я понял, что ничего не знаю о его жизни. SoulKeeper помог мне
-              оставить детям то, что я сам не получил — историю семьи.»</p>
+            <p class="l-testi-quote">«После болезни отца я понял, что ничего не знаю о его жизни. SoulKeeper
+              помог мне оставить детям то, что я сам не получил — историю семьи.»</p>
             <div class="l-testi-author">Михаил С.</div>
             <div class="l-testi-sub">Предприниматель, 52 года · Москва</div>
           </div>
           <div class="l-testi anim-reveal">
-            <p class="l-testi-quote">«Страж жизни — это то, о чём я думала годами, но не знала как реализовать. Теперь
-              мои дочери получат всё важное в нужный момент, неважно что случится.»</p>
+            <p class="l-testi-quote">«Страж жизни — это то, о чём я думала годами, но не знала как
+              реализовать. Теперь мои дочери получат всё важное в нужный момент, неважно что случится.»
+            </p>
             <div class="l-testi-author">Наталья В.</div>
             <div class="l-testi-sub">Врач, 48 лет · Санкт-Петербург</div>
           </div>
           <div class="l-testi anim-reveal">
-            <p class="l-testi-quote">«AI-Мудрец помог мне написать письмо сыну, с которым мы не разговаривали 8 лет. Я
-              не знал с чего начать — он задал нужные вопросы.»</p>
+            <p class="l-testi-quote">«AI-Мудрец помог мне написать письмо сыну, с которым мы не
+              разговаривали 8 лет. Я не знал с чего начать — он задал нужные вопросы.»</p>
             <div class="l-testi-author">Александр К.</div>
             <div class="l-testi-sub">Инженер, 61 год · Алматы</div>
           </div>
@@ -4008,6 +4343,17 @@
         <div class="l-label">Тарифы</div>
         <h2 class="l-title">Справедливая цена за<br><em>вечное наследие</em></h2>
         <div class="l-divider"></div>
+
+        <!-- Pricing Toggle -->
+        <div class="pricing-toggle-wrap anim-reveal">
+          <span class="pricing-toggle-label monthly active">Ежемесячно</span>
+          <label class="pricing-switch">
+            <input type="checkbox" id="pricing-checkbox" onchange="togglePricing()">
+            <span class="pricing-slider"></span>
+          </label>
+          <span class="pricing-toggle-label yearly">Ежегодно <span class="discount-badge">−26%</span></span>
+        </div>
+
         <div class="l-pricing-grid">
           <div class="l-plan anim-reveal">
             <div class="l-plan-name">Страж</div>
@@ -4025,8 +4371,8 @@
           </div>
           <div class="l-plan featured anim-reveal">
             <div class="l-plan-name">Хранитель</div>
-            <div class="l-plan-price">₸2 490 <span>/мес</span></div>
-            <div class="l-plan-period">или ₸22 000/год (экономия 26%)</div>
+            <div class="l-plan-price" id="price-keeper">₸2 490 <span>/мес</span></div>
+            <div class="l-plan-period" id="period-keeper">при ежемесячной оплате</div>
             <ul class="l-plan-features">
               <li><span class="check">✓</span> Неограниченный сейф</li>
               <li><span class="check">✓</span> Биография без ограничений</li>
@@ -4039,8 +4385,8 @@
           </div>
           <div class="l-plan anim-reveal">
             <div class="l-plan-name">Наследие</div>
-            <div class="l-plan-price">₸5 990 <span>/мес</span></div>
-            <div class="l-plan-period">или ₸54 000/год</div>
+            <div class="l-plan-price" id="price-legacy">₸5 990 <span>/мес</span></div>
+            <div class="l-plan-period" id="period-legacy">при ежемесячной оплате</div>
             <ul class="l-plan-features">
               <li><span class="check">✓</span> Всё из Хранителя</li>
               <li><span class="check">✓</span> До 5 аккаунтов семьи</li>
@@ -4241,6 +4587,8 @@
             class="dock-icon">⏳</span></div>
         <div class="dock-item" onclick="goPage('ai')" id="nav-ai" data-tooltip="AI Ассистент"><span
             class="dock-icon">🤖</span></div>
+        <div class="dock-item" onclick="goPage('subscription')" id="nav-subscription" data-tooltip="Мои подписки"><span
+            class="dock-icon">💎</span></div>
         <div class="dock-item" onclick="goPage('settings')" id="nav-settings" data-tooltip="Настройки"><span
             class="dock-icon">⚙️</span></div>
       </nav>
@@ -4257,7 +4605,8 @@
             </div>
             <div class="page-actions">
               <button class="btn btn-ghost" onclick="goPage('ai')">◆ AI Мудрец</button>
-              <button class="btn btn-primary-sm" onclick="openModal('modal-secret')">+ Добавить тайну</button>
+              <button class="btn btn-primary-sm" onclick="openModal('modal-secret')">+ Добавить
+                тайну</button>
             </div>
           </div>
           <div class="stat-row">
@@ -4301,7 +4650,6 @@
                   <div class="brain-center-icon">🧠</div>
                   <div class="brain-label">Ваше<br>Наследие</div>
                 </div>
-
                 <div class="brain-node brain-node-item" style="top:20%; left:25%;" onclick="openModal('modal-secret')">
                   <div class="brain-icon">🔐</div>
                   <div class="brain-label">Сейф</div>
@@ -4325,6 +4673,125 @@
                   <div class="brain-icon">🤖</div>
                   <div class="brain-label">AI Мудрец</div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SUBSCRIPTIONS ── -->
+        <div class="page" id="page-subscription">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Моя <em>Подписка</em></div>
+              <div class="page-sub">Управляйте тарифом и возможностями вашего хранилища</div>
+            </div>
+          </div>
+
+          <!-- Current Plan Status Card -->
+          <div class="sub-status-card anim-reveal" id="sub-status-card">
+            <!-- Filled by JS -->
+          </div>
+
+          <div class="section-label" style="margin-top: 2.5rem;">Доступные тарифы</div>
+          <div class="sub-comparison-grid" id="sub-plans-list">
+            <!-- Filled by JS -->
+          </div>
+
+          <!-- 💳 VISUAL PAYMENT BLOCK (Integrated) -->
+          <div id="inline-payment-block" style="margin-top: 3rem; display: none; animation: fadeUp 0.5s forwards;">
+            <div class="section-label">Оформление подписки</div>
+            <div class="card"
+              style="background: rgba(20, 20, 25, 0.6); border: 1px solid rgba(201,168,76,0.15); border-radius: 24px; padding: 2.5rem;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+
+                <!-- Left: 3D Card Preview -->
+                <div>
+                  <div class="credit-card-viz" id="card-viz-inline" style="margin-bottom: 2rem;">
+                    <div class="card-viz-type" id="card-viz-type-inline">💳</div>
+                    <div class="card-viz-chip"></div>
+                    <div class="card-viz-number" id="card-viz-number-inline">•••• •••• •••• ••••</div>
+                    <div class="card-viz-bottom">
+                      <div style="max-width: 70%;">
+                        <div class="card-viz-label">Владелец карты</div>
+                        <div class="card-viz-name" id="card-viz-name-inline">NAME SURNAME</div>
+                      </div>
+                      <div style="text-align: right">
+                        <div class="card-viz-label">Срок</div>
+                        <div class="card-viz-expiry" id="card-viz-expiry-inline">00/00</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    style="background: rgba(201,168,76,0.05); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(201,168,76,0.1);">
+                    <div
+                      style="font-size: 0.7rem; color: var(--gold); letter-spacing: 2px; margin-bottom: 10px; text-transform: uppercase;">
+                      К оплате сейчас</div>
+                    <div style="font-size: 2.5rem; font-family: var(--serif); color: var(--gold2);"
+                      id="pay-amount-inline">₸2 490</div>
+                    <div style="font-size: 0.8rem; color: var(--muted2);" id="pay-period-inline">за 1 месяц доступа
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right: Payment Form -->
+                <div>
+                  <div
+                    style="background: rgba(255,255,255,0.02); border-radius: 20px; padding: 2rem; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="margin-bottom: 1.5rem; position: relative;">
+                      <label
+                        style="position: absolute; top: -10px; left: 12px; background: #0f0d16; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">НОМЕР
+                        КАРТЫ</label>
+                      <input type="text" id="card-number-inline" placeholder="0000 0000 0000 0000"
+                        style="width: 100%; background: transparent; border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 14px; color: var(--ivory); font-size: 1.1rem; outline: none; letter-spacing: 2px; font-family: monospace;"
+                        maxlength="19" oninput="updateCardVizNum(this, '-inline')">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                      <div style="position: relative;">
+                        <label
+                          style="position: absolute; top: -10px; left: 12px; background: #0f0d16; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">СРОК</label>
+                        <input type="text" id="card-expiry-inline" placeholder="ММ/ГГ"
+                          style="width: 100%; background: transparent; border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 14px; color: var(--ivory); font-size: 1rem; outline: none; text-align: center;"
+                          maxlength="5" oninput="updateCardVizExpiry(this, '-inline')">
+                      </div>
+                      <div style="position: relative;">
+                        <label
+                          style="position: absolute; top: -10px; left: 12px; background: #0f0d16; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">CVV</label>
+                        <input type="password" id="card-cvv-inline" placeholder="•••"
+                          style="width: 100%; background: transparent; border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 14px; color: var(--ivory); font-size: 1rem; outline: none; text-align: center; letter-spacing: 5px;"
+                          maxlength="3">
+                      </div>
+                    </div>
+
+                    <div style="position: relative; margin-bottom: 2rem;">
+                      <label
+                        style="position: absolute; top: -10px; left: 12px; background: #0f0d16; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">ИМЯ
+                        НА КАРТЕ</label>
+                      <input type="text" id="card-name-inline" placeholder="IVAN IVANOV"
+                        style="width: 100%; background: transparent; border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 14px; color: var(--ivory); font-size: 0.9rem; outline: none; text-transform: uppercase;"
+                        oninput="updateCardVizName(this, '-inline')">
+                    </div>
+
+                    <button class="btn-gold"
+                      style="width: 100%; padding: 18px; font-size: 1rem; letter-spacing: 2px; font-weight: 700; border-radius: 16px;"
+                      onclick="processPaymentReal()">
+                      ПОДТВЕРДИТЬ ОПЛАТУ
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 2rem; background: var(--ink2); border: 1px solid rgba(201,168,76,0.1);">
+            <div style="display:flex; align-items:center; gap:1.5rem; padding:0.5rem">
+              <div style="font-size:2rem">🛡️</div>
+              <div>
+                <div style="font-weight:500; color:var(--gold2); margin-bottom:0.3rem">Безопасность
+                  платежей</div>
+                <div style="font-size:0.8rem; color:var(--muted)">Все транзакции защищены 256-битным
+                  шифрованием. Мы не храним данные вашей карты на наших серверах.</div>
               </div>
             </div>
           </div>
@@ -4373,7 +4840,8 @@
               <div class="page-sub">Письма, которые откроются в нужный момент</div>
             </div>
             <div class="page-actions">
-              <button class="btn btn-primary-sm" onclick="openModal('modal-message')">+ Создать послание</button>
+              <button class="btn btn-primary-sm" onclick="openModal('modal-message')">+ Создать
+                послание</button>
             </div>
           </div>
           <div id="messages-list"></div>
@@ -4475,13 +4943,19 @@
             <div>
               <div class="section-label">Настройка периода</div>
               <div class="card">
-                <div class="switch-ring-wrap"><canvas id="sw-canvas" width="260" height="260"></canvas></div>
+                <div class="switch-ring-wrap"><canvas id="sw-canvas" width="260" height="260"></canvas>
+                </div>
                 <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:1rem">
-                  <button class="btn btn-ghost btn-sm sw-p-btn active" onclick="setSwPeriod(this,7)">7 дн</button>
-                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,14)">14 дн</button>
-                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,30)">30 дн</button>
-                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,60)">60 дн</button>
-                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,90)">90 дн</button>
+                  <button class="btn btn-ghost btn-sm sw-p-btn active" onclick="setSwPeriod(this,7)">7
+                    дн</button>
+                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,14)">14
+                    дн</button>
+                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,30)">30
+                    дн</button>
+                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,60)">60
+                    дн</button>
+                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,90)">90
+                    дн</button>
                 </div>
                 <button class="btn-gold" onclick="doCheckin()">✓ Подтвердить жизнь</button>
               </div>
@@ -4530,24 +5004,24 @@
             <div class="card-grid grid-3">
               <div class="card">
                 <div style="font-size:1.5rem;margin-bottom:0.7rem">✅</div>
-                <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">Активен
-                </div>
-                <div style="font-size:0.8rem;color:var(--muted)">Вы заходите в приложение в пределах выбранного периода.
-                </div>
+                <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">
+                  Активен</div>
+                <div style="font-size:0.8rem;color:var(--muted)">Вы заходите в приложение в пределах
+                  выбранного периода.</div>
               </div>
               <div class="card">
                 <div style="font-size:1.5rem;margin-bottom:0.7rem">⚠️</div>
                 <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">
                   Предупреждение</div>
-                <div style="font-size:0.8rem;color:var(--muted)">Период истёк. Система отправляет Push + Email + SMS.
-                </div>
+                <div style="font-size:0.8rem;color:var(--muted)">Период истёк. Система отправляет Push +
+                  Email + SMS.</div>
               </div>
               <div class="card">
                 <div style="font-size:1.5rem;margin-bottom:0.7rem">🔓</div>
-                <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">Передача
-                </div>
-                <div style="font-size:0.8rem;color:var(--muted)">72 часа без ответа → Душеприказчик открывает доступ
-                  наследникам.</div>
+                <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">
+                  Передача</div>
+                <div style="font-size:0.8rem;color:var(--muted)">72 часа без ответа → Душеприказчик
+                  открывает доступ наследникам.</div>
               </div>
             </div>
           </div>
@@ -4572,8 +5046,8 @@
                   </div>
                 </div>
                 <div class="chat-msgs" id="chat-msgs">
-                  <div class="msg ai">Добро пожаловать. Я здесь, чтобы помочь вам сохранить самое ценное. С чего начнём?
-                  </div>
+                  <div class="msg ai">Добро пожаловать. Я здесь, чтобы помочь вам сохранить самое
+                    ценное. С чего начнём?</div>
                 </div>
                 <div class="chat-input-wrap">
                   <input class="chat-inp" id="chat-inp" placeholder="Спросите Мудреца..."
@@ -4642,7 +5116,8 @@
             <div class="page-actions">
               <button class="btn btn-ghost" onclick="testDbConnection()">🔌 Проверить связь</button>
               <button class="btn btn-ghost" onclick="exportData()">⬇ Экспорт</button>
-              <button class="btn btn-primary-sm" onclick="openModal('modal-db-connect')">Подключить БД</button>
+              <button class="btn btn-primary-sm" onclick="openModal('modal-db-connect')">Подключить
+                БД</button>
             </div>
           </div>
           <div class="card-grid grid-2">
@@ -4652,7 +5127,8 @@
                 <div class="db-dot connected" id="db-dot"></div>
                 <div>
                   <div style="font-size:0.85rem;color:var(--ivory)">LocalStorage (встроенное)</div>
-                  <div style="font-size:0.72rem;color:var(--muted)">Активно · Браузерное хранилище</div>
+                  <div style="font-size:0.72rem;color:var(--muted)">Активно · Браузерное хранилище
+                  </div>
                 </div>
                 <span class="tag tag-green" id="db-status-tag">Connected</span>
               </div>
@@ -4660,7 +5136,8 @@
                 <div class="db-dot disconnected" id="ext-db-dot"></div>
                 <div>
                   <div style="font-size:0.85rem;color:var(--ivory)" id="ext-db-name">PostgreSQL</div>
-                  <div style="font-size:0.72rem;color:var(--muted)" id="ext-db-host">localhost:5432</div>
+                  <div style="font-size:0.72rem;color:var(--muted)" id="ext-db-host">localhost:5432
+                  </div>
                 </div>
                 <span class="tag tag-red" id="ext-db-tag">Disconnected</span>
               </div>
@@ -4689,7 +5166,8 @@
                 &nbsp;&nbsp;id <span class="type">UUID</span>,<br>
                 &nbsp;&nbsp;title <span class="type">VARCHAR</span>,<br>
                 &nbsp;&nbsp;category <span class="type">ENUM</span>,<br>
-                &nbsp;&nbsp;content <span class="type">TEXT</span> <span class="str">// encrypted</span>,<br>
+                &nbsp;&nbsp;content <span class="type">TEXT</span> <span class="str">//
+                  encrypted</span>,<br>
                 &nbsp;&nbsp;access <span class="type">ENUM</span>,<br>
                 &nbsp;&nbsp;created_at <span class="type">TIMESTAMP</span><br>
                 }<br><br>
@@ -4790,7 +5268,8 @@
             </div>
             <div class="page-actions">
               <button class="btn btn-ghost btn-sm" onclick="refreshConnections()">↻ Обновить</button>
-              <button class="btn btn-ghost" onclick="openModal('modal-join-tree')">⊕ Войти в дерево</button>
+              <button class="btn btn-ghost" onclick="openModal('modal-join-tree')">⊕ Войти в
+                дерево</button>
               <button class="btn btn-primary-sm" onclick="shareMyCode()">⬆ Мой код</button>
             </div>
           </div>
@@ -4801,8 +5280,9 @@
             <div class="conn-invite-text">
               <div class="conn-invite-title">Ваш персональный код приглашения</div>
               <div class="conn-code-badge" id="my-conn-code">SK-••••••</div>
-              <div class="conn-invite-sub">Поделитесь кодом с родственниками — они введут его и пришлют запрос на
-                добавление в своё древо. Вы увидите запрос во вкладке «Запросы» и сможете принять или отклонить.</div>
+              <div class="conn-invite-sub">Поделитесь кодом с родственниками — они введут его и пришлют
+                запрос на добавление в своё древо. Вы увидите запрос во вкладке «Запросы» и сможете
+                принять или отклонить.</div>
             </div>
             <div class="conn-invite-actions">
               <button class="btn btn-primary-sm" onclick="copyMyCode()">📋 Копировать</button>
@@ -4842,7 +5322,8 @@
               <div class="empty">
                 <div class="empty-icon">🌳</div>
                 <div class="empty-text">Никто ещё не добавил вас</div>
-                <div class="empty-sub">Поделитесь кодом выше — родственники смогут включить вас в своё дерево</div>
+                <div class="empty-sub">Поделитесь кодом выше — родственники смогут включить вас в своё
+                  дерево</div>
               </div>
             </div>
           </div>
@@ -4853,7 +5334,8 @@
               <div class="empty">
                 <div class="empty-icon">👥</div>
                 <div class="empty-text">Вы ещё никого не добавили</div>
-                <div class="empty-sub">Добавляйте родственников через раздел «Родственники» → они появятся здесь</div>
+                <div class="empty-sub">Добавляйте родственников через раздел «Родственники» → они
+                  появятся здесь</div>
               </div>
             </div>
           </div>
@@ -4880,146 +5362,6 @@
             </div>
           </div>
         </div>
-        <!-- Subscription Page -->
-        <div class="page" id="page-subscription">
-          <div class="page-header">
-            <div>
-              <div class="page-title">Моя <em>подписка</em></div>
-              <div class="page-sub">Управление тарифом и оплата</div>
-            </div>
-          </div>
-          <div id="subscription-container"></div>
-          <!-- КРАСИВЫЙ БЛОК ТАРИФОВ -->
-          <!-- 💳 КРУТАЯ ПЛАТЕЖНАЯ ФОРМА -->
-          <div class="modal-overlay" id="modal-payment-real">
-            <div class="modal"
-              style="max-width: 520px; background: linear-gradient(135deg, var(--ink2), var(--ink3)); border: 1px solid rgba(201,168,76,0.3); border-radius: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
-              <div class="modal-head"
-                style="border-bottom: 1px solid rgba(201,168,76,0.1); padding: 1.5rem 1.8rem 1rem;">
-                <div class="modal-title" style="display: flex; align-items: center; gap: 10px; font-size: 1.2rem;">
-                  <span style="font-size: 28px;">💳</span>
-                  <span>Оплата подписки <em style="color: var(--gold2); font-style: normal; font-weight: 400;"
-                      id="pay-title-modal">Хранитель</em></span>
-                </div>
-                <button class="modal-close" onclick="closeModal('modal-payment-real')"
-                  style="font-size: 1.2rem;">✕</button>
-              </div>
-              <div class="modal-body" style="padding: 1.5rem 1.8rem;">
-
-                <!-- Банковские иконки -->
-                <div
-                  style="display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; padding: 8px; background: rgba(201,168,76,0.05); border-radius: 50px; flex-wrap: wrap;">
-                  <div
-                    style="background: var(--ink); padding: 4px 12px; border-radius: 30px; border: 1px solid rgba(201,168,76,0.12);">
-                    <span style="font-size: 18px;">💳</span> <span
-                      style="font-size: 10px; color: var(--ivory2);">Visa</span>
-                  </div>
-                  <div
-                    style="background: var(--ink); padding: 4px 12px; border-radius: 30px; border: 1px solid rgba(201,168,76,0.12);">
-                    <span style="font-size: 18px;">💳</span> <span
-                      style="font-size: 10px; color: var(--ivory2);">Mastercard</span>
-                  </div>
-                  <div
-                    style="background: var(--ink); padding: 4px 12px; border-radius: 30px; border: 1px solid rgba(201,168,76,0.12);">
-                    <span style="font-size: 18px;">💳</span> <span
-                      style="font-size: 10px; color: var(--ivory2);">Amex</span>
-                  </div>
-                  <div
-                    style="background: var(--ink); padding: 4px 12px; border-radius: 30px; border: 1px solid rgba(201,168,76,0.12);">
-                    <span style="font-size: 18px;">🏦</span> <span
-                      style="font-size: 10px; color: var(--ivory2);">Kaspi</span>
-                  </div>
-                  <div
-                    style="background: var(--ink); padding: 4px 12px; border-radius: 30px; border: 1px solid rgba(201,168,76,0.12);">
-                    <span style="font-size: 18px;">📱</span> <span style="font-size: 10px; color: var(--ivory2);">Apple
-                      Pay</span>
-                  </div>
-                </div>
-
-                <!-- Сумма и план -->
-                <div
-                  style="background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(212,129,58,0.03)); border-radius: 24px; padding: 20px; margin-bottom: 24px; text-align: center; border: 1px solid rgba(201,168,76,0.12);">
-                  <div style="font-size: 0.65rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase;">К
-                    ОПЛАТЕ</div>
-                  <div
-                    style="font-size: 3rem; font-family: var(--serif); color: var(--gold2); font-weight: 300; line-height: 1.2;"
-                    id="pay-amount-modal">₸2 490</div>
-                  <div style="font-size: 0.7rem; color: var(--muted);" id="pay-period-modal">за 1 месяц</div>
-                </div>
-
-                <!-- Выбор периода -->
-                <div style="margin-bottom: 24px;">
-                  <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--gold); margin-bottom: 12px;">📅
-                    ВЫБЕРИТЕ ПЕРИОД</div>
-                  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button type="button" class="period-btn active" data-months="1" data-price="2490"
-                      data-price-legacy="5990" onclick="selectPeriod(1, 2490, 5990)">1 мес</button>
-                    <button type="button" class="period-btn" data-months="3" data-price="6990" data-price-legacy="16990"
-                      onclick="selectPeriod(3, 6990, 16990)">3 мес <span
-                        style="font-size: 0.55rem; color: var(--green);">-7%</span></button>
-                    <button type="button" class="period-btn" data-months="6" data-price="12990"
-                      data-price-legacy="29990" onclick="selectPeriod(6, 12990, 29990)">6 мес <span
-                        style="font-size: 0.55rem; color: var(--green);">-13%</span></button>
-                    <button type="button" class="period-btn" data-months="12" data-price="22000"
-                      data-price-legacy="54000" onclick="selectPeriod(12, 22000, 54000)">12 мес <span
-                        style="font-size: 0.55rem; color: var(--green);">-26%</span></button>
-                  </div>
-                </div>
-
-                <!-- Поля карты -->
-                <div style="margin-bottom: 16px;">
-                  <div style="font-size: 0.65rem; letter-spacing: 2px; color: var(--gold); margin-bottom: 10px;">💳
-                    ДАННЫЕ КАРТЫ</div>
-                  <div
-                    style="background: var(--ink); border-radius: 16px; padding: 14px; border: 1px solid rgba(201,168,76,0.12);">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
-                      <span style="font-size: 22px;" id="card-icon">💳</span>
-                      <input type="text" id="card-number" placeholder="Номер карты"
-                        style="flex: 1; background: transparent; border: none; color: var(--ivory); font-size: 0.9rem; outline: none; font-family: monospace; letter-spacing: 1px;"
-                        maxlength="19" oninput="formatCardNumber(this); detectCardType(this.value)">
-                    </div>
-                    <div style="display: flex; gap: 12px;">
-                      <input type="text" id="card-expiry" placeholder="MM/YY"
-                        style="flex: 1; background: transparent; border: none; color: var(--ivory); font-size: 0.9rem; outline: none; padding: 8px 0;"
-                        maxlength="5" oninput="formatExpiry(this)">
-                      <input type="password" id="card-cvv" placeholder="CVV"
-                        style="flex: 1; background: transparent; border: none; color: var(--ivory); font-size: 0.9rem; outline: none; padding: 8px 0;"
-                        maxlength="4">
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Имя держателя -->
-                <div style="margin-bottom: 24px;">
-                  <input type="text" id="card-name" placeholder="Имя держателя карты (как на карте)"
-                    style="width: 100%; background: var(--ink); border: 1px solid rgba(201,168,76,0.12); border-radius: 16px; padding: 14px; color: var(--ivory); font-size: 0.85rem; outline: none; transition: all 0.2s;"
-                    onfocus="this.style.borderColor='var(--gold)'"
-                    onblur="this.style.borderColor='rgba(201,168,76,0.12)'">
-                </div>
-
-                <!-- Кнопка оплаты -->
-                <button class="btn-gold" id="pay-button"
-                  style="width: 100%; padding: 16px; font-size: 0.85rem; letter-spacing: 2px; border-radius: 40px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600;"
-                  onclick="processPaymentReal()">
-                  <span>💳</span> ОПЛАТИТЬ <span id="pay-button-amount">₸2 490</span>
-                </button>
-
-                <!-- Безопасность -->
-                <div
-                  style="display: flex; justify-content: center; gap: 20px; font-size: 0.6rem; color: var(--muted2); text-align: center; flex-wrap: wrap;">
-                  <span>🔒 SSL Secure</span>
-                  <span>✅ 3D Secure</span>
-                  <span>🛡️ PCI DSS</span>
-                  <span>🔐 Безопасно</span>
-                </div>
-
-                <div
-                  style="font-size: 0.65rem; color: var(--muted2); text-align: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(201,168,76,0.08);">
-                  ⚡ Демо-режим: введите любые данные → подписка активируется
-                </div>
-              </div>
-            </div>
-          </div>
 
       </main>
     </div>
@@ -5168,7 +5510,8 @@
       </div>
       <div class="modal-body">
         <div class="field"><label>Кому</label><input type="text" id="m-to" placeholder="Имя получателя"></div>
-        <div class="field"><label>Тема</label><input type="text" id="m-subject" placeholder="Тема послания"></div>
+        <div class="field"><label>Тема</label><input type="text" id="m-subject" placeholder="Тема послания">
+        </div>
         <div class="field"><label>Текст</label><textarea id="m-content" placeholder="Ваше послание..."
             style="min-height:140px"></textarea></div>
         <div class="field"><label>Когда открыть</label>
@@ -5208,10 +5551,11 @@
             </select>
           </div>
         </div>
-        <div class="field"><label>Email</label><input type="email" id="r-email" placeholder="email@example.com"></div>
+        <div class="field"><label>Email</label><input type="email" id="r-email" placeholder="email@example.com">
+        </div>
         <div class="field city-search-wrap">
-          <label>Город проживания <span style="color:var(--muted);font-size:0.65rem;font-weight:300">(введите для
-              автопоиска)</span></label>
+          <label>Город проживания <span style="color:var(--muted);font-size:0.65rem;font-weight:300">(введите
+              для автопоиска)</span></label>
           <input type="text" id="r-city" placeholder="Москва, Алматы, Лондон..." autocomplete="off"
             oninput="onCityInput(this.value)">
           <div class="city-suggestions" id="city-suggestions"></div>
@@ -5258,8 +5602,10 @@
           <div class="field"><label>База</label><input type="text" id="db-name-input" placeholder="soulkeeper"
               value="soulkeeper"></div>
         </div>
-        <div class="field"><label>Пользователь</label><input type="text" id="db-user" placeholder="postgres"></div>
-        <div class="field"><label>Пароль</label><input type="password" id="db-pass" placeholder="••••••••"></div>
+        <div class="field"><label>Пользователь</label><input type="text" id="db-user" placeholder="postgres">
+        </div>
+        <div class="field"><label>Пароль</label><input type="password" id="db-pass" placeholder="••••••••">
+        </div>
         <div
           style="font-size:0.78rem;color:var(--muted);padding:0.8rem;background:var(--ink3);border:1px solid rgba(201,168,76,0.08);line-height:1.7">
           💡 Для локальной разработки используйте PostgreSQL или SQLite. Подключение эмулируется в браузерной
@@ -5281,8 +5627,8 @@
           onclick="closeModal('modal-join-tree')">✕</button>
       </div>
       <div class="modal-body">
-        <p style="font-size:0.84rem;color:var(--muted);margin-bottom:1.2rem;line-height:1.7">Введите код приглашения от
-          родственника. Ему придёт запрос — после подтверждения вы появитесь в его древе.</p>
+        <p style="font-size:0.84rem;color:var(--muted);margin-bottom:1.2rem;line-height:1.7">Введите код
+          приглашения от родственника. Ему придёт запрос — после подтверждения вы появитесь в его древе.</p>
         <div class="field"><label>Код приглашения</label><input type="text" id="jt-code" placeholder="SK-XXXXXX"
             style="text-transform:uppercase;letter-spacing:0.15em;font-size:1.1rem"></div>
         <div class="field"><label>Ваш статус в этом дереве</label>
@@ -5476,6 +5822,17 @@
     function showApp() {
       showScreen('app');
       initApp();
+      checkPendingPlan();
+    }
+
+    function checkPendingPlan() {
+      const planId = sessionStorage.getItem('pendingPlan');
+      if (planId && STATE.user) {
+        sessionStorage.removeItem('pendingPlan');
+        if (planId !== 'free') {
+          setTimeout(() => openPaymentModalReal(planId), 1500);
+        }
+      }
     }
 
     // ═══════════════════════════════════════════
@@ -5622,6 +5979,7 @@
         else { renderGlobeList(); updateGlobeMarkers(); }
       }
       if (name === 'db') { updateDbStats(); renderDbLog(); }
+      if (name === 'subscription') renderSubscriptionPage();
       if (name === 'connections') renderConnections();
       const mainTabs = ['dash', 'secrets', 'connections', 'tree'];
       if (mainTabs.includes(name)) mobSetActive(name);
@@ -5778,7 +6136,7 @@
 
     function showAuthAndUpgrade(planId) {
       if (STATE.user) {
-        openPaymentModal(planId);
+        openPaymentModalReal(planId);
       } else {
         showAuth('register');
         // Сохраняем план для активации после регистрации
@@ -5921,7 +6279,7 @@
         <div class="empty-icon">⏳</div>
         <div class="empty-text">Доступно на тарифах «Хранитель» и «Наследие»</div>
         <div class="empty-sub" style="margin-bottom:1.5rem">Автоматическая передача наследства при неактивности</div>
-        <button class="btn btn-primary-sm" onclick="openPaymentModal('keeper')">💎 Улучшить тариф</button>
+        <button class="btn btn-primary-sm" onclick="openPaymentModalReal('keeper')">💎 Улучшить тариф</button>
       </div>`;
         return false;
       }
@@ -6158,83 +6516,125 @@
       input.value = value.substring(0, 5);
     }
 
-    function processPaymentReal() {
-      // Получаем данные карты (для анимации)
-      const cardNumber = document.getElementById('card-number').value;
+    function validatePaymentForm() {
+      const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
       const cardExpiry = document.getElementById('card-expiry').value;
-      const cardName = document.getElementById('card-name').value;
+      const cardCVV = document.getElementById('card-cvv').value;
+      const cardName = document.getElementById('card-name').value.trim();
 
-      if (!cardNumber || !cardExpiry || !cardName) {
-        toast('⚠️ Заполните все поля карты');
-        return;
-      }
+      if (cardNumber.length < 16) { toast('⚠️ Введите корректный номер карты'); return false; }
+      if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) { toast('⚠️ Введите срок действия (ММ/ГГ)'); return false; }
+      if (cardCVV.length < 3) { toast('⚠️ Введите CVV (3-4 цифры)'); return false; }
+      if (cardName.length < 3) { toast('⚠️ Введите имя держателя карты'); return false; }
+
+      // Simple expiry date check
+      const [mm, yy] = cardExpiry.split('/').map(n => parseInt(n));
+      const now = new Date();
+      const curY = now.getFullYear() % 100;
+      const curM = now.getMonth() + 1;
+      if (mm < 1 || mm > 12) { toast('⚠️ Некорректный месяц'); return false; }
+      if (yy < curY || (yy === curY && mm < curM)) { toast('⚠️ Карта просрочена'); return false; }
+
+      return true;
+    }
+
+    function processPaymentReal() {
+      if (!validatePaymentForm()) return;
+
+      // Получаем данные
+      const plan = PLANS[currentPayPlan];
 
       // Анимация загрузки
       const payBtn = document.getElementById('pay-button');
       const originalText = payBtn.innerHTML;
-      payBtn.innerHTML = '<span>⏳</span> ОБРАБОТКА...';
+      payBtn.innerHTML = '<span>⏳</span> АВТОРИЗАЦИЯ...';
       payBtn.disabled = true;
       payBtn.style.opacity = '0.7';
 
-      // Эффект "деньги списываются"
       setTimeout(() => {
-        // Активация подписки
-        const success = setUserPlan(currentPayPlan, currentMonths);
+        payBtn.innerHTML = '<span>🛡️</span> ЗАЩИЩЕННЫЙ ПЕРЕВОД...';
+        setTimeout(() => {
+          const success = setUserPlan(currentPayPlan, currentMonths);
+          if (success) {
+            toast(`✅ Оплата прошла успешно!`);
+            closeModal('modal-payment-real');
+            showConfetti();
 
-        if (success) {
-          const plan = PLANS[currentPayPlan];
+            // Показываем финальное окно успеха через небольшую паузу
+            setTimeout(() => {
+              renderSubscriptionPage();
+              const subBadge = document.getElementById('sub-badge');
+              if (subBadge) subBadge.textContent = 'активна';
 
-          // Красивое сообщение
-          toast(`✅ Успешно! Тариф «${plan.name}» активирован на ${currentMonths} ${getMonthText(currentMonths)}`);
-
-          // Звуковой эффект (опционально - раскомментируйте если хотите)
-          // new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3').play();
-
-          closeModal('modal-payment-real');
-
-          // Обновляем интерфейс
-          renderSubscriptionPage();
-          const subBadge = document.getElementById('sub-badge');
-          if (subBadge) subBadge.textContent = 'активна';
-
-          // Показываем конфетти эффект
-          showConfetti();
-
-        } else {
-          toast('❌ Ошибка активации');
-        }
-
-        payBtn.innerHTML = originalText;
-        payBtn.disabled = false;
-        payBtn.style.opacity = '1';
-      }, 1800);
+              // Редирект в приложение если с лендинга
+              if (document.getElementById('screen-landing').classList.contains('active')) {
+                showApp();
+                goPage('dash');
+              }
+            }, 1000);
+          } else {
+            toast('❌ Ошибка активации подписки');
+          }
+          payBtn.innerHTML = originalText;
+          payBtn.disabled = false;
+          payBtn.style.opacity = '1';
+        }, 1500);
+      }, 1000);
     }
 
     function detectCardType(cardNumber) {
       const cleanNumber = cardNumber.replace(/\s/g, '');
       const cardIcon = document.getElementById('card-icon');
+      const cardVizType = document.getElementById('card-viz-type');
+      const cardViz = document.getElementById('card-viz');
 
-      if (!cardIcon) return;
+      let type = 'Card';
+      let icon = '💳';
+      let color = 'linear-gradient(135deg, #2c2c2c, #1a1a1a)';
 
       if (cleanNumber.startsWith('4')) {
-        cardIcon.innerHTML = '💳';
-        cardIcon.title = 'Visa';
+        type = 'Visa';
+        icon = '💳';
+        color = 'linear-gradient(135deg, #1a1f71, #0055a4)';
       } else if (cleanNumber.match(/^5[1-5]/)) {
-        cardIcon.innerHTML = '💳';
-        cardIcon.title = 'Mastercard';
+        type = 'Mastercard';
+        icon = '💳';
+        color = 'linear-gradient(135deg, #eb001b, #f79e1b)';
       } else if (cleanNumber.startsWith('34') || cleanNumber.startsWith('37')) {
-        cardIcon.innerHTML = '💳';
-        cardIcon.title = 'American Express';
-      } else if (cleanNumber.startsWith('6')) {
-        cardIcon.innerHTML = '💳';
-        cardIcon.title = 'Discover';
+        type = 'Amex';
+        icon = '💳';
+        color = 'linear-gradient(135deg, #2e77bb, #00a6d6)';
       } else if (cleanNumber.startsWith('2')) {
-        cardIcon.innerHTML = '💳';
-        cardIcon.title = 'Mir';
-      } else {
-        cardIcon.innerHTML = '💳';
-        cardIcon.title = 'Card';
+        type = 'Mir';
+        icon = '💳';
+        color = 'linear-gradient(135deg, #004a34, #00a651)';
       }
+
+      if (cardIcon) {
+        cardIcon.innerHTML = icon;
+        cardIcon.title = type;
+      }
+      if (cardVizType) cardVizType.innerHTML = icon;
+      if (cardViz) cardViz.style.background = color;
+    }
+
+    function updateCardVizNum(input) {
+      formatCardNumber(input);
+      const val = input.value || '•••• •••• •••• ••••';
+      document.getElementById('card-viz-number').textContent = val;
+      detectCardType(val);
+    }
+    function updateCardVizExpiry(input) {
+      formatExpiry(input);
+      document.getElementById('card-viz-expiry').textContent = input.value || 'MM/YY';
+    }
+    function updateCardVizName(input) {
+      document.getElementById('card-viz-name').textContent = input.value.toUpperCase() || 'YOUR NAME';
+    }
+    function flipCard(back) {
+      const viz = document.getElementById('card-viz');
+      if (back) viz.style.transform = 'rotateY(10deg) scale(1.02)';
+      else viz.style.transform = 'rotateY(0deg) scale(1)';
     }
 
     // Эффект конфетти при успешной оплате
@@ -6272,6 +6672,92 @@
     // Переопределяем openPaymentModal на новую функцию
     window.openPaymentModal = openPaymentModalReal;
 
+    function renderSubscriptionPage() {
+      if (!STATE.user) return;
+      const plan = getUserPlan();
+      const planId = plan.id || (PLANS.keeper.price === plan.price ? 'keeper' : (PLANS.legacy.price === plan.price ? 'legacy' : 'free'));
+      const expiry = DB.load('plan_expiry_' + STATE.user.email, 0);
+      const daysLeft = expiry ? Math.ceil((expiry - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
+
+      // Render Current Plan Card
+      const statusCard = document.getElementById('sub-status-card');
+      if (statusCard) {
+        statusCard.innerHTML = `
+                    <div class="sub-info-main">
+                        <div class="sub-plan-tag">Ваш текущий тариф</div>
+                        <h3>${plan.name}</h3>
+                        <div class="sub-meta">
+                            <div class="sub-meta-item">
+                                <div class="sub-meta-label">Статус</div>
+                                <div class="sub-meta-value" style="color:${daysLeft > 0 ? 'var(--green)' : (planId === 'free' ? 'var(--ivory)' : 'var(--red)')}">${daysLeft > 0 ? 'Активен' : (planId === 'free' ? 'Бессрочно' : 'Истек')}</div>
+                            </div>
+                            <div class="sub-meta-item">
+                                <div class="sub-meta-label">Следующее списание</div>
+                                <div class="sub-meta-value">${daysLeft > 0 ? new Date(expiry).toLocaleDateString('ru') : (planId === 'free' ? '—' : 'Требуется оплата')}</div>
+                            </div>
+                            <div class="sub-meta-item">
+                                <div class="sub-meta-label">Стоимость</div>
+                                <div class="sub-meta-value">${plan.price > 0 ? `₸${plan.price} /мес` : 'Бесплатно'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sub-actions">
+                        ${planId !== 'free' ? '<button class="btn btn-ghost" onclick="cancelSubscription()">Отменить подписку</button>' : ''}
+                        <button class="btn-gold" onclick="openPaymentModalReal('${planId === 'free' ? 'keeper' : planId}')" style="margin-left:1rem; padding: 0.8rem 1.5rem;">
+                            ${planId === 'free' ? '💎 Перейти на Премиум' : '💳 Продлить'}
+                        </button>
+                    </div>
+                `;
+      }
+
+      // Render Plans List
+      const plansList = document.getElementById('sub-plans-list');
+      if (plansList) {
+        plansList.innerHTML = Object.entries(PLANS).map(([id, p]) => `
+                    <div class="plan-card-mini ${id === planId ? 'active' : ''}">
+                        <div class="plan-mini-name">${p.name}</div>
+                        <div class="plan-mini-price">₸${p.price} <span>/мес</span></div>
+                        <ul class="plan-mini-features">
+                            <li><span>✓</span> ${p.maxSecrets === 999 ? 'Безлимит' : p.maxSecrets} тайн в сейфе</li>
+                            <li><span>✓</span> ${p.maxRelatives === 999 ? 'Безлимит' : p.maxRelatives} родственников</li>
+                            <li><span>${p.price > 0 ? '✓' : '✕'}</span> Страж жизни</li>
+                            <li><span>${p.price > 0 ? '✓' : '✕'}</span> Экспорт PDF</li>
+                            ${id === 'legacy' ? '<li><span>✓</span> Печатная книга жизни</li>' : ''}
+                        </ul>
+                        <button class="btn ${id === planId ? 'btn-ghost' : 'btn-primary-sm'}" 
+                                onclick="buyFromLanding('${id}')" 
+                                ${id === planId ? 'disabled' : ''}>
+                            ${id === planId ? 'Текущий тариф' : 'Выбрать'}
+                        </button>
+                    </div>
+                `).join('');
+      }
+    }
+
+    function togglePricing() {
+      const isYearly = document.getElementById('pricing-checkbox').checked;
+      const keeperPrice = document.getElementById('price-keeper');
+      const legacyPrice = document.getElementById('price-legacy');
+      const keeperPeriod = document.getElementById('period-keeper');
+      const legacyPeriod = document.getElementById('period-legacy');
+
+      const labels = document.querySelectorAll('.pricing-toggle-label');
+      labels[0].classList.toggle('active', !isYearly);
+      labels[1].classList.toggle('active', isYearly);
+
+      if (isYearly) {
+        keeperPrice.innerHTML = '₸1 833 <span>/мес</span>';
+        legacyPrice.innerHTML = '₸4 500 <span>/мес</span>';
+        keeperPeriod.innerHTML = '₸22 000 списывается раз в год';
+        legacyPeriod.innerHTML = '₸54 000 списывается раз в год';
+      } else {
+        keeperPrice.innerHTML = '₸2 490 <span>/мес</span>';
+        legacyPrice.innerHTML = '₸5 990 <span>/мес</span>';
+        keeperPeriod.innerHTML = 'при ежемесячной оплате';
+        legacyPeriod.innerHTML = 'при ежемесячной оплате';
+      }
+    }
+
     // Функция для лендинга
     function buyFromLanding(planId) {
       if (STATE.user) {
@@ -6282,7 +6768,15 @@
             location.reload();
           }
         } else {
+          const isYearly = document.getElementById('pricing-checkbox')?.checked;
           openPaymentModalReal(planId);
+          if (isYearly) {
+            // Автоматически выбираем 12 месяцев в модалке если на лендинге выбран год
+            setTimeout(() => {
+              const btn12 = document.querySelector('.period-btn[data-months="12"]');
+              if (btn12) btn12.click();
+            }, 50);
+          }
         }
       } else {
         sessionStorage.setItem('pendingPlan', planId);
@@ -6926,7 +7420,69 @@
     }
 
     function exportPDF() {
-      toast('PDF экспорт доступен в тарифе Хранитель');
+      const plan = getUserPlan();
+      if (plan.id === 'free') {
+        toast('🔒 PDF экспорт доступен в тарифе Хранитель');
+        openPaymentModalReal('keeper');
+        return;
+      }
+
+      toast('⏳ Формирование PDF документа...');
+
+      setTimeout(() => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Стиль заголовка
+        doc.setFontSize(22);
+        doc.setTextColor(212, 175, 55); // Gold
+        doc.text('SoulKeeper — Наследие', 105, 20, { align: 'center' });
+
+        doc.setFontSize(14);
+        doc.setTextColor(40, 40, 40);
+        doc.text(`Владелец: ${STATE.user.name}`, 20, 40);
+        doc.text(`Дата экспорта: ${new Date().toLocaleDateString('ru')}`, 20, 50);
+
+        doc.setDrawColor(212, 175, 55);
+        doc.line(20, 55, 190, 55);
+
+        // Биография
+        doc.setFontSize(18);
+        doc.text('История жизни (Биография)', 20, 70);
+        doc.setFontSize(12);
+        let y = 80;
+        if (STATE.bio.length === 0) {
+          doc.text('Раздел пуст', 20, y);
+          y += 10;
+        } else {
+          STATE.bio.forEach((b, i) => {
+            if (y > 270) { doc.addPage(); y = 20; }
+            doc.setFont(undefined, 'bold');
+            doc.text(`${i + 1}. ${b.title}`, 20, y);
+            y += 7;
+            doc.setFont(undefined, 'normal');
+            const splitText = doc.splitTextToSize(b.content, 170);
+            doc.text(splitText, 20, y);
+            y += (splitText.length * 6) + 10;
+          });
+        }
+
+        // Сейф (только заголовки и описание, без паролей для безопасности PDF)
+        if (y > 250) { doc.addPage(); y = 20; }
+        doc.setFontSize(18);
+        doc.text('Цифровой сейф (Реестр тайн)', 20, y);
+        y += 12;
+        doc.setFontSize(10);
+        STATE.secrets.forEach((s, i) => {
+          if (y > 270) { doc.addPage(); y = 20; }
+          doc.text(`${i + 1}. [${s.type.toUpperCase()}] ${s.title} — ${s.desc || 'Нет описания'}`, 20, y);
+          y += 8;
+        });
+
+        doc.save(`SoulKeeper_${STATE.user.name.replace(/\s/g, '_')}.pdf`);
+        toast('✅ PDF успешно сохранен');
+        addActivity('Экспорт PDF документа');
+      }, 1000);
     }
 
     function confirmDelete() {
@@ -7163,7 +7719,47 @@
       // Dash date
       const dd = document.getElementById('dash-date');
       if (dd) dd.textContent = new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+      // Background Switch Countdown (Demo: 1 day = 1 minute)
+      setInterval(() => {
+        if (STATE.user && STATE.swDays > 0) {
+          STATE.swDays--;
+          updateSwitchUI();
+          if (STATE.swDays === 0) {
+            triggerReleaseSimulation();
+          }
+        }
+      }, 60000); // 1 minute
     });
+
+    function triggerReleaseSimulation() {
+      if (STATE.releaseTriggered) return;
+      STATE.releaseTriggered = true;
+
+      // Notif for owner
+      addActivity('‼️ СТРАЖ СРАБОТАЛ: Данные переданы наследникам');
+      toast('🚨 Внимание! Период неактивности истек. Данные переданы.');
+
+      // Visual indicator in dashboard
+      const dashHeader = document.querySelector('.page-header');
+      if (dashHeader) {
+        const alert = document.createElement('div');
+        alert.className = 'card';
+        alert.style.cssText = 'background: rgba(231, 76, 60, 0.1); border: 1px solid var(--red); margin-bottom: 1.5rem; text-align: center; padding: 1rem;';
+        alert.innerHTML = `
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🚨</div>
+                    <div style="font-weight: 600; color: var(--red); text-transform: uppercase; letter-spacing: 1px;">Режим Наследования Активирован</div>
+                    <div style="font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem;">Ваши доверенные лица получили доступ к сейфу из-за отсутствия активности.</div>
+                    <button class="btn btn-primary-sm" style="margin-top: 1rem; background: var(--red);" onclick="doCheckin(); this.parentElement.remove(); STATE.releaseTriggered=false;">Отменить и сбросить таймер</button>
+                `;
+        dashHeader.parentElement.insertBefore(alert, dashHeader.nextSibling);
+      }
+
+      // Simulating email/release
+      if (STATE.executor) {
+        console.log(`[SIMULATION] Email sent to ${STATE.executor.email}: Access granted to SoulKeeper vault.`);
+      }
+    }
 
     window.addEventListener('resize', () => {
       if (globeRenderer) {
@@ -7458,147 +8054,6 @@
     }
     function mobFabAction() { openModal('modal-secret'); }
 
-    // ========== ПОДПИСКА И ОПЛАТА ==========
-    let currentPaymentPlan = null;
-
-    function renderSubscriptionPage() {
-      const container = document.getElementById('subscription-container');
-      if (!container || !STATE.user) return;
-
-      const plan = getUserPlan();
-      const expiry = DB.load('plan_expiry_' + STATE.user.email, 0);
-      const daysLeft = expiry ? Math.max(0, Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
-
-      container.innerHTML = `
-    <div class="card-grid grid-2">
-      <div>
-        <div class="section-label">Текущий тариф</div>
-        <div class="card" style="text-align:center">
-          <div style="font-size:3rem;margin-bottom:0.5rem">${plan.name === 'Страж' ? '🛡️' : plan.name === 'Хранитель' ? '🔱' : '👑'}</div>
-          <div style="font-family:var(--serif);font-size:2rem;color:var(--gold2)">${plan.name}</div>
-          ${plan.price > 0 ? `<div style="color:var(--muted);margin-top:0.3rem">${plan.price} ₸ / месяц</div>` : '<div style="color:var(--green)">Бесплатно</div>'}
-          ${daysLeft > 0 ? `<div class="tag tag-green" style="display:inline-block;margin-top:0.8rem">✅ Активна до ${new Date(expiry).toLocaleDateString('ru')} (${daysLeft} дн.)</div>` : plan.price > 0 ? '<div class="tag tag-red" style="display:inline-block;margin-top:0.8rem">❌ Истекла</div>' : ''}
-          ${plan.price === 0 ? `<button class="btn btn-primary-sm" style="margin-top:1rem" onclick="openPaymentModal('keeper')">💎 Улучшить тариф</button>` : `<button class="btn btn-ghost" style="margin-top:1rem" onclick="cancelSubscription()">Отменить подписку</button>`}
-        </div>
-      </div>
-      <div>
-        <div class="section-label">Что включено</div>
-        <div class="card">
-          <ul style="list-style:none">
-            <li style="padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.06)">🔐 Тайны: <strong style="color:var(--gold2)">${plan.maxSecrets === 999 ? '∞' : plan.maxSecrets}</strong></li>
-            <li style="padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.06)">📖 Главы биографии: <strong style="color:var(--gold2)">${plan.maxBioChapters === 999 ? '∞' : plan.maxBioChapters}</strong></li>
-            <li style="padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.06)">👥 Родственники: <strong style="color:var(--gold2)">${plan.maxRelatives === 999 ? '∞' : plan.maxRelatives}</strong></li>
-            <li style="padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.06)">⏳ Страж жизни: <strong>${plan.hasSwitch ? '✅ Да' : '❌ Нет'}</strong></li>
-            <li style="padding:0.4rem 0">📤 Экспорт данных: <strong>${plan.hasExport ? '✅ Да' : '❌ Нет'}</strong></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top:1rem;text-align:center;font-size:0.78rem;color:var(--muted)">
-      Изменить тариф можно на <a href="#" onclick="showLanding();setTimeout(()=>document.getElementById('l-pricing').scrollIntoView({behavior:'smooth'}),300)" style="color:var(--gold)">странице тарифов</a>
-    </div>
-  `;
-    }
-
-    // Обновить в настройках (карточка подписки)
-    const settingsCard = document.getElementById('settings-sub-card');
-    if (settingsCard) {
-      settingsCard.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem">
-        <div>
-          <div style="font-weight:400">Тариф: <span style="color:var(--gold2)">${plan.name}</span></div>
-          <div style="font-size:0.75rem; color:var(--muted)">${plan.price > 0 ? `${plan.price} ₸/мес` : 'Бесплатный'}</div>
-          ${daysLeft > 0 ? `<div style="font-size:0.7rem; color:var(--green)">Действует до ${new Date(expiry).toLocaleDateString('ru')}</div>` : ''}
-        </div>
-        <button class="btn btn-primary-sm" onclick="openPaymentModal('keeper')">💎 Купить подписку</button>
-      </div>
-    `;
-    }
-
-
-    function openPaymentModal(planId) {
-      currentPaymentPlan = planId;
-      const plan = PLANS[planId];
-      document.getElementById('pay-plan-name').textContent = plan.name;
-      document.getElementById('pay-plan-price').innerHTML = `${plan.price} <span style="font-size:1rem">₸</span>`;
-      document.getElementById('pay-plan-period').textContent = '/мес';
-      openModal('modal-payment');
-    }
-
-    function processPayment() {
-      const period = document.getElementById('payment-period').value;
-      const months = parseInt(period);
-      const planId = currentPaymentPlan;
-      if (!planId || !PLANS[planId]) return;
-
-      // Симуляция оплаты
-      const loading = toast('⏳ Обработка платежа...');
-
-      setTimeout(() => {
-        const success = setUserPlan(planId, months);
-        if (success) {
-          const plan = PLANS[planId];
-          toast(`✅ Оплачено! Тариф «${plan.name}» активирован на ${months} месяц(ев)`);
-          closeModal('modal-payment');
-          renderSubscriptionPage();
-          // Обновить план-бейдж
-          const badge = document.querySelector('.plan-badge');
-          if (badge) badge.innerHTML = `💎 ${plan.name} • активна`;
-          // Обновить настройки
-          const planBadge = document.getElementById('sub-badge');
-          if (planBadge) planBadge.textContent = plan.name === 'Страж' ? 'бесплатно' : 'активна';
-          // Перерисовать страницы с учетом новых лимитов
-          renderSecrets();
-          renderBio();
-          renderMessages();
-          renderRelatives();
-        } else {
-          toast('❌ Ошибка активации');
-        }
-      }, 1500);
-    }
-
-    function cancelSubscription() {
-      if (!confirm('Отменить подписку? Доступ к платным функциям сохранится до конца оплаченного периода.')) return;
-      // В реальном приложении — отмена через API
-      toast('Подписка отменена. Тариф останется активным до окончания срока.');
-    }
-
-    // Переопределяем upgradeToPlan (чтобы работало с лендинга)
-    function upgradeToPlan(planId) {
-      if (planId === 'free') {
-        if (confirm('Переключиться на бесплатный тариф? Платные функции станут недоступны.')) {
-          setUserPlan('free', 0);
-          toast('✅ Бесплатный тариф активирован');
-          if (globeInit) location.reload();
-          else renderSubscriptionPage();
-        }
-        return;
-      }
-      openPaymentModal(planId);
-    }
-
-    // Добавить в goPage вызов отрисовки подписки
-    // Найти функцию goPage и добавить внутри:
-    // if(name === 'subscription') renderSubscriptionPage();
-    function upgradeFromLanding(planId) {
-      if (STATE.user) {
-        // Пользователь уже вошел - открываем оплату
-        if (planId === 'free') {
-          if (confirm('Переключиться на бесплатный тариф?')) {
-            setUserPlan('free', 0);
-            toast('✅ Бесплатный тариф активирован');
-          }
-        } else {
-          openPaymentModal(planId);
-        }
-      } else {
-        // Пользователь не вошел - показываем регистрацию и запоминаем план
-        sessionStorage.setItem('pendingPlan', planId);
-        showAuth('register');
-        toast('Зарегистрируйтесь, и тариф активируется автоматически!');
-      }
-    }
 
   </script>
   <!-- MODAL UPGRADE -->
@@ -7644,8 +8099,8 @@
             <button class="l-plan-btn" onclick="upgradeToPlan('legacy')">Выбрать</button>
           </div>
         </div>
-        <div style="margin-top:1rem; font-size:0.7rem; text-align:center; color:var(--gold)">💳 После оплаты тариф
-          активируется мгновенно</div>
+        <div style="margin-top:1rem; font-size:0.7rem; text-align:center; color:var(--gold)">💳 После оплаты
+          тариф активируется мгновенно</div>
       </div>
     </div>
   </div>
@@ -7688,99 +8143,122 @@
     </div>
   </div>
   <!-- 💳 КРУТАЯ ПЛАТЕЖНАЯ ФОРМА -->
+  <!-- 💳 КРУТАЯ ПЛАТЕЖНАЯ ФОРМА -->
   <div class="modal-overlay" id="modal-payment-real">
     <div class="modal"
-      style="max-width:500px; background: linear-gradient(135deg, var(--ink2), var(--ink3)); border: 1px solid rgba(201,168,76,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
-      <div class="modal-head" style="border-bottom: 1px solid rgba(201,168,76,0.15);">
-        <div class="modal-title" style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 24px;">💳</span>
-          <span>Оплата подписки <em style="color: var(--gold2); font-style: normal;"
-              id="pay-title-modal">Хранитель</em></span>
-        </div>
-        <button class="modal-close" onclick="closeModal('modal-payment-real')">✕</button>
-      </div>
-      <div class="modal-body" style="padding: 1.5rem;">
-
-        <!-- Банковские иконки -->
-        <div
-          style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; padding: 8px; background: rgba(201,168,76,0.05); border-radius: 50px;">
-          <img src="https://img.icons8.com/color/28/visa.png" alt="Visa">
-          <img src="https://img.icons8.com/color/28/mastercard.png" alt="Mastercard">
-          <img src="https://img.icons8.com/color/28/american-express.png" alt="Amex">
-          <img src="https://img.icons8.com/color/28/mir.png" alt="Mir" style="filter: brightness(0.8);">
-          <span style="color: var(--gold); font-size: 20px;">🏦</span>
-          <span style="color: var(--gold); font-size: 20px;">📱</span>
-        </div>
-
-        <!-- Сумма и план -->
-        <div
-          style="background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(212,129,58,0.05)); border-radius: 16px; padding: 16px; margin-bottom: 24px; text-align: center; border: 1px solid rgba(201,168,76,0.15);">
-          <div style="font-size: 0.7rem; letter-spacing: 2px; color: var(--gold); text-transform: uppercase;">К ОПЛАТЕ
-          </div>
+      style="max-width:500px; background: rgba(18,18,18,0.85); border: 1px solid rgba(201,168,76,0.2); backdrop-filter: blur(25px); border-radius: 32px; box-shadow: 0 30px 100px rgba(0,0,0,0.8); overflow: hidden;">
+      <div class="modal-head" style="border-bottom: 1px solid rgba(201,168,76,0.1); padding: 2rem 2.5rem 1.5rem;">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 15px;">
           <div
-            style="font-size: 2.8rem; font-family: var(--serif); color: var(--gold2); font-weight: 300; line-height: 1.2;"
-            id="pay-amount-modal">₸2 490</div>
-          <div style="font-size: 0.7rem; color: var(--muted);" id="pay-period-modal">за 1 месяц</div>
-        </div>
-
-        <!-- Выбор периода (красивые кнопки
-      <div style="margin-bottom: 24px;">
-        <div style="font-size: 0.65rem; letter-spacing: 1px; color: var(--gold); margin-bottom: 10px;">📅 ВЫБЕРИТЕ ПЕРИОД</div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button type="button" class="period-btn active" data-months="1" data-price="2490" data-price-legacy="5990" onclick="selectPeriod(1, 2490, 5990)">1 мес</button>
-          <button type="button" class="period-btn" data-months="3" data-price="6990" data-price-legacy="16990" onclick="selectPeriod(3, 6990, 16990)">3 мес <span style="font-size: 0.6rem; color: var(--green);">-7%</span></button>
-          <button type="button" class="period-btn" data-months="6" data-price="12990" data-price-legacy="29990" onclick="selectPeriod(6, 12990, 29990)">6 мес <span style="font-size: 0.6rem; color: var(--green);">-13%</span></button>
-          <button type="button" class="period-btn" data-months="12" data-price="22000" data-price-legacy="54000" onclick="selectPeriod(12, 22000, 54000)">12 мес <span style="font-size: 0.6rem; color: var(--green);">-26%</span></button>
-        </div>
-      </div>
-      
-      <!-- Поля карты -->
-        <div style="margin-bottom: 16px;">
-          <div style="font-size: 0.65rem; letter-spacing: 1px; color: var(--gold); margin-bottom: 8px;">💳 ДАННЫЕ КАРТЫ
+            style="width: 45px; height: 45px; background: rgba(201,168,76,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+            💳</div>
+          <div>
+            <div style="font-size: 1.2rem; font-weight: 600;">Оплата <em>подписки</em></div>
+            <div style="font-size: 0.75rem; color: var(--gold); letter-spacing: 1px;" id="pay-title-modal">ТАРИФ:
+              ХРАНИТЕЛЬ</div>
           </div>
-          <div
-            style="background: var(--ink); border-radius: 12px; padding: 12px; border: 1px solid rgba(201,168,76,0.12);">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-              <span style="font-size: 20px;">💳</span>
-              <input type="text" id="card-number" placeholder="Номер карты"
-                style="flex: 1; background: transparent; border: none; color: var(--ivory); font-size: 0.9rem; outline: none;"
-                maxlength="19" oninput="formatCardNumber(this)">
+        </div>
+        <button class="modal-close" onclick="closeModal('modal-payment-real')" style="opacity: 0.6; transition: 0.3s;"
+          onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 2rem 2.5rem;">
+
+        <!-- Card Visualization (Glassmorphism Plastic) -->
+        <div class="credit-card-viz" id="card-viz" style="margin-bottom: 2rem;">
+          <div class="card-viz-type" id="card-viz-type">💳</div>
+          <div class="card-viz-chip"></div>
+          <div class="card-viz-number" id="card-viz-number">•••• •••• •••• ••••</div>
+          <div class="card-viz-bottom">
+            <div style="max-width: 70%;">
+              <div class="card-viz-label">Владелец карты</div>
+              <div class="card-viz-name" id="card-viz-name"
+                style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">NAME SURNAME</div>
             </div>
-            <div style="display: flex; gap: 12px;">
-              <input type="text" id="card-expiry" placeholder="MM/YY"
-                style="flex: 1; background: transparent; border: none; color: var(--ivory); font-size: 0.9rem; outline: none; padding: 8px 0;"
-                maxlength="5" oninput="formatExpiry(this)">
-              <input type="password" id="card-cvv" placeholder="CVV"
-                style="flex: 1; background: transparent; border: none; color: var(--ivory); font-size: 0.9rem; outline: none; padding: 8px 0;"
-                maxlength="4">
+            <div style="text-align: right">
+              <div class="card-viz-label">Срок</div>
+              <div class="card-viz-expiry" id="card-viz-expiry">00/00</div>
             </div>
           </div>
         </div>
 
-        <!-- Имя держателя -->
-        <div style="margin-bottom: 20px;">
-          <input type="text" id="card-name" placeholder="Имя держателя карты (как на карте)"
-            style="width: 100%; background: var(--ink); border: 1px solid rgba(201,168,76,0.12); border-radius: 12px; padding: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem;">
+          <div>
+            <div
+              style="font-size: 0.65rem; color: var(--muted); margin-bottom: 8px; letter-spacing: 1.5px; text-transform: uppercase;">
+              Сумма к оплате</div>
+            <div style="font-size: 2.2rem; font-family: var(--serif); color: var(--gold2);" id="pay-amount-modal">₸2 490
+            </div>
+            <div style="font-size: 0.75rem; color: var(--muted2);" id="pay-period-modal">за 1 месяц доступа</div>
+          </div>
+          <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+            <div
+              style="font-size: 0.65rem; color: var(--muted); margin-bottom: 8px; letter-spacing: 1.5px; text-transform: uppercase;">
+              Варианты периода</div>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" class="period-btn active" data-months="1"
+                onclick="selectPeriod(1, 2490, 5990)">1м</button>
+              <button type="button" class="period-btn" data-months="12"
+                onclick="selectPeriod(12, 22000, 54000)">12м</button>
+            </div>
+          </div>
         </div>
 
-        <!-- Кнопка оплаты -->
+        <!-- Input Group -->
+        <div
+          style="background: rgba(255,255,255,0.03); border: 1px solid rgba(201,168,76,0.1); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem;">
+          <div style="margin-bottom: 1.5rem; position: relative;">
+            <label
+              style="position: absolute; top: -10px; left: 12px; background: #1a1a1a; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">НОМЕР
+              КАРТЫ</label>
+            <input type="text" id="card-number" placeholder="0000 0000 0000 0000"
+              style="width: 100%; background: transparent; border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 14px; color: var(--ivory); font-size: 1.1rem; outline: none; letter-spacing: 2px; font-family: monospace;"
+              maxlength="19" oninput="updateCardVizNum(this)">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="position: relative;">
+              <label
+                style="position: absolute; top: -10px; left: 12px; background: #1a1a1a; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">СРОК
+                ДЕЙСТВИЯ</label>
+              <input type="text" id="card-expiry" placeholder="ММ/ГГ"
+                style="width: 100%; background: transparent; border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 14px; color: var(--ivory); font-size: 1rem; outline: none; text-align: center;"
+                maxlength="5" oninput="updateCardVizExpiry(this)">
+            </div>
+            <div style="position: relative;">
+              <label
+                style="position: absolute; top: -10px; left: 12px; background: #1a1a1a; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">CVV/CVC</label>
+              <input type="password" id="card-cvv" placeholder="•••"
+                style="width: 100%; background: transparent; border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 14px; color: var(--ivory); font-size: 1rem; outline: none; text-align: center; letter-spacing: 5px;"
+                maxlength="4" onfocus="flipCard(true)" onblur="flipCard(false)">
+            </div>
+          </div>
+
+          <div style="position: relative;">
+            <label
+              style="position: absolute; top: -10px; left: 12px; background: #1a1a1a; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">ИМЯ
+              НА КАРТЕ</label>
+            <input type="text" id="card-name" placeholder="IVAN IVANOV"
+              style="width: 100%; background: transparent; border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 14px; color: var(--ivory); font-size: 0.9rem; outline: none; text-transform: uppercase;"
+              oninput="updateCardVizName(this)">
+          </div>
+        </div>
+
         <button class="btn-gold" id="pay-button"
-          style="width: 100%; padding: 14px; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 10px;"
+          style="width: 100%; padding: 18px; font-size: 1rem; letter-spacing: 3px; font-weight: 700; border-radius: 16px; box-shadow: 0 10px 30px rgba(201,168,76,0.3);"
           onclick="processPaymentReal()">
-          <span>💳</span> ОПЛАТИТЬ <span id="pay-button-amount">₸2 490</span>
+          ПОДТВЕРДИТЬ И ОПЛАТИТЬ
         </button>
 
-        <!-- Безопасность -->
         <div
-          style="display: flex; justify-content: center; gap: 16px; font-size: 0.6rem; color: var(--muted2); text-align: center; flex-wrap: wrap;">
-          <span>🔒 SSL Secure</span>
-          <span>✅ 3D Secure</span>
-          <span>🛡️ PCI DSS</span>
+          style="display: flex; justify-content: center; gap: 20px; margin-top: 2rem; opacity: 0.5; filter: grayscale(1);">
+          <img src="https://img.icons8.com/color/32/visa.png" alt="Visa">
+          <img src="https://img.icons8.com/color/32/mastercard.png" alt="Mastercard">
+          <img src="https://img.icons8.com/color/32/american-express.png" alt="Amex">
+          <span style="font-size: 24px; color: white;">🏦</span>
         </div>
 
-        <div
-          style="font-size: 0.65rem; color: var(--muted2); text-align: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(201,168,76,0.08);">
-          ⚡ Демо-режим: введите любые данные → подписка активируется
+        <div style="margin-top: 1.5rem; text-align: center; font-size: 0.65rem; color: var(--muted2);">
+          🔒 Безопасность обеспечена сквозным шифрованием SSL 256-bit
         </div>
       </div>
     </div>
