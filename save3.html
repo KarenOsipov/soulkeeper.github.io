@@ -5751,6 +5751,7 @@
           DB.save('bio_' + e, STATE.bio);
           DB.save('msgs_' + e, STATE.messages);
           DB.save('rels_' + e, STATE.relatives);
+          DB.save('notifs_' + e, STATE.notifications);
         } else {
           // Первый вход — загружаем из localStorage если есть
           loadUserData();
@@ -6296,6 +6297,7 @@
     function renderAll() {
       renderSecrets(); renderBio(); renderMessages(); renderRelatives();
       updateDashStats(); updateBadges(); renderTree(); renderGlobeList();
+      renderDashActivity();
     }
 
     // ═══════════════════════════════════════════
@@ -7694,14 +7696,31 @@
       }
     });
 
+    function renderDashActivity() {
+      const el = document.getElementById('dash-activity');
+      if (!el) return;
+      if (!STATE.notifications || !STATE.notifications.length) {
+        el.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📅</div>
+            <div class="empty-text">Нет активности</div>
+          </div>`;
+        return;
+      }
+      el.innerHTML = STATE.notifications.slice(0, 5).map(n =>
+        `<div class="list-item" style="padding:0.6rem 0.8rem">
+          <div class="list-meta">
+            <div class="list-title" style="font-size:0.8rem">${esc(n.title)}</div>
+            <div class="list-sub">${n.time}</div>
+          </div>
+        </div>`
+      ).join('');
+    }
+
     function addActivity(text) {
       STATE.notifications.unshift({ id: uid(), title: text, sub: 'Активность', time: new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' }) });
       if (STATE.notifications.length > 30) STATE.notifications = STATE.notifications.slice(0, 30);
-      saveUserData(); renderNotifs();
-      const el = document.getElementById('dash-activity');
-      if (el) el.innerHTML = STATE.notifications.slice(0, 5).map(n =>
-        `<div class="list-item" style="padding:0.6rem 0.8rem"><div class="list-meta"><div class="list-title" style="font-size:0.8rem">${esc(n.title)}</div><div class="list-sub">${n.time}</div></div></div>`
-      ).join('');
+      saveUserData(); renderNotifs(); renderDashActivity();
     }
 
     // ═══════════════════════════════════════════
