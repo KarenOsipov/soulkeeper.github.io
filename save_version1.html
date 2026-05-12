@@ -13,6 +13,10 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap"
     rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <style>
     /* ════════════════════════════════════════════
    DESIGN TOKENS
@@ -4491,12 +4495,17 @@
               autocomplete="email"></div>
           <div class="field"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••"
               autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-          <button class="btn-primary-sm"
+          <button id="btn-login" class="btn-primary-sm"
             style="width: 100%; justify-content: center; padding: 0.8rem; margin-bottom: 1rem;"
             onclick="doLogin()">Войти</button>
-          <button class="btn-ghost" style="width: 100%; justify-content: center; padding: 0.8rem;"
+          <button class="btn-ghost" style="width: 100%; justify-content: center; padding: 0.8rem; margin-bottom:0.5rem;"
             onclick="doDemoLogin()">◆ Демо-вход (без регистрации)</button>
-          <div class="auth-err" id="login-err">Неверный email или пароль</div>
+          <div style="text-align:center; margin-top:0.6rem;">
+            <a href="#" style="font-size:0.78rem; color:var(--muted); text-decoration:none;"
+              onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted)'"
+              onclick="doForgotPassword(event)">Забыл пароль?</a>
+          </div>
+          <div class="auth-err" id="login-err"></div>
         </div>
 
         <!-- REGISTER -->
@@ -4507,8 +4516,9 @@
               autocomplete="email"></div>
           <div class="field"><label>Пароль</label><input type="password" id="reg-pass" placeholder="Минимум 6 символов"
               autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"></div>
-          <button class="btn-primary-sm" style="width: 100%; justify-content: center; padding: 0.8rem;"
-            onclick="doRegister()">Создать аккаунт</button>
+          <button id="btn-register" class="btn-primary-sm"
+            style="width: 100%; justify-content: center; padding: 0.8rem;" onclick="doRegister()">Создать
+            аккаунт</button>
           <div class="auth-err" id="reg-err"></div>
         </div>
 
@@ -5673,6 +5683,108 @@
     'use strict';
 
     // ═══════════════════════════════════════════
+    // FIREBASE — Config & Init
+    // ═══════════════════════════════════════════
+    const firebaseConfig = {
+      apiKey: "AIzaSyBj_FKvzjcUlTNytspwD7Wwl3CkENZJM9w",
+      authDomain: "soulkeeper-001.firebaseapp.com",
+      projectId: "soulkeeper-001",
+      storageBucket: "soulkeeper-001.firebasestorage.app",
+      messagingSenderId: "959264625043",
+      appId: "1:959264625043:web:ccbb1dcdd789bc4ddd9866",
+      measurementId: "G-07SK4LWQ0L"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const fbAuth = firebase.auth();
+    const fbDb = firebase.firestore();
+
+    // Вспомогалки для ошибок Firebase Auth
+    function fbErrMsg(code) {
+      const map = {
+        'auth/invalid-email': 'Неверный формат email',
+        'auth/user-not-found': 'Пользователь не найден',
+        'auth/wrong-password': 'Неверный пароль',
+        'auth/invalid-credential': 'Неверный email или пароль',
+        'auth/email-already-in-use': 'Этот email уже зарегистрирован',
+        'auth/weak-password': 'Пароль слишком короткий (минимум 6 символов)',
+        'auth/too-many-requests': 'Слишком много попыток. Попробуйте позже',
+        'auth/network-request-failed': 'Ошибка сети. Проверьте интернет'
+      };
+      return map[code] || 'Ошибка: ' + code;
+    }
+
+    // Загрузка данных пользователя из Firestore (облако → STATE → localStorage)
+    async function loadUserDataFromFirestore(uid) {
+      try {
+        const doc = await fbDb.collection('users').doc(uid).get();
+        if (doc.exists) {
+          const data = doc.data();
+          STATE.secrets = data.secrets || [];
+          STATE.bio = data.bio || [];
+          STATE.messages = data.messages || [];
+          STATE.relatives = data.relatives || [];
+          STATE.notifications = data.notifications || [];
+          STATE.swPeriod = data.swPeriod || 7;
+          STATE.swDays = data.swDays || 7;
+          STATE.executor = data.executor || null;
+          STATE.settings = data.settings || {};
+          // зеркалим в localStorage для скорости
+          const e = STATE.user.email;
+          DB.save('secrets_' + e, STATE.secrets);
+          DB.save('bio_' + e, STATE.bio);
+          DB.save('msgs_' + e, STATE.messages);
+          DB.save('rels_' + e, STATE.relatives);
+        } else {
+          // Первый вход — загружаем из localStorage если есть
+          loadUserData();
+        }
+        DB._addLog('OK', 'Данные загружены из Firestore');
+      } catch (err) {
+        console.error('Firestore load error:', err);
+        DB._addLog('ERR', 'Ошибка загрузки из Firestore — используем локальные данные');
+        loadUserData();
+      }
+    }
+
+    // Сохранение данных пользователя в Firestore + localStorage
+    async function saveUserDataToFirestore() {
+      if (!STATE.user || STATE.user.isDemo) {
+        saveUserData(); // для демо — только localStorage
+        return;
+      }
+      const uid = fbAuth.currentUser && fbAuth.currentUser.uid;
+      if (!uid) { saveUserData(); return; }
+      // сначала быстро сохраняем локально
+      saveUserData();
+      // потом асинхронно в Firestore
+      try {
+        await fbDb.collection('users').doc(uid).set({
+          name: STATE.user.name,
+          email: STATE.user.email,
+          secrets: STATE.secrets,
+          bio: STATE.bio,
+          messages: STATE.messages,
+          relatives: STATE.relatives,
+          notifications: STATE.notifications,
+          swPeriod: STATE.swPeriod,
+          swDays: STATE.swDays,
+          executor: STATE.executor,
+          settings: STATE.settings,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        DB._addLog('OK', 'Данные синхронизированы с Firestore');
+      } catch (err) {
+        console.error('Firestore save error:', err);
+        DB._addLog('ERR', 'Не удалось сохранить в Firestore');
+      }
+    }
+
+    // Глобальный переопределитель saveUserData для Firebase-пользователей
+    // (вызывается из всего приложения)
+    const _origSaveUserData = null; // патчим ниже после определения функции
+
+
+    // ═══════════════════════════════════════════
     // STORAGE LAYER — LocalStorage + DB abstraction
     // ═══════════════════════════════════════════
     const DB = {
@@ -5748,7 +5860,8 @@
     function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
     function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
-    function saveUserData() {
+    // _saveLocalOnly — только localStorage (внутренний вызов)
+    function _saveLocalOnly() {
       if (!STATE.user) return;
       const e = STATE.user.email;
       DB.save('secrets_' + e, STATE.secrets);
@@ -5760,6 +5873,41 @@
       DB.save('executor_' + e, STATE.executor);
       DB.save('settings_' + e, STATE.settings);
       updateDbStats();
+    }
+
+    // saveUserData — главная точка сохранения для всего приложения.
+    // Для Firebase-пользователей → Firestore + localStorage.
+    // Для демо → только localStorage.
+    function saveUserData() {
+      if (!STATE.user) return;
+      if (STATE.user.isDemo) {
+        _saveLocalOnly();
+        return;
+      }
+      // Firebase-пользователь: сначала быстро локально, затем облако
+      _saveLocalOnly();
+      const fbUser = typeof fbAuth !== 'undefined' && fbAuth.currentUser;
+      if (fbUser) {
+        fbDb.collection('users').doc(fbUser.uid).set({
+          name: STATE.user.name,
+          email: STATE.user.email,
+          secrets: STATE.secrets,
+          bio: STATE.bio,
+          messages: STATE.messages,
+          relatives: STATE.relatives,
+          notifications: STATE.notifications,
+          swPeriod: STATE.swPeriod,
+          swDays: STATE.swDays,
+          executor: STATE.executor,
+          settings: STATE.settings,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true })
+          .then(() => DB._addLog('OK', 'Firestore: данные сохранены'))
+          .catch(err => {
+            console.error('Firestore save error:', err);
+            DB._addLog('ERR', 'Firestore: ошибка сохранения — ' + err.message);
+          });
+      }
     }
 
     function loadUserData() {
@@ -5775,6 +5923,34 @@
       STATE.executor = DB.load('executor_' + e, null);
       STATE.settings = DB.load('settings_' + e, {});
       DB._addLog('INFO', `Данные пользователя загружены (${e})`);
+    }
+
+    // ── Forgot Password ──────────────────────────────────────────────
+    function doForgotPassword(event) {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      if (!email) {
+        const err = document.getElementById('login-err');
+        err.textContent = 'Введите email выше для сброса пароля';
+        err.style.display = 'block';
+        err.style.color = 'var(--gold)';
+        setTimeout(() => { err.style.display = 'none'; err.style.color = ''; }, 3500);
+        return;
+      }
+      fbAuth.sendPasswordResetEmail(email)
+        .then(() => {
+          const err = document.getElementById('login-err');
+          err.textContent = '✓ Письмо для сброса пароля отправлено на ' + email;
+          err.style.display = 'block';
+          err.style.color = 'var(--green)';
+          setTimeout(() => { err.style.display = 'none'; err.style.color = ''; }, 5000);
+        })
+        .catch(e => {
+          const err = document.getElementById('login-err');
+          err.textContent = fbErrMsg(e.code);
+          err.style.display = 'block';
+          setTimeout(() => err.style.display = 'none', 4000);
+        });
     }
 
     // ПОДПИСКИ: структура и лимиты
@@ -5845,27 +6021,46 @@
       document.getElementById('form-' + tab).classList.add('active');
     }
 
+    // ── Spinner helper ──────────────────────────────────────────────
+    function setAuthLoading(btnId, loading, text) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.disabled = loading;
+      btn.style.opacity = loading ? '0.6' : '1';
+      if (text) btn.textContent = loading ? '⏳ Подождите...' : text;
+    }
+
+    // ── LOGIN via Firebase Auth ─────────────────────────────────────
     function doLogin() {
       const email = document.getElementById('login-email').value.trim();
       const pass = document.getElementById('login-pass').value;
       const err = document.getElementById('login-err');
       err.style.display = 'none';
 
-      const users = DB.load('users', []);
-      const user = users.find(u => u.email === email && u.pass === btoa(pass));
-      if (!user) { err.style.display = 'block'; return; }
+      if (!email || !pass) {
+        err.textContent = 'Введите email и пароль';
+        err.style.display = 'block';
+        return;
+      }
 
-      DB.save('user', user);
-      STATE.user = user;
-      loadUserData();
-      showApp();
+      setAuthLoading('btn-login', true, 'Войти');
+
+      fbAuth.signInWithEmailAndPassword(email, pass)
+        .then(cred => {
+          // onAuthStateChanged сам вызовет showApp()
+        })
+        .catch(e => {
+          err.textContent = fbErrMsg(e.code);
+          err.style.display = 'block';
+          setAuthLoading('btn-login', false, 'Войти');
+        });
     }
 
+    // ── DEMO LOGIN (без Firebase, только localStorage) ──────────────
     function doDemoLogin() {
-      const demo = { name: 'Демо Пользователь', email: 'demo@soulkeeper.app', pass: btoa('demo123'), isDemo: true };
+      const demo = { name: 'Демо Пользователь', email: 'demo@soulkeeper.app', isDemo: true };
       STATE.user = demo;
       DB.save('user', demo);
-      // Seed demo data
       if (!DB.load('secrets_' + demo.email)) {
         STATE.secrets = [
           { id: uid(), title: 'Пароль от банка', category: 'password', content: '[Зашифровано] •••••••••', access: 'private', date: new Date().toLocaleDateString('ru') },
@@ -5878,7 +6073,7 @@
           { id: uid(), name: 'Анна Иванова', rel: 'Дочь', access: 'heir', email: 'anna@example.com', lat: 55.7558, lon: 37.6173, city: 'Москва, Россия' },
           { id: uid(), name: 'Сергей Иванов', rel: 'Сын', access: 'heir', email: 'sergey@example.com', lat: 51.1801, lon: 71.4460, city: 'Астана, Казахстан' },
           { id: uid(), name: 'Мария Петрова', rel: 'Сестра', access: 'trusted', email: 'maria@example.com', lat: 48.8566, lon: 2.3522, city: 'Париж, Франция' },
-          { id: uid(), name: 'Игорь Козлов', rel: 'Брат', access: 'observer', email: 'igor@example.com', lat: 40.7128, lon: -74.0060, city: 'Нью-Йорк, США' },
+          { id: uid(), name: 'Игорь Козлов', rel: 'Брат', access: 'observer', email: 'igor@example.com', lat: 40.7128, lon: -74.006, city: 'Нью-Йорк, США' },
         ];
         STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper', sub: 'Демо-режим', time: 'сейчас' }];
         saveUserData();
@@ -5887,34 +6082,116 @@
       setTimeout(() => showOnboarding(), 600);
     }
 
+    // ── REGISTER via Firebase Auth ──────────────────────────────────
     function doRegister() {
       const name = document.getElementById('reg-name').value.trim();
       const email = document.getElementById('reg-email').value.trim();
       const pass = document.getElementById('reg-pass').value;
       const err = document.getElementById('reg-err');
+      err.style.display = 'none';
 
       if (!name || !email || !pass) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; return; }
       if (pass.length < 6) { err.textContent = 'Пароль минимум 6 символов'; err.style.display = 'block'; return; }
 
-      const users = DB.load('users', []);
-      if (users.find(u => u.email === email)) { err.textContent = 'Email уже используется'; err.style.display = 'block'; return; }
+      setAuthLoading('btn-register', true, 'Создать аккаунт');
 
-      const user = { id: uid(), name, email, pass: btoa(pass), created: new Date().toISOString() };
-      users.push(user);
-      DB.save('users', users);
-      DB.save('user', user);
-      STATE.user = user;
-      STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' }) }];
-      saveUserData();
-      showApp();
-      setTimeout(() => showOnboarding(), 600);
+      fbAuth.createUserWithEmailAndPassword(email, pass)
+        .then(cred => {
+          // Сохраняем displayName
+          return cred.user.updateProfile({ displayName: name }).then(() => cred);
+        })
+        .then(cred => {
+          // Создаём документ пользователя в Firestore
+          return fbDb.collection('users').doc(cred.user.uid).set({
+            name: name,
+            email: email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        })
+        .catch(e => {
+          err.textContent = fbErrMsg(e.code);
+          err.style.display = 'block';
+          setAuthLoading('btn-register', false, 'Создать аккаунт');
+        });
+      // onAuthStateChanged сам вызовет showApp() после успешной регистрации
     }
 
+    // ── LOGOUT ────────────────────────────────────────────────────────
     function doLogout() {
-      DB.remove('user');
-      STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
-      showLanding();
+      if (STATE.user && STATE.user.isDemo) {
+        DB.remove('user');
+        STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
+        showLanding();
+        return;
+      }
+      fbAuth.signOut().then(() => {
+        DB.remove('user');
+        STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
+        showLanding();
+      });
     }
+
+    // ── onAuthStateChanged — восстановление сессии и вход/выход ──────
+    fbAuth.onAuthStateChanged(async (fbUser) => {
+      // Сбрасываем спиннеры
+      setAuthLoading('btn-login', false, 'Войти');
+      setAuthLoading('btn-register', false, 'Создать аккаунт');
+
+      if (fbUser) {
+        // Пользователь вошёл (или страница перезагружена со старой сессией)
+        const user = {
+          id: fbUser.uid,
+          name: fbUser.displayName || fbUser.email.split('@')[0],
+          email: fbUser.email,
+          uid: fbUser.uid
+        };
+        STATE.user = user;
+        DB.save('user', user);
+
+        // Загружаем данные из Firestore (или localStorage при ошибке)
+        await loadUserDataFromFirestore(fbUser.uid);
+
+        // Перекидываем на приложение только если сейчас НЕ на странице app
+        const appScreen = document.getElementById('screen-app');
+        if (!appScreen || !appScreen.classList.contains('active')) {
+          const isNewUser = fbUser.metadata.creationTime === fbUser.metadata.lastSignInTime;
+          showApp();
+          if (isNewUser) setTimeout(() => showOnboarding(), 600);
+        } else {
+          // Уже в приложении — просто обновляем данные
+          renderAll();
+        }
+
+        // Проверяем отложенный план (если пришёл с лендинга)
+        const pendingPl = sessionStorage.getItem('pendingPlan');
+        if (pendingPl && PLANS[pendingPl]) {
+          sessionStorage.removeItem('pendingPlan');
+          if (pendingPl !== 'free') setTimeout(() => openPaymentModalReal(pendingPl), 1500);
+        }
+
+        toast('👋 Добро пожаловать, ' + user.name.split(' ')[0] + '!');
+      } else {
+        // Пользователь вышел или нет сессии
+        // Проверяем демо-режим (хранится только в localStorage)
+        const demoUser = DB.load('user', null);
+        if (demoUser && demoUser.isDemo) {
+          STATE.user = demoUser;
+          loadUserData();
+          const appScreen = document.getElementById('screen-app');
+          if (!appScreen || !appScreen.classList.contains('active')) showApp();
+        } else {
+          // Обычный выход — на лендинг
+          STATE.user = null;
+          const authScreen = document.getElementById('screen-auth');
+          const landingScreen = document.getElementById('screen-landing');
+          // Только если сейчас на экране auth или app — переходим на лендинг
+          if (authScreen && authScreen.classList.contains('active')) return;
+          if (landingScreen && !landingScreen.classList.contains('active')) {
+            // не трогаем — пользователь уже на нужном экране
+          }
+        }
+      }
+    });
 
     // ═══════════════════════════════════════════
     // APP INIT
@@ -6144,14 +6421,6 @@
       }
     }
 
-    // В doRegister и doDemoLogin добавить проверку:
-    // После STATE.user = user; добавить:
-    const pendingPlan = sessionStorage.getItem('pendingPlan');
-    if (pendingPlan && PLANS[pendingPlan]) {
-      setUserPlan(pendingPlan, 1);
-      sessionStorage.removeItem('pendingPlan');
-      toast(`🎉 Тариф «${PLANS[pendingPlan].name}» активирован!`);
-    }
 
     // ═══════════════════════════════════════════
     // MESSAGES
@@ -7698,13 +7967,17 @@
     // AUTO-LOGIN CHECK
     // ═══════════════════════════════════════════
     function checkAutoLogin() {
+      // Firebase session — восстанавливается автоматически через onAuthStateChanged.
+      // Здесь обрабатываем только демо-режим (хранится в localStorage без Firebase).
       const saved = DB.load('user');
-      if (saved) {
+      if (saved && saved.isDemo) {
         STATE.user = saved;
         loadUserData();
         showScreen('app');
         initApp();
       }
+      // Для обычных Firebase-пользователей — ничего не делаем,
+      // onAuthStateChanged уже вызван и восстановит сессию.
     }
 
     // ═══════════════════════════════════════════
@@ -7716,6 +7989,7 @@
       initReveal();
       initTicker();
       checkAutoLogin();
+
       // Dash date
       const dd = document.getElementById('dash-date');
       if (dd) dd.textContent = new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });

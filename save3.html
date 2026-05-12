@@ -4493,8 +4493,17 @@
         <div class="auth-form active" id="form-login">
           <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"
               autocomplete="email"></div>
-          <div class="field"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••"
-              autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+          <div class="field">
+            <label>Пароль</label>
+            <div style="position: relative;">
+              <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"
+                onkeydown="if(event.key==='Enter')doLogin()" style="padding-right: 2.5rem;">
+              <button type="button" onclick="togglePassword('login-pass', this)"
+                style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 0.2rem;">
+                👁️
+              </button>
+            </div>
+          </div>
           <button id="btn-login" class="btn-primary-sm"
             style="width: 100%; justify-content: center; padding: 0.8rem; margin-bottom: 1rem;"
             onclick="doLogin()">Войти</button>
@@ -4514,8 +4523,17 @@
               autocomplete="name"></div>
           <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"
               autocomplete="email"></div>
-          <div class="field"><label>Пароль</label><input type="password" id="reg-pass" placeholder="Минимум 6 символов"
-              autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"></div>
+          <div class="field">
+            <label>Пароль</label>
+            <div style="position: relative;">
+              <input type="password" id="reg-pass" placeholder="Минимум 6 символов" autocomplete="new-password"
+                onkeydown="if(event.key==='Enter')doRegister()" style="padding-right: 2.5rem;">
+              <button type="button" onclick="togglePassword('reg-pass', this)"
+                style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 0.2rem;">
+                👁️
+              </button>
+            </div>
+          </div>
           <button id="btn-register" class="btn-primary-sm" style="width: 100%; justify-content: center; padding: 0.8rem;"
             onclick="doRegister()">Создать аккаунт</button>
           <div class="auth-err" id="reg-err"></div>
@@ -6029,6 +6047,18 @@
       if (text) btn.textContent = loading ? '⏳ Подождите...' : text;
     }
 
+    // ── Toggle Password Visibility ──────────────────────────────────
+    function togglePassword(inputId, btnEl) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btnEl.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btnEl.textContent = '👁️';
+      }
+    }
+
     // ── LOGIN via Firebase Auth ─────────────────────────────────────
     function doLogin() {
       const email = document.getElementById('login-email').value.trim();
@@ -6046,7 +6076,15 @@
 
       fbAuth.signInWithEmailAndPassword(email, pass)
         .then(cred => {
-          // onAuthStateChanged сам вызовет showApp()
+          if (!cred.user.emailVerified) {
+            // Если email не подтвержден, разлогиниваем и показываем ошибку
+            fbAuth.signOut();
+            err.textContent = 'Пожалуйста, подтвердите ваш email. Мы отправляли вам письмо с ссылкой.';
+            err.style.display = 'block';
+            setAuthLoading('btn-login', false, 'Войти');
+            return;
+          }
+          // onAuthStateChanged сам вызовет showApp() если все ок
         })
         .catch(e => {
           err.textContent = fbErrMsg(e.code);
@@ -6100,6 +6138,10 @@
           return cred.user.updateProfile({ displayName: name }).then(() => cred);
         })
         .then(cred => {
+          // Отправляем письмо с подтверждением
+          return cred.user.sendEmailVerification().then(() => cred);
+        })
+        .then(cred => {
           // Создаём документ пользователя в Firestore
           return fbDb.collection('users').doc(cred.user.uid).set({
             name      : name,
@@ -6107,12 +6149,22 @@
             createdAt : firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
         })
+        .then(() => {
+           // После успешной регистрации и отправки письма, разлогиниваем
+           // чтобы заставить подтвердить email перед реальным входом
+           fbAuth.signOut();
+           err.textContent = 'Аккаунт создан! Пожалуйста, проверьте вашу почту (' + email + ') и перейдите по ссылке для подтверждения, затем войдите.';
+           err.style.display = 'block';
+           err.style.color = 'var(--green)';
+           setAuthLoading('btn-register', false, 'Создать аккаунт');
+           setTimeout(() => switchAuthTab('login'), 8000);
+        })
         .catch(e => {
           err.textContent = fbErrMsg(e.code);
           err.style.display = 'block';
+          err.style.color = 'var(--red)';
           setAuthLoading('btn-register', false, 'Создать аккаунт');
         });
-      // onAuthStateChanged сам вызовет showApp() после успешной регистрации
     }
 
     // ── LOGOUT ────────────────────────────────────────────────────────
@@ -6137,6 +6189,12 @@
       setAuthLoading('btn-register', false, 'Создать аккаунт');
 
       if (fbUser) {
+        if (!fbUser.emailVerified) {
+           // Защита: если сессия есть, но email не подтвержден - выходим
+           fbAuth.signOut();
+           return;
+        }
+
         // Пользователь вошёл (или страница перезагружена со старой сессией)
         const user = {
           id    : fbUser.uid,
