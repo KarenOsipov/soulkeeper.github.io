@@ -6316,20 +6316,34 @@
 
       if (mode === 'resetPassword' && actionCode) {
         resetCode = actionCode;
-        console.log('--- PASSWORD RESET DETECTED ---');
+        console.log('!!! RESET CODE DETECTED !!!', resetCode);
         
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('screen-auth').classList.add('active');
-        
-        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-        const resetForm = document.getElementById('form-reset-confirm');
-        if (resetForm) {
-            resetForm.classList.add('active');
-            resetForm.style.display = 'block';
-        }
-        
-        const authTitle = document.querySelector('.auth-panel h2');
-        if (authTitle) authTitle.textContent = 'Восстановление доступа';
+        setTimeout(() => {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-auth').classList.add('active');
+            
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            const resetForm = document.getElementById('form-reset-confirm');
+            if (resetForm) {
+                resetForm.classList.add('active');
+                resetForm.style.display = 'block';
+            }
+            
+            const panel = document.querySelector('.auth-card');
+            if (panel && !document.getElementById('emergency-reset-btn')) {
+                const btn = document.createElement('button');
+                btn.id = 'emergency-reset-btn';
+                btn.className = 'btn-gold';
+                btn.style.cssText = 'width:100%; margin-top:1rem; padding:1rem; position:relative; z-index:100;';
+                btn.textContent = 'ОТКРЫТЬ ФОРМУ СБРОСА';
+                btn.onclick = () => {
+                    document.getElementById('form-reset-confirm').style.display = 'block';
+                    document.getElementById('form-reset-confirm').classList.add('active');
+                    btn.remove();
+                };
+                panel.appendChild(btn);
+            }
+        }, 500);
 
         window.history.replaceState({}, document.title, window.location.pathname);
       }
