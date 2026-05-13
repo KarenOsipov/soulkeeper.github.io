@@ -6411,19 +6411,16 @@
         STATE.user = user;
         DB.save('user', user);
 
-        // Загружаем данные из Firestore (или localStorage при ошибке)
-        await loadUserDataFromFirestore(fbUser.uid);
-
-        // Перекидываем на приложение только если сейчас НЕ на странице app
+        // Перекидываем на приложение МГНОВЕННО
         const appScreen = document.getElementById('screen-app');
         if (!appScreen || !appScreen.classList.contains('active')) {
-          const isNewUser = fbUser.metadata.creationTime === fbUser.metadata.lastSignInTime;
           showApp();
-          if (isNewUser) setTimeout(() => showOnboarding(), 600);
-        } else {
-          // Уже в приложении — просто обновляем данные
-          renderAll();
         }
+
+        // Загружаем данные в фоновом режиме
+        loadUserDataFromFirestore(fbUser.uid).then(() => {
+            renderAll();
+        });
 
         // Проверяем отложенный план (если пришёл с лендинга)
         const pendingPl = sessionStorage.getItem('pendingPlan');
