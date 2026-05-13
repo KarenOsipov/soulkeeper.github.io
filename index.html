@@ -6336,10 +6336,15 @@
         };
 
         hideOthers();
-        setTimeout(hideOthers, 500); // Повтор через полсекунды для верности
+        setTimeout(hideOthers, 500); 
 
-        window.history.replaceState({}, document.title, window.location.pathname);
+        setTimeout(() => {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }, 2000); // Задержка очистки URL
+        
+        return true; // Индикатор активного сброса
       }
+      return false;
     }
 
     function doFinalPasswordReset() {
@@ -8244,13 +8249,16 @@
     // INIT
     // ═══════════════════════════════════════════
     window.addEventListener('DOMContentLoaded', () => {
-      checkUrlParams(); // 1. Приоритет — сброс пароля
+      const isResetting = checkUrlParams(); // 1. Приоритет — сброс пароля
       
       initHeroCanvas();
       initLandingNav();
       initReveal();
       initTicker();
-      checkAutoLogin();
+
+      if (!isResetting) {
+        checkAutoLogin();
+      }
 
       // Dash date
       const dd = document.getElementById('dash-date');
