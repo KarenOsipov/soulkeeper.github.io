@@ -6103,6 +6103,11 @@
     // SCREEN ROUTING
     // ═══════════════════════════════════════════
     function showScreen(id) {
+      // Блокируем переключение на другие экраны, если идет сброс пароля
+      if (id !== 'auth' && window.location.search.includes('mode=resetPassword')) {
+          console.log('Screen switch blocked: reset mode active');
+          return;
+      }
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById('screen-' + id).classList.add('active');
       if (id === 'landing') window.scrollTo(0, 0);
@@ -6113,6 +6118,7 @@
       switchAuthTab(tab);
     }
     function showApp() {
+      if (window.location.search.includes('mode=resetPassword')) return;
       showScreen('app');
       initApp();
       checkPendingPlan();
