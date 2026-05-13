@@ -6262,14 +6262,6 @@
           return cred.user.updateProfile({ displayName: name }).then(() => cred);
         })
         .then(cred => {
-          // Настройка адреса возврата для письма подтверждения
-          const actionCodeSettings = {
-            url: 'https://karenosipov.github.io/',
-            handleCodeInApp: true
-          };
-          return cred.user.sendEmailVerification(actionCodeSettings).then(() => cred);
-        })
-        .then(cred => {
           // Создаём документ пользователя в Firestore
           return fbDb.collection('users').doc(cred.user.uid).set({
             name: name,
@@ -6278,17 +6270,9 @@
           }, { merge: true });
         })
         .then(() => {
-          // После успешной регистрации ВСЕГДА разлогиниваем для подтверждения почты
-          fbAuth.signOut();
-          err.textContent = 'Аккаунт успешно создан! Мы отправили письмо с подтверждением на ' + email + '. Пожалуйста, подтвердите его перед входом.';
-          err.style.display = 'block';
-          err.style.color = 'var(--green)';
+          toast('✅ Аккаунт успешно создан!');
           setAuthLoading('btn-register', false, 'Создать аккаунт');
-          
-          setTimeout(() => {
-             switchAuthTab('login');
-             document.getElementById('login-email').value = email;
-          }, 6000);
+          // Приложение само переключится на экран 'app' через onAuthStateChanged
         })
         .catch(e => {
           err.textContent = fbErrMsg(e.code);
@@ -6324,36 +6308,35 @@
         resetCode = actionCode;
         console.log('!!! RESET CODE DETECTED !!!', resetCode);
         
-        setTimeout(() => {
-            // Скрываем все экраны и показываем Auth
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-auth').classList.add('active');
-            
-            // Скрываем вкладки (tabs), чтобы они не мешали
+        // МГНОВЕННОЕ СКРЫТИЕ (без задержек)
+        const hideOthers = () => {
             const tabs = document.querySelector('.auth-tabs');
             if (tabs) tabs.style.display = 'none';
             
-            // Скрываем все формы и показываем только сброс
             document.querySelectorAll('.auth-form').forEach(f => {
                 f.classList.remove('active');
-                f.style.display = 'none';
+                f.style.setProperty('display', 'none', 'important');
             });
             
             const resetForm = document.getElementById('form-reset-confirm');
             if (resetForm) {
                 resetForm.classList.add('active');
-                resetForm.style.display = 'block';
+                resetForm.style.setProperty('display', 'block', 'important');
             }
-            
-            // Убираем заголовок "Вход в систему"
+
             const authTitle = document.querySelector('.auth-panel h2');
             if (authTitle) authTitle.textContent = 'Новый пароль';
-            
-            // Убираем кнопку "На главную", чтобы не отвлекала
+
             const backBtn = document.querySelector('.auth-back');
             if (backBtn) backBtn.style.display = 'none';
+            
+            // Удаляем кнопку-спасатель если она была
+            const emBtn = document.getElementById('emergency-reset-btn');
+            if (emBtn) emBtn.remove();
+        };
 
-        }, 400);
+        hideOthers();
+        setTimeout(hideOthers, 500); // Повтор через полсекунды для верности
 
         window.history.replaceState({}, document.title, window.location.pathname);
       }
@@ -6396,13 +6379,7 @@
       setAuthLoading('btn-register', false, 'Создать аккаунт');
 
       if (fbUser) {
-        const isBypassed = sessionStorage.getItem('debug_bypass_verify') === 'true';
-        
-        if (!fbUser.emailVerified && !isBypassed) {
-          // СТРОГИЙ РЕЖИМ: если почта не подтверждена, принудительно выходим
-          fbAuth.signOut();
-          return;
-        }
+        // emailVerified check disabled
 
         const user = {
           id: fbUser.uid,

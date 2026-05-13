@@ -6257,14 +6257,6 @@
           return cred.user.updateProfile({ displayName: name }).then(() => cred);
         })
         .then(cred => {
-          // Настройка адреса возврата для письма подтверждения
-          const actionCodeSettings = {
-            url: 'https://karenosipov.github.io/',
-            handleCodeInApp: true
-          };
-          return cred.user.sendEmailVerification(actionCodeSettings).then(() => cred);
-        })
-        .then(cred => {
           // Создаём документ пользователя в Firestore
           return fbDb.collection('users').doc(cred.user.uid).set({
             name: name,
@@ -6273,16 +6265,8 @@
           }, { merge: true });
         })
         .then(() => {
-          fbAuth.signOut(); // Принудительный логаут до подтверждения
-          err.textContent = 'Аккаунт создан! Мы отправили письмо на ' + email + '. Подтвердите его и затем войдите.';
-          err.style.display = 'block';
-          err.style.color = 'var(--green)';
+          toast('✅ Аккаунт успешно создан!');
           setAuthLoading('btn-register', false, 'Создать аккаунт');
-          
-          setTimeout(() => {
-             switchAuthTab('login');
-             document.getElementById('login-email').value = email;
-          }, 6000);
         })
         .catch(e => {
           err.textContent = fbErrMsg(e.code);
@@ -6384,13 +6368,7 @@
     // ── onAuthStateChanged — восстановление сессии и вход/выход ──────
     fbAuth.onAuthStateChanged(async (fbUser) => {
       if (fbUser) {
-        const isBypassed = sessionStorage.getItem('debug_bypass_verify') === 'true';
-        
-        if (!fbUser.emailVerified && !isBypassed) {
-          fbAuth.signOut();
-          return;
-        }
-        
+        // emailVerified check disabled
         const user = {
           id: fbUser.uid,
           name: fbUser.displayName || fbUser.email.split('@')[0],
