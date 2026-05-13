@@ -4541,6 +4541,20 @@
           <div class="auth-err" id="reg-err"></div>
         </div>
 
+        <!-- RESET PASSWORD (NEW) -->
+        <div class="auth-form" id="form-reset-confirm">
+          <div style="text-align:center; margin-bottom:1.5rem;">
+            <div style="font-size:1.2rem; font-weight:600; color:var(--gold2);">Новый пароль</div>
+            <div style="font-size:0.8rem; color:var(--muted);">Введите новый пароль для вашего аккаунта</div>
+          </div>
+          <div class="field">
+            <label>Новый пароль</label>
+            <input type="password" id="new-pass-input" placeholder="Минимум 6 символов">
+          </div>
+          <button id="btn-confirm-reset" class="btn-primary-sm" style="width: 100%; padding: 0.8rem;" onclick="doFinalPasswordReset()">Сохранить пароль</button>
+          <div class="auth-err" id="reset-confirm-err"></div>
+        </div>
+
         <div class="auth-back" style="margin-top: 2rem; cursor: pointer; color: var(--muted); font-size: 0.8rem;"
           onclick="showLanding()">← На главную</div>
       </div>
@@ -6276,6 +6290,47 @@
         STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
         showLanding();
       });
+    }
+
+    // ── URL PARAMETERS HANDLER (Firebase Actions) ──────────────────
+    let resetCode = null;
+    function checkUrlParams() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const mode = urlParams.get('mode');
+      const actionCode = urlParams.get('oobCode');
+
+      if (mode === 'resetPassword' && actionCode) {
+        resetCode = actionCode;
+        showAuth();
+        switchAuthTab('reset-confirm');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    function doFinalPasswordReset() {
+      const newPass = document.getElementById('new-pass-input').value;
+      const err = document.getElementById('reset-confirm-err');
+      err.style.display = 'none';
+
+      if (newPass.length < 6) {
+        err.textContent = 'Пароль слишком короткий';
+        err.style.display = 'block';
+        return;
+      }
+
+      setAuthLoading('btn-confirm-reset', true, 'Сохранить пароль');
+
+      fbAuth.confirmPasswordReset(resetCode, newPass)
+        .then(() => {
+          toast('✅ Пароль успешно изменен! Теперь вы можете войти.');
+          switchAuthTab('login');
+          setAuthLoading('btn-confirm-reset', false, 'Сохранить пароль');
+        })
+        .catch(e => {
+          err.textContent = 'Ошибка ссылки. Возможно, она устарела.';
+          err.style.display = 'block';
+          setAuthLoading('btn-confirm-reset', false, 'Сохранить пароль');
+        });
     }
 
     // ── onAuthStateChanged — восстановление сессии и вход/выход ──────
@@ -8156,6 +8211,7 @@
       initReveal();
       initTicker();
       checkAutoLogin();
+      checkUrlParams(); // Проверяем ссылку сброса пароля
 
       // Dash date
       const dd = document.getElementById('dash-date');
