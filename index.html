@@ -6659,14 +6659,18 @@
 
     function renderCloudGallery(media, galleryId, hiddenId) {
         const gallery = document.getElementById(galleryId);
-        gallery.innerHTML = media.map((m, idx) => `
+        gallery.innerHTML = media.map((m, idx) => {
+            const isImage = m.type === 'image' || (m.data && m.data.startsWith('data:image'));
+            return `
             <div style="position:relative; width:100%; padding-top:100%; background:var(--ink3); border-radius:8px; overflow:hidden; border:1px solid rgba(212,175,55,0.2);">
-                ${m.type === 'image' ? `<img src="${m.data}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">` : ''}
+                ${isImage ? `<img src="${m.data}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">` : ''}
                 ${m.type === 'audio' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🎵</div>` : ''}
                 ${m.type === 'video' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🎬</div>` : ''}
-                <button onclick="removeCloudItem(${idx}, '${galleryId}', '${hiddenId}')" style="position:absolute; top:2px; right:2px; background:rgba(255,0,0,0.7); border:none; color:white; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer;">✕</button>
+                ${m.type === 'file' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">📄</div>` : ''}
+                <button onclick="removeCloudItem(${idx}, '${galleryId}', '${hiddenId}')" style="position:absolute; top:2px; right:2px; background:rgba(255,0,0,0.7); border:none; color:white; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer; z-index:5;">✕</button>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function removeCloudItem(idx, galleryId, hiddenId) {
@@ -6943,10 +6947,10 @@
 
       const sortedBio = [...STATE.bio].sort((a, b) => _getStartYear(a.period) - _getStartYear(b.period));
 
-      let html = `<div class="heritage-timeline" style="position:relative; padding-left:60px; margin-top:50px; max-width:900px; margin-left:auto; margin-right:auto;">`;
+      let html = `<div class="heritage-timeline" style="position:relative; padding-left:70px; margin-top:50px; width:100%;">`;
       
       // Золотая нить жизни (Неоновая)
-      html += `<div style="position:absolute; top:0; bottom:0; left:18px; width:2px; background:linear-gradient(to bottom, transparent, var(--gold), var(--gold-d), transparent); box-shadow: 0 0 15px var(--gold-d); opacity:0.6;"></div>`;
+      html += `<div style="position:absolute; top:0; bottom:0; left:20px; width:2px; background:linear-gradient(to bottom, transparent, var(--gold), var(--gold-d), transparent); box-shadow: 0 0 15px var(--gold-d); opacity:0.6;"></div>`;
 
       html += sortedBio.map((ch, i) => {
         let mediaArr = [];
@@ -6956,39 +6960,40 @@
         const firstImg = mediaArr.find(m => m.type === 'image' || (m.data && m.data.startsWith('data:image')));
         
         return `
-    <div class="bio-plank-wow" style="position:relative; margin-bottom: 4rem; animation: fadeUp ${0.3 + i * 0.1}s forwards;">
+    <div class="bio-plank-wow" style="position:relative; margin-bottom: 4rem; animation: fadeUp ${0.3 + i * 0.1}s forwards; width:100%;">
       
       <!-- Пульсирующая звезда времени -->
-      <div class="timeline-star" style="position:absolute; left:-49px; top:30px; width:14px; height:14px; background:var(--gold); transform:rotate(45deg); box-shadow: 0 0 20px var(--gold); z-index:3; border:2px solid var(--ink);">
+      <div class="timeline-star" style="position:absolute; left:-60px; top:35px; width:16px; height:16px; background:var(--gold); transform:rotate(45deg); box-shadow: 0 0 20px var(--gold); z-index:3; border:2px solid var(--ink);">
          <div style="position:absolute; inset:0; background:var(--gold); filter:blur(8px); animation: pulse 2s infinite;"></div>
       </div>
       
       <div class="card glass-card-wow" onclick="viewBio('${ch.id}')" style="
         position:relative;
         display:flex; 
-        gap:30px; 
-        padding:2rem; 
-        padding-left: 60px;
+        gap:35px; 
+        padding:2.5rem; 
+        padding-left: 70px;
         cursor:pointer; 
-        background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-        border-radius:24px; 
+        background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%);
+        border-radius:30px; 
         border: 1px solid rgba(212,175,55,0.15);
-        border-left: 5px solid var(--gold);
-        backdrop-filter:blur(25px); 
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
+        border-left: 6px solid var(--gold);
+        backdrop-filter:blur(30px); 
+        box-shadow: 0 25px 60px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         align-items:center;
-      " onmouseover="this.style.transform='translateY(-5px) scale(1.02)'; this.style.borderColor='rgba(212,175,55,0.4)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.15)';">
+        width:100%;
+      " onmouseover="this.style.transform='translateY(-5px) scale(1.01)'; this.style.borderColor='rgba(212,175,55,0.4)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.15)';">
         
         <!-- Парящий медальон -->
-        <div style="position:absolute; left:-40px; top:50%; transform:translateY(-50%); width:100px; height:100px; z-index:4;">
+        <div style="position:absolute; left:-45px; top:50%; transform:translateY(-50%); width:120px; height:120px; z-index:4;">
             ${firstImg ? `
-                <div style="width:100%; height:100%; border-radius:50%; border:3px solid var(--gold); box-shadow: 0 10px 25px rgba(0,0,0,0.6); overflow:hidden; background:var(--ink);">
-                    <img src="${firstImg.data}" style="width:100%; height:100%; object-fit:cover;">
+                <div style="width:100%; height:100%; border-radius:50%; border:4px solid var(--gold); box-shadow: 0 15px 35px rgba(0,0,0,0.7); overflow:hidden; background:var(--ink);">
+                    <img src="${firstImg.data}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://placehold.co/200x200/1a1a1a/d4af37?text=Error'">
                 </div>
             ` : `
                 <div style="width:100%; height:100%; border-radius:50%; border:2px dashed rgba(212,175,55,0.3); background:rgba(212,175,55,0.05); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
-                    <span style="font-size:2rem;">📜</span>
+                    <span style="font-size:2.5rem;">📖</span>
                 </div>
             `}
         </div>
@@ -7042,7 +7047,8 @@
 
         if (mediaArr.length) {
             gallery.innerHTML = mediaArr.map(m => {
-                if (m.type === 'image') return `<img src="${m.data}" style="width:100%; border-radius:16px; margin-bottom:15px; border:1px solid rgba(212,175,55,0.15);">`;
+                const isImage = m.type === 'image' || (m.data && m.data.startsWith('data:image'));
+                if (isImage) return `<img src="${m.data}" style="width:100%; border-radius:16px; margin-bottom:15px; border:1px solid rgba(212,175,55,0.15);">`;
                 if (m.type === 'audio') return `<div style="margin-bottom:15px; padding:15px; background:rgba(212,175,55,0.05); border-radius:12px;"><div style="font-size:0.7rem; margin-bottom:8px; color:var(--gold);">🎵 Голос из прошлого:</div><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
                 if (m.type === 'video') return `<video controls style="width:100%; border-radius:16px; margin-bottom:15px;"><source src="${m.data}"></video>`;
                 // Generic file
