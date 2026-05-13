@@ -6682,7 +6682,7 @@
             if (!decrypted) throw new Error('Wrong password');
 
             closeModal('modal-vault-prompt');
-            toast(`🛡️ Тайна раскрыта`);
+            toast(`🛡️ Тайна раскрыта (v2.0)`);
             showDecryptedSecret(s, decrypted);
         } catch(e) {
             toast('❌ Неверный мастер-пароль');
