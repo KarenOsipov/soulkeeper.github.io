@@ -6319,31 +6319,33 @@
         console.log('!!! RESET CODE DETECTED !!!', resetCode);
         
         setTimeout(() => {
+            // Скрываем все экраны и показываем Auth
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-auth').classList.add('active');
             
-            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            // Скрываем вкладки (tabs)
+            const tabs = document.querySelector('.auth-tabs');
+            if (tabs) tabs.style.display = 'none';
+            
+            // Скрываем все формы и показываем только сброс
+            document.querySelectorAll('.auth-form').forEach(f => {
+                f.classList.remove('active');
+                f.style.display = 'none';
+            });
+            
             const resetForm = document.getElementById('form-reset-confirm');
             if (resetForm) {
                 resetForm.classList.add('active');
                 resetForm.style.display = 'block';
             }
             
-            const panel = document.querySelector('.auth-card');
-            if (panel && !document.getElementById('emergency-reset-btn')) {
-                const btn = document.createElement('button');
-                btn.id = 'emergency-reset-btn';
-                btn.className = 'btn-gold';
-                btn.style.cssText = 'width:100%; margin-top:1rem; padding:1rem; position:relative; z-index:100;';
-                btn.textContent = 'ОТКРЫТЬ ФОРМУ СБРОСА';
-                btn.onclick = () => {
-                    document.getElementById('form-reset-confirm').style.display = 'block';
-                    document.getElementById('form-reset-confirm').classList.add('active');
-                    btn.remove();
-                };
-                panel.appendChild(btn);
-            }
-        }, 500);
+            // Заголовок
+            const authTitle = document.querySelector('.auth-panel h2');
+            if (authTitle) authTitle.textContent = 'Новый пароль';
+            
+            const backBtn = document.querySelector('.auth-back');
+            if (backBtn) backBtn.style.display = 'none';
+        }, 400);
 
         window.history.replaceState({}, document.title, window.location.pathname);
       }
@@ -6364,14 +6366,18 @@
 
       fbAuth.confirmPasswordReset(resetCode, newPass)
         .then(() => {
-          toast('✅ Пароль успешно изменен! Теперь вы можете войти.');
-          switchAuthTab('login');
           setAuthLoading('btn-confirm-reset', false, 'Сохранить пароль');
+          err.textContent = '✅ Пароль успешно изменен! Перезагрузка...';
+          err.style.display = 'block';
+          err.style.color = 'var(--green)';
+          setTimeout(() => { location.href = window.location.pathname; }, 2500);
         })
         .catch(e => {
-          err.textContent = 'Ошибка ссылки. Возможно, она устарела.';
-          err.style.display = 'block';
           setAuthLoading('btn-confirm-reset', false, 'Сохранить пароль');
+          console.error('Reset Error:', e);
+          err.textContent = 'Ошибка: ' + (fbErrMsg ? fbErrMsg(e.code) : e.message);
+          err.style.display = 'block';
+          err.style.color = 'var(--red)';
         });
     }
 
