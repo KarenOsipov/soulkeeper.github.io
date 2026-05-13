@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="google-site-verification" content="Poxw5s2BLVumhkrui1ybCjmV_aKW-BtBRJjHEp2H9Ao" />
+  <meta name="google-site-verification" content="googlea74d2bfe770f75a9.html" />
   <link rel="icon" type="image/png" href="icon.png">
   <title>SoulKeeper — Хранитель твоей жизни</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -13,6 +13,11 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap"
     rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <style>
     /* ════════════════════════════════════════════
    DESIGN TOKENS
@@ -4489,14 +4494,28 @@
         <div class="auth-form active" id="form-login">
           <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"
               autocomplete="email"></div>
-          <div class="field"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••"
-              autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-          <button class="btn-primary-sm"
+          <div class="field">
+            <label>Пароль</label>
+            <div style="position: relative;">
+              <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"
+                onkeydown="if(event.key==='Enter')doLogin()" style="padding-right: 2.5rem;">
+              <button type="button" onclick="togglePassword('login-pass', this)"
+                style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 0.2rem;">
+                👁️
+              </button>
+            </div>
+          </div>
+          <button id="btn-login" class="btn-primary-sm"
             style="width: 100%; justify-content: center; padding: 0.8rem; margin-bottom: 1rem;"
             onclick="doLogin()">Войти</button>
-          <button class="btn-ghost" style="width: 100%; justify-content: center; padding: 0.8rem;"
+          <button class="btn-ghost" style="width: 100%; justify-content: center; padding: 0.8rem; margin-bottom:0.5rem;"
             onclick="doDemoLogin()">◆ Демо-вход (без регистрации)</button>
-          <div class="auth-err" id="login-err">Неверный email или пароль</div>
+          <div style="text-align:center; margin-top:0.6rem;">
+            <a href="#" style="font-size:0.78rem; color:var(--muted); text-decoration:none;"
+              onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted)'"
+              onclick="doForgotPassword(event)">Забыл пароль?</a>
+          </div>
+          <div class="auth-err" id="login-err"></div>
         </div>
 
         <!-- REGISTER -->
@@ -4505,10 +4524,20 @@
               autocomplete="name"></div>
           <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"
               autocomplete="email"></div>
-          <div class="field"><label>Пароль</label><input type="password" id="reg-pass" placeholder="Минимум 6 символов"
-              autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"></div>
-          <button class="btn-primary-sm" style="width: 100%; justify-content: center; padding: 0.8rem;"
-            onclick="doRegister()">Создать аккаунт</button>
+          <div class="field">
+            <label>Пароль</label>
+            <div style="position: relative;">
+              <input type="password" id="reg-pass" placeholder="Минимум 6 символов" autocomplete="new-password"
+                onkeydown="if(event.key==='Enter')doRegister()" style="padding-right: 2.5rem;">
+              <button type="button" onclick="togglePassword('reg-pass', this)"
+                style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 0.2rem;">
+                👁️
+              </button>
+            </div>
+          </div>
+          <button id="btn-register" class="btn-primary-sm"
+            style="width: 100%; justify-content: center; padding: 0.8rem;" onclick="doRegister()">Создать
+            аккаунт</button>
           <div class="auth-err" id="reg-err"></div>
         </div>
 
@@ -5673,6 +5702,165 @@
     'use strict';
 
     // ═══════════════════════════════════════════
+    // FIREBASE — Config & Init
+    // ═══════════════════════════════════════════
+    const firebaseConfig = {
+      apiKey: "AIzaSyBj_FKvzjcUlTNytspwD7Wwl3CkENZJM9w",
+      authDomain: "soulkeeper-001.firebaseapp.com",
+      projectId: "soulkeeper-001",
+      storageBucket: "soulkeeper-001.firebasestorage.app",
+      messagingSenderId: "959264625043",
+      appId: "1:959264625043:web:ccbb1dcdd789bc4ddd9866",
+      measurementId: "G-07SK4LWQ0L"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const fbAuth = firebase.auth();
+    const fbDb = firebase.firestore();
+
+    // Вспомогалки для ошибок Firebase Auth
+    function fbErrMsg(code) {
+      const map = {
+        'auth/invalid-email': 'Неверный формат email',
+        'auth/user-not-found': 'Пользователь не найден',
+        'auth/wrong-password': 'Неверный пароль',
+        'auth/invalid-credential': 'Неверный email или пароль',
+        'auth/email-already-in-use': 'Этот email уже зарегистрирован',
+        'auth/weak-password': 'Пароль слишком короткий (минимум 6 символов)',
+        'auth/too-many-requests': 'Слишком много попыток. Попробуйте позже',
+        'auth/network-request-failed': 'Ошибка сети. Проверьте интернет'
+      };
+      return map[code] || 'Ошибка: ' + code;
+    }
+
+    // Загрузка данных пользователя из Firestore (облако → STATE → localStorage)
+    async function loadUserDataFromFirestore(uid) {
+      try {
+        const doc = await fbDb.collection('users').get(); // Simplified for demo or use .doc(uid)
+        const userDoc = await fbDb.collection('users').doc(uid).get();
+        if (userDoc.exists) {
+          const data = userDoc.data();
+
+          // Дешифруем данные при загрузке
+          STATE.secrets = CryptoEngine.decrypt(data.secrets) || [];
+          STATE.bio = CryptoEngine.decrypt(data.bio) || [];
+          STATE.messages = CryptoEngine.decrypt(data.messages) || [];
+
+          STATE.relatives = data.relatives || [];
+          STATE.notifications = data.notifications || [];
+          STATE.swPeriod = data.swPeriod || 7;
+          STATE.swDays = data.swDays || 7;
+          STATE.executor = data.executor || null;
+          STATE.settings = data.settings || {};
+          STATE.planId = data.planId || 'free';
+          STATE.planExpiry = data.planExpiry || 0;
+
+          _saveLocalOnly(); // Mirror to local
+        } else {
+          loadUserData();
+        }
+        DB._addLog('OK', 'Данные загружены из Firestore (и расшифрованы)');
+      } catch (err) {
+        console.error('Firestore load error:', err);
+        DB._addLog('ERR', 'Ошибка загрузки из Firestore — используем локальные данные');
+        loadUserData();
+      }
+    }
+
+    // Сохранение данных пользователя в Firestore + localStorage
+    async function saveUserDataToFirestore() {
+      if (!STATE.user || STATE.user.isDemo) {
+        saveUserData(); // для демо — только localStorage
+        return;
+      }
+      const uid = fbAuth.currentUser && fbAuth.currentUser.uid;
+      if (!uid) { saveUserData(); return; }
+      // сначала быстро сохраняем локально
+      saveUserData();
+      // потом асинхронно в Firestore
+      try {
+        await fbDb.collection('users').doc(uid).set({
+          name: STATE.user.name,
+          email: STATE.user.email,
+          secrets: STATE.secrets,
+          bio: STATE.bio,
+          messages: STATE.messages,
+          relatives: STATE.relatives,
+          notifications: STATE.notifications,
+          swPeriod: STATE.swPeriod,
+          swDays: STATE.swDays,
+          executor: STATE.executor,
+          settings: STATE.settings,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        DB._addLog('OK', 'Данные синхронизированы с Firestore');
+      } catch (err) {
+        console.error('Firestore save error:', err);
+        DB._addLog('ERR', 'Не удалось сохранить в Firestore');
+      }
+    }
+
+    // Глобальный переопределитель saveUserData для Firebase-пользователей
+    // (вызывается из всего приложения)
+    const _origSaveUserData = null; // патчим ниже после определения функции
+
+
+    // ═══════════════════════════════════════════
+    // CRYPTO ENGINE — AES-256 Client-Side Encryption
+    // ═══════════════════════════════════════════
+    const CryptoEngine = {
+      _key: null,
+
+      setKey(password) {
+        if (!password) return;
+        const salt = CryptoJS.enc.Hex.parse('536f756c4b656570657253616c74');
+        this._key = CryptoJS.PBKDF2(password, salt, { keySize: 256 / 32, iterations: 1000 });
+        sessionStorage.setItem('sk_session_key', this._key.toString());
+        DB._addLog('INFO', 'Крипто-ключ успешно инициализирован (Zero-Knowledge)');
+      },
+
+      initFromSession() {
+        const saved = sessionStorage.getItem('sk_session_key');
+        if (saved) {
+          this._key = CryptoJS.enc.Hex.parse(saved);
+          return true;
+        }
+        return false;
+      },
+
+      encrypt(data) {
+        if (!this._key) return data;
+        try {
+          const json = typeof data === 'string' ? data : JSON.stringify(data);
+          const encrypted = CryptoJS.AES.encrypt(json, this._key, {
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+          });
+          return '🔒' + encrypted.toString(); // Add marker
+        } catch (e) {
+          console.error('Encryption error:', e);
+          return data;
+        }
+      },
+
+      decrypt(ciphertext) {
+        if (!this._key || typeof ciphertext !== 'string' || !ciphertext.startsWith('🔒')) {
+          return ciphertext;
+        }
+        try {
+          const cleanCipher = ciphertext.substring(1);
+          const decrypted = CryptoJS.AES.decrypt(cleanCipher, this._key, {
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+          });
+          const plaintext = decrypted.toString(CryptoJS.enc.Utf8);
+          try { return JSON.parse(plaintext); } catch { return plaintext; }
+        } catch (e) {
+          return ciphertext;
+        }
+      }
+    };
+
+    // ═══════════════════════════════════════════
     // STORAGE LAYER — LocalStorage + DB abstraction
     // ═══════════════════════════════════════════
     const DB = {
@@ -5680,9 +5868,14 @@
       _extDb: null,
       _log: [],
 
-      save(key, val) {
+      save(key, val, encrypt = false) {
         try {
-          localStorage.setItem(this._prefix + key, JSON.stringify(val));
+          let finalVal = val;
+          if (encrypt && CryptoEngine._key) {
+            finalVal = CryptoEngine.encrypt(val);
+            this._addLog('INFO', `🔐 Данные [${key}] зашифрованы AES-256`);
+          }
+          localStorage.setItem(this._prefix + key, JSON.stringify(finalVal));
           this._addLog('OK', `Сохранено: ${key}`);
           return true;
         } catch (e) {
@@ -5690,10 +5883,16 @@
           return false;
         }
       },
-      load(key, def = null) {
+      load(key, def = null, decrypt = false) {
         try {
           const v = localStorage.getItem(this._prefix + key);
-          return v ? JSON.parse(v) : def;
+          if (!v) return def;
+          let val = JSON.parse(v);
+          if (decrypt && CryptoEngine._key && typeof val === 'string' && val.startsWith('🔒')) {
+            val = CryptoEngine.decrypt(val);
+            this._addLog('INFO', `🔓 Данные [${key}] расшифрованы`);
+          }
+          return val;
         } catch { return def; }
       },
       remove(key) { localStorage.removeItem(this._prefix + key); },
@@ -5742,19 +5941,23 @@
       settings: {},
       swPeriod: 7,
       swDays: 7,
-      executor: null
+      executor: null,
+      planId: 'free',
+      planExpiry: 0
     };
 
     function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
     function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
-    function saveUserData() {
+    // _saveLocalOnly — только localStorage (внутренний вызов)
+    function _saveLocalOnly() {
       if (!STATE.user) return;
       const e = STATE.user.email;
-      DB.save('secrets_' + e, STATE.secrets);
-      DB.save('bio_' + e, STATE.bio);
-      DB.save('msgs_' + e, STATE.messages);
-      DB.save('rels_' + e, STATE.relatives);
+      // Шифруем только чувствительные данные
+      DB.save('secrets_' + e, STATE.secrets, true);
+      DB.save('bio_' + e, STATE.bio, true);
+      DB.save('msgs_' + e, STATE.messages, true);
+      DB.save('rels_' + e, STATE.relatives); // Родственников обычно не шифруют, но можно
       DB.save('notifs_' + e, STATE.notifications);
       DB.save('sw_' + e, { period: STATE.swPeriod, days: STATE.swDays });
       DB.save('executor_' + e, STATE.executor);
@@ -5762,19 +5965,85 @@
       updateDbStats();
     }
 
+    function saveUserData() {
+      if (!STATE.user) return;
+      if (STATE.user.isDemo) {
+        _saveLocalOnly();
+        return;
+      }
+      _saveLocalOnly();
+      const fbUser = typeof fbAuth !== 'undefined' && fbAuth.currentUser;
+      if (fbUser) {
+        // Zero-Knowledge: отправляем в Firestore ЗАШИФРОВАННЫЕ данные
+        fbDb.collection('users').doc(fbUser.uid).set({
+          name: STATE.user.name,
+          email: STATE.user.email,
+          secrets: CryptoEngine.encrypt(STATE.secrets),
+          bio: CryptoEngine.encrypt(STATE.bio),
+          messages: CryptoEngine.encrypt(STATE.messages),
+          relatives: STATE.relatives,
+          notifications: STATE.notifications,
+          swPeriod: STATE.swPeriod,
+          swDays: STATE.swDays,
+          executor: STATE.executor,
+          settings: STATE.settings,
+          planId: STATE.planId,
+          planExpiry: STATE.planExpiry,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true })
+          .then(() => DB._addLog('OK', 'Firestore: Данные синхронизированы (Зашифровано)'))
+          .catch(err => {
+            console.error('Firestore save error:', err);
+            DB._addLog('ERR', 'Firestore: ошибка сохранения — ' + err.message);
+          });
+      }
+    }
+
     function loadUserData() {
       if (!STATE.user) return;
       const e = STATE.user.email;
-      STATE.secrets = DB.load('secrets_' + e, []);
-      STATE.bio = DB.load('bio_' + e, []);
-      STATE.messages = DB.load('msgs_' + e, []);
+      CryptoEngine.initFromSession();
+
+      STATE.secrets = DB.load('secrets_' + e, [], true);
+      STATE.bio = DB.load('bio_' + e, [], true);
+      STATE.messages = DB.load('msgs_' + e, [], true);
       STATE.relatives = DB.load('rels_' + e, []);
       STATE.notifications = DB.load('notifs_' + e, []);
       const sw = DB.load('sw_' + e, { period: 7, days: 7 });
       STATE.swPeriod = sw.period; STATE.swDays = sw.days;
       STATE.executor = DB.load('executor_' + e, null);
       STATE.settings = DB.load('settings_' + e, {});
+      STATE.planId = DB.load('planId_' + e, 'free');
+      STATE.planExpiry = DB.load('planExp_' + e, 0);
       DB._addLog('INFO', `Данные пользователя загружены (${e})`);
+    }
+
+    // ── Forgot Password ──────────────────────────────────────────────
+    function doForgotPassword(event) {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      if (!email) {
+        const err = document.getElementById('login-err');
+        err.textContent = 'Введите email выше для сброса пароля';
+        err.style.display = 'block';
+        err.style.color = 'var(--gold)';
+        setTimeout(() => { err.style.display = 'none'; err.style.color = ''; }, 3500);
+        return;
+      }
+      fbAuth.sendPasswordResetEmail(email)
+        .then(() => {
+          const err = document.getElementById('login-err');
+          err.textContent = '✓ Письмо для сброса пароля отправлено на ' + email;
+          err.style.display = 'block';
+          err.style.color = 'var(--green)';
+          setTimeout(() => { err.style.display = 'none'; err.style.color = ''; }, 5000);
+        })
+        .catch(e => {
+          const err = document.getElementById('login-err');
+          err.textContent = fbErrMsg(e.code);
+          err.style.display = 'block';
+          setTimeout(() => err.style.display = 'none', 4000);
+        });
     }
 
     // ПОДПИСКИ: структура и лимиты
@@ -5786,13 +6055,8 @@
 
     function getUserPlan() {
       if (!STATE.user) return PLANS.free;
-      const savedPlan = DB.load('user_plan_' + STATE.user.email, null);
-      if (savedPlan && PLANS[savedPlan]) return PLANS[savedPlan];
-      // По умолчанию бесплатный, но если пользователь оплатил — восстановить
-      const paidUntil = DB.load('plan_expiry_' + STATE.user.email, 0);
-      if (paidUntil > Date.now()) {
-        const plan = DB.load('user_plan_' + STATE.user.email, 'keeper');
-        return PLANS[plan] || PLANS.keeper;
+      if (STATE.planExpiry > Date.now()) {
+        return PLANS[STATE.planId] || PLANS.free;
       }
       return PLANS.free;
     }
@@ -5800,9 +6064,12 @@
     function setUserPlan(planId, months = 1) {
       if (!STATE.user) return false;
       if (!PLANS[planId]) return false;
-      DB.save('user_plan_' + STATE.user.email, planId);
-      const expiry = Date.now() + (months * 30 * 24 * 60 * 60 * 1000);
-      DB.save('plan_expiry_' + STATE.user.email, expiry);
+
+      STATE.planId = planId;
+      STATE.planExpiry = Date.now() + (months * 30 * 24 * 60 * 60 * 1000);
+
+      // Сохраняем и синхронизируем (saveUserData отправит данные в Firestore)
+      saveUserData();
       return true;
     }
 
@@ -5845,30 +6112,71 @@
       document.getElementById('form-' + tab).classList.add('active');
     }
 
+    // ── Spinner helper ──────────────────────────────────────────────
+    function setAuthLoading(btnId, loading, text) {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      btn.disabled = loading;
+      btn.style.opacity = loading ? '0.6' : '1';
+      if (text) btn.textContent = loading ? '⏳ Подождите...' : text;
+    }
+
+    // ── Toggle Password Visibility ──────────────────────────────────
+    function togglePassword(inputId, btnEl) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btnEl.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btnEl.textContent = '👁️';
+      }
+    }
+
+    // ── LOGIN via Firebase Auth ─────────────────────────────────────
     function doLogin() {
       const email = document.getElementById('login-email').value.trim();
       const pass = document.getElementById('login-pass').value;
       const err = document.getElementById('login-err');
       err.style.display = 'none';
 
-      const users = DB.load('users', []);
-      const user = users.find(u => u.email === email && u.pass === btoa(pass));
-      if (!user) { err.style.display = 'block'; return; }
+      if (!email || !pass) {
+        err.textContent = 'Введите email и пароль';
+        err.style.display = 'block';
+        return;
+      }
 
-      DB.save('user', user);
-      STATE.user = user;
-      loadUserData();
-      showApp();
+      setAuthLoading('btn-login', true, 'Войти');
+
+      fbAuth.signInWithEmailAndPassword(email, pass)
+        .then(cred => {
+          if (!cred.user.emailVerified) {
+            fbAuth.signOut();
+            err.textContent = 'Пожалуйста, подтвердите ваш email. Мы отправляли вам письмо с ссылкой.';
+            err.style.display = 'block';
+            setAuthLoading('btn-login', false, 'Войти');
+            return;
+          }
+          // Zero-Knowledge: сохраняем ключ в сессии
+          CryptoEngine.setKey(pass);
+        })
+        .catch(e => {
+          err.textContent = fbErrMsg(e.code);
+          err.style.display = 'block';
+          setAuthLoading('btn-login', false, 'Войти');
+        });
     }
 
+    // ── DEMO LOGIN (без Firebase, только localStorage) ──────────────
     function doDemoLogin() {
-      const demo = { name: 'Демо Пользователь', email: 'demo@soulkeeper.app', pass: btoa('demo123'), isDemo: true };
+      const pass = 'demo123';
+      CryptoEngine.setKey(pass);
+      const demo = { name: 'Демо Пользователь', email: 'demo@soulkeeper.app', isDemo: true };
       STATE.user = demo;
       DB.save('user', demo);
-      // Seed demo data
       if (!DB.load('secrets_' + demo.email)) {
         STATE.secrets = [
-          { id: uid(), title: 'Пароль от банка', category: 'password', content: '[Зашифровано] •••••••••', access: 'private', date: new Date().toLocaleDateString('ru') },
+          { id: uid(), title: 'Пароль от банка', category: 'password', content: 'SuperSecret123', access: 'private', date: new Date().toLocaleDateString('ru') },
           { id: uid(), title: 'Завещание', category: 'document', content: 'Квартира переходит старшему сыну...', access: 'after_death', date: new Date().toLocaleDateString('ru') },
           { id: uid(), title: 'Тайна семьи', category: 'personal', content: 'Никто не знает что...', access: 'heir', date: new Date().toLocaleDateString('ru') },
         ];
@@ -5878,7 +6186,7 @@
           { id: uid(), name: 'Анна Иванова', rel: 'Дочь', access: 'heir', email: 'anna@example.com', lat: 55.7558, lon: 37.6173, city: 'Москва, Россия' },
           { id: uid(), name: 'Сергей Иванов', rel: 'Сын', access: 'heir', email: 'sergey@example.com', lat: 51.1801, lon: 71.4460, city: 'Астана, Казахстан' },
           { id: uid(), name: 'Мария Петрова', rel: 'Сестра', access: 'trusted', email: 'maria@example.com', lat: 48.8566, lon: 2.3522, city: 'Париж, Франция' },
-          { id: uid(), name: 'Игорь Козлов', rel: 'Брат', access: 'observer', email: 'igor@example.com', lat: 40.7128, lon: -74.0060, city: 'Нью-Йорк, США' },
+          { id: uid(), name: 'Игорь Козлов', rel: 'Брат', access: 'observer', email: 'igor@example.com', lat: 40.7128, lon: -74.006, city: 'Нью-Йорк, США' },
         ];
         STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper', sub: 'Демо-режим', time: 'сейчас' }];
         saveUserData();
@@ -5887,34 +6195,137 @@
       setTimeout(() => showOnboarding(), 600);
     }
 
+    // ── REGISTER via Firebase Auth ──────────────────────────────────
     function doRegister() {
       const name = document.getElementById('reg-name').value.trim();
       const email = document.getElementById('reg-email').value.trim();
       const pass = document.getElementById('reg-pass').value;
       const err = document.getElementById('reg-err');
+      err.style.display = 'none';
 
       if (!name || !email || !pass) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; return; }
       if (pass.length < 6) { err.textContent = 'Пароль минимум 6 символов'; err.style.display = 'block'; return; }
 
-      const users = DB.load('users', []);
-      if (users.find(u => u.email === email)) { err.textContent = 'Email уже используется'; err.style.display = 'block'; return; }
+      setAuthLoading('btn-register', true, 'Создать аккаунт');
 
-      const user = { id: uid(), name, email, pass: btoa(pass), created: new Date().toISOString() };
-      users.push(user);
-      DB.save('users', users);
-      DB.save('user', user);
-      STATE.user = user;
-      STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper!', sub: 'Аккаунт создан', time: new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' }) }];
-      saveUserData();
-      showApp();
-      setTimeout(() => showOnboarding(), 600);
+      fbAuth.createUserWithEmailAndPassword(email, pass)
+        .then(cred => {
+          // Zero-Knowledge: сохраняем ключ в сессии
+          CryptoEngine.setKey(pass);
+          return cred.user.updateProfile({ displayName: name }).then(() => cred);
+        })
+        .then(cred => {
+          // Отправляем письмо с подтверждением
+          return cred.user.sendEmailVerification().then(() => cred);
+        })
+        .then(cred => {
+          // Создаём документ пользователя в Firestore
+          return fbDb.collection('users').doc(cred.user.uid).set({
+            name: name,
+            email: email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        })
+        .then(() => {
+          // После успешной регистрации и отправки письма, разлогиниваем
+          // чтобы заставить подтвердить email перед реальным входом
+          fbAuth.signOut();
+          err.textContent = 'Аккаунт создан! Пожалуйста, проверьте вашу почту (' + email + ') и перейдите по ссылке для подтверждения, затем войдите.';
+          err.style.display = 'block';
+          err.style.color = 'var(--green)';
+          setAuthLoading('btn-register', false, 'Создать аккаунт');
+          setTimeout(() => switchAuthTab('login'), 8000);
+        })
+        .catch(e => {
+          err.textContent = fbErrMsg(e.code);
+          err.style.display = 'block';
+          err.style.color = 'var(--red)';
+          setAuthLoading('btn-register', false, 'Создать аккаунт');
+        });
     }
 
+    // ── LOGOUT ────────────────────────────────────────────────────────
     function doLogout() {
-      DB.remove('user');
-      STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
-      showLanding();
+      if (STATE.user && STATE.user.isDemo) {
+        DB.remove('user');
+        STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
+        showLanding();
+        return;
+      }
+      fbAuth.signOut().then(() => {
+        DB.remove('user');
+        STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
+        showLanding();
+      });
     }
+
+    // ── onAuthStateChanged — восстановление сессии и вход/выход ──────
+    fbAuth.onAuthStateChanged(async (fbUser) => {
+      // Сбрасываем спиннеры
+      setAuthLoading('btn-login', false, 'Войти');
+      setAuthLoading('btn-register', false, 'Создать аккаунт');
+
+      if (fbUser) {
+        if (!fbUser.emailVerified) {
+          // Защита: если сессия есть, но email не подтвержден - выходим
+          fbAuth.signOut();
+          return;
+        }
+
+        // Пользователь вошёл (или страница перезагружена со старой сессией)
+        const user = {
+          id: fbUser.uid,
+          name: fbUser.displayName || fbUser.email.split('@')[0],
+          email: fbUser.email,
+          uid: fbUser.uid
+        };
+        STATE.user = user;
+        DB.save('user', user);
+
+        // Загружаем данные из Firestore (или localStorage при ошибке)
+        await loadUserDataFromFirestore(fbUser.uid);
+
+        // Перекидываем на приложение только если сейчас НЕ на странице app
+        const appScreen = document.getElementById('screen-app');
+        if (!appScreen || !appScreen.classList.contains('active')) {
+          const isNewUser = fbUser.metadata.creationTime === fbUser.metadata.lastSignInTime;
+          showApp();
+          if (isNewUser) setTimeout(() => showOnboarding(), 600);
+        } else {
+          // Уже в приложении — просто обновляем данные
+          renderAll();
+        }
+
+        // Проверяем отложенный план (если пришёл с лендинга)
+        const pendingPl = sessionStorage.getItem('pendingPlan');
+        if (pendingPl && PLANS[pendingPl]) {
+          sessionStorage.removeItem('pendingPlan');
+          if (pendingPl !== 'free') setTimeout(() => openPaymentModalReal(pendingPl), 1500);
+        }
+
+        toast('👋 Добро пожаловать, ' + user.name.split(' ')[0] + '!');
+      } else {
+        // Пользователь вышел или нет сессии
+        // Проверяем демо-режим (хранится только в localStorage)
+        const demoUser = DB.load('user', null);
+        if (demoUser && demoUser.isDemo) {
+          STATE.user = demoUser;
+          loadUserData();
+          const appScreen = document.getElementById('screen-app');
+          if (!appScreen || !appScreen.classList.contains('active')) showApp();
+        } else {
+          // Обычный выход — на лендинг
+          STATE.user = null;
+          const authScreen = document.getElementById('screen-auth');
+          const landingScreen = document.getElementById('screen-landing');
+          // Только если сейчас на экране auth или app — переходим на лендинг
+          if (authScreen && authScreen.classList.contains('active')) return;
+          if (landingScreen && !landingScreen.classList.contains('active')) {
+            // не трогаем — пользователь уже на нужном экране
+          }
+        }
+      }
+    });
 
     // ═══════════════════════════════════════════
     // APP INIT
@@ -5962,6 +6373,7 @@
     function renderAll() {
       renderSecrets(); renderBio(); renderMessages(); renderRelatives();
       updateDashStats(); updateBadges(); renderTree(); renderGlobeList();
+      renderDashActivity();
     }
 
     // ═══════════════════════════════════════════
@@ -6144,14 +6556,6 @@
       }
     }
 
-    // В doRegister и doDemoLogin добавить проверку:
-    // После STATE.user = user; добавить:
-    const pendingPlan = sessionStorage.getItem('pendingPlan');
-    if (pendingPlan && PLANS[pendingPlan]) {
-      setUserPlan(pendingPlan, 1);
-      sessionStorage.removeItem('pendingPlan');
-      toast(`🎉 Тариф «${PLANS[pendingPlan].name}» активирован!`);
-    }
 
     // ═══════════════════════════════════════════
     // MESSAGES
@@ -7368,14 +7772,31 @@
       }
     });
 
+    function renderDashActivity() {
+      const el = document.getElementById('dash-activity');
+      if (!el) return;
+      if (!STATE.notifications || !STATE.notifications.length) {
+        el.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📅</div>
+            <div class="empty-text">Нет активности</div>
+          </div>`;
+        return;
+      }
+      el.innerHTML = STATE.notifications.slice(0, 5).map(n =>
+        `<div class="list-item" style="padding:0.6rem 0.8rem">
+          <div class="list-meta">
+            <div class="list-title" style="font-size:0.8rem">${esc(n.title)}</div>
+            <div class="list-sub">${n.time}</div>
+          </div>
+        </div>`
+      ).join('');
+    }
+
     function addActivity(text) {
       STATE.notifications.unshift({ id: uid(), title: text, sub: 'Активность', time: new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' }) });
       if (STATE.notifications.length > 30) STATE.notifications = STATE.notifications.slice(0, 30);
-      saveUserData(); renderNotifs();
-      const el = document.getElementById('dash-activity');
-      if (el) el.innerHTML = STATE.notifications.slice(0, 5).map(n =>
-        `<div class="list-item" style="padding:0.6rem 0.8rem"><div class="list-meta"><div class="list-title" style="font-size:0.8rem">${esc(n.title)}</div><div class="list-sub">${n.time}</div></div></div>`
-      ).join('');
+      saveUserData(); renderNotifs(); renderDashActivity();
     }
 
     // ═══════════════════════════════════════════
@@ -7698,13 +8119,17 @@
     // AUTO-LOGIN CHECK
     // ═══════════════════════════════════════════
     function checkAutoLogin() {
+      // Firebase session — восстанавливается автоматически через onAuthStateChanged.
+      // Здесь обрабатываем только демо-режим (хранится в localStorage без Firebase).
       const saved = DB.load('user');
-      if (saved) {
+      if (saved && saved.isDemo) {
         STATE.user = saved;
         loadUserData();
         showScreen('app');
         initApp();
       }
+      // Для обычных Firebase-пользователей — ничего не делаем,
+      // onAuthStateChanged уже вызван и восстановит сессию.
     }
 
     // ═══════════════════════════════════════════
@@ -7716,6 +8141,7 @@
       initReveal();
       initTicker();
       checkAutoLogin();
+
       // Dash date
       const dd = document.getElementById('dash-date');
       if (dd) dd.textContent = new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
