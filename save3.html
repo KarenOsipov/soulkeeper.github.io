@@ -6152,18 +6152,18 @@
         .then(cred => {
           if (!cred.user.emailVerified) {
             fbAuth.signOut();
-            err.textContent = 'Пожалуйста, подтвердите ваш email. Мы отправляли вам письмо с ссылкой.';
+            err.textContent = 'Ошибка: Email не подтвержден. Проверьте почту для активации аккаунта.';
             err.style.display = 'block';
             setAuthLoading('btn-login', false, 'Войти');
             return;
           }
-          // Zero-Knowledge: сохраняем ключ в сессии
+          // Zero-Knowledge: ключ ставится после входа
           CryptoEngine.setKey(pass);
         })
         .catch(e => {
+          setAuthLoading('btn-login', false, 'Войти');
           err.textContent = fbErrMsg(e.code);
           err.style.display = 'block';
-          setAuthLoading('btn-login', false, 'Войти');
         });
     }
 
@@ -6227,14 +6227,16 @@
           }, { merge: true });
         })
         .then(() => {
-          // После успешной регистрации и отправки письма, разлогиниваем
-          // чтобы заставить подтвердить email перед реальным входом
-          fbAuth.signOut();
-          err.textContent = 'Аккаунт создан! Пожалуйста, проверьте вашу почту (' + email + ') и перейдите по ссылке для подтверждения, затем войдите.';
+          fbAuth.signOut(); // Принудительный логаут до подтверждения
+          err.textContent = 'Аккаунт создан! Мы отправили письмо на ' + email + '. Подтвердите его и затем войдите.';
           err.style.display = 'block';
           err.style.color = 'var(--green)';
           setAuthLoading('btn-register', false, 'Создать аккаунт');
-          setTimeout(() => switchAuthTab('login'), 8000);
+          
+          setTimeout(() => {
+             switchAuthTab('login');
+             document.getElementById('login-email').value = email;
+          }, 6000);
         })
         .catch(e => {
           err.textContent = fbErrMsg(e.code);
@@ -6261,18 +6263,12 @@
 
     // ── onAuthStateChanged — восстановление сессии и вход/выход ──────
     fbAuth.onAuthStateChanged(async (fbUser) => {
-      // Сбрасываем спиннеры
-      setAuthLoading('btn-login', false, 'Войти');
-      setAuthLoading('btn-register', false, 'Создать аккаунт');
-
       if (fbUser) {
         if (!fbUser.emailVerified) {
-          // Защита: если сессия есть, но email не подтвержден - выходим
           fbAuth.signOut();
           return;
         }
-
-        // Пользователь вошёл (или страница перезагружена со старой сессией)
+        
         const user = {
           id: fbUser.uid,
           name: fbUser.displayName || fbUser.email.split('@')[0],

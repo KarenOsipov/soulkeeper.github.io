@@ -6152,18 +6152,19 @@
         .then(cred => {
           if (!cred.user.emailVerified) {
             fbAuth.signOut();
-            err.textContent = 'Пожалуйста, подтвердите ваш email. Мы отправляли вам письмо с ссылкой.';
+            err.textContent = 'Ошибка: Email не подтвержден. Пожалуйста, проверьте почту и перейдите по ссылке.';
             err.style.display = 'block';
             setAuthLoading('btn-login', false, 'Войти');
             return;
           }
-          // Zero-Knowledge: сохраняем ключ в сессии
+          // Zero-Knowledge: ключ ставится только ПОСЛЕ успешного входа
           CryptoEngine.setKey(pass);
+          // showApp() будет вызван автоматически через onAuthStateChanged
         })
         .catch(e => {
+          setAuthLoading('btn-login', false, 'Войти');
           err.textContent = fbErrMsg(e.code);
           err.style.display = 'block';
-          setAuthLoading('btn-login', false, 'Войти');
         });
     }
 
@@ -6227,14 +6228,17 @@
           }, { merge: true });
         })
         .then(() => {
-          // После успешной регистрации и отправки письма, разлогиниваем
-          // чтобы заставить подтвердить email перед реальным входом
+          // После успешной регистрации ВСЕГДА разлогиниваем для подтверждения почты
           fbAuth.signOut();
-          err.textContent = 'Аккаунт создан! Пожалуйста, проверьте вашу почту (' + email + ') и перейдите по ссылке для подтверждения, затем войдите.';
+          err.textContent = 'Аккаунт успешно создан! Мы отправили письмо с подтверждением на ' + email + '. Пожалуйста, подтвердите его перед входом.';
           err.style.display = 'block';
           err.style.color = 'var(--green)';
           setAuthLoading('btn-register', false, 'Создать аккаунт');
-          setTimeout(() => switchAuthTab('login'), 8000);
+          
+          setTimeout(() => {
+             switchAuthTab('login');
+             document.getElementById('login-email').value = email;
+          }, 6000);
         })
         .catch(e => {
           err.textContent = fbErrMsg(e.code);
@@ -6267,12 +6271,11 @@
 
       if (fbUser) {
         if (!fbUser.emailVerified) {
-          // Защита: если сессия есть, но email не подтвержден - выходим
+          // СТРОГИЙ РЕЖИМ: если почта не подтверждена, принудительно выходим
           fbAuth.signOut();
           return;
         }
 
-        // Пользователь вошёл (или страница перезагружена со старой сессией)
         const user = {
           id: fbUser.uid,
           name: fbUser.displayName || fbUser.email.split('@')[0],
