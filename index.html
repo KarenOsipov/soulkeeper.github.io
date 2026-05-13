@@ -6262,8 +6262,12 @@
           return cred.user.updateProfile({ displayName: name }).then(() => cred);
         })
         .then(cred => {
-          // Отправляем письмо с подтверждением
-          return cred.user.sendEmailVerification().then(() => cred);
+          // Настройка адреса возврата для письма подтверждения
+          const actionCodeSettings = {
+            url: 'https://karenosipov.github.io/',
+            handleCodeInApp: true
+          };
+          return cred.user.sendEmailVerification(actionCodeSettings).then(() => cred);
         })
         .then(cred => {
           // Создаём документ пользователя в Firestore
@@ -6318,12 +6322,24 @@
 
       if (mode === 'resetPassword' && actionCode) {
         resetCode = actionCode;
-        console.log('Detected Password Reset Mode');
-        // Сначала скрываем всё, потом показываем нужное
+        console.log('--- PASSWORD RESET DETECTED ---');
+        
+        // Показываем экран авторизации
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById('screen-auth').classList.add('active');
-        switchAuthTab('reset-confirm');
-        // Очищаем URL
+        
+        // Принудительно показываем форму сброса (минуя switchAuthTab)
+        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+        const resetForm = document.getElementById('form-reset-confirm');
+        if (resetForm) {
+            resetForm.classList.add('active');
+            resetForm.style.display = 'block'; // Гарантируем видимость
+        }
+        
+        // Меняем заголовок для ясности
+        const authTitle = document.querySelector('.auth-panel h2');
+        if (authTitle) authTitle.textContent = 'Восстановление доступа';
+
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
