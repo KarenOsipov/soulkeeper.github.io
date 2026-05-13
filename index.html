@@ -5748,8 +5748,8 @@
 
     // Загрузка данных пользователя из Firestore (облако → STATE → localStorage)
     async function loadUserDataFromFirestore(uid) {
+      if (!uid) return;
       try {
-        const doc = await fbDb.collection('users').get(); // Simplified for demo or use .doc(uid)
         const userDoc = await fbDb.collection('users').doc(uid).get();
         if (userDoc.exists) {
           const data = userDoc.data();
@@ -5914,7 +5914,11 @@
         const ts = new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         this._log.unshift({ type, msg, ts });
         if (this._log.length > 50) this._log = this._log.slice(0, 50);
-        renderDbLog();
+        // Не рендерим лог при каждом чихе, если вкладка лога не открыта
+        const el = document.getElementById('db-log');
+        if (el && document.getElementById('page-db').classList.contains('active')) {
+             renderDbLog();
+        }
       },
       simulateConnect(cfg) {
         return new Promise((resolve, reject) => {
@@ -6202,13 +6206,6 @@
 
       fbAuth.signInWithEmailAndPassword(email, pass)
         .then(cred => {
-          if (!cred.user.emailVerified) {
-            fbAuth.signOut();
-            err.textContent = 'Ошибка: Email не подтвержден. Пожалуйста, проверьте почту и перейдите по ссылке.';
-            err.style.display = 'block';
-            setAuthLoading('btn-login', false, 'Войти');
-            return;
-          }
           // Zero-Knowledge: ключ ставится только ПОСЛЕ успешного входа
           CryptoEngine.setKey(pass);
           // showApp() будет вызван автоматически через onAuthStateChanged
@@ -6471,8 +6468,8 @@
       updateDbStats();
       initSwitchCanvas();
       goPage('dash');
-      setTimeout(() => initGlobe(), 400);
-      setTimeout(() => { _injectDemoPending(); initConnections(); }, 300);
+      setTimeout(() => initGlobe(), 2000); // Глобус в самом конце, чтобы не тормозить вход
+      setTimeout(() => { _injectDemoPending(); initConnections(); }, 800);
       const plan = getUserPlan();
       const subBadge = document.getElementById('sub-badge');
       if (subBadge) subBadge.textContent = plan.name === 'Страж' ? 'бесплатно' : 'активна';
