@@ -5520,13 +5520,13 @@
           </select>
         </div>
         <div class="field">
-          <label>Прикрепить фото/документ <span style="font-size:0.7rem; color:var(--muted)">(Base64)</span></label>
-          <div class="file-upload-wrap" style="display:flex; gap:10px; align-items:center;">
-             <input type="file" id="s-media-input" accept="image/*" style="display:none" onchange="handleSecretMedia(this)">
-             <button class="btn btn-ghost" onclick="document.getElementById('s-media-input').click()" style="flex:1">📎 Выбрать файл</button>
-             <div id="s-media-preview" style="width:50px; height:50px; border:1px solid var(--gold-d); border-radius:8px; display:none; background-size:cover; background-position:center;"></div>
+          <label>Облако воспоминаний <span style="font-size:0.7rem; color:var(--muted)">(Фото, Аудио, Видео)</span></label>
+          <div class="soul-cloud-upload">
+             <input type="file" id="s-media-input" accept="image/*,audio/*,video/*" multiple style="display:none" onchange="handleSecretMedia(this)">
+             <button class="btn btn-ghost" onclick="document.getElementById('s-media-input').click()" style="width:100%; border-style:dashed; border-color:var(--gold-d);">☁️ Загрузить в облако...</button>
+             <div id="s-media-gallery" class="media-gallery-preview" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
           </div>
-          <input type="hidden" id="s-media-data">
+          <input type="hidden" id="s-media-data-json" value="[]">
         </div>
         <div class="field" style="margin-top:1rem; padding:1rem; background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.1); border-radius:12px;">
           <label style="color:var(--gold); display:flex; align-items:center; gap:8px; margin-bottom:8px;">
@@ -5560,13 +5560,13 @@
         <div class="field"><label>Текст</label><textarea id="b-content"
             placeholder="Расскажите эту часть своей жизни..." style="min-height:160px"></textarea></div>
         <div class="field">
-          <label>Фото воспоминания <span style="font-size:0.7rem; color:var(--muted)">(Base64)</span></label>
-          <div class="file-upload-wrap" style="display:flex; gap:10px; align-items:center;">
-             <input type="file" id="b-media-input" accept="image/*" style="display:none" onchange="handleBioMedia(this)">
-             <button class="btn btn-ghost" onclick="document.getElementById('b-media-input').click()" style="flex:1">📸 Добавить фото</button>
-             <div id="b-media-preview" style="width:50px; height:50px; border:1px solid var(--gold-d); border-radius:8px; display:none; background-size:cover; background-position:center;"></div>
+          <label>Медиа-архив главы <span style="font-size:0.7rem; color:var(--muted)">(Альбом фото и видео)</span></label>
+          <div class="soul-cloud-upload">
+             <input type="file" id="b-media-input" accept="image/*,audio/*,video/*" multiple style="display:none" onchange="handleBioMedia(this)">
+             <button class="btn btn-ghost" onclick="document.getElementById('b-media-input').click()" style="width:100%; border-style:dashed; border-color:var(--gold-d);">🎞️ Добавить медиафайлы...</button>
+             <div id="b-media-gallery" class="media-gallery-preview" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
           </div>
-          <input type="hidden" id="b-media-data">
+          <input type="hidden" id="b-media-data-json" value="[]">
         </div>
       </div>
       <div class="modal-footer">
@@ -6625,20 +6625,53 @@
     }
 
     function handleSecretMedia(input) {
-        const file = input.files[0];
-        if (!file) return;
-        if (file.size > 800000) { toast('❌ Файл слишком тяжелый'); return; }
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = e.target.result;
-            document.getElementById('s-media-data').value = data;
-            const preview = document.getElementById('s-media-preview');
-            preview.style.backgroundImage = `url(${data})`;
-            preview.style.display = 'block';
-            toast('📎 Файл прикреплен');
-        };
-        reader.readAsDataURL(file);
+        processCloudUpload(input, 's-media-data-json', 's-media-gallery');
+    }
+
+    function handleBioMedia(input) {
+        processCloudUpload(input, 'b-media-data-json', 'b-media-gallery');
+    }
+
+    function processCloudUpload(input, hiddenId, galleryId) {
+        const files = Array.from(input.files);
+        const gallery = document.getElementById(galleryId);
+        const hidden = document.getElementById(hiddenId);
+        let currentMedia = JSON.parse(hidden.value || "[]");
+
+        files.forEach(file => {
+            if (file.size > 2000000) { toast('❌ Файл ' + file.name + ' слишком большой'); return; }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const type = file.type.split('/')[0]; // image, audio, video
+                const item = { type, data: e.target.result, name: file.name };
+                currentMedia.push(item);
+                hidden.value = JSON.stringify(currentMedia);
+                renderCloudGallery(currentMedia, galleryId, hiddenId);
+            };
+            reader.readAsDataURL(file);
+        });
+        input.value = ''; // Reset input
+    }
+
+    function renderCloudGallery(media, galleryId, hiddenId) {
+        const gallery = document.getElementById(galleryId);
+        gallery.innerHTML = media.map((m, idx) => `
+            <div style="position:relative; width:100%; padding-top:100%; background:var(--ink3); border-radius:8px; overflow:hidden; border:1px solid rgba(212,175,55,0.2);">
+                ${m.type === 'image' ? `<img src="${m.data}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">` : ''}
+                ${m.type === 'audio' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🎵</div>` : ''}
+                ${m.type === 'video' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🎬</div>` : ''}
+                <button onclick="removeCloudItem(${idx}, '${galleryId}', '${hiddenId}')" style="position:absolute; top:2px; right:2px; background:rgba(255,0,0,0.7); border:none; color:white; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer;">✕</button>
+            </div>
+        `).join('');
+    }
+
+    function removeCloudItem(idx, galleryId, hiddenId) {
+        const hidden = document.getElementById(hiddenId);
+        let media = JSON.parse(hidden.value || "[]");
+        media.splice(idx, 1);
+        hidden.value = JSON.stringify(media);
+        renderCloudGallery(media, galleryId, hiddenId);
     }
 
     function saveSecret() {
@@ -6677,7 +6710,7 @@
         id: uid(), title,
         category: document.getElementById('s-cat').value,
         content: finalContent,
-        media: document.getElementById('s-media-data').value,
+        media: JSON.parse(document.getElementById('s-media-data-json').value || "[]"),
         access: document.getElementById('s-access').value,
         isVault: isVault,
         date: new Date().toLocaleDateString('ru')
@@ -6695,12 +6728,9 @@
       document.getElementById('s-title').value = '';
       document.getElementById('s-content').value = '';
       document.getElementById('s-vault-pass').value = '';
-      document.getElementById('s-media-data').value = '';
-      document.getElementById('s-media-preview').style.display = 'none';
+      document.getElementById('s-media-data-json').value = '[]';
+      document.getElementById('s-media-gallery').innerHTML = '';
       document.getElementById('s-media-input').value = '';
-      document.getElementById('s-title').value = '';
-      document.getElementById('s-content').value = '';
-      document.getElementById('s-vault-pass').value = '';
       
       closeModal('modal-secret');
       toast(isVault ? '🛡️ Сверхсекретная тайна сохранена' : '✓ Тайна добавлена');
@@ -6741,13 +6771,18 @@
         const vaultBadge = document.getElementById('sv-vault-badge');
         if (vaultBadge) vaultBadge.style.display = s.isVault ? 'flex' : 'none';
 
-        // Отображение медиа
-        const mediaImg = document.getElementById('sv-media-img');
-        if (s.media) {
-            mediaImg.src = s.media;
-            mediaImg.style.display = 'block';
+        // Отображение медиа (SoulCloud Gallery)
+        const galleryWrap = document.getElementById('sv-media-gallery-wrap');
+        if (s.media && s.media.length) {
+            galleryWrap.innerHTML = s.media.map(m => {
+                if (m.type === 'image') return `<img src="${m.data}" style="width:100%; border-radius:12px; margin-bottom:10px; border:1px solid rgba(212,175,55,0.15);">`;
+                if (m.type === 'audio') return `<div style="margin-bottom:10px;"><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
+                if (m.type === 'video') return `<video controls style="width:100%; border-radius:12px; margin-bottom:10px;"><source src="${m.data}"></video>`;
+                return '';
+            }).join('');
+            galleryWrap.style.display = 'block';
         } else {
-            mediaImg.style.display = 'none';
+            galleryWrap.style.display = 'none';
         }
 
         openModal('modal-secret-view');
@@ -6843,7 +6878,7 @@
         id: uid(), title,
         period: document.getElementById('b-period').value,
         content: document.getElementById('b-content').value,
-        media: document.getElementById('b-media-data').value,
+        media: JSON.parse(document.getElementById('b-media-data-json').value || "[]"),
         date: new Date().toLocaleDateString('ru')
       };
       STATE.bio.unshift(chapter);
@@ -6854,8 +6889,8 @@
       document.getElementById('b-title').value = '';
       document.getElementById('b-period').value = '';
       document.getElementById('b-content').value = '';
-      document.getElementById('b-media-data').value = '';
-      document.getElementById('b-media-preview').style.display = 'none';
+      document.getElementById('b-media-data-json').value = '[]';
+      document.getElementById('b-media-gallery').innerHTML = '';
 
       closeModal('modal-bio');
       toast('✓ Глава сохранена');
@@ -6880,7 +6915,16 @@
         <button class="btn btn-danger btn-sm" onclick="deleteBio('${ch.id}')" style="background:transparent; border-color:transparent; font-size:1rem;">✕</button>
       </div>
       
-      ${ch.media ? `<img src="${ch.media}" style="width:100%; max-height:400px; object-fit:cover; border-radius:12px; margin: 1rem 0; border:1px solid rgba(212,175,55,0.15);">` : ''}
+      ${ch.media && ch.media.length ? `
+        <div class="bio-gallery" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:10px; margin: 1rem 0;">
+          ${ch.media.map(m => {
+             if (m.type === 'image') return `<img src="${m.data}" style="width:100%; height:120px; object-fit:cover; border-radius:8px; border:1px solid rgba(212,175,55,0.1);">`;
+             if (m.type === 'audio') return `<div style="background:var(--ink3); border-radius:8px; padding:10px; display:flex; align-items:center; justify-content:center;">🎵</div>`;
+             if (m.type === 'video') return `<div style="background:var(--ink3); border-radius:8px; padding:10px; display:flex; align-items:center; justify-content:center;">🎬</div>`;
+             return '';
+          }).join('')}
+        </div>
+      ` : ''}
 
       <p style="font-size:0.9rem;color:var(--muted);line-height:1.9; margin-top: 1rem;">${esc(ch.content || '').replace(/\n/g, '<br>')}</p>
       <div style="font-size:0.7rem;color:var(--muted2);margin-top:1.2rem; border-top: 1px solid var(--glass-border); padding-top: 0.8rem;">Добавлено: ${ch.date}</div>
@@ -9111,7 +9155,7 @@
            <span>🛡️</span> Данные успешно расшифрованы мастер-паролем
         </div>
 
-        <img id="sv-media-img" src="" style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; margin-bottom:1.5rem; display:none; border:1px solid rgba(212,175,55,0.1);">
+        <div id="sv-media-gallery-wrap" style="margin-bottom:1.5rem; display:none;"></div>
         
         <div class="field" style="position:relative;">
           <label style="display:block; margin-bottom:10px; font-size:0.8rem; color:var(--muted);">Содержимое тайны</label>
