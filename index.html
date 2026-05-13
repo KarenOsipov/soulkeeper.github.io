@@ -6866,37 +6866,74 @@
     // ═══════════════════════════════════════════
     // BIO
     // ═══════════════════════════════════════════
+    let editingBioId = null;
+
     function saveBio() {
       const title = document.getElementById('b-title').value.trim();
       if (!title) { toast('Введите название главы'); return; }
 
-      const plan = getUserPlan();
-      if (STATE.bio.length >= plan.maxBioChapters) {
-        toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxBioChapters} глав биографии. Апгрейдитете тариф!`);
-        openModal('modal-upgrade');
-        return;
+      const period = document.getElementById('b-period').value;
+      const content = document.getElementById('b-content').value;
+      const media = JSON.parse(document.getElementById('b-media-data-json').value || "[]");
+
+      if (editingBioId) {
+          const idx = STATE.bio.findIndex(c => c.id === editingBioId);
+          if (idx !== -1) {
+              STATE.bio[idx] = { ...STATE.bio[idx], title, period, content, media };
+              toast('✓ Глава обновлена');
+          }
+          editingBioId = null;
+      } else {
+          const plan = getUserPlan();
+          if (STATE.bio.length >= plan.maxBioChapters) {
+            toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxBioChapters} глав. Апгрейдите тариф!`);
+            openModal('modal-upgrade');
+            return;
+          }
+
+          const chapter = {
+            id: uid(), title, period, content, media,
+            date: new Date().toLocaleDateString('ru')
+          };
+          STATE.bio.unshift(chapter);
+          toast('✓ Глава сохранена');
       }
 
-      const chapter = {
-        id: uid(), title,
-        period: document.getElementById('b-period').value,
-        content: document.getElementById('b-content').value,
-        media: JSON.parse(document.getElementById('b-media-data-json').value || "[]"),
-        date: new Date().toLocaleDateString('ru')
-      };
-      STATE.bio.unshift(chapter);
-      saveUserData(); renderBio(); updateDashStats();
-      addActivity('Добавлена глава: ' + title);
+      saveUserData(); 
+      renderBio(); 
+      updateDashStats();
       
       // Clear
+      closeModal('modal-bio');
+      resetBioForm();
+    }
+
+    function resetBioForm() {
       document.getElementById('b-title').value = '';
       document.getElementById('b-period').value = '';
       document.getElementById('b-content').value = '';
       document.getElementById('b-media-data-json').value = '[]';
       document.getElementById('b-media-gallery').innerHTML = '';
+      editingBioId = null;
+    }
 
-      closeModal('modal-bio');
-      toast('✓ Глава сохранена');
+    function editBio(id) {
+        const b = STATE.bio.find(x => x.id === id);
+        if (!b) return;
+        
+        editingBioId = id;
+        document.getElementById('b-title').value = b.title;
+        document.getElementById('b-period').value = b.period || '';
+        document.getElementById('b-content').value = b.content || '';
+        document.getElementById('b-media-data-json').value = JSON.stringify(b.media || []);
+        renderCloudGallery(b.media || [], 'b-media-gallery', 'b-media-data-json');
+        
+        openModal('modal-bio');
+    }
+
+    function _getStartYear(period) {
+        const match = (period || "").match(/\d{4}/);
+        return match ? parseInt(match[0]) : 9999;
     }
 
     function renderBio() {
@@ -6904,22 +6941,30 @@
       if (!el) return;
       if (!STATE.bio.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">📖</div><div class="empty-text">Книга пуста</div><div class="empty-sub">Начните писать историю своей жизни</div></div>`; return; }
 
+      // ХРОНОЛОГИЧЕСКАЯ СОРТИРОВКА
+      const sortedBio = [...STATE.bio].sort((a, b) => _getStartYear(a.period) - _getStartYear(b.period));
+
       let html = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px; margin-top:20px;">`;
 
-      html += STATE.bio.map((ch, i) => {
+      html += sortedBio.map((ch, i) => {
         const hasMedia = ch.media && ch.media.length;
         const firstImg = hasMedia ? ch.media.find(m => m.type === 'image') : null;
         
         return `
-    <div class="card bio-preview-card" onclick="viewBio('${ch.id}')" style="cursor:pointer; transition:0.3s; overflow:hidden; display:flex; flex-direction:column; padding:0; border:1px solid rgba(212,175,55,0.1); background:rgba(20,20,20,0.4);">
-      ${firstImg ? `<div style="height:160px; background:url(${firstImg.data}) center/cover; width:100%;"></div>` : `<div style="height:160px; background:var(--ink3); display:flex; align-items:center; justify-content:center; font-size:2rem; opacity:0.3;">📖</div>`}
-      <div style="padding:1.5rem;">
-        <div style="font-family:var(--serif);font-size:1.2rem;color:var(--ivory); font-weight:600; margin-bottom:4px;">${esc(ch.title)}</div>
-        <div style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:12px;">${esc(ch.period || '')}</div>
-        <p style="font-size:0.85rem;color:var(--muted);line-height:1.6; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; margin:0;">${esc(ch.content || '')}</p>
-        <div style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center; font-size:0.65rem; color:var(--muted2); border-top:1px solid rgba(255,255,255,0.05); padding-top:10px;">
-          <span>📅 ${ch.date}</span>
-          ${hasMedia ? `<span style="background:rgba(212,175,55,0.1); color:var(--gold); padding:2px 8px; border-radius:10px;">📎 ${ch.media.length} медиа</span>` : ''}
+    <div class="card bio-preview-card" style="position:relative; cursor:pointer; transition:0.3s; overflow:hidden; display:flex; flex-direction:column; padding:0; border:1px solid rgba(212,175,55,0.1); background:rgba(20,20,20,0.4);">
+      <div onclick="viewBio('${ch.id}')" style="flex:1; display:flex; flex-direction:column;">
+        ${firstImg ? `<div style="height:140px; background:url(${firstImg.data}) center/cover; width:100%;"></div>` : `<div style="height:140px; background:var(--ink3); display:flex; align-items:center; justify-content:center; font-size:2rem; opacity:0.3;">📖</div>`}
+        <div style="padding:1.2rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;color:var(--ivory); font-weight:600; margin-bottom:4px;">${esc(ch.title)}</div>
+          <div style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;margin-bottom:10px;">${esc(ch.period || '')}</div>
+          <p style="font-size:0.8rem;color:var(--muted);line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin:0;">${esc(ch.content || '')}</p>
+        </div>
+      </div>
+      <div style="padding:10px 1.2rem; display:flex; justify-content:space-between; align-items:center; font-size:0.6rem; color:var(--muted2); border-top:1px solid rgba(255,255,255,0.05);">
+        <span>📅 ${ch.date}</span>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-ghost" onclick="editBio('${ch.id}')" style="padding:4px 8px; font-size:0.6rem; color:var(--gold);">✎</button>
+          <button class="btn-ghost" onclick="deleteBio('${ch.id}')" style="padding:4px 8px; font-size:0.6rem; color:var(--red);">✕</button>
         </div>
       </div>
     </div>`;
@@ -6961,6 +7006,7 @@
     }
 
     function deleteBio(id) {
+      if (!confirm('Вы уверены, что хотите удалить это воспоминание?')) return;
       STATE.bio = STATE.bio.filter(c => c.id !== id);
       saveUserData(); renderBio(); updateDashStats();
       toast('Глава удалена');
