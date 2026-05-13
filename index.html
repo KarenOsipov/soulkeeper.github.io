@@ -6384,6 +6384,12 @@
       setAuthLoading('btn-register', false, 'Создать аккаунт');
 
       if (fbUser) {
+        // Если идёт сброс пароля — НЕ переходим в приложение автоматически
+        if (window.location.search.includes('mode=resetPassword')) {
+            console.log('Reset mode active, skipping auto-login');
+            return;
+        }
+        
         // emailVerified check disabled
 
         const user = {
