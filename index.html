@@ -4591,7 +4591,11 @@
             <circle cx="20" cy="20" r="18" fill="none" stroke="var(--green)" stroke-width="2" stroke-dasharray="113"
               stroke-dashoffset="20" id="top-avatar-ring" />
           </svg>
-          <div class="user-avatar" id="user-avatar-btn">А</div>
+          <div class="user-avatar" id="user-avatar-btn" onclick="triggerProfilePhoto()">
+            <img id="top-avatar-img" src="" style="display:none; width:100%; height:100%; border-radius:50%; object-fit:cover;">
+            <span id="top-avatar-initial">А</span>
+          </div>
+          <input type="file" id="profile-photo-input" accept="image/*" style="display:none" onchange="uploadProfilePhoto(this)">
           <div class="avatar-status-tooltip" id="top-avatar-tooltip">7 дней до проверки</div>
         </div>
         <span class="user-name" id="user-name-top">Пользователь</span>
@@ -5515,6 +5519,15 @@
             <option value="public">👁️ Всем</option>
           </select>
         </div>
+        <div class="field">
+          <label>Прикрепить фото/документ <span style="font-size:0.7rem; color:var(--muted)">(Base64)</span></label>
+          <div class="file-upload-wrap" style="display:flex; gap:10px; align-items:center;">
+             <input type="file" id="s-media-input" accept="image/*" style="display:none" onchange="handleSecretMedia(this)">
+             <button class="btn btn-ghost" onclick="document.getElementById('s-media-input').click()" style="flex:1">📎 Выбрать файл</button>
+             <div id="s-media-preview" style="width:50px; height:50px; border:1px solid var(--gold-d); border-radius:8px; display:none; background-size:cover; background-position:center;"></div>
+          </div>
+          <input type="hidden" id="s-media-data">
+        </div>
         <div class="field" style="margin-top:1rem; padding:1rem; background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.1); border-radius:12px;">
           <label style="color:var(--gold); display:flex; align-items:center; gap:8px; margin-bottom:8px;">
             🛡️ Мастер-пароль тайны <span style="font-size:0.65rem; font-weight:normal; opacity:0.7;">(Опционально)</span>
@@ -5546,6 +5559,15 @@
         <div class="field"><label>Период жизни</label><input type="text" id="b-period" placeholder="1975 — 1985"></div>
         <div class="field"><label>Текст</label><textarea id="b-content"
             placeholder="Расскажите эту часть своей жизни..." style="min-height:160px"></textarea></div>
+        <div class="field">
+          <label>Фото воспоминания <span style="font-size:0.7rem; color:var(--muted)">(Base64)</span></label>
+          <div class="file-upload-wrap" style="display:flex; gap:10px; align-items:center;">
+             <input type="file" id="b-media-input" accept="image/*" style="display:none" onchange="handleBioMedia(this)">
+             <button class="btn btn-ghost" onclick="document.getElementById('b-media-input').click()" style="flex:1">📸 Добавить фото</button>
+             <div id="b-media-preview" style="width:50px; height:50px; border:1px solid var(--gold-d); border-radius:8px; display:none; background-size:cover; background-position:center;"></div>
+          </div>
+          <input type="hidden" id="b-media-data">
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('modal-bio')">Отмена</button>
@@ -6413,9 +6435,11 @@
           id: fbUser.uid,
           name: fbUser.displayName || fbUser.email.split('@')[0],
           email: fbUser.email,
+          photoURL: fbUser.photoURL || '',
           uid: fbUser.uid
         };
         STATE.user = user;
+        updateAvatarUI();
         DB.save('user', user);
 
         // Перекидываем на приложение МГНОВЕННО
@@ -6559,6 +6583,64 @@
     const accessColors = { private: 'var(--gold)', after_death: 'var(--red)', heir: 'var(--green)', public: 'var(--blue)' };
     const accessTags = { private: 'tag-gold', after_death: 'tag-red', heir: 'tag-green', public: 'tag-blue' };
 
+    function updateAvatarUI() {
+        const initial = document.getElementById('top-avatar-initial');
+        const img = document.getElementById('top-avatar-img');
+        const btn = document.getElementById('user-avatar-btn');
+        
+        if (STATE.user && STATE.user.photoURL) {
+            img.src = STATE.user.photoURL;
+            img.style.display = 'block';
+            initial.style.display = 'none';
+            if (btn) btn.textContent = ''; // clear initial if it was there
+            btn.appendChild(img);
+        } else if (STATE.user) {
+            img.style.display = 'none';
+            initial.style.display = 'block';
+            initial.textContent = STATE.user.name.charAt(0).toUpperCase();
+        }
+    }
+
+    function triggerProfilePhoto() {
+        document.getElementById('profile-photo-input').click();
+    }
+
+    function uploadProfilePhoto(input) {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > 500000) { toast('❌ Фото слишком тяжелое (макс 500KB)'); return; }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const base64 = e.target.result;
+            STATE.user.photoURL = base64;
+            updateAvatarUI();
+            saveUserDataToFirestore(fbUser.uid);
+            toast('✅ Фото профиля обновлено');
+            
+            // Также обновляем в Firebase Auth
+            fbAuth.currentUser.updateProfile({ photoURL: base64 });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handleSecretMedia(input) {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > 800000) { toast('❌ Файл слишком тяжелый'); return; }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = e.target.result;
+            document.getElementById('s-media-data').value = data;
+            const preview = document.getElementById('s-media-preview');
+            preview.style.backgroundImage = `url(${data})`;
+            preview.style.display = 'block';
+            toast('📎 Файл прикреплен');
+        };
+        reader.readAsDataURL(file);
+    }
+
     function saveSecret() {
       const title = document.getElementById('s-title').value.trim();
       const content = document.getElementById('s-content').value;
@@ -6595,6 +6677,7 @@
         id: uid(), title,
         category: document.getElementById('s-cat').value,
         content: finalContent,
+        media: document.getElementById('s-media-data').value,
         access: document.getElementById('s-access').value,
         isVault: isVault,
         date: new Date().toLocaleDateString('ru')
@@ -6609,6 +6692,12 @@
       addActivity('Добавлена тайна: ' + title + (isVault ? ' (Защищена)' : ''));
       
       // Очистка
+      document.getElementById('s-title').value = '';
+      document.getElementById('s-content').value = '';
+      document.getElementById('s-vault-pass').value = '';
+      document.getElementById('s-media-data').value = '';
+      document.getElementById('s-media-preview').style.display = 'none';
+      document.getElementById('s-media-input').value = '';
       document.getElementById('s-title').value = '';
       document.getElementById('s-content').value = '';
       document.getElementById('s-vault-pass').value = '';
@@ -6651,6 +6740,15 @@
         
         const vaultBadge = document.getElementById('sv-vault-badge');
         if (vaultBadge) vaultBadge.style.display = s.isVault ? 'flex' : 'none';
+
+        // Отображение медиа
+        const mediaImg = document.getElementById('sv-media-img');
+        if (s.media) {
+            mediaImg.src = s.media;
+            mediaImg.style.display = 'block';
+        } else {
+            mediaImg.style.display = 'none';
+        }
 
         openModal('modal-secret-view');
     }
@@ -6710,6 +6808,23 @@
       toast('Тайна удалена');
     }
 
+    function handleBioMedia(input) {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > 800000) { toast('❌ Фото слишком тяжелое'); return; }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = e.target.result;
+            document.getElementById('b-media-data').value = data;
+            const preview = document.getElementById('b-media-preview');
+            preview.style.backgroundImage = `url(${data})`;
+            preview.style.display = 'block';
+            toast('📸 Фото готово');
+        };
+        reader.readAsDataURL(file);
+    }
+
     // ═══════════════════════════════════════════
     // BIO
     // ═══════════════════════════════════════════
@@ -6728,11 +6843,20 @@
         id: uid(), title,
         period: document.getElementById('b-period').value,
         content: document.getElementById('b-content').value,
+        media: document.getElementById('b-media-data').value,
         date: new Date().toLocaleDateString('ru')
       };
       STATE.bio.unshift(chapter);
       saveUserData(); renderBio(); updateDashStats();
       addActivity('Добавлена глава: ' + title);
+      
+      // Clear
+      document.getElementById('b-title').value = '';
+      document.getElementById('b-period').value = '';
+      document.getElementById('b-content').value = '';
+      document.getElementById('b-media-data').value = '';
+      document.getElementById('b-media-preview').style.display = 'none';
+
       closeModal('modal-bio');
       toast('✓ Глава сохранена');
     }
@@ -6755,6 +6879,9 @@
         </div>
         <button class="btn btn-danger btn-sm" onclick="deleteBio('${ch.id}')" style="background:transparent; border-color:transparent; font-size:1rem;">✕</button>
       </div>
+      
+      ${ch.media ? `<img src="${ch.media}" style="width:100%; max-height:400px; object-fit:cover; border-radius:12px; margin: 1rem 0; border:1px solid rgba(212,175,55,0.15);">` : ''}
+
       <p style="font-size:0.9rem;color:var(--muted);line-height:1.9; margin-top: 1rem;">${esc(ch.content || '').replace(/\n/g, '<br>')}</p>
       <div style="font-size:0.7rem;color:var(--muted2);margin-top:1.2rem; border-top: 1px solid var(--glass-border); padding-top: 0.8rem;">Добавлено: ${ch.date}</div>
     </div>`).join('');
@@ -8983,6 +9110,8 @@
         <div id="sv-vault-badge" style="display:none; align-items:center; gap:8px; margin-bottom:1.5rem; padding:8px 12px; background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.2); border-radius:8px; color:var(--green); font-size:0.75rem;">
            <span>🛡️</span> Данные успешно расшифрованы мастер-паролем
         </div>
+
+        <img id="sv-media-img" src="" style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; margin-bottom:1.5rem; display:none; border:1px solid rgba(212,175,55,0.1);">
         
         <div class="field" style="position:relative;">
           <label style="display:block; margin-bottom:10px; font-size:0.8rem; color:var(--muted);">Содержимое тайны</label>
