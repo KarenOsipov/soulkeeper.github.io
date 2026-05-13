@@ -6314,6 +6314,9 @@
         resetCode = actionCode;
         console.log('!!! RESET CODE DETECTED !!!', resetCode);
         
+        // ПРИНУДИТЕЛЬНО ПОКАЗЫВАЕМ ЭКРАН AUTH
+        showScreen('auth');
+        
         // МГНОВЕННОЕ СКРЫТИЕ (без задержек)
         const hideOthers = () => {
             const tabs = document.querySelector('.auth-tabs');
