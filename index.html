@@ -5515,6 +5515,16 @@
             <option value="public">👁️ Всем</option>
           </select>
         </div>
+        <div class="field" style="margin-top:1rem; padding:1rem; background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.1); border-radius:12px;">
+          <label style="color:var(--gold); display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            🛡️ Мастер-пароль тайны <span style="font-size:0.65rem; font-weight:normal; opacity:0.7;">(Опционально)</span>
+          </label>
+          <input type="password" id="s-vault-pass" placeholder="Дополнительная защита..." 
+            style="width:100%; background:var(--ink2); border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; color:var(--ivory); outline:none;">
+          <div style="font-size:0.65rem; color:var(--muted); margin-top:6px; line-height:1.4;">
+            ⚠️ Если вы установите этот пароль, тайна будет зашифрована ДВАЖДЫ. Без этого пароля её невозможно будет прочесть даже имея доступ к аккаунту. <b>Если вы его забудете, данные будут потеряны навсегда.</b>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('modal-secret')">Отмена</button>
@@ -6551,6 +6561,9 @@
 
     function saveSecret() {
       const title = document.getElementById('s-title').value.trim();
+      const content = document.getElementById('s-content').value;
+      const vaultPass = document.getElementById('s-vault-pass').value;
+
       if (!title) { toast('Введите название'); return; }
 
       const plan = getUserPlan();
@@ -6560,18 +6573,39 @@
         return;
       }
 
+      let finalContent = content;
+      let isVault = false;
+
+      if (vaultPass) {
+        // Двойное шифрование: сначала кастомным паролем
+        try {
+           finalContent = '🔒V2' + CryptoJS.AES.encrypt(content, vaultPass).toString();
+           isVault = true;
+        } catch(e) {
+           toast('❌ Ошибка шифрования мастер-паролем');
+           return;
+        }
+      }
+
       const secret = {
         id: uid(), title,
         category: document.getElementById('s-cat').value,
-        content: document.getElementById('s-content').value,
+        content: finalContent,
         access: document.getElementById('s-access').value,
+        isVault: isVault,
         date: new Date().toLocaleDateString('ru')
       };
       STATE.secrets.unshift(secret);
       saveUserData(); renderSecrets(); updateDashStats(); updateBadges();
-      addActivity('Добавлена тайна: ' + title);
+      addActivity('Добавлена тайна: ' + title + (isVault ? ' (Защищена мастер-паролем)' : ''));
+      
+      // Сброс полей
+      document.getElementById('s-title').value = '';
+      document.getElementById('s-content').value = '';
+      document.getElementById('s-vault-pass').value = '';
+      
       closeModal('modal-secret');
-      toast('✓ Тайна добавлена в сейф');
+      toast(isVault ? '🛡️ Сверхсекретная тайна сохранена' : '✓ Тайна добавлена в сейф');
     }
 
     let secretFilter = 'all', secretSearch = '';
@@ -6589,7 +6623,7 @@
     <div class="list-item" onclick="viewSecret('${s.id}')">
       <div class="list-icon">${catIcons[s.category] || '📁'}</div>
       <div class="list-meta">
-        <div class="list-title">${esc(s.title)}</div>
+        <div class="list-title">${esc(s.title)} ${s.isVault ? '<span style="font-size:0.8rem; margin-left:5px;">🛡️</span>' : ''}</div>
         <div class="list-sub">${catLabels[s.category] || '—'} · ${s.date}</div>
       </div>
       <div class="list-right">
@@ -6602,7 +6636,41 @@
     function viewSecret(id) {
       const s = STATE.secrets.find(x => x.id === id);
       if (!s) return;
-      toast(`${catIcons[s.category] || '📁'} ${s.title}: ${s.content ? s.content.slice(0, 60) + '...' : '(пусто)'}`);
+
+      if (s.isVault) {
+          // Запрашиваем пароль
+          document.getElementById('vault-prompt-id').value = id;
+          document.getElementById('vault-prompt-pass').value = '';
+          openModal('modal-vault-prompt');
+          return;
+      }
+
+      // Обычный просмотр
+      toast(`${catIcons[s.category] || '📁'} ${s.title}: ${s.content ? s.content.slice(0, 100) + '...' : '(пусто)'}`);
+      if (s.content) alert(s.content);
+    }
+
+    function unlockVaultSecret() {
+        const id = document.getElementById('vault-prompt-id').value;
+        const pass = document.getElementById('vault-prompt-pass').value;
+        const s = STATE.secrets.find(x => x.id === id);
+        if (!s || !pass) return;
+
+        try {
+            const encryptedData = s.content.replace('🔒V2', '');
+            const decrypted = CryptoJS.AES.decrypt(encryptedData, pass).toString(CryptoJS.enc.Utf8);
+            
+            if (!decrypted) throw new Error('Wrong password');
+
+            closeModal('modal-vault-prompt');
+            toast(`🛡️ Тайна раскрыта: ${s.title}`);
+            alert(decrypted);
+        } catch(e) {
+            toast('❌ Неверный мастер-пароль тайны');
+            const input = document.getElementById('vault-prompt-pass');
+            input.style.borderColor = 'var(--red)';
+            setTimeout(() => input.style.borderColor = '', 1000);
+        }
     }
 
     function deleteSecret(id) {
@@ -8844,6 +8912,29 @@
       background: var(--gold-d);
     }
   </style>
+  <!-- Vault Password Prompt Modal -->
+  <div class="modal-overlay" id="modal-vault-prompt">
+    <div class="modal" style="max-width:400px; text-align:center;">
+      <div class="modal-head">
+        <div class="modal-title">🔐 Доступ <em>защищен</em></div>
+        <button class="modal-close" onclick="closeModal('modal-vault-prompt')">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 2rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
+        <input type="hidden" id="vault-prompt-id">
+        <div class="field">
+          <label style="display:block; margin-bottom:12px; font-size:0.9rem;">Введите мастер-пароль для этой тайны</label>
+          <input type="password" id="vault-prompt-pass" placeholder="••••••••" 
+            style="width:100%; background:var(--ink2); border:1px solid var(--gold); border-radius:12px; padding:15px; color:var(--ivory); font-size:1.2rem; text-align:center; outline:none; box-shadow:0 0 15px rgba(212,175,55,0.1);">
+        </div>
+        <div style="font-size:0.7rem; color:var(--muted); margin-top:1rem; line-height:1.5;">
+          Это дополнительный уровень защиты. Данные хранятся в зашифрованном виде и не могут быть восстановлены без этого пароля.
+        </div>
+        <button class="btn-gold" style="width:100%; margin-top:1.5rem; padding:14px;" onclick="unlockVaultSecret()">РАСКРЫТЬ ТАЙНУ</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>
