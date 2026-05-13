@@ -6564,6 +6564,8 @@
       const content = document.getElementById('s-content').value;
       const vaultPass = document.getElementById('s-vault-pass').value;
 
+      console.log('Saving secret. Vault pass length:', vaultPass.length);
+
       if (!title) { toast('Введите название'); return; }
 
       const plan = getUserPlan();
@@ -6576,13 +6578,15 @@
       let finalContent = content;
       let isVault = false;
 
-      if (vaultPass) {
-        // Двойное шифрование: сначала кастомным паролем
+      if (vaultPass && vaultPass.trim().length > 0) {
+        // Двойное шифрование
         try {
            finalContent = '🔒V2' + CryptoJS.AES.encrypt(content, vaultPass).toString();
            isVault = true;
+           console.log('Double encryption enabled for:', title);
         } catch(e) {
-           toast('❌ Ошибка шифрования мастер-паролем');
+           console.error('Encryption error:', e);
+           toast('❌ Ошибка шифрования');
            return;
         }
       }
@@ -6595,17 +6599,22 @@
         isVault: isVault,
         date: new Date().toLocaleDateString('ru')
       };
-      STATE.secrets.unshift(secret);
-      saveUserData(); renderSecrets(); updateDashStats(); updateBadges();
-      addActivity('Добавлена тайна: ' + title + (isVault ? ' (Защищена мастер-паролем)' : ''));
       
-      // Сброс полей
+      STATE.secrets.unshift(secret);
+      saveUserData(); 
+      renderSecrets(); 
+      updateDashStats(); 
+      updateBadges();
+      
+      addActivity('Добавлена тайна: ' + title + (isVault ? ' (Защищена)' : ''));
+      
+      // Очистка
       document.getElementById('s-title').value = '';
       document.getElementById('s-content').value = '';
       document.getElementById('s-vault-pass').value = '';
       
       closeModal('modal-secret');
-      toast(isVault ? '🛡️ Сверхсекретная тайна сохранена' : '✓ Тайна добавлена в сейф');
+      toast(isVault ? '🛡️ Сверхсекретная тайна сохранена' : '✓ Тайна добавлена');
     }
 
     let secretFilter = 'all', secretSearch = '';
@@ -6633,21 +6642,31 @@
     </div>`).join('');
     }
 
+    function showDecryptedSecret(s, decryptedContent) {
+        document.getElementById('sv-title').textContent = s.title;
+        document.getElementById('sv-cat').textContent = catLabels[s.category] || s.category;
+        document.getElementById('sv-icon').textContent = catIcons[s.category] || '📁';
+        document.getElementById('sv-content').value = decryptedContent;
+        document.getElementById('sv-date').textContent = 'Добавлено: ' + s.date;
+        
+        const vaultBadge = document.getElementById('sv-vault-badge');
+        if (vaultBadge) vaultBadge.style.display = s.isVault ? 'flex' : 'none';
+
+        openModal('modal-secret-view');
+    }
+
     function viewSecret(id) {
       const s = STATE.secrets.find(x => x.id === id);
       if (!s) return;
 
       if (s.isVault) {
-          // Запрашиваем пароль
           document.getElementById('vault-prompt-id').value = id;
           document.getElementById('vault-prompt-pass').value = '';
           openModal('modal-vault-prompt');
           return;
       }
 
-      // Обычный просмотр
-      toast(`${catIcons[s.category] || '📁'} ${s.title}: ${s.content ? s.content.slice(0, 100) + '...' : '(пусто)'}`);
-      if (s.content) alert(s.content);
+      showDecryptedSecret(s, s.content);
     }
 
     function unlockVaultSecret() {
@@ -6663,14 +6682,26 @@
             if (!decrypted) throw new Error('Wrong password');
 
             closeModal('modal-vault-prompt');
-            toast(`🛡️ Тайна раскрыта: ${s.title}`);
-            alert(decrypted);
+            toast(`🛡️ Тайна раскрыта`);
+            showDecryptedSecret(s, decrypted);
         } catch(e) {
-            toast('❌ Неверный мастер-пароль тайны');
+            toast('❌ Неверный мастер-пароль');
             const input = document.getElementById('vault-prompt-pass');
             input.style.borderColor = 'var(--red)';
             setTimeout(() => input.style.borderColor = '', 1000);
         }
+    }
+
+    function copySecretContent() {
+        const val = document.getElementById('sv-content').value;
+        if (!val) return;
+        navigator.clipboard.writeText(val).then(() => {
+            const btn = document.querySelector('.btn-copy-secret');
+            const old = btn.innerHTML;
+            btn.innerHTML = '✅ Скопировано';
+            setTimeout(() => btn.innerHTML = old, 2000);
+            toast('✓ Скопировано в буфер обмена');
+        });
     }
 
     function deleteSecret(id) {
@@ -8931,6 +8962,42 @@
           Это дополнительный уровень защиты. Данные хранятся в зашифрованном виде и не могут быть восстановлены без этого пароля.
         </div>
         <button class="btn-gold" style="width:100%; margin-top:1.5rem; padding:14px;" onclick="unlockVaultSecret()">РАСКРЫТЬ ТАЙНУ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: View Secret (Decrypted) ── -->
+  <div class="modal-overlay" id="modal-secret-view">
+    <div class="modal" style="max-width:500px; background:rgba(18,18,18,0.9); border:1px solid var(--gold-d3); backdrop-filter:blur(30px); border-radius:24px;">
+      <div class="modal-head" style="border-bottom:1px solid rgba(212,175,55,0.1); padding:1.5rem 2rem;">
+        <div class="modal-title" style="display:flex; align-items:center; gap:12px;">
+          <div id="sv-icon" style="font-size:1.5rem;">🔐</div>
+          <div>
+            <div id="sv-title" style="font-size:1.1rem; font-weight:600; color:var(--ivory);">Название тайны</div>
+            <div id="sv-cat" style="font-size:0.7rem; color:var(--gold); text-transform:uppercase; letter-spacing:1px;">КАТЕГОРИЯ</div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeModal('modal-secret-view')">✕</button>
+      </div>
+      <div class="modal-body" style="padding:2rem;">
+        <div id="sv-vault-badge" style="display:none; align-items:center; gap:8px; margin-bottom:1.5rem; padding:8px 12px; background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.2); border-radius:8px; color:var(--green); font-size:0.75rem;">
+           <span>🛡️</span> Данные успешно расшифрованы мастер-паролем
+        </div>
+        
+        <div class="field" style="position:relative;">
+          <label style="display:block; margin-bottom:10px; font-size:0.8rem; color:var(--muted);">Содержимое тайны</label>
+          <textarea id="sv-content" readonly 
+            style="width:100%; min-height:120px; background:rgba(0,0,0,0.3); border:1px solid rgba(212,175,55,0.15); border-radius:12px; padding:15px; color:var(--ivory2); font-family:monospace; font-size:1rem; resize:none; outline:none; line-height:1.5;"></textarea>
+          <button class="btn-copy-secret" onclick="copySecretContent()" 
+            style="position:absolute; bottom:12px; right:12px; background:var(--gold); color:var(--ink); border:none; padding:6px 12px; border-radius:6px; font-size:0.7rem; font-weight:600; cursor:pointer; transition:0.2s;">
+            📋 Копировать
+          </button>
+        </div>
+        
+        <div id="sv-date" style="margin-top:1.5rem; font-size:0.7rem; color:var(--muted2); text-align:right;">—</div>
+      </div>
+      <div class="modal-footer" style="background:rgba(212,175,55,0.03); border-top:1px solid rgba(212,175,55,0.05); padding:1rem 2rem;">
+        <button class="btn btn-primary-sm" style="width:100%;" onclick="closeModal('modal-secret-view')">ЗАКРЫТЬ</button>
       </div>
     </div>
   </div>
