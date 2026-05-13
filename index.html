@@ -6046,9 +6046,10 @@
         return;
       }
 
-      // Принудительный URL возврата
+      // Динамический URL возврата (учитывает папку репозитория на GitHub Pages)
+      const currentUrl = window.location.origin + window.location.pathname;
       const actionCodeSettings = {
-        url: 'https://karenosipov.github.io/',
+        url: currentUrl,
         handleCodeInApp: true
       };
 
