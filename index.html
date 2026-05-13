@@ -6660,14 +6660,14 @@
     function renderCloudGallery(media, galleryId, hiddenId) {
         const gallery = document.getElementById(galleryId);
         gallery.innerHTML = media.map((m, idx) => {
-            const isImage = m.type === 'image' || (m.data && m.data.startsWith('data:image'));
+            const isImage = (m.type === 'image') || (m.data && m.data.startsWith('data:image'));
             return `
             <div style="position:relative; width:100%; padding-top:100%; background:var(--ink3); border-radius:8px; overflow:hidden; border:1px solid rgba(212,175,55,0.2);">
                 ${isImage ? `<img src="${m.data}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">` : ''}
                 ${m.type === 'audio' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🎵</div>` : ''}
                 ${m.type === 'video' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🎬</div>` : ''}
                 ${m.type === 'file' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">📄</div>` : ''}
-                <button onclick="removeCloudItem(${idx}, '${galleryId}', '${hiddenId}')" style="position:absolute; top:2px; right:2px; background:rgba(255,0,0,0.7); border:none; color:white; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer; z-index:5;">✕</button>
+                <button onclick="removeCloudItem(${idx}, '${galleryId}', '${hiddenId}')" style="position:absolute; top:2px; right:2px; background:rgba(255,0,0,0.8); border:none; color:white; border-radius:50%; width:20px; height:20px; font-size:10px; cursor:pointer; z-index:5; display:flex; align-items:center; justify-content:center;">✕</button>
             </div>
             `;
         }).join('');
@@ -6947,55 +6947,82 @@
 
       const sortedBio = [...STATE.bio].sort((a, b) => _getStartYear(a.period) - _getStartYear(b.period));
 
-      let html = `<div class="heritage-timeline" style="position:relative; padding-left:80px; margin-top:50px; width:100%; box-sizing:border-box;">`;
+      let html = `<div class="heritage-timeline" style="position:relative; padding-left:40px; margin-top:40px; width:100%; box-sizing:border-box;">`;
       
-      // Золотая нить жизни (Неоновая)
-      html += `<div style="position:absolute; top:0; bottom:0; left:30px; width:2px; background:linear-gradient(to bottom, transparent, var(--gold), var(--gold-d), transparent); box-shadow: 0 0 15px var(--gold-d); opacity:0.4;"></div>`;
+      // Золотая нить жизни
+      html += `<div style="position:absolute; top:0; bottom:0; left:12px; width:2px; background:linear-gradient(to bottom, transparent, var(--gold), transparent); opacity:0.3;"></div>`;
 
       html += sortedBio.map((ch, i) => {
         let mediaArr = [];
         if (Array.isArray(ch.media)) mediaArr = ch.media;
-        else if (typeof ch.media === 'string' && ch.media.length > 10) mediaArr = [{ type: 'image', data: ch.media }];
+        else if (typeof ch.media === 'string' && ch.media.length > 20) mediaArr = [{ type: 'image', data: ch.media }];
 
-        const firstImg = mediaArr.find(m => m.type === 'image' || (m.data && m.data.startsWith('data:image')));
+        const firstImg = mediaArr.find(m => m.type === 'image' || (m.data && m.data.includes('data:image')));
         
         return `
-    <div class="bio-plank-wow" style="position:relative; margin-bottom: 3.5rem; animation: fadeUp ${0.3 + i * 0.1}s forwards; width:100%;">
+    <div class="bio-plank-wow" style="position:relative; margin-bottom: 3rem; animation: fadeUp ${0.3 + i * 0.1}s forwards; width:100%;">
       
-      <!-- Пульсирующая звезда времени (Идеально по центру медальона) -->
-      <div class="timeline-star" style="position:absolute; left:-57px; top:50%; transform:translateY(-50%) rotate(45deg); width:14px; height:14px; background:var(--gold); box-shadow: 0 0 20px var(--gold); z-index:5; border:2px solid var(--ink);">
-         <div style="position:absolute; inset:0; background:var(--gold); filter:blur(6px); animation: pulse 2s infinite;"></div>
-      </div>
+      <!-- Точка времени -->
+      <div style="position:absolute; left:-34px; top:50%; transform:translateY(-50%); width:12px; height:12px; background:var(--gold); border-radius:50%; box-shadow: 0 0 15px var(--gold); z-index:5; border:2px solid var(--ink);"></div>
       
       <div class="card glass-card-wow" onclick="viewBio('${ch.id}')" style="
-        position:relative;
         display:flex; 
-        gap:40px; 
-        padding:2rem 3rem; 
-        padding-left: 80px;
+        gap:30px; 
+        padding:1.5rem 2.5rem; 
         cursor:pointer; 
-        background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-        border-radius:24px; 
-        border: 1px solid rgba(212,175,55,0.15);
-        border-left: 6px solid var(--gold);
-        backdrop-filter:blur(30px); 
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
-        transition: all 0.4s ease;
+        background: rgba(255,255,255,0.03);
+        border-radius:20px; 
+        border: 1px solid rgba(212,175,55,0.1);
+        border-left: 5px solid var(--gold);
+        backdrop-filter:blur(20px); 
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        transition: 0.3s ease;
         align-items:center;
         width:100%;
         box-sizing:border-box;
-      " onmouseover="this.style.transform='translateX(10px)'; this.style.borderColor='rgba(212,175,55,0.4)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.15)';">
+      " onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.transform='translateX(5px)';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.transform='none';">
         
-        <!-- Парящий медальон (Идеальная центровка) -->
-        <div style="position:absolute; left:-55px; top:50%; transform:translateY(-50%); width:110px; height:110px; z-index:4;">
-            <div style="width:100%; height:100%; border-radius:50%; border:3px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.7); overflow:hidden; background:var(--ink); display:flex; align-items:center; justify-content:center;">
-                ${firstImg ? `
-                    <img src="${firstImg.data}" style="width:100%; height:100%; object-fit:cover;">
-                ` : `
-                    <span style="font-size:2rem; opacity:0.6;">📜</span>
-                `}
-            </div>
+        <!-- Левая колонка: Фото -->
+        <div style="flex-shrink:0; width:100px; height:100px; border-radius:15px; border:2px solid rgba(212,175,55,0.3); overflow:hidden; background:var(--ink); display:flex; align-items:center; justify-content:center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+            ${firstImg ? `
+                <img src="${firstImg.data}" style="width:100%; height:100%; object-fit:cover;">
+            ` : `
+                <span style="font-size:2rem; opacity:0.3;">📜</span>
+            `}
         </div>
+
+        <!-- Правая колонка: Текст -->
+        <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="background:rgba(212,175,55,0.1); color:var(--gold); padding:2px 12px; border-radius:20px; font-size:0.65rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; border:1px solid rgba(212,175,55,0.2);">
+                ${esc(ch.period || 'История')}
+            </div>
+            <div style="display:flex; gap:12px;" onclick="event.stopPropagation()">
+               <button class="btn-ghost" onclick="editBio('${ch.id}')" style="font-size:1rem; color:var(--gold); opacity:0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✎</button>
+               <button class="btn-ghost" onclick="deleteBio('${ch.id}')" style="font-size:1rem; color:var(--red); opacity:0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✕</button>
+            </div>
+          </div>
+          
+          <div style="font-family:var(--serif); font-size:1.6rem; color:var(--ivory); font-weight:400; line-height:1.2;">
+            ${esc(ch.title)}
+          </div>
+          
+          <p style="font-size:0.9rem; color:rgba(255,255,255,0.5); line-height:1.6; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; margin:0;">
+            ${esc(ch.content || '')}
+          </p>
+          
+          <div style="display:flex; align-items:center; gap:15px; font-size:0.65rem; color:var(--muted2); margin-top:5px;">
+             <span>📅 ${ch.date}</span>
+             ${mediaArr.length > 1 ? `<span style="color:var(--gold-d);">📁 +${mediaArr.length-1} медиа</span>` : ''}
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+      }).join('');
+      html += `</div>`;
+      el.innerHTML = html;
+    }
 
         <div style="flex:1;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -7074,12 +7101,12 @@
         // Нормализация для просмотра
         let mediaArr = [];
         if (Array.isArray(b.media)) mediaArr = b.media;
-        else if (typeof b.media === 'string' && b.media.length > 10) mediaArr = [{ type: 'image', data: b.media }];
+        else if (typeof b.media === 'string' && b.media.length > 20) mediaArr = [{ type: 'image', data: b.media }];
 
         if (mediaArr.length) {
             gallery.innerHTML = mediaArr.map(m => {
-                const isImage = m.type === 'image' || (m.data && m.data.startsWith('data:image'));
-                if (isImage) return `<img src="${m.data}" style="width:100%; border-radius:16px; margin-bottom:15px; border:1px solid rgba(212,175,55,0.15);">`;
+                const isImage = (m.type === 'image') || (m.data && m.data.includes('data:image'));
+                if (isImage) return `<img src="${m.data}" style="width:100%; border-radius:16px; margin-bottom:15px; border:1px solid rgba(212,175,55,0.15); box-shadow:0 5px 15px rgba(0,0,0,0.3);">`;
                 if (m.type === 'audio') return `<div style="margin-bottom:15px; padding:15px; background:rgba(212,175,55,0.05); border-radius:12px;"><div style="font-size:0.7rem; margin-bottom:8px; color:var(--gold);">🎵 Голос из прошлого:</div><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
                 if (m.type === 'video') return `<video controls style="width:100%; border-radius:16px; margin-bottom:15px;"><source src="${m.data}"></video>`;
                 // Generic file
