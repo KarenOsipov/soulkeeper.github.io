@@ -6947,10 +6947,10 @@
 
       const sortedBio = [...STATE.bio].sort((a, b) => _getStartYear(a.period) - _getStartYear(b.period));
 
-      let html = `<div class="heritage-timeline" style="position:relative; padding-left:70px; margin-top:50px; width:100%;">`;
+      let html = `<div class="heritage-timeline" style="position:relative; padding-left:80px; margin-top:50px; width:100%; box-sizing:border-box;">`;
       
       // Золотая нить жизни (Неоновая)
-      html += `<div style="position:absolute; top:0; bottom:0; left:20px; width:2px; background:linear-gradient(to bottom, transparent, var(--gold), var(--gold-d), transparent); box-shadow: 0 0 15px var(--gold-d); opacity:0.6;"></div>`;
+      html += `<div style="position:absolute; top:0; bottom:0; left:30px; width:2px; background:linear-gradient(to bottom, transparent, var(--gold), var(--gold-d), transparent); box-shadow: 0 0 15px var(--gold-d); opacity:0.4;"></div>`;
 
       html += sortedBio.map((ch, i) => {
         let mediaArr = [];
@@ -6960,43 +6960,74 @@
         const firstImg = mediaArr.find(m => m.type === 'image' || (m.data && m.data.startsWith('data:image')));
         
         return `
-    <div class="bio-plank-wow" style="position:relative; margin-bottom: 4rem; animation: fadeUp ${0.3 + i * 0.1}s forwards; width:100%;">
+    <div class="bio-plank-wow" style="position:relative; margin-bottom: 3.5rem; animation: fadeUp ${0.3 + i * 0.1}s forwards; width:100%;">
       
-      <!-- Пульсирующая звезда времени -->
-      <div class="timeline-star" style="position:absolute; left:-60px; top:35px; width:16px; height:16px; background:var(--gold); transform:rotate(45deg); box-shadow: 0 0 20px var(--gold); z-index:3; border:2px solid var(--ink);">
-         <div style="position:absolute; inset:0; background:var(--gold); filter:blur(8px); animation: pulse 2s infinite;"></div>
+      <!-- Пульсирующая звезда времени (Идеально по центру медальона) -->
+      <div class="timeline-star" style="position:absolute; left:-57px; top:50%; transform:translateY(-50%) rotate(45deg); width:14px; height:14px; background:var(--gold); box-shadow: 0 0 20px var(--gold); z-index:5; border:2px solid var(--ink);">
+         <div style="position:absolute; inset:0; background:var(--gold); filter:blur(6px); animation: pulse 2s infinite;"></div>
       </div>
       
       <div class="card glass-card-wow" onclick="viewBio('${ch.id}')" style="
         position:relative;
         display:flex; 
-        gap:35px; 
-        padding:2.5rem; 
-        padding-left: 70px;
+        gap:40px; 
+        padding:2rem 3rem; 
+        padding-left: 80px;
         cursor:pointer; 
-        background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%);
-        border-radius:30px; 
+        background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+        border-radius:24px; 
         border: 1px solid rgba(212,175,55,0.15);
         border-left: 6px solid var(--gold);
         backdrop-filter:blur(30px); 
-        box-shadow: 0 25px 60px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
+        transition: all 0.4s ease;
         align-items:center;
         width:100%;
-      " onmouseover="this.style.transform='translateY(-5px) scale(1.01)'; this.style.borderColor='rgba(212,175,55,0.4)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.15)';">
+        box-sizing:border-box;
+      " onmouseover="this.style.transform='translateX(10px)'; this.style.borderColor='rgba(212,175,55,0.4)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.15)';">
         
-        <!-- Парящий медальон -->
-        <div style="position:absolute; left:-45px; top:50%; transform:translateY(-50%); width:120px; height:120px; z-index:4;">
-            ${firstImg ? `
-                <div style="width:100%; height:100%; border-radius:50%; border:4px solid var(--gold); box-shadow: 0 15px 35px rgba(0,0,0,0.7); overflow:hidden; background:var(--ink);">
-                    <img src="${firstImg.data}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://placehold.co/200x200/1a1a1a/d4af37?text=Error'">
-                </div>
-            ` : `
-                <div style="width:100%; height:100%; border-radius:50%; border:2px dashed rgba(212,175,55,0.3); background:rgba(212,175,55,0.05); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
-                    <span style="font-size:2.5rem;">📖</span>
-                </div>
-            `}
+        <!-- Парящий медальон (Идеальная центровка) -->
+        <div style="position:absolute; left:-55px; top:50%; transform:translateY(-50%); width:110px; height:110px; z-index:4;">
+            <div style="width:100%; height:100%; border-radius:50%; border:3px solid var(--gold); box-shadow: 0 10px 30px rgba(0,0,0,0.7); overflow:hidden; background:var(--ink); display:flex; align-items:center; justify-content:center;">
+                ${firstImg ? `
+                    <img src="${firstImg.data}" style="width:100%; height:100%; object-fit:cover;">
+                ` : `
+                    <span style="font-size:2rem; opacity:0.6;">📜</span>
+                `}
+            </div>
         </div>
+
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="background:rgba(212,175,55,0.1); color:var(--gold); padding:3px 12px; border-radius:30px; font-size:0.65rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; border:1px solid rgba(212,175,55,0.2);">
+                ${esc(ch.period || 'Вечность')}
+            </div>
+            <div style="display:flex; gap:15px;" onclick="event.stopPropagation()">
+               <button class="btn-ghost" onclick="editBio('${ch.id}')" style="font-size:1rem; color:var(--gold); opacity:0.5; transition:0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5">✎</button>
+               <button class="btn-ghost" onclick="deleteBio('${ch.id}')" style="font-size:1rem; color:var(--red); opacity:0.5; transition:0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5">✕</button>
+            </div>
+          </div>
+          
+          <div style="font-family:var(--serif); font-size:1.8rem; color:var(--ivory); font-weight:400; line-height:1.2;">
+            ${esc(ch.title)}
+          </div>
+          
+          <p style="font-size:0.9rem; color:rgba(255,255,255,0.5); margin-top:10px; line-height:1.6; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;">
+            ${esc(ch.content || '')}
+          </p>
+          
+          <div style="margin-top:15px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:20px; font-size:0.7rem; color:var(--muted2);">
+             <span>🕰️ ${ch.date}</span>
+             ${mediaArr.length > 1 ? `<span style="color:var(--gold-d);">📁 +${mediaArr.length-1} файлов</span>` : ''}
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+      }).join('');
+      html += `</div>`;
+      el.innerHTML = html;
+    }
 
         <div style="flex:1;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
