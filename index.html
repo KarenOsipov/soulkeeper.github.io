@@ -6036,27 +6036,39 @@
     function doForgotPassword(event) {
       event.preventDefault();
       const email = document.getElementById('login-email').value.trim();
+      const err = document.getElementById('login-err');
+      
       if (!email) {
-        const err = document.getElementById('login-err');
         err.textContent = 'Введите email выше для сброса пароля';
         err.style.display = 'block';
         err.style.color = 'var(--gold)';
         setTimeout(() => { err.style.display = 'none'; err.style.color = ''; }, 3500);
         return;
       }
-      fbAuth.sendPasswordResetEmail(email)
+
+      // Принудительный URL возврата для GitHub Pages
+      const actionCodeSettings = {
+        url: 'https://karenosipov.github.io/',
+        handleCodeInApp: true
+      };
+
+      console.log('Попытка отправки письма на:', email);
+
+      fbAuth.sendPasswordResetEmail(email, actionCodeSettings)
         .then(() => {
-          const err = document.getElementById('login-err');
-          err.textContent = '✓ Письмо для сброса пароля отправлено на ' + email;
+          console.log('Firebase подтвердил отправку письма на', email);
+          err.textContent = '✓ Письмо для сброса пароля отправлено! Проверьте папку СПАМ через 1-2 минуты.';
           err.style.display = 'block';
           err.style.color = 'var(--green)';
-          setTimeout(() => { err.style.display = 'none'; err.style.color = ''; }, 5000);
+          toast('📧 Проверьте почту!');
         })
         .catch(e => {
-          const err = document.getElementById('login-err');
+          console.error('ОШИБКА ОТПРАВКИ:', e.code, e.message);
           err.textContent = fbErrMsg(e.code);
           err.style.display = 'block';
-          setTimeout(() => err.style.display = 'none', 4000);
+          if (e.code === 'auth/unauthorized-continue-uri') {
+            err.textContent = 'Ошибка: Домен не авторизован в Firebase Console (Authorized domains).';
+          }
         });
     }
 
@@ -6306,9 +6318,12 @@
 
       if (mode === 'resetPassword' && actionCode) {
         resetCode = actionCode;
-        showAuth();
+        console.log('Detected Password Reset Mode');
+        // Сначала скрываем всё, потом показываем нужное
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-auth').classList.add('active');
         switchAuthTab('reset-confirm');
-        // Очищаем URL от параметров для красоты
+        // Очищаем URL
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
@@ -8217,12 +8232,13 @@
     // INIT
     // ═══════════════════════════════════════════
     window.addEventListener('DOMContentLoaded', () => {
+      checkUrlParams(); // 1. Приоритет — сброс пароля
+      
       initHeroCanvas();
       initLandingNav();
       initReveal();
       initTicker();
       checkAutoLogin();
-      checkUrlParams(); // Проверяем ссылку сброса пароля
 
       // Dash date
       const dd = document.getElementById('dash-date');

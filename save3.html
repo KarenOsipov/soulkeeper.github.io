@@ -6036,27 +6036,38 @@
     function doForgotPassword(event) {
       event.preventDefault();
       const email = document.getElementById('login-email').value.trim();
+      const err = document.getElementById('login-err');
+      
       if (!email) {
-        const err = document.getElementById('login-err');
         err.textContent = 'Введите email выше для сброса пароля';
         err.style.display = 'block';
         err.style.color = 'var(--gold)';
         setTimeout(() => { err.style.display = 'none'; err.style.color = ''; }, 3500);
         return;
       }
-      fbAuth.sendPasswordResetEmail(email)
+
+      const actionCodeSettings = {
+        url: 'https://karenosipov.github.io/',
+        handleCodeInApp: true
+      };
+
+      console.log('Firebase: Запрос сброса пароля для', email);
+
+      fbAuth.sendPasswordResetEmail(email, actionCodeSettings)
         .then(() => {
-          const err = document.getElementById('login-err');
-          err.textContent = '✓ Письмо для сброса пароля отправлено на ' + email;
+          console.log('Firebase: Письмо успешно отправлено');
+          err.textContent = '✓ Инструкции по сбросу отправлены! Проверьте папку Спам.';
           err.style.display = 'block';
           err.style.color = 'var(--green)';
-          setTimeout(() => { err.style.display = 'none'; err.style.color = ''; }, 5000);
+          toast('📧 Проверьте почту');
         })
         .catch(e => {
-          const err = document.getElementById('login-err');
+          console.error('Firebase Error:', e);
           err.textContent = fbErrMsg(e.code);
           err.style.display = 'block';
-          setTimeout(() => err.style.display = 'none', 4000);
+          if (e.code === 'auth/unauthorized-continue-uri') {
+            err.textContent = 'Ошибка: Домен не авторизован в Firebase Settings.';
+          }
         });
     }
 
@@ -8206,12 +8217,12 @@
     // INIT
     // ═══════════════════════════════════════════
     window.addEventListener('DOMContentLoaded', () => {
+      checkUrlParams(); // 1. Приоритет — сброс пароля
       initHeroCanvas();
       initLandingNav();
       initReveal();
       initTicker();
       checkAutoLogin();
-      checkUrlParams(); // Проверяем ссылку сброса пароля
 
       // Dash date
       const dd = document.getElementById('dash-date');
