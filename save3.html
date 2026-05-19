@@ -14,6 +14,8 @@
     rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -49,6 +51,44 @@
       --glass-bg: rgba(15, 13, 22, 0.65);
       --glass-border: rgba(212, 175, 55, 0.18);
       --glass-blur: blur(16px);
+    }
+
+    /* Icon styling */
+    i[class^="ph-"] {
+      color: var(--muted);
+      transition: all 0.3s ease;
+    }
+    .active i[class^="ph-"] {
+      color: var(--gold);
+      filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.5));
+    }
+    .brain-icon i {
+      color: var(--gold);
+      font-size: 1.8rem !important;
+      filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
+    }
+    .brain-center-icon i {
+      color: var(--gold2);
+      font-size: 2.5rem !important;
+      filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+    }
+    .dock-icon i {
+      font-size: 1.6rem;
+    }
+    .dock-item:hover .dock-icon i {
+      color: var(--gold2);
+      filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.4));
+    }
+    .mob-nav-icon i {
+      font-size: 1.5rem;
+    }
+    .mob-drawer-icon i {
+      color: var(--gold);
+      font-size: 1.6rem;
+    }
+    .mob-nav-btn:hover .mob-nav-icon i,
+    .mob-drawer-item:hover .mob-drawer-icon i {
+      color: var(--gold2);
     }
 
     *,
@@ -4611,29 +4651,31 @@
       <!-- FLOATING DOCK -->
       <nav class="floating-dock">
         <div class="dock-item active" onclick="goPage('dash')" id="nav-dash" data-tooltip="Второй мозг (Главная)"><span
-            class="dock-icon">🧠</span></div>
+            class="dock-icon"><i class="ph-light ph-brain"></i></span></div>
         <div class="dock-item" onclick="goPage('secrets')" id="nav-secrets" data-tooltip="Цифровой Сейф"><span
-            class="dock-icon">🔐</span><span class="dock-badge" id="badge-secrets">0</span></div>
+            class="dock-icon"><i class="ph-light ph-lock-key"></i></span><span class="dock-badge" id="badge-secrets">0</span></div>
         <div class="dock-item" onclick="goPage('bio')" id="nav-bio" data-tooltip="Лента Жизни"><span
-            class="dock-icon">📜</span></div>
+            class="dock-icon"><i class="ph-light ph-book-open-text"></i></span></div>
         <div class="dock-item" onclick="goPage('messages')" id="nav-messages" data-tooltip="Послания"><span
-            class="dock-icon">💌</span><span class="dock-badge" id="badge-msgs">0</span></div>
+            class="dock-icon"><i class="ph-light ph-envelope-simple"></i></span><span class="dock-badge" id="badge-msgs">0</span></div>
         <div class="dock-sep"></div>
+        <div class="dock-item" onclick="goPage('connections')" id="nav-connections" data-tooltip="Связи"><span
+            class="dock-icon"><i class="ph-light ph-link"></i></span><span class="dock-badge" id="badge-conn" style="display:none">0</span></div>
         <div class="dock-item" onclick="goPage('relatives')" id="nav-relatives" data-tooltip="Семья"><span
-            class="dock-icon">👥</span></div>
+            class="dock-icon"><i class="ph-light ph-users"></i></span></div>
         <div class="dock-item" onclick="goPage('tree')" id="nav-tree" data-tooltip="Древо рода"><span
-            class="dock-icon">🌳</span></div>
+            class="dock-icon"><i class="ph-light ph-tree-structure"></i></span></div>
         <div class="dock-item" onclick="goPage('globe')" id="nav-globe" data-tooltip="Глобус"><span
-            class="dock-icon">🌍</span></div>
+            class="dock-icon"><i class="ph-light ph-globe-hemisphere-west"></i></span></div>
         <div class="dock-sep"></div>
         <div class="dock-item" onclick="goPage('switch')" id="nav-switch" data-tooltip="Страж Жизни"><span
-            class="dock-icon">⏳</span></div>
+            class="dock-icon"><i class="ph-light ph-hourglass-high"></i></span></div>
         <div class="dock-item" onclick="goPage('ai')" id="nav-ai" data-tooltip="AI Ассистент"><span
-            class="dock-icon">🤖</span></div>
+            class="dock-icon"><i class="ph-light ph-robot"></i></span></div>
         <div class="dock-item" onclick="goPage('subscription')" id="nav-subscription" data-tooltip="Мои подписки"><span
-            class="dock-icon">💎</span></div>
+            class="dock-icon"><i class="ph-light ph-gem"></i></span></div>
         <div class="dock-item" onclick="goPage('settings')" id="nav-settings" data-tooltip="Настройки"><span
-            class="dock-icon">⚙️</span></div>
+            class="dock-icon"><i class="ph-light ph-gear"></i></span></div>
       </nav>
 
       <!-- MAIN CONTENT -->
@@ -4690,30 +4732,30 @@
                 <div class="brain-line" style="width:120px; top:50%; left:50%; transform: rotate(270deg);"></div>
 
                 <div class="brain-node brain-node-center" onclick="goPage('settings')">
-                  <div class="brain-center-icon">🧠</div>
+                  <div class="brain-center-icon"><i class="ph-light ph-brain"></i></div>
                   <div class="brain-label">Ваше<br>Наследие</div>
                 </div>
                 <div class="brain-node brain-node-item" style="top:20%; left:25%;" onclick="openModal('modal-secret')">
-                  <div class="brain-icon">🔐</div>
+                  <div class="brain-icon"><i class="ph-light ph-lock-key"></i></div>
                   <div class="brain-label">Сейф</div>
                 </div>
                 <div class="brain-node brain-node-item" style="bottom:15%; left:30%;" onclick="openModal('modal-bio')">
-                  <div class="brain-icon">📜</div>
+                  <div class="brain-icon"><i class="ph-light ph-book-open-text"></i></div>
                   <div class="brain-label">Жизнь</div>
                 </div>
                 <div class="brain-node brain-node-item" style="top:15%; right:25%;"
                   onclick="openModal('modal-relative')">
-                  <div class="brain-icon">👥</div>
+                  <div class="brain-icon"><i class="ph-light ph-users"></i></div>
                   <div class="brain-label">Семья</div>
                 </div>
                 <div class="brain-node brain-node-item" style="bottom:25%; right:20%;"
                   onclick="openModal('modal-message')">
-                  <div class="brain-icon">💌</div>
+                  <div class="brain-icon"><i class="ph-light ph-envelope-simple"></i></div>
                   <div class="brain-label">Письма</div>
                 </div>
                 <div class="brain-node brain-node-item" style="top:5%; left:50%; transform: translateX(-50%);"
                   onclick="goPage('ai')">
-                  <div class="brain-icon">🤖</div>
+                  <div class="brain-icon"><i class="ph-light ph-robot"></i></div>
                   <div class="brain-label">AI Мудрец</div>
                 </div>
               </div>
@@ -5413,26 +5455,26 @@
     <nav class="mob-bottom-nav" id="mob-bottom-nav">
       <div class="mob-nav-row">
         <button class="mob-nav-btn active" id="mob-btn-dash" onclick="goPage('dash');mobSetActive('dash')">
-          <span class="mob-nav-icon">🏠</span>
+          <span class="mob-nav-icon"><i class="ph-light ph-brain"></i></span>
           <span class="mob-nav-label">Главная</span>
         </button>
         <button class="mob-nav-btn" id="mob-btn-secrets" onclick="goPage('secrets');mobSetActive('secrets')">
-          <span class="mob-nav-icon">🔐</span>
+          <span class="mob-nav-icon"><i class="ph-light ph-lock-key"></i></span>
           <span class="mob-nav-label">Сейф</span>
           <span class="mob-nav-dot" id="mob-dot-secrets"></span>
         </button>
         <button class="mob-nav-btn" id="mob-btn-connections"
           onclick="goPage('connections');mobSetActive('connections')">
-          <span class="mob-nav-icon">🔗</span>
+          <span class="mob-nav-icon"><i class="ph-light ph-link"></i></span>
           <span class="mob-nav-label">Связи</span>
           <span class="mob-nav-dot" id="mob-dot-connections"></span>
         </button>
         <button class="mob-nav-btn" id="mob-btn-tree" onclick="goPage('tree');mobSetActive('tree')">
-          <span class="mob-nav-icon">🌳</span>
+          <span class="mob-nav-icon"><i class="ph-light ph-tree-structure"></i></span>
           <span class="mob-nav-label">Древо</span>
         </button>
         <button class="mob-nav-btn" id="mob-btn-more" onclick="toggleMobDrawer()">
-          <span class="mob-nav-icon">☰</span>
+          <span class="mob-nav-icon"><i class="ph-light ph-list"></i></span>
           <span class="mob-nav-label">Ещё</span>
         </button>
       </div>
@@ -5444,34 +5486,38 @@
       <div class="mob-drawer-handle"></div>
       <div class="mob-drawer-grid">
         <button class="mob-drawer-item" onclick="goPage('bio');mobSetActive('bio');closeMobDrawer()">
-          <span class="mob-drawer-icon">📖</span><span class="mob-drawer-label">Биография</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-book-open-text"></i></span><span class="mob-drawer-label">Биография</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('messages');mobSetActive('messages');closeMobDrawer()">
-          <span class="mob-drawer-icon">💌</span><span class="mob-drawer-label">Послания</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-envelope-simple"></i></span><span class="mob-drawer-label">Послания</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('relatives');mobSetActive('relatives');closeMobDrawer()">
-          <span class="mob-drawer-icon">👥</span><span class="mob-drawer-label">Семья</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-users"></i></span><span class="mob-drawer-label">Семья</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('globe');mobSetActive('globe');closeMobDrawer()">
-          <span class="mob-drawer-icon">🌍</span><span class="mob-drawer-label">Глобус</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-globe-hemisphere-west"></i></span><span class="mob-drawer-label">Глобус</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('switch');mobSetActive('switch');closeMobDrawer()">
-          <span class="mob-drawer-icon">⏳</span><span class="mob-drawer-label">Страж</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-hourglass-high"></i></span><span class="mob-drawer-label">Страж</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('ai');mobSetActive('ai');closeMobDrawer()">
-          <span class="mob-drawer-icon">🤖</span><span class="mob-drawer-label">Мудрец</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-robot"></i></span><span class="mob-drawer-label">Мудрец</span>
+        </button>
+        <button class="mob-drawer-item" onclick="goPage('subscription');mobSetActive('subscription');closeMobDrawer()">
+          <span class="mob-drawer-icon"><i class="ph-light ph-gem"></i></span><span class="mob-drawer-label">Подписки</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('settings');mobSetActive('settings');closeMobDrawer()">
-          <span class="mob-drawer-icon">⚙️</span><span class="mob-drawer-label">Настройки</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-gear"></i></span><span class="mob-drawer-label">Настройки</span>
         </button>
         <button class="mob-drawer-item" onclick="doCheckin();closeMobDrawer()">
-          <span class="mob-drawer-icon">✅</span><span class="mob-drawer-label">Я жив</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-check-circle"></i></span><span class="mob-drawer-label">Я жив</span>
         </button>
       </div>
       <div
         style="margin-top:0.8rem;border-top:1px solid rgba(201,168,76,0.08);padding-top:0.8rem;display:flex;justify-content:center">
         <button onclick="doLogout()"
-          style="font-size:0.72rem;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--sans);letter-spacing:0.1em">🚪
+          style="font-size:0.72rem;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--sans);letter-spacing:0.1em;display:flex;align-items:center;gap:0.4rem;">
+          <i class="ph-light ph-sign-out" style="font-size:1rem;color:var(--gold);"></i>
           Выйти из аккаунта</button>
       </div>
     </div>
