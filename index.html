@@ -6660,14 +6660,14 @@
     function renderCloudGallery(media, galleryId, hiddenId) {
         const gallery = document.getElementById(galleryId);
         gallery.innerHTML = media.map((m, idx) => {
-            const isImage = (m.type === 'image') || (m.data && m.data.startsWith('data:image'));
+            const isImage = m.type === 'image' || (m.data && (m.data.includes('data:image') || m.data.includes('base64')));
             return `
-            <div style="position:relative; width:100%; padding-top:100%; background:var(--ink3); border-radius:8px; overflow:hidden; border:1px solid rgba(212,175,55,0.2);">
+            <div style="position:relative; width:100%; padding-top:100%; background:var(--ink3); border-radius:12px; overflow:hidden; border:1px solid rgba(212,175,55,0.2); box-shadow:inset 0 0 10px rgba(0,0,0,0.5);">
                 ${isImage ? `<img src="${m.data}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">` : ''}
-                ${m.type === 'audio' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🎵</div>` : ''}
-                ${m.type === 'video' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🎬</div>` : ''}
-                ${m.type === 'file' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">📄</div>` : ''}
-                <button onclick="removeCloudItem(${idx}, '${galleryId}', '${hiddenId}')" style="position:absolute; top:2px; right:2px; background:rgba(255,0,0,0.8); border:none; color:white; border-radius:50%; width:20px; height:20px; font-size:10px; cursor:pointer; z-index:5; display:flex; align-items:center; justify-content:center;">✕</button>
+                ${m.type === 'audio' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.8rem;">🎵</div>` : ''}
+                ${m.type === 'video' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.8rem;">🎬</div>` : ''}
+                ${m.type === 'file' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.8rem;">📄</div>` : ''}
+                <button onclick="removeCloudItem(${idx}, '${galleryId}', '${hiddenId}')" style="position:absolute; top:5px; right:5px; background:rgba(255,0,0,0.8); border:none; color:white; border-radius:50%; width:24px; height:24px; font-size:12px; cursor:pointer; z-index:10; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);">✕</button>
             </div>
             `;
         }).join('');
@@ -6957,10 +6957,10 @@
         if (Array.isArray(ch.media)) mediaArr = ch.media;
         else if (typeof ch.media === 'string' && ch.media.length > 20) mediaArr = [{ type: 'image', data: ch.media }];
 
-        const firstImg = mediaArr.find(m => m.type === 'image' || (m.data && m.data.includes('data:image')));
+        const firstImg = mediaArr.find(m => m.type === 'image' || (m.data && (m.data.includes('data:image') || m.data.includes('base64'))));
         
         return `
-    <div class="bio-plank-wow" style="position:relative; margin-bottom: 3rem; animation: fadeUp ${0.3 + i * 0.1}s forwards; width:100%;">
+    <div class="bio-plank-wow" style="position:relative; margin-bottom: 2.5rem; animation: fadeUp ${0.3 + i * 0.1}s forwards; width:100%;">
       
       <!-- Точка времени -->
       <div style="position:absolute; left:-34px; top:50%; transform:translateY(-50%); width:12px; height:12px; background:var(--gold); border-radius:50%; box-shadow: 0 0 15px var(--gold); z-index:5; border:2px solid var(--ink);"></div>
@@ -6968,14 +6968,14 @@
       <div class="card glass-card-wow" onclick="viewBio('${ch.id}')" style="
         display:flex; 
         gap:30px; 
-        padding:1.5rem 2.5rem; 
+        padding:1.2rem 2rem; 
         cursor:pointer; 
         background: rgba(255,255,255,0.03);
         border-radius:20px; 
         border: 1px solid rgba(212,175,55,0.1);
         border-left: 5px solid var(--gold);
         backdrop-filter:blur(20px); 
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         transition: 0.3s ease;
         align-items:center;
         width:100%;
@@ -6983,37 +6983,37 @@
       " onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.transform='translateX(5px)';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.transform='none';">
         
         <!-- Левая колонка: Фото -->
-        <div style="flex-shrink:0; width:100px; height:100px; border-radius:15px; border:2px solid rgba(212,175,55,0.3); overflow:hidden; background:var(--ink); display:flex; align-items:center; justify-content:center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+        <div style="flex-shrink:0; width:110px; height:110px; border-radius:15px; border:2px solid rgba(212,175,55,0.25); overflow:hidden; background:var(--ink); display:flex; align-items:center; justify-content:center; box-shadow: 0 5px 20px rgba(0,0,0,0.4);">
             ${firstImg ? `
                 <img src="${firstImg.data}" style="width:100%; height:100%; object-fit:cover;">
             ` : `
-                <span style="font-size:2rem; opacity:0.3;">📜</span>
+                <div style="font-size:2.5rem; opacity:0.2;">📖</div>
             `}
         </div>
 
         <!-- Правая колонка: Текст -->
-        <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+        <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="background:rgba(212,175,55,0.1); color:var(--gold); padding:2px 12px; border-radius:20px; font-size:0.65rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; border:1px solid rgba(212,175,55,0.2);">
+            <div style="background:rgba(212,175,55,0.08); color:var(--gold); padding:2px 10px; border-radius:15px; font-size:0.6rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; border:1px solid rgba(212,175,55,0.15);">
                 ${esc(ch.period || 'История')}
             </div>
             <div style="display:flex; gap:12px;" onclick="event.stopPropagation()">
-               <button class="btn-ghost" onclick="editBio('${ch.id}')" style="font-size:1rem; color:var(--gold); opacity:0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✎</button>
-               <button class="btn-ghost" onclick="deleteBio('${ch.id}')" style="font-size:1rem; color:var(--red); opacity:0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✕</button>
+               <button class="btn-ghost" onclick="editBio('${ch.id}')" style="font-size:1rem; color:var(--gold); opacity:0.6; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✎</button>
+               <button class="btn-ghost" onclick="deleteBio('${ch.id}')" style="font-size:1rem; color:var(--red); opacity:0.6; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✕</button>
             </div>
           </div>
           
-          <div style="font-family:var(--serif); font-size:1.6rem; color:var(--ivory); font-weight:400; line-height:1.2;">
+          <div style="font-family:var(--serif); font-size:1.7rem; color:var(--ivory); font-weight:400; line-height:1.1;">
             ${esc(ch.title)}
           </div>
           
-          <p style="font-size:0.9rem; color:rgba(255,255,255,0.5); line-height:1.6; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; margin:0;">
+          <p style="font-size:0.85rem; color:rgba(255,255,255,0.45); line-height:1.5; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; margin:0;">
             ${esc(ch.content || '')}
           </p>
           
-          <div style="display:flex; align-items:center; gap:15px; font-size:0.65rem; color:var(--muted2); margin-top:5px;">
+          <div style="display:flex; align-items:center; gap:12px; font-size:0.6rem; color:var(--muted2); margin-top:4px;">
              <span>📅 ${ch.date}</span>
-             ${mediaArr.length > 1 ? `<span style="color:var(--gold-d);">📁 +${mediaArr.length-1} медиа</span>` : ''}
+             ${mediaArr.length > 1 ? `<span style="color:var(--gold-d); font-weight:600;">📁 +${mediaArr.length-1} медиа</span>` : ''}
           </div>
         </div>
 
