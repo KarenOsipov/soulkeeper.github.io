@@ -1,104 +1,62 @@
-<div align="center">
-  
-  <img src="https://raw.githubusercontent.com/KarenOsipov/soulkeeper.github.io/main/icon.png" width="120" height="120" alt="SoulKeeper Logo">
-  
-  # ✦ SOULKEEPER ✦
-  ### *Хранитель твоей жизни и цифрового наследия*
-  
-  [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-gold?style=for-the-badge&logo=githubpages&logoColor=white&color=gold)](https://karenosipov.github.io/soulkeeper.github.io/)
-  [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%2B%20Firestore-orange?style=for-the-badge&logo=firebase&logoColor=white&color=orange)](https://firebase.google.com/)
-  [![Three.js](https://img.shields.io/badge/Three.js-3D%20Globe-black?style=for-the-badge&logo=three.js&logoColor=white&color=black)](https://threejs.org/)
-  [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
-  
-  ### 🔐 Военное шифрование • 🌳 Генеалогическое древо • ⏳ Страж жизни • 🤖 AI Мудрец
-  
-  **[🌐 Живая демонстрация](https://karenosipov.github.io/soulkeeper.github.io/)** • **[📖 Документация](#)** • **[🐛 Сообщить о проблеме](https://github.com/KarenOsipov/soulkeeper.github.io/issues)**
+<p align="center">
+  <img src="https://raw.githubusercontent.com/KarenOsipov/soulkeeper.github.io/main/icon.png" width="120" alt="SoulKeeper Logo">
+</p>
 
-</div>
+<h1 align="center">
+  ✦ SOULKEEPER ✦
+</h1>
+
+<h3 align="center">
+  <i>Хранитель твоей жизни и цифрового наследия</i>
+</h3>
+
+<p align="center">
+  <a href="https://karenosipov.github.io/soulkeeper.github.io/">
+    <img src="https://img.shields.io/badge/🌐_ДЕМО-Запустить_приложение-d4af37?style=for-the-badge&logo=githubpages&logoColor=white">
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/STATUS-ACTIVE-2ecc71?style=flat-square">
+  <img src="https://img.shields.io/badge/VERSION-3.0.0-d4af37?style=flat-square">
+  <img src="https://img.shields.io/badge/ENCRYPTION-AES--256-critical?style=flat-square">
+  <img src="https://img.shields.io/badge/LICENSE-MIT-blue?style=flat-square">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Firebase-Auth_+_Firestore-orange?style=flat-square&logo=firebase">
+  <img src="https://img.shields.io/badge/Three.js-3D_Globe-black?style=flat-square&logo=three.js">
+  <img src="https://img.shields.io/badge/Zero_Knowledge-Proven-blue?style=flat-square">
+</p>
+
+<p align="center">
+  🔐 Военное шифрование • 🌳 Генеалогическое древо • ⏳ Страж жизни • 🤖 AI Мудрец • 🌍 3D Глобус
+</p>
 
 ---
 
 ## 📖 О проекте
 
-**SoulKeeper** — это платформа нового поколения для сохранения цифрового наследия. Мы создаём безопасное пространство, где каждый может:
+**SoulKeeper** — это платформа нового поколения для сохранения цифрового наследия. Ваши истории, тайны и послания будут жить вечно под надёжной защитой.
 
-- 📝 **Записывать историю своей жизни** — по главам, с фото и видео
-- 🔐 **Хранить тайны и документы** — под двойным шифрованием AES-256
-- 💌 **Писать послания в будущее** — которые откроются в нужный момент
-- 🌳 **Строить семейное древо** — с правами доступа для каждого родственника
-- ⏳ **Настроить автоматическую передачу наследства** — через систему «Страж жизни»
-- 🤖 **Консультироваться с AI Мудрецом** — который помогает формулировать мысли
-
-> 💡 **Философия проекта:** Каждый человек — это целая вселенная историй, мудрости и любви. SoulKeeper помогает сохранить эту вселенную для будущих поколений.
+> *«Каждый человек — целая вселенная историй, мудрости и любви. SoulKeeper помогает сохранить эту вселенную для будущих поколений.»*
 
 ---
 
 ## ✨ Ключевые возможности
 
-| Модуль | Описание | Статус |
-|--------|----------|--------|
-| 🔐 **Цифровой сейф** | Хранение паролей, документов, завещаний с AES-256 шифрованием | ✅ Работает |
-| 📖 **Книга жизни** | Биография с главами, медиа-вложениями и временной шкалой | ✅ Работает |
-| 💌 **Послания** | Отложенные письма близким (свадьба, юбилей, после ухода) | ✅ Работает |
-| 🌳 **Древо рода** | Интерактивное генеалогическое дерево с правами доступа | 🚧 В разработке |
-| 🌍 **Глобус семьи** | 3D-глобус с отметками местожительства родственников | ✅ Работает |
-| ⏳ **Страж жизни** | Dead man's switch — автоматическая передача наследства | ✅ Работает |
-| 🤖 **AI Мудрец** | Нейросетевой помощник для написания биографии и посланий | ✅ Работает |
-| 🔗 **Семейные связи** | Приглашение родственников по коду, управление доступом | ✅ Работает |
-| 💎 **Подписки** | Free / Хранитель / Наследие с разными лимитами | ✅ Работает |
+| | Модуль | Описание | Статус |
+|:-:|:------:|:---------|:------:|
+| 🔐 | **Цифровой сейф** | Пароли, документы, завещания под AES-256 | ✅ LIVE |
+| 📖 | **Книга жизни** | Биография с фото, аудио и видео | ✅ LIVE |
+| 💌 | **Послания** | Письма в будущее (свадьба, юбилей, после ухода) | ✅ LIVE |
+| 🌳 | **Древо рода** | Генеалогическое дерево с правами доступа | 🚧 Q2 2026 |
+| 🌍 | **Глобус семьи** | 3D-карта местожительства родных | ✅ LIVE |
+| ⏳ | **Страж жизни** | Dead man's switch + автопередача наследства | ✅ LIVE |
+| 🤖 | **AI Мудрец** | Нейросетевой помощник для текстов | ✅ LIVE |
+| 🔗 | **Семейные связи** | Приглашения по коду, управление доступом | ✅ LIVE |
+| 💎 | **Подписки** | Free / Хранитель / Наследие | ✅ LIVE |
 
 ---
 
-## 🛡️ Безопасность
-
-- **Сквозное шифрование:** Все sensitive-данные шифруются на клиенте
-- **Firebase Authentication:** Безопасная авторизация через email/пароль
-- **Firestore:** Облачное хранение зашифрованных данных
-- **Zero-knowledge proof:** Сервер не имеет доступа к содержимому тайн
-
----
-
-## 🏗️ Технологический стек
-
-### Frontend
-| Технология | Назначение |
-|------------|------------|
-| HTML5/CSS3 | Структура и стили (Glassmorphism, адаптив) |
-| JavaScript (ES6+) | Логика приложения |
-| Three.js | 3D глобус с интерактивными маркерами |
-| CryptoJS | AES-256 шифрование данных |
-| jsPDF | Экспорт биографии в PDF |
-
-### Backend & Cloud
-| Технология | Назначение |
-|------------|------------|
-| Firebase Auth | Регистрация, вход, восстановление пароля |
-| Cloud Firestore | Хранение пользовательских данных |
-| GitHub Pages | Хостинг фронтенда |
-
-### Библиотеки
-- **Three.js** — 3D визуализация глобуса
-- **CryptoJS** — Клиентское шифрование
-- **jsPDF** — Генерация PDF-отчётов
-- **Google Fonts** — Интер и Playfair Display
-
----
-
-## 📱 Адаптивный дизайн
-
-SoulKeeper полностью адаптирован под все устройства:
-
-| Устройство | Особенности |
-|------------|-------------|
-| 💻 **Desktop** | Полноценное меню, футуристический дизайн, 3D-глобус |
-| 📱 **Tablet** | Адаптированная сетка, оптимизированные отступы |
-| 📲 **Mobile** | Нижнее навигационное меню, FAB-кнопка, сенсорное управление глобусом |
-
----
-MIT License
-
-Copyright (c) 2026 Karen Osipov
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction...
+## 🛡️ Архитектура безопасности
