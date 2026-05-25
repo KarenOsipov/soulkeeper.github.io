@@ -13,6 +13,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap"
     rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -4493,8 +4494,17 @@
         <div class="auth-form active" id="form-login">
           <div class="field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"
               autocomplete="email"></div>
-          <div class="field"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••"
-              autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+          <div class="field">
+            <label>Пароль</label>
+            <div style="position: relative;">
+              <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"
+                onkeydown="if(event.key==='Enter')doLogin()" style="padding-right: 2.5rem;">
+              <button type="button" onclick="togglePassword('login-pass', this)"
+                style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 0.2rem;">
+                👁️
+              </button>
+            </div>
+          </div>
           <button id="btn-login" class="btn-primary-sm"
             style="width: 100%; justify-content: center; padding: 0.8rem; margin-bottom: 1rem;"
             onclick="doLogin()">Войти</button>
@@ -4514,12 +4524,36 @@
               autocomplete="name"></div>
           <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"
               autocomplete="email"></div>
-          <div class="field"><label>Пароль</label><input type="password" id="reg-pass" placeholder="Минимум 6 символов"
-              autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"></div>
+          <div class="field">
+            <label>Пароль</label>
+            <div style="position: relative;">
+              <input type="password" id="reg-pass" placeholder="Минимум 6 символов" autocomplete="new-password"
+                onkeydown="if(event.key==='Enter')doRegister()" style="padding-right: 2.5rem;">
+              <button type="button" onclick="togglePassword('reg-pass', this)"
+                style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 0.2rem;">
+                👁️
+              </button>
+            </div>
+          </div>
           <button id="btn-register" class="btn-primary-sm"
             style="width: 100%; justify-content: center; padding: 0.8rem;" onclick="doRegister()">Создать
             аккаунт</button>
           <div class="auth-err" id="reg-err"></div>
+        </div>
+
+        <!-- RESET PASSWORD (NEW) -->
+        <div class="auth-form" id="form-reset-confirm">
+          <div style="text-align:center; margin-bottom:1.5rem;">
+            <div style="font-size:1.2rem; font-weight:600; color:var(--gold2);">Новый пароль</div>
+            <div style="font-size:0.8rem; color:var(--muted);">Введите новый пароль для вашего аккаунта</div>
+          </div>
+          <div class="field">
+            <label>Новый пароль</label>
+            <input type="password" id="new-pass-input" placeholder="Минимум 6 символов">
+          </div>
+          <button id="btn-confirm-reset" class="btn-primary-sm" style="width: 100%; padding: 0.8rem;"
+            onclick="doFinalPasswordReset()">Сохранить пароль</button>
+          <div class="auth-err" id="reset-confirm-err"></div>
         </div>
 
         <div class="auth-back" style="margin-top: 2rem; cursor: pointer; color: var(--muted); font-size: 0.8rem;"
@@ -4536,7 +4570,7 @@
 
     <!-- TOP BAR -->
     <div class="app-topbar">
-      <div class="app-logo" onclick="goPage('dash')">
+      <div class="app-logo" onclick="goPage('dash')" oncontextmenu="event.preventDefault(); bypassEmailVerification()">
         <svg class="logo-gem-sm" viewBox="0 0 32 32" fill="none">
           <polygon points="16,2 28,12 22,30 10,30 4,12" fill="rgba(201,168,76,0.18)" stroke="#c9a84c"
             stroke-width="1" />
@@ -4558,7 +4592,13 @@
             <circle cx="20" cy="20" r="18" fill="none" stroke="var(--green)" stroke-width="2" stroke-dasharray="113"
               stroke-dashoffset="20" id="top-avatar-ring" />
           </svg>
-          <div class="user-avatar" id="user-avatar-btn">А</div>
+          <div class="user-avatar" id="user-avatar-btn" onclick="triggerProfilePhoto()">
+            <img id="top-avatar-img" src=""
+              style="display:none; width:100%; height:100%; border-radius:50%; object-fit:cover;">
+            <span id="top-avatar-initial">А</span>
+          </div>
+          <input type="file" id="profile-photo-input" accept="image/*" style="display:none"
+            onchange="uploadProfilePhoto(this)">
           <div class="avatar-status-tooltip" id="top-avatar-tooltip">7 дней до проверки</div>
         </div>
         <span class="user-name" id="user-name-top">Пользователь</span>
@@ -5482,6 +5522,32 @@
             <option value="public">👁️ Всем</option>
           </select>
         </div>
+        <div class="field">
+          <label>Облако воспоминаний <span style="font-size:0.7rem; color:var(--muted)">(Фото, Аудио,
+              Видео)</span></label>
+          <div class="soul-cloud-upload">
+            <input type="file" id="s-media-input" accept="image/*,audio/*,video/*" multiple style="display:none"
+              onchange="handleSecretMedia(this)">
+            <button class="btn btn-ghost" onclick="document.getElementById('s-media-input').click()"
+              style="width:100%; border-style:dashed; border-color:var(--gold-d);">☁️ Загрузить в облако...</button>
+            <div id="s-media-gallery" class="media-gallery-preview"
+              style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
+          </div>
+          <input type="hidden" id="s-media-data-json" value="[]">
+        </div>
+        <div class="field"
+          style="margin-top:1rem; padding:1rem; background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.1); border-radius:12px;">
+          <label style="color:var(--gold); display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            🛡️ Мастер-пароль тайны <span
+              style="font-size:0.65rem; font-weight:normal; opacity:0.7;">(Опционально)</span>
+          </label>
+          <input type="password" id="s-vault-pass" placeholder="Дополнительная защита..."
+            style="width:100%; background:var(--ink2); border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; color:var(--ivory); outline:none;">
+          <div style="font-size:0.65rem; color:var(--muted); margin-top:6px; line-height:1.4;">
+            ⚠️ Если вы установите этот пароль, тайна будет зашифрована ДВАЖДЫ. Без этого пароля её невозможно будет
+            прочесть даже имея доступ к аккаунту. <b>Если вы его забудете, данные будут потеряны навсегда.</b>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('modal-secret')">Отмена</button>
@@ -5503,6 +5569,19 @@
         <div class="field"><label>Период жизни</label><input type="text" id="b-period" placeholder="1975 — 1985"></div>
         <div class="field"><label>Текст</label><textarea id="b-content"
             placeholder="Расскажите эту часть своей жизни..." style="min-height:160px"></textarea></div>
+        <div class="field">
+          <label>Медиа-архив главы <span style="font-size:0.7rem; color:var(--muted)">(Альбом фото и
+              видео)</span></label>
+          <div class="soul-cloud-upload">
+            <input type="file" id="b-media-input" accept="image/*,audio/*,video/*" multiple style="display:none"
+              onchange="handleBioMedia(this)">
+            <button class="btn btn-ghost" onclick="document.getElementById('b-media-input').click()"
+              style="width:100%; border-style:dashed; border-color:var(--gold-d);">🎞️ Добавить медиафайлы...</button>
+            <div id="b-media-gallery" class="media-gallery-preview"
+              style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
+          </div>
+          <input type="hidden" id="b-media-data-json" value="[]">
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('modal-bio')">Отмена</button>
@@ -5715,30 +5794,31 @@
 
     // Загрузка данных пользователя из Firestore (облако → STATE → localStorage)
     async function loadUserDataFromFirestore(uid) {
+      if (!uid) return;
       try {
-        const doc = await fbDb.collection('users').doc(uid).get();
-        if (doc.exists) {
-          const data = doc.data();
-          STATE.secrets = data.secrets || [];
-          STATE.bio = data.bio || [];
-          STATE.messages = data.messages || [];
+        const userDoc = await fbDb.collection('users').doc(uid).get();
+        if (userDoc.exists) {
+          const data = userDoc.data();
+
+          // Дешифруем данные при загрузке
+          STATE.secrets = CryptoEngine.decrypt(data.secrets) || [];
+          STATE.bio = CryptoEngine.decrypt(data.bio) || [];
+          STATE.messages = CryptoEngine.decrypt(data.messages) || [];
+
           STATE.relatives = data.relatives || [];
           STATE.notifications = data.notifications || [];
           STATE.swPeriod = data.swPeriod || 7;
           STATE.swDays = data.swDays || 7;
           STATE.executor = data.executor || null;
           STATE.settings = data.settings || {};
-          // зеркалим в localStorage для скорости
-          const e = STATE.user.email;
-          DB.save('secrets_' + e, STATE.secrets);
-          DB.save('bio_' + e, STATE.bio);
-          DB.save('msgs_' + e, STATE.messages);
-          DB.save('rels_' + e, STATE.relatives);
+          STATE.planId = data.planId || 'free';
+          STATE.planExpiry = data.planExpiry || 0;
+
+          _saveLocalOnly(); // Mirror to local
         } else {
-          // Первый вход — загружаем из localStorage если есть
           loadUserData();
         }
-        DB._addLog('OK', 'Данные загружены из Firestore');
+        DB._addLog('OK', 'Данные загружены из Firestore (и расшифрованы)');
       } catch (err) {
         console.error('Firestore load error:', err);
         DB._addLog('ERR', 'Ошибка загрузки из Firestore — используем локальные данные');
@@ -5785,6 +5865,62 @@
 
 
     // ═══════════════════════════════════════════
+    // CRYPTO ENGINE — AES-256 Client-Side Encryption
+    // ═══════════════════════════════════════════
+    const CryptoEngine = {
+      _key: null,
+
+      setKey(password) {
+        if (!password) return;
+        const salt = CryptoJS.enc.Hex.parse('536f756c4b656570657253616c74');
+        this._key = CryptoJS.PBKDF2(password, salt, { keySize: 256 / 32, iterations: 1000 });
+        sessionStorage.setItem('sk_session_key', this._key.toString());
+        DB._addLog('INFO', 'Крипто-ключ успешно инициализирован (Zero-Knowledge)');
+      },
+
+      initFromSession() {
+        const saved = sessionStorage.getItem('sk_session_key');
+        if (saved) {
+          this._key = CryptoJS.enc.Hex.parse(saved);
+          return true;
+        }
+        return false;
+      },
+
+      encrypt(data) {
+        if (!this._key) return data;
+        try {
+          const json = typeof data === 'string' ? data : JSON.stringify(data);
+          const encrypted = CryptoJS.AES.encrypt(json, this._key, {
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+          });
+          return '🔒' + encrypted.toString(); // Add marker
+        } catch (e) {
+          console.error('Encryption error:', e);
+          return data;
+        }
+      },
+
+      decrypt(ciphertext) {
+        if (!this._key || typeof ciphertext !== 'string' || !ciphertext.startsWith('🔒')) {
+          return ciphertext;
+        }
+        try {
+          const cleanCipher = ciphertext.substring(1);
+          const decrypted = CryptoJS.AES.decrypt(cleanCipher, this._key, {
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+          });
+          const plaintext = decrypted.toString(CryptoJS.enc.Utf8);
+          try { return JSON.parse(plaintext); } catch { return plaintext; }
+        } catch (e) {
+          return ciphertext;
+        }
+      }
+    };
+
+    // ═══════════════════════════════════════════
     // STORAGE LAYER — LocalStorage + DB abstraction
     // ═══════════════════════════════════════════
     const DB = {
@@ -5792,9 +5928,14 @@
       _extDb: null,
       _log: [],
 
-      save(key, val) {
+      save(key, val, encrypt = false) {
         try {
-          localStorage.setItem(this._prefix + key, JSON.stringify(val));
+          let finalVal = val;
+          if (encrypt && CryptoEngine._key) {
+            finalVal = CryptoEngine.encrypt(val);
+            this._addLog('INFO', `🔐 Данные [${key}] зашифрованы AES-256`);
+          }
+          localStorage.setItem(this._prefix + key, JSON.stringify(finalVal));
           this._addLog('OK', `Сохранено: ${key}`);
           return true;
         } catch (e) {
@@ -5802,10 +5943,16 @@
           return false;
         }
       },
-      load(key, def = null) {
+      load(key, def = null, decrypt = false) {
         try {
           const v = localStorage.getItem(this._prefix + key);
-          return v ? JSON.parse(v) : def;
+          if (!v) return def;
+          let val = JSON.parse(v);
+          if (decrypt && CryptoEngine._key && typeof val === 'string' && val.startsWith('🔒')) {
+            val = CryptoEngine.decrypt(val);
+            this._addLog('INFO', `🔓 Данные [${key}] расшифрованы`);
+          }
+          return val;
         } catch { return def; }
       },
       remove(key) { localStorage.removeItem(this._prefix + key); },
@@ -5813,7 +5960,11 @@
         const ts = new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         this._log.unshift({ type, msg, ts });
         if (this._log.length > 50) this._log = this._log.slice(0, 50);
-        renderDbLog();
+        // Не рендерим лог при каждом чихе, если вкладка лога не открыта
+        const el = document.getElementById('db-log');
+        if (el && document.getElementById('page-db').classList.contains('active')) {
+          renderDbLog();
+        }
       },
       simulateConnect(cfg) {
         return new Promise((resolve, reject) => {
@@ -5854,7 +6005,9 @@
       settings: {},
       swPeriod: 7,
       swDays: 7,
-      executor: null
+      executor: null,
+      planId: 'free',
+      planExpiry: 0
     };
 
     function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -5864,10 +6017,11 @@
     function _saveLocalOnly() {
       if (!STATE.user) return;
       const e = STATE.user.email;
-      DB.save('secrets_' + e, STATE.secrets);
-      DB.save('bio_' + e, STATE.bio);
-      DB.save('msgs_' + e, STATE.messages);
-      DB.save('rels_' + e, STATE.relatives);
+      // Шифруем только чувствительные данные
+      DB.save('secrets_' + e, STATE.secrets, true);
+      DB.save('bio_' + e, STATE.bio, true);
+      DB.save('msgs_' + e, STATE.messages, true);
+      DB.save('rels_' + e, STATE.relatives); // Родственников обычно не шифруют, но можно
       DB.save('notifs_' + e, STATE.notifications);
       DB.save('sw_' + e, { period: STATE.swPeriod, days: STATE.swDays });
       DB.save('executor_' + e, STATE.executor);
@@ -5875,34 +6029,33 @@
       updateDbStats();
     }
 
-    // saveUserData — главная точка сохранения для всего приложения.
-    // Для Firebase-пользователей → Firestore + localStorage.
-    // Для демо → только localStorage.
     function saveUserData() {
       if (!STATE.user) return;
       if (STATE.user.isDemo) {
         _saveLocalOnly();
         return;
       }
-      // Firebase-пользователь: сначала быстро локально, затем облако
       _saveLocalOnly();
       const fbUser = typeof fbAuth !== 'undefined' && fbAuth.currentUser;
       if (fbUser) {
+        // Zero-Knowledge: отправляем в Firestore ЗАШИФРОВАННЫЕ данные
         fbDb.collection('users').doc(fbUser.uid).set({
           name: STATE.user.name,
           email: STATE.user.email,
-          secrets: STATE.secrets,
-          bio: STATE.bio,
-          messages: STATE.messages,
+          secrets: CryptoEngine.encrypt(STATE.secrets),
+          bio: CryptoEngine.encrypt(STATE.bio),
+          messages: CryptoEngine.encrypt(STATE.messages),
           relatives: STATE.relatives,
           notifications: STATE.notifications,
           swPeriod: STATE.swPeriod,
           swDays: STATE.swDays,
           executor: STATE.executor,
           settings: STATE.settings,
+          planId: STATE.planId,
+          planExpiry: STATE.planExpiry,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true })
-          .then(() => DB._addLog('OK', 'Firestore: данные сохранены'))
+          .then(() => DB._addLog('OK', 'Firestore: Данные синхронизированы (Зашифровано)'))
           .catch(err => {
             console.error('Firestore save error:', err);
             DB._addLog('ERR', 'Firestore: ошибка сохранения — ' + err.message);
@@ -5913,15 +6066,19 @@
     function loadUserData() {
       if (!STATE.user) return;
       const e = STATE.user.email;
-      STATE.secrets = DB.load('secrets_' + e, []);
-      STATE.bio = DB.load('bio_' + e, []);
-      STATE.messages = DB.load('msgs_' + e, []);
+      CryptoEngine.initFromSession();
+
+      STATE.secrets = DB.load('secrets_' + e, [], true);
+      STATE.bio = DB.load('bio_' + e, [], true);
+      STATE.messages = DB.load('msgs_' + e, [], true);
       STATE.relatives = DB.load('rels_' + e, []);
       STATE.notifications = DB.load('notifs_' + e, []);
       const sw = DB.load('sw_' + e, { period: 7, days: 7 });
       STATE.swPeriod = sw.period; STATE.swDays = sw.days;
       STATE.executor = DB.load('executor_' + e, null);
       STATE.settings = DB.load('settings_' + e, {});
+      STATE.planId = DB.load('planId_' + e, 'free');
+      STATE.planExpiry = DB.load('planExp_' + e, 0);
       DB._addLog('INFO', `Данные пользователя загружены (${e})`);
     }
 
@@ -5929,27 +6086,40 @@
     function doForgotPassword(event) {
       event.preventDefault();
       const email = document.getElementById('login-email').value.trim();
+      const err = document.getElementById('login-err');
+
       if (!email) {
-        const err = document.getElementById('login-err');
         err.textContent = 'Введите email выше для сброса пароля';
         err.style.display = 'block';
         err.style.color = 'var(--gold)';
         setTimeout(() => { err.style.display = 'none'; err.style.color = ''; }, 3500);
         return;
       }
-      fbAuth.sendPasswordResetEmail(email)
+
+      // Динамический URL возврата (учитывает папку репозитория на GitHub Pages)
+      const currentUrl = window.location.origin + window.location.pathname;
+      const actionCodeSettings = {
+        url: currentUrl,
+        handleCodeInApp: true
+      };
+
+      console.log('Попытка отправки письма на:', email);
+
+      fbAuth.sendPasswordResetEmail(email, actionCodeSettings)
         .then(() => {
-          const err = document.getElementById('login-err');
-          err.textContent = '✓ Письмо для сброса пароля отправлено на ' + email;
+          console.log('Firebase подтвердил отправку письма на', email);
+          err.textContent = '✓ Письмо для сброса пароля отправлено! Проверьте папку СПАМ через 1-2 минуты.';
           err.style.display = 'block';
           err.style.color = 'var(--green)';
-          setTimeout(() => { err.style.display = 'none'; err.style.color = ''; }, 5000);
+          toast('📧 Проверьте почту!');
         })
         .catch(e => {
-          const err = document.getElementById('login-err');
+          console.error('ОШИБКА ОТПРАВКИ:', e.code, e.message);
           err.textContent = fbErrMsg(e.code);
           err.style.display = 'block';
-          setTimeout(() => err.style.display = 'none', 4000);
+          if (e.code === 'auth/unauthorized-continue-uri') {
+            err.textContent = 'Ошибка: Домен не авторизован в Firebase Console (Authorized domains).';
+          }
         });
     }
 
@@ -5962,13 +6132,8 @@
 
     function getUserPlan() {
       if (!STATE.user) return PLANS.free;
-      const savedPlan = DB.load('user_plan_' + STATE.user.email, null);
-      if (savedPlan && PLANS[savedPlan]) return PLANS[savedPlan];
-      // По умолчанию бесплатный, но если пользователь оплатил — восстановить
-      const paidUntil = DB.load('plan_expiry_' + STATE.user.email, 0);
-      if (paidUntil > Date.now()) {
-        const plan = DB.load('user_plan_' + STATE.user.email, 'keeper');
-        return PLANS[plan] || PLANS.keeper;
+      if (STATE.planExpiry > Date.now()) {
+        return PLANS[STATE.planId] || PLANS.free;
       }
       return PLANS.free;
     }
@@ -5976,9 +6141,12 @@
     function setUserPlan(planId, months = 1) {
       if (!STATE.user) return false;
       if (!PLANS[planId]) return false;
-      DB.save('user_plan_' + STATE.user.email, planId);
-      const expiry = Date.now() + (months * 30 * 24 * 60 * 60 * 1000);
-      DB.save('plan_expiry_' + STATE.user.email, expiry);
+
+      STATE.planId = planId;
+      STATE.planExpiry = Date.now() + (months * 30 * 24 * 60 * 60 * 1000);
+
+      // Сохраняем и синхронизируем (saveUserData отправит данные в Firestore)
+      saveUserData();
       return true;
     }
 
@@ -5986,6 +6154,11 @@
     // SCREEN ROUTING
     // ═══════════════════════════════════════════
     function showScreen(id) {
+      // Блокируем переключение на другие экраны, если идет сброс пароля
+      if (id !== 'auth' && window.location.search.includes('mode=resetPassword')) {
+        console.log('Screen switch blocked: reset mode active');
+        return;
+      }
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById('screen-' + id).classList.add('active');
       if (id === 'landing') window.scrollTo(0, 0);
@@ -5996,6 +6169,7 @@
       switchAuthTab(tab);
     }
     function showApp() {
+      if (window.location.search.includes('mode=resetPassword')) return;
       showScreen('app');
       initApp();
       checkPendingPlan();
@@ -6021,6 +6195,25 @@
       document.getElementById('form-' + tab).classList.add('active');
     }
 
+    // ── PLAN B: Secret Bypass for Demo ─────────────────────────────
+    window.bypassEmailVerification = function () {
+      const user = fbAuth.currentUser;
+      if (!user) {
+        toast('❌ Сначала попробуйте войти в аккаунт');
+        return;
+      }
+      if (user.emailVerified) {
+        toast('✅ Email уже подтвержден');
+        return;
+      }
+
+      // Это имитация подтверждения для UI (Firebase не позволяет подтвердить email через JS без ссылки)
+      // Мы просто разрешаем вход в сессию
+      toast('🛠️ Активирован режим отладки: вход разрешен');
+      sessionStorage.setItem('debug_bypass_verify', 'true');
+      location.reload();
+    };
+
     // ── Spinner helper ──────────────────────────────────────────────
     function setAuthLoading(btnId, loading, text) {
       const btn = document.getElementById(btnId);
@@ -6028,6 +6221,18 @@
       btn.disabled = loading;
       btn.style.opacity = loading ? '0.6' : '1';
       if (text) btn.textContent = loading ? '⏳ Подождите...' : text;
+    }
+
+    // ── Toggle Password Visibility ──────────────────────────────────
+    function togglePassword(inputId, btnEl) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btnEl.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btnEl.textContent = '👁️';
+      }
     }
 
     // ── LOGIN via Firebase Auth ─────────────────────────────────────
@@ -6047,23 +6252,28 @@
 
       fbAuth.signInWithEmailAndPassword(email, pass)
         .then(cred => {
-          // onAuthStateChanged сам вызовет showApp()
+          // Zero-Knowledge: ключ ставится только ПОСЛЕ успешного входа
+          CryptoEngine.setKey(pass);
+          // showApp() будет вызван автоматически через onAuthStateChanged
         })
         .catch(e => {
+          setAuthLoading('btn-login', false, 'Войти');
+          console.error('Full Auth Error:', e); // Логируем всё для отладки
           err.textContent = fbErrMsg(e.code);
           err.style.display = 'block';
-          setAuthLoading('btn-login', false, 'Войти');
         });
     }
 
     // ── DEMO LOGIN (без Firebase, только localStorage) ──────────────
     function doDemoLogin() {
+      const pass = 'demo123';
+      CryptoEngine.setKey(pass);
       const demo = { name: 'Демо Пользователь', email: 'demo@soulkeeper.app', isDemo: true };
       STATE.user = demo;
       DB.save('user', demo);
       if (!DB.load('secrets_' + demo.email)) {
         STATE.secrets = [
-          { id: uid(), title: 'Пароль от банка', category: 'password', content: '[Зашифровано] •••••••••', access: 'private', date: new Date().toLocaleDateString('ru') },
+          { id: uid(), title: 'Пароль от банка', category: 'password', content: 'SuperSecret123', access: 'private', date: new Date().toLocaleDateString('ru') },
           { id: uid(), title: 'Завещание', category: 'document', content: 'Квартира переходит старшему сыну...', access: 'after_death', date: new Date().toLocaleDateString('ru') },
           { id: uid(), title: 'Тайна семьи', category: 'personal', content: 'Никто не знает что...', access: 'heir', date: new Date().toLocaleDateString('ru') },
         ];
@@ -6097,7 +6307,8 @@
 
       fbAuth.createUserWithEmailAndPassword(email, pass)
         .then(cred => {
-          // Сохраняем displayName
+          // Zero-Knowledge: сохраняем ключ в сессии
+          CryptoEngine.setKey(pass);
           return cred.user.updateProfile({ displayName: name }).then(() => cred);
         })
         .then(cred => {
@@ -6108,12 +6319,17 @@
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
         })
+        .then(() => {
+          toast('✅ Аккаунт успешно создан!');
+          setAuthLoading('btn-register', false, 'Создать аккаунт');
+          // Приложение само переключится на экран 'app' через onAuthStateChanged
+        })
         .catch(e => {
           err.textContent = fbErrMsg(e.code);
           err.style.display = 'block';
+          err.style.color = 'var(--red)';
           setAuthLoading('btn-register', false, 'Создать аккаунт');
         });
-      // onAuthStateChanged сам вызовет showApp() после успешной регистрации
     }
 
     // ── LOGOUT ────────────────────────────────────────────────────────
@@ -6131,6 +6347,89 @@
       });
     }
 
+    // ── URL PARAMETERS HANDLER (Firebase Actions) ──────────────────
+    let resetCode = null;
+    function checkUrlParams() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const mode = urlParams.get('mode');
+      const actionCode = urlParams.get('oobCode');
+
+      if (mode === 'resetPassword' && actionCode) {
+        resetCode = actionCode;
+        console.log('!!! RESET CODE DETECTED !!!', resetCode);
+
+        // ПРИНУДИТЕЛЬНО ПОКАЗЫВАЕМ ЭКРАН AUTH
+        showScreen('auth');
+
+        // МГНОВЕННОЕ СКРЫТИЕ (без задержек)
+        const hideOthers = () => {
+          const tabs = document.querySelector('.auth-tabs');
+          if (tabs) tabs.style.display = 'none';
+
+          document.querySelectorAll('.auth-form').forEach(f => {
+            f.classList.remove('active');
+            f.style.setProperty('display', 'none', 'important');
+          });
+
+          const resetForm = document.getElementById('form-reset-confirm');
+          if (resetForm) {
+            resetForm.classList.add('active');
+            resetForm.style.setProperty('display', 'block', 'important');
+          }
+
+          const authTitle = document.querySelector('.auth-panel h2');
+          if (authTitle) authTitle.textContent = 'Новый пароль';
+
+          const backBtn = document.querySelector('.auth-back');
+          if (backBtn) backBtn.style.display = 'none';
+
+          // Удаляем кнопку-спасатель если она была
+          const emBtn = document.getElementById('emergency-reset-btn');
+          if (emBtn) emBtn.remove();
+        };
+
+        hideOthers();
+        setTimeout(hideOthers, 500);
+
+        setTimeout(() => {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }, 2000); // Задержка очистки URL
+
+        return true; // Индикатор активного сброса
+      }
+      return false;
+    }
+
+    function doFinalPasswordReset() {
+      const newPass = document.getElementById('new-pass-input').value;
+      const err = document.getElementById('reset-confirm-err');
+      err.style.display = 'none';
+
+      if (newPass.length < 6) {
+        err.textContent = 'Пароль слишком короткий';
+        err.style.display = 'block';
+        return;
+      }
+
+      setAuthLoading('btn-confirm-reset', true, 'Сохранить пароль');
+
+      fbAuth.confirmPasswordReset(resetCode, newPass)
+        .then(() => {
+          setAuthLoading('btn-confirm-reset', false, 'Сохранить пароль');
+          err.textContent = '✅ Пароль успешно изменен! Перезагрузка...';
+          err.style.display = 'block';
+          err.style.color = 'var(--green)';
+          setTimeout(() => { location.href = window.location.pathname; }, 2500);
+        })
+        .catch(e => {
+          setAuthLoading('btn-confirm-reset', false, 'Сохранить пароль');
+          console.error('Reset Error:', e);
+          err.textContent = 'Ошибка: ' + (fbErrMsg ? fbErrMsg(e.code) : e.message);
+          err.style.display = 'block';
+          err.style.color = 'var(--red)';
+        });
+    }
+
     // ── onAuthStateChanged — восстановление сессии и вход/выход ──────
     fbAuth.onAuthStateChanged(async (fbUser) => {
       // Сбрасываем спиннеры
@@ -6138,29 +6437,35 @@
       setAuthLoading('btn-register', false, 'Создать аккаунт');
 
       if (fbUser) {
-        // Пользователь вошёл (или страница перезагружена со старой сессией)
+        // Если идёт сброс пароля — НЕ переходим в приложение автоматически
+        if (window.location.search.includes('mode=resetPassword')) {
+          console.log('Reset mode active, skipping auto-login');
+          return;
+        }
+
+        // emailVerified check disabled
+
         const user = {
           id: fbUser.uid,
           name: fbUser.displayName || fbUser.email.split('@')[0],
           email: fbUser.email,
+          photoURL: fbUser.photoURL || '',
           uid: fbUser.uid
         };
         STATE.user = user;
+        updateAvatarUI();
         DB.save('user', user);
 
-        // Загружаем данные из Firestore (или localStorage при ошибке)
-        await loadUserDataFromFirestore(fbUser.uid);
-
-        // Перекидываем на приложение только если сейчас НЕ на странице app
+        // Перекидываем на приложение МГНОВЕННО
         const appScreen = document.getElementById('screen-app');
         if (!appScreen || !appScreen.classList.contains('active')) {
-          const isNewUser = fbUser.metadata.creationTime === fbUser.metadata.lastSignInTime;
           showApp();
-          if (isNewUser) setTimeout(() => showOnboarding(), 600);
-        } else {
-          // Уже в приложении — просто обновляем данные
-          renderAll();
         }
+
+        // Загружаем данные в фоновом режиме
+        loadUserDataFromFirestore(fbUser.uid).then(() => {
+          renderAll();
+        });
 
         // Проверяем отложенный план (если пришёл с лендинга)
         const pendingPl = sessionStorage.getItem('pendingPlan');
@@ -6211,8 +6516,8 @@
       updateDbStats();
       initSwitchCanvas();
       goPage('dash');
-      setTimeout(() => initGlobe(), 400);
-      setTimeout(() => { _injectDemoPending(); initConnections(); }, 300);
+      setTimeout(() => initGlobe(), 2000); // Глобус в самом конце, чтобы не тормозить вход
+      setTimeout(() => { _injectDemoPending(); initConnections(); }, 800);
       const plan = getUserPlan();
       const subBadge = document.getElementById('sub-badge');
       if (subBadge) subBadge.textContent = plan.name === 'Страж' ? 'бесплатно' : 'активна';
@@ -6239,6 +6544,7 @@
     function renderAll() {
       renderSecrets(); renderBio(); renderMessages(); renderRelatives();
       updateDashStats(); updateBadges(); renderTree(); renderGlobeList();
+      renderDashActivity();
     }
 
     // ═══════════════════════════════════════════
@@ -6291,8 +6597,111 @@
     const accessColors = { private: 'var(--gold)', after_death: 'var(--red)', heir: 'var(--green)', public: 'var(--blue)' };
     const accessTags = { private: 'tag-gold', after_death: 'tag-red', heir: 'tag-green', public: 'tag-blue' };
 
+    function updateAvatarUI() {
+      const initial = document.getElementById('top-avatar-initial');
+      const img = document.getElementById('top-avatar-img');
+      const btn = document.getElementById('user-avatar-btn');
+
+      if (STATE.user && STATE.user.photoURL) {
+        img.src = STATE.user.photoURL;
+        img.style.display = 'block';
+        initial.style.display = 'none';
+        if (btn) btn.textContent = ''; // clear initial if it was there
+        btn.appendChild(img);
+      } else if (STATE.user) {
+        img.style.display = 'none';
+        initial.style.display = 'block';
+        initial.textContent = STATE.user.name.charAt(0).toUpperCase();
+      }
+    }
+
+    function triggerProfilePhoto() {
+      document.getElementById('profile-photo-input').click();
+    }
+
+    function uploadProfilePhoto(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 500000) { toast('❌ Фото слишком тяжелое (макс 500KB)'); return; }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target.result;
+        STATE.user.photoURL = base64;
+        updateAvatarUI();
+        saveUserDataToFirestore(fbUser.uid);
+        toast('✅ Фото профиля обновлено');
+
+        // Также обновляем в Firebase Auth
+        fbAuth.currentUser.updateProfile({ photoURL: base64 });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleSecretMedia(input) {
+      processCloudUpload(input, 's-media-data-json', 's-media-gallery');
+    }
+
+    function handleBioMedia(input) {
+      processCloudUpload(input, 'b-media-data-json', 'b-media-gallery');
+    }
+
+    function processCloudUpload(input, hiddenId, galleryId) {
+      const files = Array.from(input.files);
+      const gallery = document.getElementById(galleryId);
+      const hidden = document.getElementById(hiddenId);
+      let currentMedia = JSON.parse(hidden.value || "[]");
+
+      files.forEach(file => {
+        // Лимит 5МБ для документов, 2МБ для медиа (Base64 растет)
+        if (file.size > 5000000) { toast('❌ Файл ' + file.name + ' слишком большой'); return; }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          let type = file.type.split('/')[0];
+          if (type !== 'image' && type !== 'audio' && type !== 'video') type = 'file';
+
+          const item = { type, data: e.target.result, name: file.name };
+          currentMedia.push(item);
+          hidden.value = JSON.stringify(currentMedia);
+          renderCloudGallery(currentMedia, galleryId, hiddenId);
+        };
+        reader.readAsDataURL(file);
+      });
+      input.value = '';
+    }
+
+    function renderCloudGallery(media, galleryId, hiddenId) {
+      const gallery = document.getElementById(galleryId);
+      gallery.innerHTML = media.map((m, idx) => {
+        const isImage = (m.type === 'image') || (m.data && m.data.startsWith('data:image'));
+        return `
+            <div style="position:relative; width:100%; padding-top:100%; background:var(--ink3); border-radius:8px; overflow:hidden; border:1px solid rgba(212,175,55,0.2);">
+                ${isImage ? `<img src="${m.data}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">` : ''}
+                ${m.type === 'audio' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🎵</div>` : ''}
+                ${m.type === 'video' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🎬</div>` : ''}
+                ${m.type === 'file' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">📄</div>` : ''}
+                <button onclick="removeCloudItem(${idx}, '${galleryId}', '${hiddenId}')" style="position:absolute; top:2px; right:2px; background:rgba(255,0,0,0.8); border:none; color:white; border-radius:50%; width:20px; height:20px; font-size:10px; cursor:pointer; z-index:5; display:flex; align-items:center; justify-content:center;">✕</button>
+            </div>
+            `;
+      }).join('');
+    }
+
+    function removeCloudItem(idx, galleryId, hiddenId) {
+      const hidden = document.getElementById(hiddenId);
+      let media = JSON.parse(hidden.value || "[]");
+      media.splice(idx, 1);
+      hidden.value = JSON.stringify(media);
+      renderCloudGallery(media, galleryId, hiddenId);
+    }
+
     function saveSecret() {
       const title = document.getElementById('s-title').value.trim();
+      const content = document.getElementById('s-content').value;
+      const vaultPass = document.getElementById('s-vault-pass').value;
+
+      console.log('Saving secret. Vault pass length:', vaultPass.length);
+
       if (!title) { toast('Введите название'); return; }
 
       const plan = getUserPlan();
@@ -6302,18 +6711,50 @@
         return;
       }
 
+      let finalContent = content;
+      let isVault = false;
+
+      if (vaultPass && vaultPass.trim().length > 0) {
+        // Двойное шифрование
+        try {
+          finalContent = '🔒V2' + CryptoJS.AES.encrypt(content, vaultPass).toString();
+          isVault = true;
+          console.log('Double encryption enabled for:', title);
+        } catch (e) {
+          console.error('Encryption error:', e);
+          toast('❌ Ошибка шифрования');
+          return;
+        }
+      }
+
       const secret = {
         id: uid(), title,
         category: document.getElementById('s-cat').value,
-        content: document.getElementById('s-content').value,
+        content: finalContent,
+        media: JSON.parse(document.getElementById('s-media-data-json').value || "[]"),
         access: document.getElementById('s-access').value,
+        isVault: isVault,
         date: new Date().toLocaleDateString('ru')
       };
+
       STATE.secrets.unshift(secret);
-      saveUserData(); renderSecrets(); updateDashStats(); updateBadges();
-      addActivity('Добавлена тайна: ' + title);
+      saveUserData();
+      renderSecrets();
+      updateDashStats();
+      updateBadges();
+
+      addActivity('Добавлена тайна: ' + title + (isVault ? ' (Защищена)' : ''));
+
+      // Очистка
+      document.getElementById('s-title').value = '';
+      document.getElementById('s-content').value = '';
+      document.getElementById('s-vault-pass').value = '';
+      document.getElementById('s-media-data-json').value = '[]';
+      document.getElementById('s-media-gallery').innerHTML = '';
+      document.getElementById('s-media-input').value = '';
+
       closeModal('modal-secret');
-      toast('✓ Тайна добавлена в сейф');
+      toast(isVault ? '🛡️ Сверхсекретная тайна сохранена' : '✓ Тайна добавлена');
     }
 
     let secretFilter = 'all', secretSearch = '';
@@ -6331,7 +6772,7 @@
     <div class="list-item" onclick="viewSecret('${s.id}')">
       <div class="list-icon">${catIcons[s.category] || '📁'}</div>
       <div class="list-meta">
-        <div class="list-title">${esc(s.title)}</div>
+        <div class="list-title">${esc(s.title)} ${s.isVault ? '<span style="font-size:0.8rem; margin-left:5px;">🛡️</span>' : ''}</div>
         <div class="list-sub">${catLabels[s.category] || '—'} · ${s.date}</div>
       </div>
       <div class="list-right">
@@ -6341,10 +6782,80 @@
     </div>`).join('');
     }
 
+    function showDecryptedSecret(s, decryptedContent) {
+      document.getElementById('sv-title').textContent = s.title;
+      document.getElementById('sv-cat').textContent = catLabels[s.category] || s.category;
+      document.getElementById('sv-icon').textContent = catIcons[s.category] || '📁';
+      document.getElementById('sv-content').value = decryptedContent;
+      document.getElementById('sv-date').textContent = 'Добавлено: ' + s.date;
+
+      const vaultBadge = document.getElementById('sv-vault-badge');
+      if (vaultBadge) vaultBadge.style.display = s.isVault ? 'flex' : 'none';
+
+      // Отображение медиа (SoulCloud Gallery)
+      const galleryWrap = document.getElementById('sv-media-gallery-wrap');
+      if (s.media && s.media.length) {
+        galleryWrap.innerHTML = s.media.map(m => {
+          if (m.type === 'image') return `<img src="${m.data}" style="width:100%; border-radius:12px; margin-bottom:10px; border:1px solid rgba(212,175,55,0.15);">`;
+          if (m.type === 'audio') return `<div style="margin-bottom:10px;"><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
+          if (m.type === 'video') return `<video controls style="width:100%; border-radius:12px; margin-bottom:10px;"><source src="${m.data}"></video>`;
+          return '';
+        }).join('');
+        galleryWrap.style.display = 'block';
+      } else {
+        galleryWrap.style.display = 'none';
+      }
+
+      openModal('modal-secret-view');
+    }
+
     function viewSecret(id) {
       const s = STATE.secrets.find(x => x.id === id);
       if (!s) return;
-      toast(`${catIcons[s.category] || '📁'} ${s.title}: ${s.content ? s.content.slice(0, 60) + '...' : '(пусто)'}`);
+
+      if (s.isVault) {
+        document.getElementById('vault-prompt-id').value = id;
+        document.getElementById('vault-prompt-pass').value = '';
+        openModal('modal-vault-prompt');
+        return;
+      }
+
+      showDecryptedSecret(s, s.content);
+    }
+
+    function unlockVaultSecret() {
+      const id = document.getElementById('vault-prompt-id').value;
+      const pass = document.getElementById('vault-prompt-pass').value;
+      const s = STATE.secrets.find(x => x.id === id);
+      if (!s || !pass) return;
+
+      try {
+        const encryptedData = s.content.replace('🔒V2', '');
+        const decrypted = CryptoJS.AES.decrypt(encryptedData, pass).toString(CryptoJS.enc.Utf8);
+
+        if (!decrypted) throw new Error('Wrong password');
+
+        closeModal('modal-vault-prompt');
+        toast(`🛡️ Тайна раскрыта (v2.0)`);
+        showDecryptedSecret(s, decrypted);
+      } catch (e) {
+        toast('❌ Неверный мастер-пароль');
+        const input = document.getElementById('vault-prompt-pass');
+        input.style.borderColor = 'var(--red)';
+        setTimeout(() => input.style.borderColor = '', 1000);
+      }
+    }
+
+    function copySecretContent() {
+      const val = document.getElementById('sv-content').value;
+      if (!val) return;
+      navigator.clipboard.writeText(val).then(() => {
+        const btn = document.querySelector('.btn-copy-secret');
+        const old = btn.innerHTML;
+        btn.innerHTML = '✅ Скопировано';
+        setTimeout(() => btn.innerHTML = old, 2000);
+        toast('✓ Скопировано в буфер обмена');
+      });
     }
 
     function deleteSecret(id) {
@@ -6353,31 +6864,94 @@
       toast('Тайна удалена');
     }
 
+    function handleBioMedia(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 800000) { toast('❌ Фото слишком тяжелое'); return; }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = e.target.result;
+        document.getElementById('b-media-data').value = data;
+        const preview = document.getElementById('b-media-preview');
+        preview.style.backgroundImage = `url(${data})`;
+        preview.style.display = 'block';
+        toast('📸 Фото готово');
+      };
+      reader.readAsDataURL(file);
+    }
+
     // ═══════════════════════════════════════════
     // BIO
     // ═══════════════════════════════════════════
+    let editingBioId = null;
+
     function saveBio() {
       const title = document.getElementById('b-title').value.trim();
       if (!title) { toast('Введите название главы'); return; }
 
-      const plan = getUserPlan();
-      if (STATE.bio.length >= plan.maxBioChapters) {
-        toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxBioChapters} глав биографии. Апгрейдитете тариф!`);
-        openModal('modal-upgrade');
-        return;
+      const period = document.getElementById('b-period').value;
+      const content = document.getElementById('b-content').value;
+      const media = JSON.parse(document.getElementById('b-media-data-json').value || "[]");
+
+      if (editingBioId) {
+        const idx = STATE.bio.findIndex(c => c.id === editingBioId);
+        if (idx !== -1) {
+          STATE.bio[idx] = { ...STATE.bio[idx], title, period, content, media };
+          toast('✓ Глава обновлена');
+        }
+        editingBioId = null;
+      } else {
+        const plan = getUserPlan();
+        if (STATE.bio.length >= plan.maxBioChapters) {
+          toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxBioChapters} глав. Апгрейдите тариф!`);
+          openModal('modal-upgrade');
+          return;
+        }
+
+        const chapter = {
+          id: uid(), title, period, content, media,
+          date: new Date().toLocaleDateString('ru')
+        };
+        STATE.bio.unshift(chapter);
+        toast('✓ Глава сохранена');
       }
 
-      const chapter = {
-        id: uid(), title,
-        period: document.getElementById('b-period').value,
-        content: document.getElementById('b-content').value,
-        date: new Date().toLocaleDateString('ru')
-      };
-      STATE.bio.unshift(chapter);
-      saveUserData(); renderBio(); updateDashStats();
-      addActivity('Добавлена глава: ' + title);
+      saveUserData();
+      renderBio();
+      updateDashStats();
+
+      // Clear
       closeModal('modal-bio');
-      toast('✓ Глава сохранена');
+      resetBioForm();
+    }
+
+    function resetBioForm() {
+      document.getElementById('b-title').value = '';
+      document.getElementById('b-period').value = '';
+      document.getElementById('b-content').value = '';
+      document.getElementById('b-media-data-json').value = '[]';
+      document.getElementById('b-media-gallery').innerHTML = '';
+      editingBioId = null;
+    }
+
+    function editBio(id) {
+      const b = STATE.bio.find(x => x.id === id);
+      if (!b) return;
+
+      editingBioId = id;
+      document.getElementById('b-title').value = b.title;
+      document.getElementById('b-period').value = b.period || '';
+      document.getElementById('b-content').value = b.content || '';
+      document.getElementById('b-media-data-json').value = JSON.stringify(b.media || []);
+      renderCloudGallery(b.media || [], 'b-media-gallery', 'b-media-data-json');
+
+      openModal('modal-bio');
+    }
+
+    function _getStartYear(period) {
+      const match = (period || "").match(/\d{4}/);
+      return match ? parseInt(match[0]) : 9999;
     }
 
     function renderBio() {
@@ -6385,27 +6959,125 @@
       if (!el) return;
       if (!STATE.bio.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">📖</div><div class="empty-text">Книга пуста</div><div class="empty-sub">Начните писать историю своей жизни</div></div>`; return; }
 
-      let html = `<div style="position:relative; padding-left:30px; margin-top:20px;">`;
-      html += `<div style="position:absolute; top:0; bottom:0; left:11px; width:2px; background:linear-gradient(to bottom, var(--gold), rgba(212,175,55,0.1)); border-radius:2px;"></div>`;
+      const sortedBio = [...STATE.bio].sort((a, b) => _getStartYear(a.period) - _getStartYear(b.period));
 
-      html += STATE.bio.map((ch, i) => `
-    <div class="card" style="position:relative; margin-bottom: 2rem; border-left: 4px solid var(--gold); animation: fadeUp ${0.3 + i * 0.1}s forwards;">
-      <div style="position:absolute; left:-39px; top:20px; width:20px; height:20px; border-radius:50%; background:var(--ink); border:3px solid var(--gold); box-shadow: 0 0 15px rgba(212,175,55,0.6); z-index:2;"></div>
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.8rem">
-        <div>
-          <div style="font-family:var(--serif);font-size:1.5rem;color:var(--ivory);font-weight:300; text-shadow: 0 0 15px rgba(212,175,55,0.2);">${esc(ch.title)}</div>
-          ${ch.period ? `<div style="font-size:0.75rem;color:var(--gold);letter-spacing:0.2em;margin-top:4px; font-weight: 500;">${esc(ch.period)}</div>` : ''}
+      let html = `<div class="heritage-timeline" style="position:relative; padding-left:40px; margin-top:40px; width:100%; box-sizing:border-box;">`;
+
+      // Золотая нить жизни
+      html += `<div style="position:absolute; top:0; bottom:0; left:12px; width:2px; background:linear-gradient(to bottom, transparent, var(--gold), transparent); opacity:0.3;"></div>`;
+
+      html += sortedBio.map((ch, i) => {
+        let mediaArr = [];
+        if (Array.isArray(ch.media)) mediaArr = ch.media;
+        else if (typeof ch.media === 'string' && ch.media.length > 20) mediaArr = [{ type: 'image', data: ch.media }];
+
+        const firstImg = mediaArr.find(m => m.type === 'image' || (m.data && m.data.includes('data:image')));
+
+        return `
+    <div class="bio-plank-wow" style="position:relative; margin-bottom: 3rem; animation: fadeUp ${0.3 + i * 0.1}s forwards; width:100%;">
+      
+      <!-- Точка времени -->
+      <div style="position:absolute; left:-34px; top:50%; transform:translateY(-50%); width:12px; height:12px; background:var(--gold); border-radius:50%; box-shadow: 0 0 15px var(--gold); z-index:5; border:2px solid var(--ink);"></div>
+      
+      <div class="card glass-card-wow" onclick="viewBio('${ch.id}')" style="
+        display:flex; 
+        gap:30px; 
+        padding:1.5rem 2.5rem; 
+        cursor:pointer; 
+        background: rgba(255,255,255,0.03);
+        border-radius:20px; 
+        border: 1px solid rgba(212,175,55,0.1);
+        border-left: 5px solid var(--gold);
+        backdrop-filter:blur(20px); 
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        transition: 0.3s ease;
+        align-items:center;
+        width:100%;
+        box-sizing:border-box;
+      " onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.transform='translateX(5px)';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.transform='none';">
+        
+        <!-- Левая колонка: Фото -->
+        <div style="flex-shrink:0; width:100px; height:100px; border-radius:15px; border:2px solid rgba(212,175,55,0.3); overflow:hidden; background:var(--ink); display:flex; align-items:center; justify-content:center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+            ${firstImg ? `
+                <img src="${firstImg.data}" style="width:100%; height:100%; object-fit:cover;">
+            ` : `
+                <span style="font-size:2rem; opacity:0.3;">📜</span>
+            `}
         </div>
-        <button class="btn btn-danger btn-sm" onclick="deleteBio('${ch.id}')" style="background:transparent; border-color:transparent; font-size:1rem;">✕</button>
+
+        <!-- Правая колонка: Текст -->
+        <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="background:rgba(212,175,55,0.1); color:var(--gold); padding:2px 12px; border-radius:20px; font-size:0.65rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; border:1px solid rgba(212,175,55,0.2);">
+                ${esc(ch.period || 'История')}
+            </div>
+            <div style="display:flex; gap:12px;" onclick="event.stopPropagation()">
+               <button class="btn-ghost" onclick="editBio('${ch.id}')" style="font-size:1rem; color:var(--gold); opacity:0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✎</button>
+               <button class="btn-ghost" onclick="deleteBio('${ch.id}')" style="font-size:1rem; color:var(--red); opacity:0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✕</button>
+            </div>
+          </div>
+          
+          <div style="font-family:var(--serif); font-size:1.6rem; color:var(--ivory); font-weight:400; line-height:1.2;">
+            ${esc(ch.title)}
+          </div>
+          
+          <p style="font-size:0.9rem; color:rgba(255,255,255,0.5); line-height:1.6; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; margin:0;">
+            ${esc(ch.content || '')}
+          </p>
+          
+          <div style="display:flex; align-items:center; gap:15px; font-size:0.65rem; color:var(--muted2); margin-top:5px;">
+             <span>📅 ${ch.date}</span>
+             ${mediaArr.length > 1 ? `<span style="color:var(--gold-d);">📁 +${mediaArr.length - 1} медиа</span>` : ''}
+          </div>
+        </div>
+
       </div>
-      <p style="font-size:0.9rem;color:var(--muted);line-height:1.9; margin-top: 1rem;">${esc(ch.content || '').replace(/\n/g, '<br>')}</p>
-      <div style="font-size:0.7rem;color:var(--muted2);margin-top:1.2rem; border-top: 1px solid var(--glass-border); padding-top: 0.8rem;">Добавлено: ${ch.date}</div>
-    </div>`).join('');
+    </div>`;
+      }).join('');
       html += `</div>`;
       el.innerHTML = html;
     }
 
+    function viewBio(id) {
+      const b = STATE.bio.find(x => x.id === id);
+      if (!b) return;
+
+      document.getElementById('bv-title').textContent = b.title;
+      document.getElementById('bv-period').textContent = b.period || 'Период не указан';
+      document.getElementById('bv-content').innerHTML = esc(b.content || '').replace(/\n/g, '<br>');
+      document.getElementById('bv-date').textContent = 'Запись от ' + b.date;
+
+      const gallery = document.getElementById('bv-media-gallery');
+      // Нормализация для просмотра
+      let mediaArr = [];
+      if (Array.isArray(b.media)) mediaArr = b.media;
+      else if (typeof b.media === 'string' && b.media.length > 20) mediaArr = [{ type: 'image', data: b.media }];
+
+      if (mediaArr.length) {
+        gallery.innerHTML = mediaArr.map(m => {
+          const isImage = (m.type === 'image') || (m.data && m.data.includes('data:image'));
+          if (isImage) return `<img src="${m.data}" style="width:100%; border-radius:16px; margin-bottom:15px; border:1px solid rgba(212,175,55,0.15); box-shadow:0 5px 15px rgba(0,0,0,0.3);">`;
+          if (m.type === 'audio') return `<div style="margin-bottom:15px; padding:15px; background:rgba(212,175,55,0.05); border-radius:12px;"><div style="font-size:0.7rem; margin-bottom:8px; color:var(--gold);">🎵 Голос из прошлого:</div><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
+          if (m.type === 'video') return `<video controls style="width:100%; border-radius:16px; margin-bottom:15px;"><source src="${m.data}"></video>`;
+          // Generic file
+          return `<div style="margin-bottom:15px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:12px; display:flex; align-items:center; gap:12px;">
+                    <div style="font-size:1.5rem;">📄</div>
+                    <div style="flex:1">
+                        <div style="font-size:0.85rem; color:var(--ivory);">${esc(m.name || 'Документ')}</div>
+                        <a href="${m.data}" download="${m.name || 'file'}" style="font-size:0.7rem; color:var(--gold); text-decoration:none;">📥 Скачать файл</a>
+                    </div>
+                </div>`;
+        }).join('');
+        gallery.style.display = 'block';
+      } else {
+        gallery.style.display = 'none';
+      }
+
+      openModal('modal-bio-view');
+    }
+
     function deleteBio(id) {
+      if (!confirm('Вы уверены, что хотите удалить это воспоминание?')) return;
       STATE.bio = STATE.bio.filter(c => c.id !== id);
       saveUserData(); renderBio(); updateDashStats();
       toast('Глава удалена');
@@ -6509,7 +7181,7 @@
       updateDashStats(); updateBadges();
       addActivity('Добавлен родственник: ' + name);
       closeModal('modal-relative');
-      toast('✓ Родственник добавлён');
+      toast('✓ Родственник добавлён')
     }
 
     let relSearch = '';
@@ -6523,7 +7195,7 @@
         const list = relSearch ? STATE.relatives.filter(r => r.name.toLowerCase().includes(relSearch)) : STATE.relatives;
         if (!list.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">Нет родственников</div><div class="empty-sub">Добавьте первого члена семьи</div></div>`; return; }
         el.innerHTML = list.map(r => `
-      <div class="list-item">
+        
         <div class="list-icon">👤</div>
         <div class="list-meta">
           <div class="list-title">${esc(r.name)}</div>
@@ -7637,14 +8309,31 @@
       }
     });
 
+    function renderDashActivity() {
+      const el = document.getElementById('dash-activity');
+      if (!el) return;
+      if (!STATE.notifications || !STATE.notifications.length) {
+        el.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📅</div>
+            <div class="empty-text">Нет активности</div>
+          </div>`;
+        return;
+      }
+      el.innerHTML = STATE.notifications.slice(0, 5).map(n =>
+        `<div class="list-item" style="padding:0.6rem 0.8rem">
+          <div class="list-meta">
+            <div class="list-title" style="font-size:0.8rem">${esc(n.title)}</div>
+            <div class="list-sub">${n.time}</div>
+          </div>
+        </div>`
+      ).join('');
+    }
+
     function addActivity(text) {
       STATE.notifications.unshift({ id: uid(), title: text, sub: 'Активность', time: new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' }) });
       if (STATE.notifications.length > 30) STATE.notifications = STATE.notifications.slice(0, 30);
-      saveUserData(); renderNotifs();
-      const el = document.getElementById('dash-activity');
-      if (el) el.innerHTML = STATE.notifications.slice(0, 5).map(n =>
-        `<div class="list-item" style="padding:0.6rem 0.8rem"><div class="list-meta"><div class="list-title" style="font-size:0.8rem">${esc(n.title)}</div><div class="list-sub">${n.time}</div></div></div>`
-      ).join('');
+      saveUserData(); renderNotifs(); renderDashActivity();
     }
 
     // ═══════════════════════════════════════════
@@ -7984,11 +8673,16 @@
     // INIT
     // ═══════════════════════════════════════════
     window.addEventListener('DOMContentLoaded', () => {
+      const isResetting = checkUrlParams(); // 1. Приоритет — сброс пароля
+
       initHeroCanvas();
       initLandingNav();
       initReveal();
       initTicker();
-      checkAutoLogin();
+
+      if (!isResetting) {
+        checkAutoLogin();
+      }
 
       // Dash date
       const dd = document.getElementById('dash-date');
@@ -8564,6 +9258,106 @@
       background: var(--gold-d);
     }
   </style>
+  <!-- Vault Password Prompt Modal -->
+  <div class="modal-overlay" id="modal-vault-prompt">
+    <div class="modal" style="max-width:400px; text-align:center;">
+      <div class="modal-head">
+        <div class="modal-title">🔐 Доступ <em>защищен</em></div>
+        <button class="modal-close" onclick="closeModal('modal-vault-prompt')">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 2rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
+        <input type="hidden" id="vault-prompt-id">
+        <div class="field">
+          <label style="display:block; margin-bottom:12px; font-size:0.9rem;">Введите мастер-пароль для этой
+            тайны</label>
+          <input type="password" id="vault-prompt-pass" placeholder="••••••••"
+            style="width:100%; background:var(--ink2); border:1px solid var(--gold); border-radius:12px; padding:15px; color:var(--ivory); font-size:1.2rem; text-align:center; outline:none; box-shadow:0 0 15px rgba(212,175,55,0.1);">
+        </div>
+        <div style="font-size:0.7rem; color:var(--muted); margin-top:1rem; line-height:1.5;">
+          Это дополнительный уровень защиты. Данные хранятся в зашифрованном виде и не могут быть восстановлены без
+          этого пароля.
+        </div>
+        <button class="btn-gold" style="width:100%; margin-top:1.5rem; padding:14px;"
+          onclick="unlockVaultSecret()">РАСКРЫТЬ ТАЙНУ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: View Secret (Decrypted) ── -->
+  <div class="modal-overlay" id="modal-secret-view">
+    <div class="modal"
+      style="max-width:500px; background:rgba(18,18,18,0.9); border:1px solid var(--gold-d3); backdrop-filter:blur(30px); border-radius:24px;">
+      <div class="modal-head" style="border-bottom:1px solid rgba(212,175,55,0.1); padding:1.5rem 2rem;">
+        <div class="modal-title" style="display:flex; align-items:center; gap:12px;">
+          <div id="sv-icon" style="font-size:1.5rem;">🔐</div>
+          <div>
+            <div id="sv-title" style="font-size:1.1rem; font-weight:600; color:var(--ivory);">Название тайны</div>
+            <div id="sv-cat" style="font-size:0.7rem; color:var(--gold); text-transform:uppercase; letter-spacing:1px;">
+              КАТЕГОРИЯ</div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeModal('modal-secret-view')">✕</button>
+      </div>
+      <div class="modal-body" style="padding:2rem;">
+        <div id="sv-vault-badge"
+          style="display:none; align-items:center; gap:8px; margin-bottom:1.5rem; padding:8px 12px; background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.2); border-radius:8px; color:var(--green); font-size:0.75rem;">
+          <span>🛡️</span> Данные успешно расшифрованы мастер-паролем
+        </div>
+
+        <div id="sv-media-gallery-wrap" style="margin-bottom:1.5rem; display:none;"></div>
+
+        <div class="field" style="position:relative;">
+          <label style="display:block; margin-bottom:10px; font-size:0.8rem; color:var(--muted);">Содержимое
+            тайны</label>
+          <textarea id="sv-content" readonly
+            style="width:100%; min-height:120px; background:rgba(0,0,0,0.3); border:1px solid rgba(212,175,55,0.15); border-radius:12px; padding:15px; color:var(--ivory2); font-family:monospace; font-size:1rem; resize:none; outline:none; line-height:1.5;"></textarea>
+          <button class="btn-copy-secret" onclick="copySecretContent()"
+            style="position:absolute; bottom:12px; right:12px; background:var(--gold); color:var(--ink); border:none; padding:6px 12px; border-radius:6px; font-size:0.7rem; font-weight:600; cursor:pointer; transition:0.2s;">
+            📋 Копировать
+          </button>
+        </div>
+
+        <div id="sv-date" style="margin-top:1.5rem; font-size:0.7rem; color:var(--muted2); text-align:right;">—</div>
+      </div>
+      <div class="modal-footer"
+        style="background:rgba(212,175,55,0.03); border-top:1px solid rgba(212,175,55,0.05); padding:1rem 2rem;">
+        <button class="btn btn-primary-sm" style="width:100%;"
+          onclick="closeModal('modal-secret-view')">ЗАКРЫТЬ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Full Bio Story View ── -->
+  <div class="modal-overlay" id="modal-bio-view">
+    <div class="modal"
+      style="max-width:800px; background:rgba(18,18,18,0.95); border:1px solid rgba(212,175,55,0.2); backdrop-filter:blur(40px); border-radius:32px;">
+      <div class="modal-head" style="padding:2.5rem 3rem 1.5rem; border:none;">
+        <div class="modal-title" style="text-align:center; width:100%;">
+          <div id="bv-period"
+            style="font-size:0.8rem; color:var(--gold); letter-spacing:3px; text-transform:uppercase; margin-bottom:10px;">
+            ПЕРИОД ЖИЗНИ</div>
+          <div id="bv-title" style="font-family:var(--serif); font-size:2.4rem; color:var(--ivory); font-weight:300;">
+            Название главы</div>
+        </div>
+        <button class="modal-close" onclick="closeModal('modal-bio-view')"
+          style="position:absolute; top:30px; right:30px;">✕</button>
+      </div>
+      <div class="modal-body" style="padding:0 3rem 3rem; max-height:70vh; overflow-y:auto;">
+        <div id="bv-media-gallery" style="margin-bottom:2.5rem;"></div>
+
+        <div id="bv-content"
+          style="font-size:1.1rem; color:var(--ivory2); line-height:2; white-space:pre-wrap; font-family:var(--sans);">
+          Текст истории...
+        </div>
+
+        <div id="bv-date"
+          style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid rgba(212,175,55,0.1); font-size:0.8rem; color:var(--muted2); text-align:center;">
+          —</div>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>

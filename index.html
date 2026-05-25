@@ -9,9 +9,8 @@
   <title>SoulKeeper — Хранитель твоей жизни</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <!-- Firebase SDK -->
@@ -43,12 +42,27 @@
       --purple: #9b59b6;
       --serif: 'Playfair Display', Georgia, serif;
       --sans: 'Inter', system-ui, sans-serif;
-      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
       --shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
       --shadow-gold: 0 0 35px rgba(212, 175, 55, 0.25);
       --glass-bg: rgba(15, 13, 22, 0.65);
       --glass-border: rgba(212, 175, 55, 0.18);
-      --glass-blur: blur(16px);
+      --glass-blur: blur(20px);
+    }
+
+    /* Light Theme Overrides */
+    html.light-theme {
+      --ink: #fdfcfb;
+      --ink2: #f8f5f0;
+      --ink3: #f0eade;
+      --ink4: #e8e0d0;
+      --ivory: #050508;
+      --ivory2: #181524;
+      --muted: rgba(5, 5, 8, 0.6);
+      --muted2: rgba(5, 5, 8, 0.3);
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(212, 175, 55, 0.3);
     }
 
     *,
@@ -61,7 +75,15 @@
 
     html {
       scroll-behavior: smooth;
+      transition: background-color 0.5s ease;
     }
+
+    @keyframes wiggle {
+      0% { transform: rotate(-1deg); }
+      50% { transform: rotate(1.5deg); }
+      100% { transform: rotate(-1deg); }
+    }
+    .wiggle { animation: wiggle 0.3s infinite ease-in-out; }
 
     body {
       background: var(--ink);
@@ -1897,6 +1919,13 @@
     .page.active {
       display: block;
     }
+    #page-tree.active {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      padding: 0;
+    }
 
     /* ════════════════════════════════════════════
    APP — COMPONENTS
@@ -2659,7 +2688,7 @@
     }
 
     .search-bar::before {
-      content: '🔍';
+      content: '';
       position: absolute;
       left: 0.8rem;
       top: 50%;
@@ -2669,20 +2698,399 @@
     }
 
     /* ════════════════════════════════════════════
-   FAMILY TREE
+   FAMILY TREE v5.0 (Immersive Full-Screen)
 ════════════════════════════════════════════ */
-    #tree-svg-wrap {
+    .tree-container {
       width: 100%;
-      height: 420px;
+      flex: 1;
+      min-height: 0;
       overflow: hidden;
-      border: 1px solid rgba(201, 168, 76, 0.1);
-      background: var(--ink);
+      background: radial-gradient(circle at center, var(--ink2) 0%, var(--ink) 100%);
+      position: relative;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .tree-overlay-top {
+      position: absolute;
+      top: 2rem; left: 2rem; right: 2rem;
+      z-index: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+    .tree-overlay-top > * { pointer-events: auto; }
+
+    .tree-overlay-title h1 {
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      font-weight: 300;
+      color: var(--ivory);
+      margin-bottom: 0.2rem;
+    }
+    .tree-overlay-title p {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.8;
+    }
+
+    .tree-overlay-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow);
+    }
+
+    .tree-overlay-bottom {
+      position: absolute;
+      bottom: 2rem; left: 2rem; right: 2rem;
+      z-index: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+    .tree-overlay-bottom > * { pointer-events: auto; }
+
+    .tree-controls-horizontal {
+      display: flex;
+      gap: 0.8rem;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      padding: 0.6rem;
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow);
+    }
+
+    .tree-legend-minimal {
+      display: flex;
+      gap: 1.5rem;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      padding: 0.6rem 1.5rem;
+      border-radius: 50px;
+      border: 1px solid var(--glass-border);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    .tree-node {
+      position: absolute;
+      width: 280px;
+      padding: 0;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      backdrop-filter: var(--glass-blur);
+      box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+      cursor: grab;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s, border-color 0.3s;
+      overflow: hidden;
+    }
+    .tree-node:active { cursor: grabbing; border-color: var(--gold); box-shadow: var(--shadow-gold); }
+
+    .tree-node::before {
+      content: '⋮⋮';
+      position: absolute;
+      top: 50%; left: 8px;
+      transform: translateY(-50%);
+      color: var(--muted2);
+      font-size: 1rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tree-node:hover::before { opacity: 1; }
+
+    .tree-node:hover {
+      transform: scale(1.04) translateY(-10px);
+      border-color: var(--gold);
+      box-shadow: 0 25px 60px rgba(212, 175, 55, 0.25);
+      z-index: 1000 !important;
+    }
+
+    .tree-node-inner {
+      padding: 1.2rem;
       position: relative;
     }
 
-    #family-svg {
-      width: 100%;
-      height: 100%;
+    .tree-node-bg-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--gold-d2) 0%, transparent 100%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .tree-node-photo {
+      width: 70px; height: 70px;
+      border-radius: 20px;
+      background: var(--ink3);
+      border: 2px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: var(--gold2);
+      flex-shrink: 0;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .tree-node:hover .tree-node-photo { transform: scale(1.1) rotate(2deg); }
+
+    .tree-node-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .tree-node-name {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--ivory);
+    }
+
+    .tree-node-role {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .tree-node-footer {
+      background: rgba(0,0,0,0.2);
+      padding: 0.8rem 1.2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tree-node-actions-v5 {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      opacity: 0;
+      transform: translateX(10px);
+      transition: all 0.3s;
+    }
+    .tree-node:hover .tree-node-actions-v5 {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .action-btn-circle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--ivory);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn-circle:hover {
+      background: var(--gold);
+      color: var(--ink);
+      border-color: var(--gold);
+      transform: scale(1.1);
+    }
+
+    .tree-line-v5 {
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 2;
+      opacity: 0.3;
+      transition: opacity 0.5s, stroke-width 0.3s;
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      animation: drawLine 2s forwards;
+    }
+    @keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+    .tree-line-v5.active {
+      opacity: 0.8;
+      stroke-width: 3;
+      filter: url(#line-glow);
+    }
+
+    .soul-particle {
+      fill: var(--gold);
+      filter: url(#line-glow);
+    }
+
+    /* Full-screen tree specifics */
+    #screen-app {
+      background: var(--ink);
+    }
+
+    .tree li {
+      float: left;
+      text-align: center;
+      list-style-type: none;
+      position: relative;
+      padding: 30px 10px 0 10px;
+    }
+
+    /* Vertical and Horizontal lines */
+    .tree li::before, .tree li::after {
+      content: '';
+      position: absolute; top: 0; right: 50%;
+      border-top: 2px solid rgba(201, 168, 76, 0.3);
+      width: 50%; height: 30px;
+    }
+    .tree li::after {
+      right: auto; left: 50%;
+      border-left: 2px solid rgba(201, 168, 76, 0.3);
+    }
+
+    /* Remove lines for only children */
+    .tree li:only-child::after, .tree li:only-child::before {
+      display: none;
+    }
+    .tree li:only-child { padding-top: 0; }
+
+    /* Remove left/right lines for first/last children */
+    .tree li:first-child::before, .tree li:last-child::after {
+      border: 0 none;
+    }
+
+    /* Rounded corners for lines */
+    .tree li:last-child::before {
+      border-right: 2px solid rgba(201, 168, 76, 0.3);
+      border-radius: 0 8px 0 0;
+    }
+    .tree li:first-child::after {
+      border-radius: 8px 0 0 0;
+    }
+
+    /* Downward lines from parents */
+    .tree ul ul::before {
+      content: '';
+      position: absolute; top: 0; left: 50%;
+      border-left: 2px solid rgba(201, 168, 76, 0.3);
+      width: 0; height: 30px;
+      transform: translateX(-1px); /* pixel perfect alignment */
+    }
+
+    /* The Node Card itself */
+    .tree-node {
+      background: rgba(15, 13, 22, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      padding: 12px 18px;
+      border-radius: 12px;
+      display: inline-block;
+      min-width: 140px;
+      position: relative;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .tree-node:hover {
+      transform: translateY(-4px);
+      border-color: rgba(201, 168, 76, 0.8);
+      box-shadow: 0 8px 25px rgba(201, 168, 76, 0.15);
+      z-index: 10;
+    }
+
+    /* Node Status Colors */
+    .tree-node.owner { border-color: var(--gold); background: rgba(201, 168, 76, 0.1); }
+    .tree-node.heir { border-color: var(--green); }
+    .tree-node.observer { border-color: var(--blue); }
+    .tree-node.trusted { border-color: var(--amber); }
+
+    .tree-node-name {
+      color: var(--ivory);
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      margin-bottom: 3px;
+    }
+    .tree-node-role {
+      color: var(--gold);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .tree-node-icon {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      background: var(--ink);
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      color: var(--gold);
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    /* Partner Wrapping logic */
+    .tree-partner-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 24px;
+      position: relative;
+    }
+    .tree-partner-link {
+      height: 2px;
+      width: 24px;
+      background: rgba(201, 168, 76, 0.3);
+      position: relative;
+    }
+    .tree-partner-link i {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--gold);
+      font-size: 0.9rem;
+      background: var(--ink);
+      padding: 2px;
+      border-radius: 50%;
+    }
+    
+    .tree-controls {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+    }
+    .tree-btn {
+      background: rgba(15, 13, 22, 0.8);
+      border: 1px solid rgba(201, 168, 76, 0.4);
+      color: var(--gold);
+      width: 36px; height: 36px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+    }
+    .tree-btn:hover {
+      background: var(--gold);
+      color: var(--ink);
     }
 
     /* ════════════════════════════════════════════
@@ -4189,42 +4597,42 @@
         <div class="l-features-grid">
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">01</div>
-            <div class="l-feat-icon">🔐</div>
+            <div class="l-feat-icon" style="color:var(--gold)"><i class="ph-light ph-lock-key"></i></div>
             <div class="l-feat-title">Цифровой сейф</div>
             <div class="l-feat-desc">Храните пароли, документы, завещания и самые сокровенные тайны под
               защитой AES‑256. Доступ только у вас — даже мы не можем прочесть.</div>
           </div>
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">02</div>
-            <div class="l-feat-icon">📖</div>
+            <div class="l-feat-icon"><i class="ph-light ph-book-open"></i></div>
             <div class="l-feat-title">Биография жизни</div>
             <div class="l-feat-desc">Записывайте историю своей жизни по главам. AI‑Мудрец помогает находить
               слова и структурировать воспоминания в литературный нарратив.</div>
           </div>
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">03</div>
-            <div class="l-feat-icon">💌</div>
+            <div class="l-feat-icon"><i class="ph-light ph-envelope-simple"></i></div>
             <div class="l-feat-title">Послания близким</div>
             <div class="l-feat-desc">Создавайте письма, которые откроются в нужный момент — на свадьбу,
               юбилей, после вашего ухода. Персональный капсулы времени.</div>
           </div>
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">04</div>
-            <div class="l-feat-icon">🌳</div>
+            <div class="l-feat-icon" style="color:var(--gold)"><i class="ph-light ph-tree-structure"></i></div>
             <div class="l-feat-title">Древо рода</div>
             <div class="l-feat-desc">Интерактивное генеалогическое дерево с разграничением прав доступа.
               Наследники, наблюдатели, доверенные лица — каждый видит своё.</div>
           </div>
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">05</div>
-            <div class="l-feat-icon">⏳</div>
+            <div class="l-feat-icon" style="color:var(--gold)"><i class="ph-light ph-hourglass"></i></div>
             <div class="l-feat-title">Страж жизни</div>
             <div class="l-feat-desc">Dead man's switch — умная система мониторинга активности. При
               неактивности автоматически передаёт наследство Душеприказчику.</div>
           </div>
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">06</div>
-            <div class="l-feat-icon">🤖</div>
+            <div class="l-feat-icon"><i class="ph-light ph-robot"></i></div>
             <div class="l-feat-title">AI Мудрец</div>
             <div class="l-feat-desc">Персональный AI‑наставник помогает формулировать мысли, анализирует
               тональность текстов и задаёт вопросы для биографии.</div>
@@ -4284,25 +4692,25 @@
           </div>
           <div class="l-security-cards">
             <div class="l-sec-card anim-reveal">
-              <div class="l-sec-icon">🔑</div>
+              <div class="l-sec-icon"><i class="ph-light ph-key"></i></div>
               <div class="l-sec-title">AES‑256‑GCM</div>
               <div class="l-sec-desc">Военный стандарт шифрования. Ключ создаётся из вашего пароля и
                 никогда не покидает устройство.</div>
             </div>
             <div class="l-sec-card anim-reveal">
-              <div class="l-sec-icon">🛡️</div>
+              <div class="l-sec-icon"><i class="ph-light ph-shield-check"></i></div>
               <div class="l-sec-title">Zero-Knowledge</div>
               <div class="l-sec-desc">Мы не видим ваши данные. Физически. Даже при взломе наших серверов —
                 данные бесполезны без вашего ключа.</div>
             </div>
             <div class="l-sec-card anim-reveal">
-              <div class="l-sec-icon">🌐</div>
+              <div class="l-sec-icon"><i class="ph-light ph-globe-hemisphere-west"></i></div>
               <div class="l-sec-title">Geo-Redundancy</div>
               <div class="l-sec-desc">3 дата-центра на разных континентах. Encrypted backups каждые 6
                 часов. SLA 99.9%.</div>
             </div>
             <div class="l-sec-card anim-reveal">
-              <div class="l-sec-icon">📋</div>
+              <div class="l-sec-icon"><i class="ph-light ph-clipboard"></i></div>
               <div class="l-sec-title">GDPR + Open Core</div>
               <div class="l-sec-desc">Полное соответствие GDPR. Криптографическое ядро — открытый код на
                 GitHub. Независимый аудит ежегодно.</div>
@@ -4365,10 +4773,10 @@
             <div class="l-plan-price">₸0</div>
             <div class="l-plan-period">навсегда бесплатно</div>
             <ul class="l-plan-features">
-              <li><span class="check">✓</span> До 5 тайн в сейфе</li>
-              <li><span class="check">✓</span> Биография (3 главы)</li>
-              <li><span class="check">✓</span> До 5 родственников</li>
-              <li><span class="check">✓</span> AI‑Мудрец (10 сообщ/мес)</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> До 5 тайн в сейфе</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> Биография (3 главы)</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> До 5 родственников</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> AI‑Мудрец (10 сообщ/мес)</li>
               <li><span class="x">—</span> Страж жизни</li>
               <li><span class="x">—</span> Экспорт данных</li>
             </ul>
@@ -4379,12 +4787,12 @@
             <div class="l-plan-price" id="price-keeper">₸2 490 <span>/мес</span></div>
             <div class="l-plan-period" id="period-keeper">при ежемесячной оплате</div>
             <ul class="l-plan-features">
-              <li><span class="check">✓</span> Неограниченный сейф</li>
-              <li><span class="check">✓</span> Биография без ограничений</li>
-              <li><span class="check">✓</span> До 50 родственников</li>
-              <li><span class="check">✓</span> AI‑Мудрец без ограничений</li>
-              <li><span class="check">✓</span> Страж жизни</li>
-              <li><span class="check">✓</span> Экспорт PDF + JSON</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> Неограниченный сейф</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> Биография без ограничений</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> До 50 родственников</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> AI‑Мудрец без ограничений</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> Страж жизни</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> Экспорт PDF + JSON</li>
             </ul>
             <button class="l-plan-btn" onclick="buyFromLanding('keeper')">Купить</button>
           </div>
@@ -4393,12 +4801,12 @@
             <div class="l-plan-price" id="price-legacy">₸5 990 <span>/мес</span></div>
             <div class="l-plan-period" id="period-legacy">при ежемесячной оплате</div>
             <ul class="l-plan-features">
-              <li><span class="check">✓</span> Всё из Хранителя</li>
-              <li><span class="check">✓</span> До 5 аккаунтов семьи</li>
-              <li><span class="check">✓</span> Видео-послания</li>
-              <li><span class="check">✓</span> Печатная книга жизни</li>
-              <li><span class="check">✓</span> Личный менеджер</li>
-              <li><span class="check">✓</span> Приоритетная поддержка</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> Всё из Хранителя</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> До 5 аккаунтов семьи</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> Видео-послания</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> Печатная книга жизни</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> Личный менеджер</li>
+              <li><span class="check"><i class="ph-light ph-check"></i></span> Приоритетная поддержка</li>
             </ul>
             <button class="l-plan-btn" onclick="buyFromLanding('legacy')">Купить</button>
           </div>
@@ -4501,7 +4909,7 @@
                 onkeydown="if(event.key==='Enter')doLogin()" style="padding-right: 2.5rem;">
               <button type="button" onclick="togglePassword('login-pass', this)"
                 style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 0.2rem;">
-                👁️
+                <i class="ph-light ph-eye"></i>
               </button>
             </div>
           </div>
@@ -4531,7 +4939,7 @@
                 onkeydown="if(event.key==='Enter')doRegister()" style="padding-right: 2.5rem;">
               <button type="button" onclick="togglePassword('reg-pass', this)"
                 style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: 0.2rem;">
-                👁️
+                <i class="ph-light ph-eye"></i>
               </button>
             </div>
           </div>
@@ -4582,7 +4990,7 @@
       </div>
       <div class="app-topbar-right">
         <button class="tb-btn" onclick="toggleNotif()" title="Уведомления">
-          🔔
+          <i class="ph-light ph-bell"></i>
           <span class="notif-badge" id="notif-count">3</span>
         </button>
         <div class="avatar-wrapper">
@@ -4615,29 +5023,29 @@
       <!-- FLOATING DOCK -->
       <nav class="floating-dock">
         <div class="dock-item active" onclick="goPage('dash')" id="nav-dash" data-tooltip="Второй мозг (Главная)"><span
-            class="dock-icon">🧠</span></div>
+            class="dock-icon"><i class="ph-light ph-brain"></i></span></div>
         <div class="dock-item" onclick="goPage('secrets')" id="nav-secrets" data-tooltip="Цифровой Сейф"><span
-            class="dock-icon">🔐</span><span class="dock-badge" id="badge-secrets">0</span></div>
+            class="dock-icon"><i class="ph-light ph-lock-key"></i></span><span class="dock-badge" id="badge-secrets">0</span></div>
         <div class="dock-item" onclick="goPage('bio')" id="nav-bio" data-tooltip="Лента Жизни"><span
-            class="dock-icon">📜</span></div>
+            class="dock-icon"><i class="ph-light ph-scroll"></i></span></div>
         <div class="dock-item" onclick="goPage('messages')" id="nav-messages" data-tooltip="Послания"><span
-            class="dock-icon">💌</span><span class="dock-badge" id="badge-msgs">0</span></div>
+            class="dock-icon"><i class="ph-light ph-envelope-simple"></i></span><span class="dock-badge" id="badge-msgs">0</span></div>
         <div class="dock-sep"></div>
         <div class="dock-item" onclick="goPage('relatives')" id="nav-relatives" data-tooltip="Семья"><span
-            class="dock-icon">👥</span></div>
+            class="dock-icon"><i class="ph-light ph-users"></i></span></div>
         <div class="dock-item" onclick="goPage('tree')" id="nav-tree" data-tooltip="Древо рода"><span
-            class="dock-icon">🌳</span></div>
+            class="dock-icon"><i class="ph-light ph-tree-structure"></i></span></div>
         <div class="dock-item" onclick="goPage('globe')" id="nav-globe" data-tooltip="Глобус"><span
-            class="dock-icon">🌍</span></div>
+            class="dock-icon"><i class="ph-light ph-globe"></i></span></div>
         <div class="dock-sep"></div>
         <div class="dock-item" onclick="goPage('switch')" id="nav-switch" data-tooltip="Страж Жизни"><span
-            class="dock-icon">⏳</span></div>
+            class="dock-icon"><i class="ph-light ph-hourglass"></i></span></div>
         <div class="dock-item" onclick="goPage('ai')" id="nav-ai" data-tooltip="AI Ассистент"><span
-            class="dock-icon">🤖</span></div>
+            class="dock-icon"><i class="ph-light ph-robot"></i></span></div>
         <div class="dock-item" onclick="goPage('subscription')" id="nav-subscription" data-tooltip="Мои подписки"><span
-            class="dock-icon">💎</span></div>
+            class="dock-icon"><i class="ph-light ph-diamond"></i></span></div>
         <div class="dock-item" onclick="goPage('settings')" id="nav-settings" data-tooltip="Настройки"><span
-            class="dock-icon">⚙️</span></div>
+            class="dock-icon"><i class="ph-light ph-gear"></i></span></div>
       </nav>
 
       <!-- MAIN CONTENT -->
@@ -4679,7 +5087,7 @@
               <div class="section-label">Последняя активность</div>
               <div id="dash-activity">
                 <div class="empty">
-                  <div class="empty-icon">📋</div>
+                  <div class="empty-icon"><i class="ph-light ph-clipboard"></i></div>
                   <div class="empty-text">Нет активности</div>
                 </div>
               </div>
@@ -4694,30 +5102,30 @@
                 <div class="brain-line" style="width:120px; top:50%; left:50%; transform: rotate(270deg);"></div>
 
                 <div class="brain-node brain-node-center" onclick="goPage('settings')">
-                  <div class="brain-center-icon">🧠</div>
+                  <div class="brain-center-icon"><i class="ph-light ph-brain"></i></div>
                   <div class="brain-label">Ваше<br>Наследие</div>
                 </div>
                 <div class="brain-node brain-node-item" style="top:20%; left:25%;" onclick="openModal('modal-secret')">
-                  <div class="brain-icon">🔐</div>
+                  <div class="brain-icon"><i class="ph-light ph-lock-key"></i></div>
                   <div class="brain-label">Сейф</div>
                 </div>
                 <div class="brain-node brain-node-item" style="bottom:15%; left:30%;" onclick="openModal('modal-bio')">
-                  <div class="brain-icon">📜</div>
+                  <div class="brain-icon"><i class="ph-light ph-scroll"></i></div>
                   <div class="brain-label">Жизнь</div>
                 </div>
                 <div class="brain-node brain-node-item" style="top:15%; right:25%;"
                   onclick="openModal('modal-relative')">
-                  <div class="brain-icon">👥</div>
+                  <div class="brain-icon"><i class="ph-light ph-users"></i></div>
                   <div class="brain-label">Семья</div>
                 </div>
                 <div class="brain-node brain-node-item" style="bottom:25%; right:20%;"
                   onclick="openModal('modal-message')">
-                  <div class="brain-icon">💌</div>
+                  <div class="brain-icon"><i class="ph-light ph-envelope-simple"></i></div>
                   <div class="brain-label">Письма</div>
                 </div>
                 <div class="brain-node brain-node-item" style="top:5%; left:50%; transform: translateX(-50%);"
                   onclick="goPage('ai')">
-                  <div class="brain-icon">🤖</div>
+                  <div class="brain-icon"><i class="ph-light ph-robot"></i></div>
                   <div class="brain-label">AI Мудрец</div>
                 </div>
               </div>
@@ -4744,7 +5152,7 @@
             <!-- Filled by JS -->
           </div>
 
-          <!-- 💳 VISUAL PAYMENT BLOCK (Integrated) -->
+          <!-- <i class="ph-light ph-credit-card"></i> VISUAL PAYMENT BLOCK (Integrated) -->
           <div id="inline-payment-block" style="margin-top: 3rem; display: none; animation: fadeUp 0.5s forwards;">
             <div class="section-label">Оформление подписки</div>
             <div class="card"
@@ -4754,7 +5162,7 @@
                 <!-- Left: 3D Card Preview -->
                 <div>
                   <div class="credit-card-viz" id="card-viz-inline" style="margin-bottom: 2rem;">
-                    <div class="card-viz-type" id="card-viz-type-inline">💳</div>
+                    <div class="card-viz-type" id="card-viz-type-inline"><i class="ph-light ph-credit-card"></i></div>
                     <div class="card-viz-chip"></div>
                     <div class="card-viz-number" id="card-viz-number-inline">•••• •••• •••• ••••</div>
                     <div class="card-viz-bottom">
@@ -4833,7 +5241,7 @@
 
           <div class="card" style="margin-top: 2rem; background: var(--ink2); border: 1px solid rgba(201,168,76,0.1);">
             <div style="display:flex; align-items:center; gap:1.5rem; padding:0.5rem">
-              <div style="font-size:2rem">🛡️</div>
+              <div style="font-size:2rem"><i class="ph-light ph-shield-check"></i></div>
               <div>
                 <div style="font-weight:500; color:var(--gold2); margin-bottom:0.3rem">Безопасность
                   платежей</div>
@@ -4859,7 +5267,7 @@
               <button class="btn btn-primary-sm" onclick="openModal('modal-secret')">+ Добавить</button>
             </div>
           </div>
-          <div class="search-bar"><input type="text" placeholder="Поиск по тайнам..."
+          <div class="search-bar"><i class="ph-light ph-magnifying-glass" style="position:absolute; left:0.8rem; top:50%; transform:translateY(-50%); font-size:1.1rem; color:var(--muted);"></i><input type="text" placeholder="Поиск по тайнам..."
               oninput="searchSecrets(this.value)" id="secret-search"></div>
           <div id="secrets-list"></div>
         </div>
@@ -4872,7 +5280,7 @@
               <div class="page-sub">Ваша биография для потомков</div>
             </div>
             <div class="page-actions">
-              <button class="btn btn-ghost" onclick="goPage('ai')">✍️ Помощь AI</button>
+              <button class="btn btn-ghost" onclick="goPage('ai')"><i class="ph-light ph-pencil-simple"></i> Помощь AI</button>
               <button class="btn btn-primary-sm" onclick="openModal('modal-bio')">+ Новая глава</button>
             </div>
           </div>
@@ -4905,29 +5313,68 @@
               <button class="btn btn-primary-sm" onclick="openModal('modal-relative')">+ Добавить</button>
             </div>
           </div>
-          <div class="search-bar"><input type="text" placeholder="Поиск родственников..."
+          <div class="search-bar"><i class="ph-light ph-magnifying-glass" style="position:absolute; left:0.8rem; top:50%; transform:translateY(-50%); font-size:1.1rem; color:var(--muted);"></i><input type="text" placeholder="Поиск родственников..."
               oninput="searchRelatives(this.value)"></div>
           <div id="relatives-list"></div>
         </div>
 
-        <!-- ── FAMILY TREE ── -->
+        <!-- ── FAMILY TREE v5.2 (Restored & Fixed) ── -->
         <div class="page" id="page-tree">
-          <div class="page-header">
-            <div>
-              <div class="page-title">Древо <em>рода</em></div>
-              <div class="page-sub">Интерактивная карта семейных связей</div>
+          <div class="tree-overlay-top">
+            <div class="tree-overlay-title">
+              <h1>Древо <em>рода</em></h1>
+              <p>Интерактивное наследие</p>
             </div>
-            <div class="page-actions">
-              <button class="btn btn-ghost btn-sm" onclick="filterTreePage('all')">Все</button>
-              <button class="btn btn-ghost btn-sm" onclick="filterTreePage('heir')">Наследники</button>
-              <button class="btn btn-ghost btn-sm" onclick="filterTreePage('observer')">Наблюдатели</button>
+            <div class="tree-overlay-actions">
+              <div class="search-mini">
+                <i class="ph-light ph-magnifying-glass"></i>
+                <input type="text" placeholder="Поиск..." oninput="treeSearch(this.value)">
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="toggleEditMode()" id="tree-edit-mode-btn">
+                <i class="ph-light ph-pencil"></i> Режим правок
+              </button>
               <button class="btn btn-primary-sm" onclick="openModal('modal-relative')">+ Добавить</button>
             </div>
           </div>
-          <div id="tree-svg-wrap"><svg id="family-svg" viewBox="0 0 1100 420"></svg></div>
-          <div style="margin-top:1.2rem">
-            <div class="section-label">Список</div>
-            <div id="relatives-list-tree"></div>
+
+          <div class="tree-container" id="family-tree-container" onmousedown="startPan(event)">
+            <!-- Dynamic particles background -->
+            <canvas id="tree-bg-particles" style="position: absolute; inset: 0; pointer-events: none; opacity: 0.2;"></canvas>
+            
+            <div class="tree-canvas" id="tree-canvas">
+              <svg id="tree-svg-layer">
+                <defs>
+                  <filter id="line-glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+              </svg>
+              <div class="tree-nodes-layer" id="tree-nodes-layer"></div>
+            </div>
+
+            <div class="tree-overlay-bottom">
+              <div class="tree-legend-minimal">
+                <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> Семья</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Связи</div>
+              </div>
+              <div class="tree-controls-horizontal">
+                <div class="tree-btn" onclick="treeZoom(1.2)" title="Приблизить"><i class="ph-light ph-plus"></i></div>
+                <div class="tree-btn" onclick="treeZoom(0.8)" title="Отдалить"><i class="ph-light ph-minus"></i></div>
+                <div class="tree-btn" onclick="treeReset()" title="Центрировать"><i class="ph-light ph-arrows-out"></i></div>
+                <div class="tree-btn" onclick="toggleTheme()" title="Сменить тему"><i class="ph-light ph-moon-stars" id="theme-icon"></i></div>
+                <div class="tree-btn" onclick="exportTreeJSON()" title="Экспорт"><i class="ph-light ph-download-simple"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+          <!-- Side Panel for Profile Details -->
+          <div class="tree-side-panel" id="tree-side-panel">
+            <button class="side-panel-close" onclick="closeSidePanel()">✕</button>
+            <div id="side-panel-content">
+              <!-- Content injected via JS -->
+            </div>
           </div>
         </div>
 
@@ -4943,7 +5390,7 @@
           </div>
           <div id="globe-wrap">
             <canvas id="globe-c"></canvas>
-            <div class="globe-overlay">🌍 Перетащите для вращения · колесо для зума</div>
+            <div class="globe-overlay"><i class="ph-light ph-globe"></i> Перетащите для вращения · колесо для зума</div>
             <div class="globe-stats">
               <div class="globe-stats-val" id="globe-marker-count">0</div>
               <div class="globe-stats-lbl">отметок</div>
@@ -4957,7 +5404,7 @@
               <div class="globe-ctrl-btn" onclick="globeZoom(1.2)" title="Приблизить">+</div>
               <div class="globe-ctrl-btn" onclick="globeZoom(0.8)" title="Отдалить">−</div>
               <div class="globe-ctrl-btn" onclick="globeReset()" title="Сбросить">↺</div>
-              <div class="globe-ctrl-btn" onclick="toggleGlobeAuto()" id="globe-auto-btn" title="Авто-вращение">⏸</div>
+              <div class="globe-ctrl-btn" onclick="toggleGlobeAuto()" id="globe-auto-btn" title="Авто-вращение"><i class="ph-light ph-pause"></i></div>
             </div>
             <div class="globe-legend">
               <div class="globe-legend-item">
@@ -5004,7 +5451,7 @@
                   <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,90)">90
                     дн</button>
                 </div>
-                <button class="btn-gold" onclick="doCheckin()">✓ Подтвердить жизнь</button>
+                <button class="btn-gold" onclick="doCheckin()"><i class="ph-light ph-check"></i> Подтвердить жизнь</button>
               </div>
             </div>
             <div>
@@ -5050,21 +5497,21 @@
             <div class="section-label">Как работает</div>
             <div class="card-grid grid-3">
               <div class="card">
-                <div style="font-size:1.5rem;margin-bottom:0.7rem">✅</div>
+                <div style="font-size:1.5rem;margin-bottom:0.7rem"><i class="ph-light ph-check-circle"></i></div>
                 <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">
                   Активен</div>
                 <div style="font-size:0.8rem;color:var(--muted)">Вы заходите в приложение в пределах
                   выбранного периода.</div>
               </div>
               <div class="card">
-                <div style="font-size:1.5rem;margin-bottom:0.7rem">⚠️</div>
+                <div style="font-size:1.5rem;margin-bottom:0.7rem"><i class="ph-light ph-warning"></i></div>
                 <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">
                   Предупреждение</div>
                 <div style="font-size:0.8rem;color:var(--muted)">Период истёк. Система отправляет Push +
                   Email + SMS.</div>
               </div>
               <div class="card">
-                <div style="font-size:1.5rem;margin-bottom:0.7rem">🔓</div>
+                <div style="font-size:1.5rem;margin-bottom:0.7rem"><i class="ph-light ph-lock-open"></i></div>
                 <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">
                   Передача</div>
                 <div style="font-size:0.8rem;color:var(--muted)">72 часа без ответа → Душеприказчик
@@ -5107,42 +5554,42 @@
               <div class="section-label">Быстрые подсказки</div>
               <div style="display:flex;flex-direction:column;gap:0.5rem">
                 <div class="list-item" onclick="askAi('Помоги написать биографию — с чего начать?')">
-                  <div class="list-icon">📝</div>
+                  <div class="list-icon"><i class="ph-light ph-pencil-simple"></i></div>
                   <div class="list-meta">
                     <div class="list-title">Написать биографию</div>
                     <div class="list-sub">С чего начать?</div>
                   </div>
                 </div>
                 <div class="list-item" onclick="askAi('Как правильно сформулировать послание детям?')">
-                  <div class="list-icon">💌</div>
+                  <div class="list-icon"><i class="ph-light ph-envelope-simple"></i></div>
                   <div class="list-meta">
                     <div class="list-title">Послание детям</div>
                     <div class="list-sub">Как написать правильно</div>
                   </div>
                 </div>
                 <div class="list-item" onclick="askAi('Я в ссоре с близким. Хочу оставить важное сообщение. Помоги.')">
-                  <div class="list-icon">🕊️</div>
+                  <div class="list-icon"><i class="ph-light ph-paper-plane"></i>️</div>
                   <div class="list-meta">
                     <div class="list-title">Примирение</div>
                     <div class="list-sub">Трудный разговор</div>
                   </div>
                 </div>
                 <div class="list-item" onclick="askAi('Какие советы оставить детям?')">
-                  <div class="list-icon">⭐</div>
+                  <div class="list-icon"><i class="ph-light ph-star"></i></div>
                   <div class="list-meta">
                     <div class="list-title">Советы для детей</div>
                     <div class="list-sub">Мудрость на годы</div>
                   </div>
                 </div>
                 <div class="list-item" onclick="askAi('Задай мне вопросы для составления истории жизни')">
-                  <div class="list-icon">🗺️</div>
+                  <div class="list-icon"><i class="ph-light ph-map-trifold"></i>️</div>
                   <div class="list-meta">
                     <div class="list-title">История жизни</div>
                     <div class="list-sub">Вопросы для воспоминаний</div>
                   </div>
                 </div>
                 <div class="list-item" onclick="askAi('Проанализируй тональность текста и помоги смягчить')">
-                  <div class="list-icon">🎭</div>
+                  <div class="list-icon"><i class="ph-light ph-mask-happy"></i></div>
                   <div class="list-meta">
                     <div class="list-title">Анализ тональности</div>
                     <div class="list-sub">Смягчить или усилить</div>
@@ -5161,8 +5608,8 @@
               <div class="page-sub">Управление локальным хранилищем и подключение внешней БД</div>
             </div>
             <div class="page-actions">
-              <button class="btn btn-ghost" onclick="testDbConnection()">🔌 Проверить связь</button>
-              <button class="btn btn-ghost" onclick="exportData()">⬇ Экспорт</button>
+              <button class="btn btn-ghost" onclick="testDbConnection()"><i class="ph-light ph-plug"></i> Проверить связь</button>
+              <button class="btn btn-ghost" onclick="exportData()"><i class="ph-light ph-arrow-down"></i> Экспорт</button>
               <button class="btn btn-primary-sm" onclick="openModal('modal-db-connect')">Подключить
                 БД</button>
             </div>
@@ -5297,8 +5744,8 @@
               <div class="section-label" style="margin-top:1rem">Данные</div>
               <div class="card">
                 <div style="display:flex;gap:0.7rem;flex-wrap:wrap">
-                  <button class="btn btn-ghost" onclick="exportData()">⬇ Экспорт JSON</button>
-                  <button class="btn btn-ghost" onclick="exportPDF()">⬇ Экспорт PDF</button>
+                  <button class="btn btn-ghost" onclick="exportData()"><i class="ph-light ph-arrow-down"></i> Экспорт JSON</button>
+                  <button class="btn btn-ghost" onclick="exportPDF()"><i class="ph-light ph-arrow-down"></i> Экспорт PDF</button>
                   <button class="btn btn-danger" onclick="confirmDelete()">Удалить аккаунт</button>
                 </div>
               </div>
@@ -5317,13 +5764,13 @@
               <button class="btn btn-ghost btn-sm" onclick="refreshConnections()">↻ Обновить</button>
               <button class="btn btn-ghost" onclick="openModal('modal-join-tree')">⊕ Войти в
                 дерево</button>
-              <button class="btn btn-primary-sm" onclick="shareMyCode()">⬆ Мой код</button>
+              <button class="btn btn-primary-sm" onclick="shareMyCode()"><i class="ph-light ph-arrow-up"></i> Мой код</button>
             </div>
           </div>
 
           <!-- Карточка-приглашение -->
           <div class="conn-invite-wrap" id="conn-invite-card">
-            <div class="conn-invite-icon">🔗</div>
+            <div class="conn-invite-icon"><i class="ph-light ph-link"></i></div>
             <div class="conn-invite-text">
               <div class="conn-invite-title">Ваш персональный код приглашения</div>
               <div class="conn-code-badge" id="my-conn-code">SK-••••••</div>
@@ -5332,8 +5779,8 @@
                 принять или отклонить.</div>
             </div>
             <div class="conn-invite-actions">
-              <button class="btn btn-primary-sm" onclick="copyMyCode()">📋 Копировать</button>
-              <button class="btn btn-ghost" onclick="shareMyCode()">⬆ Поделиться</button>
+              <button class="btn btn-primary-sm" onclick="copyMyCode()"><i class="ph-light ph-copy"></i> Копировать</button>
+              <button class="btn btn-ghost" onclick="shareMyCode()"><i class="ph-light ph-arrow-up"></i> Поделиться</button>
             </div>
           </div>
 
@@ -5367,7 +5814,7 @@
           <div id="conn-panel-added-me">
             <div id="conn-list-added-me">
               <div class="empty">
-                <div class="empty-icon">🌳</div>
+                <div class="empty-icon"><i class="ph-light ph-tree-structure"></i></div>
                 <div class="empty-text">Никто ещё не добавил вас</div>
                 <div class="empty-sub">Поделитесь кодом выше — родственники смогут включить вас в своё
                   дерево</div>
@@ -5379,7 +5826,7 @@
           <div id="conn-panel-i-added" style="display:none">
             <div id="conn-list-i-added">
               <div class="empty">
-                <div class="empty-icon">👥</div>
+                <div class="empty-icon"><i class="ph-light ph-users"></i></div>
                 <div class="empty-text">Вы ещё никого не добавили</div>
                 <div class="empty-sub">Добавляйте родственников через раздел «Родственники» → они
                   появятся здесь</div>
@@ -5402,7 +5849,7 @@
             </div>
             <div id="conn-list-pending">
               <div class="empty">
-                <div class="empty-icon">✉️</div>
+                <div class="empty-icon"><i class="ph-light ph-envelope-simple"></i>️</div>
                 <div class="empty-text">Нет входящих запросов</div>
                 <div class="empty-sub">Когда кто-то введёт ваш код — запрос появится здесь</div>
               </div>
@@ -5417,26 +5864,26 @@
     <nav class="mob-bottom-nav" id="mob-bottom-nav">
       <div class="mob-nav-row">
         <button class="mob-nav-btn active" id="mob-btn-dash" onclick="goPage('dash');mobSetActive('dash')">
-          <span class="mob-nav-icon">🏠</span>
+          <span class="mob-nav-icon"><i class="ph-light ph-house"></i></span>
           <span class="mob-nav-label">Главная</span>
         </button>
         <button class="mob-nav-btn" id="mob-btn-secrets" onclick="goPage('secrets');mobSetActive('secrets')">
-          <span class="mob-nav-icon">🔐</span>
+          <span class="mob-nav-icon"><i class="ph-light ph-lock-key"></i></span>
           <span class="mob-nav-label">Сейф</span>
           <span class="mob-nav-dot" id="mob-dot-secrets"></span>
         </button>
         <button class="mob-nav-btn" id="mob-btn-connections"
           onclick="goPage('connections');mobSetActive('connections')">
-          <span class="mob-nav-icon">🔗</span>
+          <span class="mob-nav-icon"><i class="ph-light ph-link"></i></span>
           <span class="mob-nav-label">Связи</span>
           <span class="mob-nav-dot" id="mob-dot-connections"></span>
         </button>
         <button class="mob-nav-btn" id="mob-btn-tree" onclick="goPage('tree');mobSetActive('tree')">
-          <span class="mob-nav-icon">🌳</span>
+          <span class="mob-nav-icon"><i class="ph-light ph-tree-structure"></i></span>
           <span class="mob-nav-label">Древо</span>
         </button>
         <button class="mob-nav-btn" id="mob-btn-more" onclick="toggleMobDrawer()">
-          <span class="mob-nav-icon">☰</span>
+          <span class="mob-nav-icon"><i class="ph-light ph-list"></i></span>
           <span class="mob-nav-label">Ещё</span>
         </button>
       </div>
@@ -5448,34 +5895,34 @@
       <div class="mob-drawer-handle"></div>
       <div class="mob-drawer-grid">
         <button class="mob-drawer-item" onclick="goPage('bio');mobSetActive('bio');closeMobDrawer()">
-          <span class="mob-drawer-icon">📖</span><span class="mob-drawer-label">Биография</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-book-open"></i></span><span class="mob-drawer-label">Биография</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('messages');mobSetActive('messages');closeMobDrawer()">
-          <span class="mob-drawer-icon">💌</span><span class="mob-drawer-label">Послания</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-envelope-simple"></i></span><span class="mob-drawer-label">Послания</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('relatives');mobSetActive('relatives');closeMobDrawer()">
-          <span class="mob-drawer-icon">👥</span><span class="mob-drawer-label">Семья</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-users"></i></span><span class="mob-drawer-label">Семья</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('globe');mobSetActive('globe');closeMobDrawer()">
-          <span class="mob-drawer-icon">🌍</span><span class="mob-drawer-label">Глобус</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-globe"></i></span><span class="mob-drawer-label">Глобус</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('switch');mobSetActive('switch');closeMobDrawer()">
-          <span class="mob-drawer-icon">⏳</span><span class="mob-drawer-label">Страж</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-hourglass"></i></span><span class="mob-drawer-label">Страж</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('ai');mobSetActive('ai');closeMobDrawer()">
-          <span class="mob-drawer-icon">🤖</span><span class="mob-drawer-label">Мудрец</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-robot"></i></span><span class="mob-drawer-label">Мудрец</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('settings');mobSetActive('settings');closeMobDrawer()">
-          <span class="mob-drawer-icon">⚙️</span><span class="mob-drawer-label">Настройки</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-gear"></i></span><span class="mob-drawer-label">Настройки</span>
         </button>
         <button class="mob-drawer-item" onclick="doCheckin();closeMobDrawer()">
-          <span class="mob-drawer-icon">✅</span><span class="mob-drawer-label">Я жив</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-check-circle"></i></span><span class="mob-drawer-label">Я жив</span>
         </button>
       </div>
       <div
         style="margin-top:0.8rem;border-top:1px solid rgba(201,168,76,0.08);padding-top:0.8rem;display:flex;justify-content:center">
         <button onclick="doLogout()"
-          style="font-size:0.72rem;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--sans);letter-spacing:0.1em">🚪
+          style="font-size:0.72rem;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--sans);letter-spacing:0.1em"><i class="ph-light ph-door"></i>
           Выйти из аккаунта</button>
       </div>
     </div>
@@ -5501,41 +5948,41 @@
         <div class="field"><label>Название</label><input type="text" id="s-title" placeholder="Название секрета"></div>
         <div class="field"><label>Категория</label>
           <select id="s-cat">
-            <option value="password">🔑 Пароль</option>
-            <option value="document">📄 Документ</option>
-            <option value="personal">💫 Личное</option>
-            <option value="financial">💰 Финансы</option>
-            <option value="medical">🏥 Медицина</option>
-            <option value="property">🏠 Имущество</option>
+            <option value="password">Пароль</option>
+            <option value="document">Документ</option>
+            <option value="personal">Личное</option>
+            <option value="financial">Финансы</option>
+            <option value="medical">Медицина</option>
+            <option value="property">Имущество</option>
           </select>
         </div>
         <div class="field"><label>Содержимое</label><textarea id="s-content"
             placeholder="Введите текст, пароль или описание..."></textarea></div>
         <div class="field"><label>Доступ</label>
           <select id="s-access">
-            <option value="private">🔒 Только я</option>
-            <option value="after_death">💀 После смерти</option>
-            <option value="heir">👑 Наследникам</option>
-            <option value="public">👁️ Всем</option>
+            <option value="private">Только я</option>
+            <option value="after_death">После смерти</option>
+            <option value="heir">Наследникам</option>
+            <option value="public">Всем</option>
           </select>
         </div>
         <div class="field">
           <label>Облако воспоминаний <span style="font-size:0.7rem; color:var(--muted)">(Фото, Аудио, Видео)</span></label>
           <div class="soul-cloud-upload">
              <input type="file" id="s-media-input" accept="image/*,audio/*,video/*" multiple style="display:none" onchange="handleSecretMedia(this)">
-             <button class="btn btn-ghost" onclick="document.getElementById('s-media-input').click()" style="width:100%; border-style:dashed; border-color:var(--gold-d);">☁️ Загрузить в облако...</button>
+             <button class="btn btn-ghost" onclick="document.getElementById('s-media-input').click()" style="width:100%; border-style:dashed; border-color:var(--gold-d);"><i class="ph-light ph-cloud-arrow-up"></i> Загрузить в облако...</button>
              <div id="s-media-gallery" class="media-gallery-preview" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
           </div>
           <input type="hidden" id="s-media-data-json" value="[]">
         </div>
         <div class="field" style="margin-top:1rem; padding:1rem; background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.1); border-radius:12px;">
           <label style="color:var(--gold); display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-            🛡️ Мастер-пароль тайны <span style="font-size:0.65rem; font-weight:normal; opacity:0.7;">(Опционально)</span>
+            <i class="ph-light ph-shield-check"></i> Мастер-пароль тайны <span style="font-size:0.65rem; font-weight:normal; opacity:0.7;">(Опционально)</span>
           </label>
           <input type="password" id="s-vault-pass" placeholder="Дополнительная защита..." 
             style="width:100%; background:var(--ink2); border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; color:var(--ivory); outline:none;">
           <div style="font-size:0.65rem; color:var(--muted); margin-top:6px; line-height:1.4;">
-            ⚠️ Если вы установите этот пароль, тайна будет зашифрована ДВАЖДЫ. Без этого пароля её невозможно будет прочесть даже имея доступ к аккаунту. <b>Если вы его забудете, данные будут потеряны навсегда.</b>
+            <i class="ph-light ph-warning"></i> Если вы установите этот пароль, тайна будет зашифрована ДВАЖДЫ. Без этого пароля её невозможно будет прочесть даже имея доступ к аккаунту. <b>Если вы его забудете, данные будут потеряны навсегда.</b>
           </div>
         </div>
       </div>
@@ -5563,7 +6010,7 @@
           <label>Медиа-архив главы <span style="font-size:0.7rem; color:var(--muted)">(Альбом фото и видео)</span></label>
           <div class="soul-cloud-upload">
              <input type="file" id="b-media-input" accept="image/*,audio/*,video/*" multiple style="display:none" onchange="handleBioMedia(this)">
-             <button class="btn btn-ghost" onclick="document.getElementById('b-media-input').click()" style="width:100%; border-style:dashed; border-color:var(--gold-d);">🎞️ Добавить медиафайлы...</button>
+             <button class="btn btn-ghost" onclick="document.getElementById('b-media-input').click()" style="width:100%; border-style:dashed; border-color:var(--gold-d);"><i class="ph-light ph-film-strip"></i> Добавить медиафайлы...</button>
              <div id="b-media-gallery" class="media-gallery-preview" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
           </div>
           <input type="hidden" id="b-media-data-json" value="[]">
@@ -5591,11 +6038,11 @@
             style="min-height:140px"></textarea></div>
         <div class="field"><label>Когда открыть</label>
           <select id="m-trigger">
-            <option value="death">💀 После моего ухода</option>
-            <option value="date">📅 В конкретную дату</option>
-            <option value="wedding">💍 На свадьбу</option>
-            <option value="birthday">🎂 На юбилей</option>
-            <option value="now">📬 Сразу</option>
+            <option value="death">После моего ухода</option>
+            <option value="date">В конкретную дату</option>
+            <option value="wedding">На свадьбу</option>
+            <option value="birthday">На юбилей</option>
+            <option value="now">Сразу</option>
           </select>
         </div>
       </div>
@@ -5606,50 +6053,106 @@
     </div>
   </div>
 
-  <!-- Relative Modal -->
+  <!-- Relative Modal v3.0 (Advanced Genealogy) -->
   <div class="modal-overlay" id="modal-relative">
-    <div class="modal">
+    <div class="modal" style="max-width: 600px;">
       <div class="modal-head">
-        <div class="modal-title">Добавить родственника</div><button class="modal-close"
-          onclick="closeModal('modal-relative')">✕</button>
+        <div class="modal-title" id="r-modal-title">Профиль члена рода</div>
+        <button class="modal-close" onclick="closeModal('modal-relative')">✕</button>
       </div>
       <div class="modal-body">
-        <div class="field"><label>Имя</label><input type="text" id="r-name" placeholder="Полное имя"></div>
+        <input type="hidden" id="r-id" value="">
+        
+        <div class="field"><label>Полное имя</label><input type="text" id="r-name" placeholder="Фамилия Имя Отчество"></div>
+        
         <div class="field-row">
-          <div class="field"><label>Родство</label><input type="text" id="r-rel" placeholder="Сын, дочь, жена..."></div>
-          <div class="field"><label>Доступ</label>
+          <div class="field">
+            <label>Отношение / Роль</label>
+            <input type="text" id="r-rel" placeholder="Брат, Жена, Дедушка, Друг...">
+          </div>
+          <div class="field">
+            <label>Статус в роду</label>
             <select id="r-access">
-              <option value="heir">👑 Наследник</option>
-              <option value="observer">👁️ Наблюдатель</option>
-              <option value="trusted">🤝 Доверенный</option>
-              <option value="blocked">🚫 Заблокирован</option>
+              <option value="observer">Наблюдатель</option>
+              <option value="heir">Наследник</option>
+              <option value="trusted">Доверенный</option>
+              <option value="blocked">Заблокирован</option>
             </select>
           </div>
         </div>
-        <div class="field"><label>Email</label><input type="email" id="r-email" placeholder="email@example.com">
-        </div>
-        <div class="field city-search-wrap">
-          <label>Город проживания <span style="color:var(--muted);font-size:0.65rem;font-weight:300">(введите
-              для автопоиска)</span></label>
-          <input type="text" id="r-city" placeholder="Москва, Алматы, Лондон..." autocomplete="off"
-            oninput="onCityInput(this.value)">
-          <div class="city-suggestions" id="city-suggestions"></div>
-          <div class="geocode-loading" id="geocode-loading">🔍 Поиск координат...</div>
+
+        <div class="section-label" style="margin-top:1rem">Связи в древе</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Отец (в системе)</label>
+            <select id="r-fatherId">
+              <option value="">Не указан</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Мать (в системе)</label>
+            <select id="r-motherId">
+              <option value="">Не указана</option>
+            </select>
+          </div>
         </div>
         <div class="field-row">
-          <div class="field"><label>Широта</label><input type="number" id="r-lat" placeholder="51.18" step="0.0001">
+          <div class="field">
+            <label>Супруг(а)</label>
+            <select id="r-spouseId">
+              <option value="">Нет</option>
+            </select>
           </div>
-          <div class="field"><label>Долгота</label><input type="number" id="r-lon" placeholder="71.45" step="0.0001">
+          <div class="field">
+            <label>Тип связи</label>
+            <select id="r-relType">
+              <option value="blood">Кровное родство</option>
+              <option value="marriage">Брак</option>
+              <option value="friend">Дружба</option>
+              <option value="other">Другое</option>
+            </select>
           </div>
         </div>
-        <div
-          style="font-size:0.75rem;color:var(--muted);padding:0.6rem 0.8rem;background:var(--ink3);border:1px solid rgba(201,168,76,0.06);margin-top:0.3rem">
-          💡 Введите город — координаты заполнятся автоматически. Или задайте вручную.
+        
+        <div class="field">
+          <label>Биография / История</label>
+          <textarea id="r-desc" rows="4" placeholder="Напишите историю этого человека, важные даты, достижения..." style="width:100%; background:rgba(15,13,22,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; color:var(--ivory); font-family:var(--sans); resize:vertical;"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Фотография профиля</label>
+          <div style="display:flex; gap:15px; align-items:center;">
+            <div id="r-photo-preview" class="tree-node-avatar" style="width:64px; height:64px; border-radius:16px; font-size:1.5rem;">?</div>
+            <div style="flex:1">
+              <input type="file" id="r-photo-input" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('r-photo-input').click()">
+                <i class="ph-light ph-upload"></i> Выбрать фото
+              </button>
+              <div style="font-size:0.65rem; color:var(--muted); margin-top:5px;">Рекомендуется квадратное фото</div>
+            </div>
+            <input type="hidden" id="r-photo-data" value="">
+          </div>
+        </div>
+
+        <div class="field"><label>Email (для уведомлений)</label><input type="email" id="r-email" placeholder="email@example.com"></div>
+        
+        <div class="field city-search-wrap">
+          <label>Местоположение</label>
+          <input type="text" id="r-city" placeholder="Город..." autocomplete="off" oninput="onCityInput(this.value)">
+          <div class="city-suggestions" id="city-suggestions"></div>
+          <div class="geocode-loading" id="geocode-loading"><i class="ph-light ph-magnifying-glass"></i> Поиск координат...</div>
+        </div>
+        <div class="field-row" style="display:none;">
+          <input type="number" id="r-lat" step="0.0001">
+          <input type="number" id="r-lon" step="0.0001">
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="closeModal('modal-relative')">Отмена</button>
-        <button class="btn btn-primary-sm" onclick="saveRelative()">Добавить</button>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn btn-danger-sm" id="r-btn-delete" onclick="deleteRelativeFromModal()" style="display:none;"><i class="ph-light ph-trash"></i> Удалить</button>
+        <div style="display:flex; gap:10px; margin-left:auto;">
+          <button class="btn btn-ghost" onclick="closeModal('modal-relative')">Отмена</button>
+          <button class="btn btn-primary-sm" onclick="saveRelative()">Сохранить профиль</button>
+        </div>
       </div>
     </div>
   </div>
@@ -5683,7 +6186,7 @@
         </div>
         <div
           style="font-size:0.78rem;color:var(--muted);padding:0.8rem;background:var(--ink3);border:1px solid rgba(201,168,76,0.08);line-height:1.7">
-          💡 Для локальной разработки используйте PostgreSQL или SQLite. Подключение эмулируется в браузерной
+          <i class="ph-light ph-lightbulb"></i> Для локальной разработки используйте PostgreSQL или SQLite. Подключение эмулируется в браузерной
           демо-версии.
         </div>
       </div>
@@ -5881,7 +6384,7 @@
             mode: CryptoJS.mode.CBC,
             padding: CryptoJS.pad.Pkcs7
           });
-          return '🔒' + encrypted.toString(); // Add marker
+          return '<i class="ph-light ph-lock"></i>' + encrypted.toString(); // Add marker
         } catch (e) {
           console.error('Encryption error:', e);
           return data;
@@ -5889,7 +6392,7 @@
       },
 
       decrypt(ciphertext) {
-        if (!this._key || typeof ciphertext !== 'string' || !ciphertext.startsWith('🔒')) {
+        if (!this._key || typeof ciphertext !== 'string' || !ciphertext.startsWith('<i class="ph-light ph-lock"></i>')) {
           return ciphertext;
         }
         try {
@@ -5919,7 +6422,7 @@
           let finalVal = val;
           if (encrypt && CryptoEngine._key) {
             finalVal = CryptoEngine.encrypt(val);
-            this._addLog('INFO', `🔐 Данные [${key}] зашифрованы AES-256`);
+            this._addLog('INFO', `<i class="ph-light ph-lock-key"></i> Данные [${key}] зашифрованы AES-256`);
           }
           localStorage.setItem(this._prefix + key, JSON.stringify(finalVal));
           this._addLog('OK', `Сохранено: ${key}`);
@@ -5934,9 +6437,9 @@
           const v = localStorage.getItem(this._prefix + key);
           if (!v) return def;
           let val = JSON.parse(v);
-          if (decrypt && CryptoEngine._key && typeof val === 'string' && val.startsWith('🔒')) {
+          if (decrypt && CryptoEngine._key && typeof val === 'string' && val.startsWith('<i class="ph-light ph-lock"></i>')) {
             val = CryptoEngine.decrypt(val);
-            this._addLog('INFO', `🔓 Данные [${key}] расшифрованы`);
+            this._addLog('INFO', `<i class="ph-light ph-lock-open"></i> Данные [${key}] расшифрованы`);
           }
           return val;
         } catch { return def; }
@@ -6094,10 +6597,10 @@
       fbAuth.sendPasswordResetEmail(email, actionCodeSettings)
         .then(() => {
           console.log('Firebase подтвердил отправку письма на', email);
-          err.textContent = '✓ Письмо для сброса пароля отправлено! Проверьте папку СПАМ через 1-2 минуты.';
+          err.textContent = '<i class="ph-light ph-check"></i> Письмо для сброса пароля отправлено! Проверьте папку СПАМ через 1-2 минуты.';
           err.style.display = 'block';
           err.style.color = 'var(--green)';
-          toast('📧 Проверьте почту!');
+          toast('<i class="ph-light ph-envelope-simple"></i> Проверьте почту!');
         })
         .catch(e => {
           console.error('ОШИБКА ОТПРАВКИ:', e.code, e.message);
@@ -6185,17 +6688,17 @@
     window.bypassEmailVerification = function() {
       const user = fbAuth.currentUser;
       if (!user) {
-        toast('❌ Сначала попробуйте войти в аккаунт');
+        toast('<i class="ph-light ph-x-circle"></i> Сначала попробуйте войти в аккаунт');
         return;
       }
       if (user.emailVerified) {
-        toast('✅ Email уже подтвержден');
+        toast('<i class="ph-light ph-check-circle"></i> Email уже подтвержден');
         return;
       }
       
       // Это имитация подтверждения для UI (Firebase не позволяет подтвердить email через JS без ссылки)
       // Мы просто разрешаем вход в сессию
-      toast('🛠️ Активирован режим отладки: вход разрешен');
+      toast('<i class="ph-light ph-wrench"></i> Активирован режим отладки: вход разрешен');
       sessionStorage.setItem('debug_bypass_verify', 'true');
       location.reload();
     };
@@ -6206,7 +6709,7 @@
       if (!btn) return;
       btn.disabled = loading;
       btn.style.opacity = loading ? '0.6' : '1';
-      if (text) btn.textContent = loading ? '⏳ Подождите...' : text;
+      if (text) btn.textContent = loading ? '<i class="ph-light ph-hourglass"></i> Подождите...' : text;
     }
 
     // ── Toggle Password Visibility ──────────────────────────────────
@@ -6214,10 +6717,10 @@
       const input = document.getElementById(inputId);
       if (input.type === 'password') {
         input.type = 'text';
-        btnEl.textContent = '🙈';
+        btnEl.textContent = '<i class="ph-light ph-eye-slash"></i>';
       } else {
         input.type = 'password';
-        btnEl.textContent = '👁️';
+        btnEl.textContent = '<i class="ph-light ph-eye"></i>';
       }
     }
 
@@ -6306,7 +6809,7 @@
           }, { merge: true });
         })
         .then(() => {
-          toast('✅ Аккаунт успешно создан!');
+          toast('<i class="ph-light ph-check-circle"></i> Аккаунт успешно создан!');
           setAuthLoading('btn-register', false, 'Создать аккаунт');
           // Приложение само переключится на экран 'app' через onAuthStateChanged
         })
@@ -6402,7 +6905,7 @@
       fbAuth.confirmPasswordReset(resetCode, newPass)
         .then(() => {
           setAuthLoading('btn-confirm-reset', false, 'Сохранить пароль');
-          err.textContent = '✅ Пароль успешно изменен! Перезагрузка...';
+          err.textContent = '<i class="ph-light ph-check-circle"></i> Пароль успешно изменен! Перезагрузка...';
           err.style.display = 'block';
           err.style.color = 'var(--green)';
           setTimeout(() => { location.href = window.location.pathname; }, 2500);
@@ -6460,7 +6963,7 @@
           if (pendingPl !== 'free') setTimeout(() => openPaymentModalReal(pendingPl), 1500);
         }
 
-        toast('👋 Добро пожаловать, ' + user.name.split(' ')[0] + '!');
+        toast('<i class="ph-light ph-hand-waving"></i> Добро пожаловать, ' + user.name.split(' ')[0] + '!');
       } else {
         // Пользователь вышел или нет сессии
         // Проверяем демо-режим (хранится только в localStorage)
@@ -6490,6 +6993,7 @@
     function initApp() {
       const u = STATE.user;
       if (!u) return;
+      loadManualPositions();
       const firstName = u.name.split(' ')[0];
       setText('user-name-top', firstName);
       setText('dash-name', firstName);
@@ -6513,7 +7017,7 @@
         const planBadge = document.createElement('div');
         planBadge.className = 'plan-badge';
         planBadge.style.cssText = 'position:fixed; bottom:16px; left:16px; background:var(--ink3); border:1px solid var(--gold); padding:6px 12px; border-radius:20px; font-size:0.7rem; z-index:100; backdrop-filter:blur(8px); cursor:pointer';
-        planBadge.innerHTML = `💎 ${plan.name} ${plan.price > 0 ? '• активна' : ''}`;
+        planBadge.innerHTML = `<i class="ph-light ph-diamond"></i> ${plan.name} ${plan.price > 0 ? '• активна' : ''}`;
         planBadge.onclick = () => openModal('modal-upgrade');
         document.body.appendChild(planBadge);
       }
@@ -6550,6 +7054,7 @@
       if (name === 'db') { updateDbStats(); renderDbLog(); }
       if (name === 'subscription') renderSubscriptionPage();
       if (name === 'connections') renderConnections();
+      if (name === 'tree') renderTree();
       const mainTabs = ['dash', 'secrets', 'connections', 'tree'];
       if (mainTabs.includes(name)) mobSetActive(name);
       if (name === 'subscription') renderSubscriptionPage();
@@ -6577,7 +7082,7 @@
     // ═══════════════════════════════════════════
     // SECRETS
     // ═══════════════════════════════════════════
-    const catIcons = { password: '🔑', document: '📄', personal: '💫', financial: '💰', medical: '🏥', property: '🏠' };
+    const catIcons = { password: '<i class="ph-light ph-key"></i>', document: '<i class="ph-light ph-file-text"></i>', personal: '<i class="ph-light ph-star"></i>', financial: '<i class="ph-light ph-coin"></i>', medical: '<i class="ph-light ph-first-aid"></i>', property: '<i class="ph-light ph-house"></i>' };
     const catLabels = { password: 'Пароль', document: 'Документ', personal: 'Личное', financial: 'Финансы', medical: 'Медицина', property: 'Имущество' };
     const accessLabels = { private: 'Только я', after_death: 'После смерти', heir: 'Наследникам', public: 'Всем' };
     const accessColors = { private: 'var(--gold)', after_death: 'var(--red)', heir: 'var(--green)', public: 'var(--blue)' };
@@ -6608,7 +7113,7 @@
     function uploadProfilePhoto(input) {
         const file = input.files[0];
         if (!file) return;
-        if (file.size > 500000) { toast('❌ Фото слишком тяжелое (макс 500KB)'); return; }
+        if (file.size > 500000) { toast('<i class="ph-light ph-x-circle"></i> Фото слишком тяжелое (макс 500KB)'); return; }
 
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -6616,7 +7121,7 @@
             STATE.user.photoURL = base64;
             updateAvatarUI();
             saveUserDataToFirestore(fbUser.uid);
-            toast('✅ Фото профиля обновлено');
+            toast('<i class="ph-light ph-check-circle"></i> Фото профиля обновлено');
             
             // Также обновляем в Firebase Auth
             fbAuth.currentUser.updateProfile({ photoURL: base64 });
@@ -6640,7 +7145,7 @@
 
         files.forEach(file => {
             // Лимит 5МБ для документов, 2МБ для медиа (Base64 растет)
-            if (file.size > 5000000) { toast('❌ Файл ' + file.name + ' слишком большой'); return; }
+            if (file.size > 5000000) { toast('<i class="ph-light ph-x-circle"></i> Файл ' + file.name + ' слишком большой'); return; }
             
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -6664,9 +7169,9 @@
             return `
             <div style="position:relative; width:100%; padding-top:100%; background:var(--ink3); border-radius:12px; overflow:hidden; border:1px solid rgba(212,175,55,0.2); box-shadow:inset 0 0 10px rgba(0,0,0,0.5);">
                 ${isImage ? `<img src="${m.data}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">` : ''}
-                ${m.type === 'audio' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.8rem;">🎵</div>` : ''}
-                ${m.type === 'video' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.8rem;">🎬</div>` : ''}
-                ${m.type === 'file' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.8rem;">📄</div>` : ''}
+                ${m.type === 'audio' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.8rem;"><i class="ph-light ph-music-note"></i></div>` : ''}
+                ${m.type === 'video' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.8rem;"><i class="ph-light ph-video"></i></div>` : ''}
+                ${m.type === 'file' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.8rem;"><i class="ph-light ph-file-text"></i></div>` : ''}
                 <button onclick="removeCloudItem(${idx}, '${galleryId}', '${hiddenId}')" style="position:absolute; top:5px; right:5px; background:rgba(255,0,0,0.8); border:none; color:white; border-radius:50%; width:24px; height:24px; font-size:12px; cursor:pointer; z-index:10; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);">✕</button>
             </div>
             `;
@@ -6692,7 +7197,7 @@
 
       const plan = getUserPlan();
       if (STATE.secrets.length >= plan.maxSecrets) {
-        toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxSecrets} тайн. Перейдите на тариф «Хранитель» или «Наследие»`);
+        toast(`<i class="ph-light ph-x-circle"></i> Лимит тарифа «${plan.name}»: максимум ${plan.maxSecrets} тайн. Перейдите на тариф «Хранитель» или «Наследие»`);
         openModal('modal-upgrade');
         return;
       }
@@ -6703,12 +7208,12 @@
       if (vaultPass && vaultPass.trim().length > 0) {
         // Двойное шифрование
         try {
-           finalContent = '🔒V2' + CryptoJS.AES.encrypt(content, vaultPass).toString();
+           finalContent = '<i class="ph-light ph-lock"></i>V2' + CryptoJS.AES.encrypt(content, vaultPass).toString();
            isVault = true;
            console.log('Double encryption enabled for:', title);
         } catch(e) {
            console.error('Encryption error:', e);
-           toast('❌ Ошибка шифрования');
+           toast('<i class="ph-light ph-x-circle"></i> Ошибка шифрования');
            return;
         }
       }
@@ -6740,7 +7245,7 @@
       document.getElementById('s-media-input').value = '';
       
       closeModal('modal-secret');
-      toast(isVault ? '🛡️ Сверхсекретная тайна сохранена' : '✓ Тайна добавлена');
+      toast(isVault ? '<i class="ph-light ph-shield-check"></i> Сверхсекретная тайна сохранена' : '<i class="ph-light ph-check"></i> Тайна добавлена');
     }
 
     let secretFilter = 'all', secretSearch = '';
@@ -6753,12 +7258,12 @@
       let list = STATE.secrets;
       if (secretFilter !== 'all') list = list.filter(s => s.category === secretFilter);
       if (secretSearch) list = list.filter(s => s.title.toLowerCase().includes(secretSearch) || (s.content || '').toLowerCase().includes(secretSearch));
-      if (!list.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">🔐</div><div class="empty-text">Сейф пуст</div><div class="empty-sub">Добавьте первую тайну</div></div>`; return; }
+      if (!list.length) { el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-lock-key"></i></div><div class="empty-text">Сейф пуст</div><div class="empty-sub">Добавьте первую тайну</div></div>`; return; }
       el.innerHTML = list.map(s => `
     <div class="list-item" onclick="viewSecret('${s.id}')">
-      <div class="list-icon">${catIcons[s.category] || '📁'}</div>
+      <div class="list-icon">${catIcons[s.category] || '<i class="ph-light ph-folder"></i>'}</div>
       <div class="list-meta">
-        <div class="list-title">${esc(s.title)} ${s.isVault ? '<span style="font-size:0.8rem; margin-left:5px;">🛡️</span>' : ''}</div>
+        <div class="list-title">${esc(s.title)} ${s.isVault ? '<span style="font-size:0.8rem; margin-left:5px; color: var(--gold);"><i class="ph-light ph-shield-check"></i></span>' : ''}</div>
         <div class="list-sub">${catLabels[s.category] || '—'} · ${s.date}</div>
       </div>
       <div class="list-right">
@@ -6771,7 +7276,7 @@
     function showDecryptedSecret(s, decryptedContent) {
         document.getElementById('sv-title').textContent = s.title;
         document.getElementById('sv-cat').textContent = catLabels[s.category] || s.category;
-        document.getElementById('sv-icon').textContent = catIcons[s.category] || '📁';
+        document.getElementById('sv-icon').textContent = catIcons[s.category] || '<i class="ph-light ph-folder"></i>';
         document.getElementById('sv-content').value = decryptedContent;
         document.getElementById('sv-date').textContent = 'Добавлено: ' + s.date;
         
@@ -6816,16 +7321,16 @@
         if (!s || !pass) return;
 
         try {
-            const encryptedData = s.content.replace('🔒V2', '');
+            const encryptedData = s.content.replace('<i class="ph-light ph-lock"></i>V2', '');
             const decrypted = CryptoJS.AES.decrypt(encryptedData, pass).toString(CryptoJS.enc.Utf8);
             
             if (!decrypted) throw new Error('Wrong password');
 
             closeModal('modal-vault-prompt');
-            toast(`🛡️ Тайна раскрыта (v2.0)`);
+            toast(`<i class="ph-light ph-shield-check"></i> Тайна раскрыта (v2.0)`);
             showDecryptedSecret(s, decrypted);
         } catch(e) {
-            toast('❌ Неверный мастер-пароль');
+            toast('<i class="ph-light ph-x-circle"></i> Неверный мастер-пароль');
             const input = document.getElementById('vault-prompt-pass');
             input.style.borderColor = 'var(--red)';
             setTimeout(() => input.style.borderColor = '', 1000);
@@ -6838,9 +7343,9 @@
         navigator.clipboard.writeText(val).then(() => {
             const btn = document.querySelector('.btn-copy-secret');
             const old = btn.innerHTML;
-            btn.innerHTML = '✅ Скопировано';
+            btn.innerHTML = '<i class="ph-light ph-check-circle"></i> Скопировано';
             setTimeout(() => btn.innerHTML = old, 2000);
-            toast('✓ Скопировано в буфер обмена');
+            toast('<i class="ph-light ph-check"></i> Скопировано в буфер обмена');
         });
     }
 
@@ -6853,7 +7358,7 @@
     function handleBioMedia(input) {
         const file = input.files[0];
         if (!file) return;
-        if (file.size > 800000) { toast('❌ Фото слишком тяжелое'); return; }
+        if (file.size > 800000) { toast('<i class="ph-light ph-x-circle"></i> Фото слишком тяжелое'); return; }
         
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -6862,7 +7367,7 @@
             const preview = document.getElementById('b-media-preview');
             preview.style.backgroundImage = `url(${data})`;
             preview.style.display = 'block';
-            toast('📸 Фото готово');
+            toast('<i class="ph-light ph-camera"></i> Фото готово');
         };
         reader.readAsDataURL(file);
     }
@@ -6884,13 +7389,13 @@
           const idx = STATE.bio.findIndex(c => c.id === editingBioId);
           if (idx !== -1) {
               STATE.bio[idx] = { ...STATE.bio[idx], title, period, content, media };
-              toast('✓ Глава обновлена');
+              toast('<i class="ph-light ph-check"></i> Глава обновлена');
           }
           editingBioId = null;
       } else {
           const plan = getUserPlan();
           if (STATE.bio.length >= plan.maxBioChapters) {
-            toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxBioChapters} глав. Апгрейдите тариф!`);
+            toast(`<i class="ph-light ph-x-circle"></i> Лимит тарифа «${plan.name}»: максимум ${plan.maxBioChapters} глав. Апгрейдите тариф!`);
             openModal('modal-upgrade');
             return;
           }
@@ -6900,7 +7405,7 @@
             date: new Date().toLocaleDateString('ru')
           };
           STATE.bio.unshift(chapter);
-          toast('✓ Глава сохранена');
+          toast('<i class="ph-light ph-check"></i> Глава сохранена');
       }
 
       saveUserData(); 
@@ -6943,7 +7448,7 @@
     function renderBio() {
       const el = document.getElementById('bio-list');
       if (!el) return;
-      if (!STATE.bio.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">📖</div><div class="empty-text">Книга пуста</div><div class="empty-sub">Начните писать историю своей жизни</div></div>`; return; }
+      if (!STATE.bio.length) { el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-book-open"></i></div><div class="empty-text">Книга пуста</div><div class="empty-sub">Начните писать историю своей жизни</div></div>`; return; }
 
       const sortedBio = [...STATE.bio].sort((a, b) => _getStartYear(a.period) - _getStartYear(b.period));
 
@@ -6987,7 +7492,7 @@
             ${firstImg ? `
                 <img src="${firstImg.data}" style="width:100%; height:100%; object-fit:cover;">
             ` : `
-                <div style="font-size:2.5rem; opacity:0.2;">📖</div>
+                <div style="font-size:2.5rem; opacity:0.2;"><i class="ph-light ph-book-open"></i></div>
             `}
         </div>
 
@@ -6998,7 +7503,7 @@
                 ${esc(ch.period || 'История')}
             </div>
             <div style="display:flex; gap:12px;" onclick="event.stopPropagation()">
-               <button class="btn-ghost" onclick="editBio('${ch.id}')" style="font-size:1rem; color:var(--gold); opacity:0.6; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✎</button>
+               <button class="btn-ghost" onclick="editBio('${ch.id}')" style="font-size:1rem; color:var(--gold); opacity:0.6; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6"><i class="ph-light ph-pencil-simple"></i></button>
                <button class="btn-ghost" onclick="deleteBio('${ch.id}')" style="font-size:1rem; color:var(--red); opacity:0.6; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">✕</button>
             </div>
           </div>
@@ -7012,8 +7517,8 @@
           </p>
           
           <div style="display:flex; align-items:center; gap:12px; font-size:0.6rem; color:var(--muted2); margin-top:4px;">
-             <span>📅 ${ch.date}</span>
-             ${mediaArr.length > 1 ? `<span style="color:var(--gold-d); font-weight:600;">📁 +${mediaArr.length-1} медиа</span>` : ''}
+             <span><i class="ph-light ph-calendar"></i> ${ch.date}</span>
+             ${mediaArr.length > 1 ? `<span style="color:var(--gold-d); font-weight:600;"><i class="ph-light ph-folder"></i> +${mediaArr.length-1} медиа</span>` : ''}
           </div>
         </div>
 
@@ -7043,14 +7548,14 @@
             gallery.innerHTML = mediaArr.map(m => {
                 const isImage = (m.type === 'image') || (m.data && m.data.includes('data:image'));
                 if (isImage) return `<img src="${m.data}" style="width:100%; border-radius:16px; margin-bottom:15px; border:1px solid rgba(212,175,55,0.15); box-shadow:0 5px 15px rgba(0,0,0,0.3);">`;
-                if (m.type === 'audio') return `<div style="margin-bottom:15px; padding:15px; background:rgba(212,175,55,0.05); border-radius:12px;"><div style="font-size:0.7rem; margin-bottom:8px; color:var(--gold);">🎵 Голос из прошлого:</div><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
+                if (m.type === 'audio') return `<div style="margin-bottom:15px; padding:15px; background:rgba(212,175,55,0.05); border-radius:12px;"><div style="font-size:0.7rem; margin-bottom:8px; color:var(--gold);"><i class="ph-light ph-music-note"></i> Голос из прошлого:</div><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
                 if (m.type === 'video') return `<video controls style="width:100%; border-radius:16px; margin-bottom:15px;"><source src="${m.data}"></video>`;
                 // Generic file
                 return `<div style="margin-bottom:15px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:12px; display:flex; align-items:center; gap:12px;">
-                    <div style="font-size:1.5rem;">📄</div>
+                    <div style="font-size:1.5rem;"><i class="ph-light ph-file-text"></i></div>
                     <div style="flex:1">
                         <div style="font-size:0.85rem; color:var(--ivory);">${esc(m.name || 'Документ')}</div>
-                        <a href="${m.data}" download="${m.name || 'file'}" style="font-size:0.7rem; color:var(--gold); text-decoration:none;">📥 Скачать файл</a>
+                        <a href="${m.data}" download="${m.name || 'file'}" style="font-size:0.7rem; color:var(--gold); text-decoration:none;"><i class="ph-light ph-download-simple"></i> Скачать файл</a>
                     </div>
                 </div>`;
             }).join('');
@@ -7084,7 +7589,7 @@
     // MESSAGES
     // ═══════════════════════════════════════════
     const triggerLabels = { death: 'После смерти', date: 'В дату', wedding: 'На свадьбу', birthday: 'На юбилей', now: 'Сразу' };
-    const triggerIcons = { death: '💀', date: '📅', wedding: '💍', birthday: '🎂', now: '📬' };
+    const triggerIcons = { death: '<i class="ph-light ph-skull"></i>', date: '<i class="ph-light ph-calendar"></i>', wedding: '<i class="ph-light ph-diamond"></i>', birthday: '<i class="ph-light ph-cake"></i>', now: '<i class="ph-light ph-mailbox"></i>' };
 
     function saveMessage() {
       const to = document.getElementById('m-to').value.trim();
@@ -7093,7 +7598,7 @@
 
       const plan = getUserPlan();
       if (STATE.messages.length >= plan.maxMessages) {
-        toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxMessages} посланий. Перейдите на расширенный тариф.`);
+        toast(`<i class="ph-light ph-x-circle"></i> Лимит тарифа «${plan.name}»: максимум ${plan.maxMessages} посланий. Перейдите на расширенный тариф.`);
         openModal('modal-upgrade');
         return;
       }
@@ -7108,16 +7613,16 @@
       saveUserData(); renderMessages(); updateDashStats(); updateBadges();
       addActivity('Создано послание для: ' + to);
       closeModal('modal-message');
-      toast('✓ Послание создано');
+      toast('<i class="ph-light ph-check"></i> Послание создано');
     }
 
     function renderMessages() {
       const el = document.getElementById('messages-list');
       if (!el) return;
-      if (!STATE.messages.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">💌</div><div class="empty-text">Нет посланий</div><div class="empty-sub">Создайте первое послание близкому</div></div>`; return; }
+      if (!STATE.messages.length) { el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-envelope-simple"></i></div><div class="empty-text">Нет посланий</div><div class="empty-sub">Создайте первое послание близкому</div></div>`; return; }
       el.innerHTML = STATE.messages.map(m => `
     <div class="list-item">
-      <div class="list-icon">${triggerIcons[m.trigger] || '💌'}</div>
+      <div class="list-icon">${triggerIcons[m.trigger] || '<i class="ph-light ph-envelope-simple"></i>'}</div>
       <div class="list-meta">
         <div class="list-title">Для: ${esc(m.to)} — ${esc(m.subject)}</div>
         <div class="list-sub">${triggerLabels[m.trigger] || '—'} · ${m.date}</div>
@@ -7136,38 +7641,163 @@
     }
 
     // ═══════════════════════════════════════════
-    // RELATIVES
+    // RELATIVES & GENEALOGY v3.0
     // ═══════════════════════════════════════════
     const accessLabel = { heir: 'Наследник', observer: 'Наблюдатель', trusted: 'Доверенный', blocked: 'Заблокирован' };
-    const accessColor = { heir: 'var(--green)', observer: 'var(--blue)', trusted: 'var(--gold)', blocked: 'var(--red)' };
+    const accessColor = { heir: '#2ecc71', observer: '#3498db', trusted: '#d4af37', blocked: '#e74c3c' };
+
+    function handlePhotoUpload(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('r-photo-data').value = e.target.result;
+          const preview = document.getElementById('r-photo-preview');
+          preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function populateRelativeSelects(currentId) {
+      const selects = ['r-fatherId', 'r-motherId', 'r-spouseId'];
+      const options = STATE.relatives
+        .filter(r => r.id !== currentId)
+        .map(r => `<option value="${r.id}">${esc(r.name)} (${esc(r.rel || 'родственник')})</option>`)
+        .join('');
+      
+      selects.forEach(sid => {
+        const el = document.getElementById(sid);
+        if (el) {
+          const firstOpt = sid === 'r-spouseId' ? '<option value="">Нет</option>' : '<option value="">Не указан(а)</option>';
+          el.innerHTML = firstOpt + options;
+        }
+      });
+    }
+
+    function openEditRelative(id) {
+      const r = STATE.relatives.find(x => x.id === id);
+      if (!r) return;
+      
+      document.getElementById('r-modal-title').textContent = 'Редактировать профиль';
+      document.getElementById('r-id').value = r.id;
+      document.getElementById('r-name').value = r.name || '';
+      document.getElementById('r-rel').value = r.rel || '';
+      document.getElementById('r-access').value = r.access || 'observer';
+      document.getElementById('r-desc').value = r.desc || '';
+      document.getElementById('r-email').value = r.email || '';
+      document.getElementById('r-city').value = r.city || '';
+      document.getElementById('r-lat').value = r.lat || '';
+      document.getElementById('r-lon').value = r.lon || '';
+      document.getElementById('r-relType').value = r.relType || 'blood';
+      
+      const photoData = r.photo || '';
+      document.getElementById('r-photo-data').value = photoData;
+      const preview = document.getElementById('r-photo-preview');
+      if (photoData) {
+        preview.innerHTML = `<img src="${photoData}" style="width:100%; height:100%; object-fit:cover;">`;
+      } else {
+        preview.innerHTML = (r.name || '?').charAt(0).toUpperCase();
+      }
+      
+      populateRelativeSelects(r.id);
+      document.getElementById('r-fatherId').value = r.fatherId || '';
+      document.getElementById('r-motherId').value = r.motherId || '';
+      document.getElementById('r-spouseId').value = r.spouseId || '';
+      
+      document.getElementById('r-btn-delete').style.display = 'block';
+      openModal('modal-relative');
+    }
+
+    // Override openModal for new relative to reset fields
+    const _origOpenModal = openModal;
+    window.openModal = function(id) {
+      if (id === 'modal-relative' && !document.getElementById('r-id').value) {
+        document.getElementById('r-modal-title').textContent = 'Добавить в древо';
+        document.getElementById('r-id').value = '';
+        document.getElementById('r-name').value = '';
+        document.getElementById('r-rel').value = '';
+        document.getElementById('r-desc').value = '';
+        document.getElementById('r-email').value = '';
+        document.getElementById('r-city').value = '';
+        document.getElementById('r-lat').value = '';
+        document.getElementById('r-lon').value = '';
+        document.getElementById('r-photo-data').value = '';
+        document.getElementById('r-photo-preview').innerHTML = '?';
+        document.getElementById('r-btn-delete').style.display = 'none';
+        populateRelativeSelects('');
+      }
+      _origOpenModal(id);
+    };
 
     function saveRelative() {
+      const id = document.getElementById('r-id').value;
       const name = document.getElementById('r-name').value.trim();
       if (!name) { toast('Введите имя'); return; }
 
-      const plan = getUserPlan();
-      if (STATE.relatives.length >= plan.maxRelatives) {
-        toast(`❌ Лимит тарифа «${plan.name}»: максимум ${plan.maxRelatives} родственников. Апгрейд до «Хранителя» или «Наследия»`);
-        openModal('modal-upgrade');
-        return;
-      }
-
-      const rel = {
-        id: uid(), name,
+      const data = {
+        name,
         rel: document.getElementById('r-rel').value,
         access: document.getElementById('r-access').value,
+        desc: document.getElementById('r-desc').value,
         email: document.getElementById('r-email').value,
+        city: document.getElementById('r-city').value,
         lat: parseFloat(document.getElementById('r-lat').value) || null,
         lon: parseFloat(document.getElementById('r-lon').value) || null,
-        city: document.getElementById('r-city').value
+        fatherId: document.getElementById('r-fatherId').value,
+        motherId: document.getElementById('r-motherId').value,
+        spouseId: document.getElementById('r-spouseId').value,
+        relType: document.getElementById('r-relType').value,
+        photo: document.getElementById('r-photo-data').value,
+        updatedAt: Date.now()
       };
-      STATE.relatives.unshift(rel);
+
+      if (id) {
+        // Edit
+        const idx = STATE.relatives.findIndex(r => r.id === id);
+        if (idx !== -1) {
+          STATE.relatives[idx] = { ...STATE.relatives[idx], ...data };
+          toast('<i class="ph-light ph-check"></i> Профиль обновлён');
+        }
+      } else {
+        // Add
+        const plan = getUserPlan();
+        if (STATE.relatives.length >= plan.maxRelatives) {
+          toast(`<i class="ph-light ph-x-circle"></i> Лимит тарифа: максимум ${plan.maxRelatives} человек`);
+          openModal('modal-upgrade');
+          return;
+        }
+        const newRel = { id: uid(), createdAt: Date.now(), ...data };
+        STATE.relatives.unshift(newRel);
+        addActivity('Добавлен в древо: ' + name);
+        toast('<i class="ph-light ph-check"></i> Добавлен в древо');
+      }
+
       saveUserData(); renderRelatives(); renderTree(); renderGlobeList();
-      if (globeInit) updateGlobeMarkers();
+      if (window.globeInit) updateGlobeMarkers();
       updateDashStats(); updateBadges();
-      addActivity('Добавлен родственник: ' + name);
       closeModal('modal-relative');
-      toast('✓ Родственник добавлён');
+    }
+
+    function deleteRel(id) {
+      if (!confirm('Удалить этого человека из древа? Все связи с ним будут разорваны.')) return;
+      STATE.relatives = STATE.relatives.filter(r => r.id !== id);
+      // Clean up links
+      STATE.relatives.forEach(r => {
+        if (r.fatherId === id) r.fatherId = '';
+        if (r.motherId === id) r.motherId = '';
+        if (r.spouseId === id) r.spouseId = '';
+      });
+      saveUserData(); renderRelatives(); renderTree(); renderGlobeList();
+      updateDashStats();
+      toast('Удалено');
+    }
+
+    function deleteRelativeFromModal() {
+      const id = document.getElementById('r-id').value;
+      if (id) {
+        deleteRel(id);
+        closeModal('modal-relative');
+      }
     }
 
     let relSearch = '';
@@ -7179,17 +7809,22 @@
         const el = document.getElementById(id);
         if (!el) return;
         const list = relSearch ? STATE.relatives.filter(r => r.name.toLowerCase().includes(relSearch)) : STATE.relatives;
-        if (!list.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">Нет родственников</div><div class="empty-sub">Добавьте первого члена семьи</div></div>`; return; }
+        if (!list.length) { 
+          el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-users"></i></div><div class="empty-text">Древо пока пусто</div></div>`; 
+          return; 
+        }
         el.innerHTML = list.map(r => `
-      <div class="list-item">
-        <div class="list-icon">👤</div>
+      <div class="list-item" onclick="openSidePanel('${r.id}')" style="cursor:pointer">
+        <div class="list-icon">
+          ${r.photo ? `<img src="${r.photo}" style="width:100%; height:100%; object-fit:cover; border-radius:50%">` : '<i class="ph-light ph-user"></i>'}
+        </div>
         <div class="list-meta">
           <div class="list-title">${esc(r.name)}</div>
           <div class="list-sub">${esc(r.rel || '—')}${r.city ? ' · ' + esc(r.city) : ''}</div>
         </div>
         <div class="list-right">
           <span class="tag" style="border-color:${accessColor[r.access]};color:${accessColor[r.access]}">${accessLabel[r.access] || r.access}</span>
-          <button class="btn btn-danger btn-sm" onclick="deleteRel('${r.id}')">✕</button>
+          <i class="ph-light ph-caret-right" style="color:var(--muted); margin-left:8px"></i>
         </div>
       </div>`).join('');
       });
@@ -7203,10 +7838,10 @@
         <div><div class="page-title">Страж <em>жизни</em></div></div>
       </div>
       <div class="empty" style="padding:4rem">
-        <div class="empty-icon">⏳</div>
+        <div class="empty-icon"><i class="ph-light ph-hourglass"></i></div>
         <div class="empty-text">Доступно на тарифах «Хранитель» и «Наследие»</div>
         <div class="empty-sub" style="margin-bottom:1.5rem">Автоматическая передача наследства при неактивности</div>
-        <button class="btn btn-primary-sm" onclick="openPaymentModalReal('keeper')">💎 Улучшить тариф</button>
+        <button class="btn btn-primary-sm" onclick="openPaymentModalReal('keeper')"><i class="ph-light ph-diamond"></i> Улучшить тариф</button>
       </div>`;
         return false;
       }
@@ -7222,157 +7857,306 @@
     }
 
     // ═══════════════════════════════════════════
-    // FAMILY TREE
+    // FAMILY TREE v5.1 (Fixed Immersive Core)
     // ═══════════════════════════════════════════
-    let treeFilter = 'all';
-    function filterTreePage(type) { treeFilter = type; renderTree(); }
+    let treeScale = 1;
+    let treePanX = 0;
+    let treePanY = 0;
+    let isPanning = false;
+    let isEditMode = false;
+    let treeSearchQuery = '';
+    let collapsedNodes = new Set();
+    let manualPositions = {}; 
+
+    function loadManualPositions() {
+      if (STATE.settings && STATE.settings.treePositions) {
+        manualPositions = STATE.settings.treePositions;
+      }
+    }
+
+    function saveManualPositions() {
+      if (!STATE.settings) STATE.settings = {};
+      STATE.settings.treePositions = manualPositions;
+      saveUserData();
+    }
+
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      const btn = document.getElementById('tree-edit-mode-btn');
+      if (btn) {
+        btn.classList.toggle('active', isEditMode);
+        btn.innerHTML = isEditMode ? '<i class="ph-bold ph-check"></i> Готово' : '<i class="ph-light ph-pencil"></i> Режим правок';
+      }
+      renderTree();
+      if (isEditMode) toast('Свободная расстановка включена');
+      else saveManualPositions();
+    }
+
+    function treeSearch(q) {
+      treeSearchQuery = q.toLowerCase();
+      renderTree();
+    }
 
     function renderTree() {
-      const svg = document.getElementById('family-svg');
-      if (!svg) return;
-      svg.innerHTML = '';
-      const W = svg.clientWidth || 1100, H = svg.clientHeight || 420;
+      const nodesLayer = document.getElementById('tree-nodes-layer');
+      const svgLayer = document.getElementById('tree-svg-layer');
+      if (!nodesLayer || !svgLayer) return;
 
-      const me = { id: 'you', label: 'Я', type: 'owner', x: W / 2, y: H / 2, r: 32 };
-      const rels = STATE.relatives;
-      const N = rels.length;
-      const nodes = [me];
-      const edges = [];
+      loadManualPositions();
+      nodesLayer.innerHTML = '';
+      const defs = svgLayer.querySelector('defs');
+      svgLayer.innerHTML = '';
+      if (defs) svgLayer.appendChild(defs);
 
-      if (!N) {
-        const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        txt.setAttribute('x', W / 2); txt.setAttribute('y', H / 2);
-        txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('fill', 'rgba(253,252,251,0.2)');
-        txt.setAttribute('font-size', '14'); txt.setAttribute('font-family', 'DM Sans,sans-serif');
-        txt.textContent = 'Добавьте родственников чтобы увидеть дерево рода';
-        svg.appendChild(txt); return;
-      }
-
-      // Calculate positions with physics-like distribution
-      let levelRadii = [130, 260];
-      let currentLevel = 0;
-
-      rels.forEach((r, i) => {
-        const visTypes = ['heir', 'observer', 'trusted', 'blocked'];
-        const typeMap = { heir: 'heir', observer: 'observer', trusted: 'trusted', blocked: 'blocked' };
-        const type = typeMap[r.access] || 'observer';
-        if (treeFilter !== 'all' && type !== treeFilter && r.access !== treeFilter) return;
-
-        // Distribute nodes in concentric circles based on relation depth (simplified)
-        const isDirect = (r.rel || '').match(/сын|дочь|мать|отец|муж|жена/i);
-        const radius = isDirect ? levelRadii[0] : levelRadii[1];
-        const angleOffset = isDirect ? 0 : Math.PI / 4;
-        const angle = (i / N) * Math.PI * 2 - Math.PI / 2 + angleOffset;
-
-        const nodeX = W / 2 + Math.cos(angle) * radius;
-        const nodeY = H / 2 + Math.sin(angle) * radius;
-
-        nodes.push({ id: r.id, label: r.name.split(' ')[0], type, x: nodeX, y: nodeY, r: 22, rel: r.rel });
-        edges.push(['you', r.id]);
-      });
-
-      const typeColors = {
-        owner: { fill: 'rgba(212,175,55,0.15)', stroke: '#d4af37', text: '#f3e5ab' },
-        heir: { fill: 'rgba(46,204,113,0.15)', stroke: 'var(--green)', text: 'var(--green)' },
-        observer: { fill: 'rgba(52,152,219,0.15)', stroke: 'var(--blue)', text: 'var(--blue)' },
-        trusted: { fill: 'rgba(243,156,18,0.15)', stroke: 'var(--amber)', text: 'var(--amber)' },
-        blocked: { fill: 'rgba(231,76,60,0.15)', stroke: 'var(--red)', text: 'var(--red)' },
+      const rels = STATE.relatives || [];
+      const userNode = {
+        id: 'you',
+        name: STATE.user ? STATE.user.name : 'Вы',
+        rel: 'Глава рода',
+        access: 'heir',
+        isMe: true,
+        children: rels.filter(r => r.fatherId === 'you' || r.motherId === 'you').map(r => r.id),
+        spouses: rels.filter(r => r.spouseId === 'you').map(r => r.id)
       };
 
-      // Defs with modern glow filters
-      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-      const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-      filter.setAttribute('id', 'glow');
-      const blur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
-      blur.setAttribute('stdDeviation', '8'); blur.setAttribute('result', 'coloredBlur');
-      const merge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
-      ['coloredBlur', 'SourceGraphic'].forEach(v => { const mn = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode'); mn.setAttribute('in', v); merge.appendChild(mn); });
-      filter.appendChild(blur); filter.appendChild(merge); defs.appendChild(filter); svg.appendChild(defs);
+      const allNodes = [userNode, ...rels.map(r => ({
+        ...r,
+        children: rels.filter(x => x.fatherId === r.id || x.motherId === r.id).map(x => x.id),
+        spouses: rels.filter(x => x.spouseId === r.id).concat(rels.filter(x => x.id === r.spouseId)).map(x => x.id)
+      }))];
 
-      // Animated Edges
-      edges.forEach(([a, b]) => {
-        const na = nodes.find(n => n.id === a), nb = nodes.find(n => n.id === b);
-        if (!na || !nb) return;
-        const mx = (na.x + nb.x) / 2;
-        const my = (na.y + nb.y) / 2;
+      // Layout Calculation
+      const levels = {};
+      const nodePositions = { ...manualPositions };
+      const processed = new Set();
 
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', `M${na.x},${na.y} Q${mx},${my} ${nb.x},${nb.y}`);
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke', 'rgba(212,175,55,0.2)');
-        path.setAttribute('stroke-width', '2');
+      function assignLevel(id, level) {
+        if (processed.has(id)) return;
+        processed.add(id);
+        if (!levels[level]) levels[level] = [];
+        levels[level].push(id);
+        
+        const node = allNodes.find(n => n.id === id);
+        if (node && !collapsedNodes.has(id)) {
+          node.children.forEach(cid => assignLevel(cid, level + 1));
+          node.spouses.forEach(sid => { if (!processed.has(sid)) { levels[level].push(sid); processed.add(sid); } });
+        }
+      }
 
-        // Add glowing particle on the edge
-        const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        particle.setAttribute('r', '2');
-        particle.setAttribute('fill', 'var(--gold)');
-        particle.setAttribute('filter', 'url(#glow)');
-        const animate = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
-        animate.setAttribute('dur', (Math.random() * 2 + 2) + 's');
-        animate.setAttribute('repeatCount', 'indefinite');
-        animate.setAttribute('path', `M${na.x},${na.y} Q${mx},${my} ${nb.x},${nb.y}`);
-        particle.appendChild(animate);
+      assignLevel('you', 0);
+      allNodes.forEach(n => { if (!processed.has(n.id)) assignLevel(n.id, 0); });
 
-        svg.appendChild(path);
-        svg.appendChild(particle);
+      const nodeWidth = 280;
+      const verticalGap = 320;
+      const horizontalGap = 120;
+
+      Object.keys(levels).forEach(level => {
+        const l = parseInt(level);
+        const nodesInLevel = levels[level];
+        const totalWidth = nodesInLevel.length * (nodeWidth + horizontalGap) - horizontalGap;
+        nodesInLevel.forEach((id, idx) => {
+          if (!nodePositions[id]) {
+            nodePositions[id] = {
+              x: (idx * (nodeWidth + horizontalGap)) - (totalWidth / 2),
+              y: l * verticalGap
+            };
+          }
+        });
       });
 
-      // Nodes with glassmorphism effects
-      nodes.forEach(node => {
-        const c = typeColors[node.type] || typeColors.observer;
-        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        g.setAttribute('transform', `translate(${node.x},${node.y})`);
-        g.style.cursor = 'pointer';
-        g.setAttribute('filter', 'url(#glow)');
+      // Render Nodes
+      allNodes.forEach(n => {
+        const pos = nodePositions[n.id];
+        if (!pos) return;
 
-        // Outer glow ring
-        const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        ring.setAttribute('r', node.r + 6); ring.setAttribute('fill', 'none');
-        ring.setAttribute('stroke', c.stroke); ring.setAttribute('stroke-width', '1'); ring.setAttribute('stroke-opacity', '0.6');
-        // Simple pulse animation
-        const ringAnim = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
-        ringAnim.setAttribute('attributeName', 'r');
-        ringAnim.setAttribute('values', `${node.r + 4};${node.r + 8};${node.r + 4}`);
-        ringAnim.setAttribute('dur', '3s');
-        ringAnim.setAttribute('repeatCount', 'indefinite');
-        ring.appendChild(ringAnim);
-        g.appendChild(ring);
+        const isMatch = treeSearchQuery && (n.name.toLowerCase().includes(treeSearchQuery) || (n.rel || '').toLowerCase().includes(treeSearchQuery));
+        
+        const el = document.createElement('div');
+        el.className = `tree-node ${n.isMe ? 'me' : ''} ${isEditMode ? 'wiggle' : ''} ${isMatch ? 'search-match' : ''}`;
+        el.style.left = `${pos.x}px`;
+        el.style.top = `${pos.y}px`;
+        el.style.zIndex = n.isMe ? '50' : '10';
+        
+        if (isEditMode) {
+          el.onmousedown = (e) => {
+            if (e.button !== 0) return;
+            e.stopPropagation();
+            el.style.zIndex = '9999';
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const nodeStartX = pos.x;
+            const nodeStartY = pos.y;
+            
+            const onMouseMove = (moveE) => {
+              const dx = (moveE.clientX - startX) / treeScale;
+              const dy = (moveE.clientY - startY) / treeScale;
+              const newX = nodeStartX + dx;
+              const newY = nodeStartY + dy;
+              el.style.left = newX + 'px';
+              el.style.top = newY + 'px';
+              nodePositions[n.id] = { x: newX, y: newY };
+              manualPositions[n.id] = { x: newX, y: newY };
+              renderLines(allNodes, nodePositions, svgLayer);
+            };
 
-        // Inner node body
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('r', node.r); circle.setAttribute('fill', c.fill);
-        circle.setAttribute('stroke', c.stroke); circle.setAttribute('stroke-width', '2');
-        g.appendChild(circle);
+            const onMouseUp = () => {
+              document.removeEventListener('mousemove', onMouseMove);
+              document.removeEventListener('mouseup', onMouseUp);
+              el.style.zIndex = n.isMe ? '50' : '10';
+              saveManualPositions();
+            };
 
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('text-anchor', 'middle'); text.setAttribute('dominant-baseline', 'central');
-        text.setAttribute('fill', '#ffffff'); text.setAttribute('font-size', node.id === 'you' ? '13' : '11');
-        text.setAttribute('font-family', 'DM Sans,sans-serif'); text.setAttribute('font-weight', '500');
-        text.textContent = node.label.slice(0, 10);
-        g.appendChild(text);
-
-        if (node.rel) {
-          const badgeBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          badgeBg.setAttribute('x', -20); badgeBg.setAttribute('y', node.r + 6);
-          badgeBg.setAttribute('width', 40); badgeBg.setAttribute('height', 14);
-          badgeBg.setAttribute('rx', 4); badgeBg.setAttribute('fill', 'rgba(15,13,22,0.8)');
-          badgeBg.setAttribute('stroke', c.stroke); badgeBg.setAttribute('stroke-width', '0.5');
-          g.appendChild(badgeBg);
-
-          const badge = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          badge.setAttribute('y', node.r + 15); badge.setAttribute('text-anchor', 'middle');
-          badge.setAttribute('fill', c.text); badge.setAttribute('font-size', '8');
-          badge.setAttribute('font-family', 'DM Sans,sans-serif'); badge.setAttribute('font-weight', '500');
-          badge.textContent = node.rel;
-          g.appendChild(badge);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+          };
         }
 
-        // Hover interactions
-        g.onmouseenter = () => { ring.setAttribute('stroke-width', '2'); circle.setAttribute('fill', c.stroke); };
-        g.onmouseleave = () => { ring.setAttribute('stroke-width', '1'); circle.setAttribute('fill', c.fill); };
+        el.onclick = (e) => {
+          if (isEditMode) return;
+          openSidePanel(n.id);
+        };
 
-        svg.appendChild(g);
+        const avatar = n.photo ? `<img src="${n.photo}" class="tree-node-photo">` : `<div class="tree-node-photo">${(n.name || '?').charAt(0).toUpperCase()}</div>`;
+        const hasChildren = n.children.length > 0;
+        const isCollapsed = collapsedNodes.has(n.id);
+
+        el.innerHTML = `
+          <div class="tree-node-bg-gradient"></div>
+          <div class="tree-node-inner">
+            <div class="tree-node-head">
+              ${avatar}
+              <div class="tree-node-body">
+                <div class="tree-node-name">${esc(n.name)}</div>
+                <div class="tree-node-role">${esc(n.rel || (n.isMe ? 'Глава рода' : 'Родственник'))}</div>
+              </div>
+            </div>
+            <div class="tree-node-actions-v5">
+              <div class="action-btn-circle" onclick="event.stopPropagation(); addChildTo('${n.id}')" title="Добавить потомка"><i class="ph-bold ph-plus"></i></div>
+              <div class="action-btn-circle" onclick="event.stopPropagation(); openEditRelative('${n.id}')" title="Редактировать"><i class="ph-bold ph-pencil-simple"></i></div>
+            </div>
+          </div>
+          <div class="tree-node-footer">
+            <span>${esc(n.city || 'Мир')}</span>
+            ${hasChildren ? `
+              <div onclick="event.stopPropagation(); toggleCollapse('${n.id}')" style="cursor:pointer; color:var(--gold); display:flex; align-items:center; gap:5px;">
+                <span style="font-size:0.6rem">${n.children.length}</span>
+                <i class="ph-fill ${isCollapsed ? 'ph-caret-circle-down' : 'ph-caret-circle-up'}"></i>
+              </div>
+            ` : '<i class="ph-light ph-leaf" style="opacity:0.3"></i>'}
+          </div>
+        `;
+        nodesLayer.appendChild(el);
       });
+
+      renderLines(allNodes, nodePositions, svgLayer);
+
+      if (treePanX === 0 && treePanY === 0) treeReset();
+      if (!particleCanvas) initTreeParticles();
+    }
+
+    function renderLines(nodes, positions, svg) {
+      const defs = svg.querySelector('defs');
+      svg.innerHTML = '';
+      if (defs) svg.appendChild(defs);
+
+      nodes.forEach(n => {
+        const start = positions[n.id];
+        if (!start || collapsedNodes.has(n.id)) return;
+
+        n.children.forEach(cid => {
+          const end = positions[cid];
+          if (!end) return;
+          drawTreeLineV5(svg, start, end, 'blood');
+        });
+
+        n.spouses.forEach(sid => {
+          const end = positions[sid];
+          if (!end || n.id > sid) return;
+          drawTreeLineV5(svg, start, end, 'marriage');
+        });
+      });
+    }
+
+    function drawTreeLineV5(svg, start, end, type) {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const nodeWidth = 280;
+      const nodeHeight = 150;
+      
+      const x1 = start.x + nodeWidth / 2;
+      const y1 = start.y + nodeHeight;
+      const x2 = end.x + nodeWidth / 2;
+      const y2 = end.y;
+
+      let d;
+      if (type === 'blood') {
+        const midY = (y1 + y2) / 2;
+        d = `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
+        path.setAttribute('class', 'tree-line-v5');
+      } else {
+        const mx1 = start.x + nodeWidth;
+        const my1 = start.y + 55;
+        const mx2 = end.x;
+        const my2 = end.y + 55;
+        d = `M${mx1},${my1} L${mx2},${my2}`;
+        path.setAttribute('class', 'tree-line-v5 active');
+        path.setAttribute('style', 'stroke-dasharray: 6,6;');
+      }
+
+      path.setAttribute('d', d);
+      svg.appendChild(path);
+
+      if (type === 'blood') {
+        const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        particle.setAttribute('r', '2.5');
+        particle.setAttribute('class', 'soul-particle');
+        const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+        anim.setAttribute('dur', (Math.random() * 2 + 4) + 's');
+        anim.setAttribute('repeatCount', 'indefinite');
+        anim.setAttribute('path', d);
+        particle.appendChild(anim);
+        svg.appendChild(particle);
+      }
+    }
+
+    function treeReset() {
+      const container = document.getElementById('family-tree-container');
+      if (!container) return;
+      treeScale = 0.55;
+      treePanX = container.clientWidth / 2;
+      treePanY = 120;
+      applyTreeTransform();
+    }
+
+    function toggleCollapse(id) {
+      if (collapsedNodes.has(id)) collapsedNodes.delete(id);
+      else collapsedNodes.add(id);
+      renderTree();
+    }
+
+    function relinkNodes(sourceId, targetId) {
+      if (sourceId === 'you') { toast('Вы не можете быть чьим-то потомком здесь'); return; }
+      const sNode = STATE.relatives.find(r => r.id === sourceId);
+      if (!sNode) return;
+      
+      const tNode = targetId === 'you' ? { name: 'вас' } : STATE.relatives.find(r => r.id === targetId);
+      if (!tNode) return;
+
+      if (window.confirm(`Сделать ${sNode.name} потомком ${tNode.name}?`)) {
+        sNode.fatherId = targetId;
+        sNode.motherId = '';
+        saveUserData();
+        renderTree();
+        toast('Связь обновлена');
+      }
+    }
+
+    function addChildTo(parentId) {
+      document.getElementById('r-id').value = '';
+      document.getElementById('r-name').value = '';
+      document.getElementById('r-rel').value = 'Ребёнок';
+      populateRelativeSelects('');
+      document.getElementById('r-fatherId').value = parentId; 
+      openModal('modal-relative');
     }
 
     // ========== ПЛАТЕЖНАЯ СИСТЕМА ==========
@@ -7449,18 +8233,18 @@
       const cardCVV = document.getElementById('card-cvv').value;
       const cardName = document.getElementById('card-name').value.trim();
 
-      if (cardNumber.length < 16) { toast('⚠️ Введите корректный номер карты'); return false; }
-      if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) { toast('⚠️ Введите срок действия (ММ/ГГ)'); return false; }
-      if (cardCVV.length < 3) { toast('⚠️ Введите CVV (3-4 цифры)'); return false; }
-      if (cardName.length < 3) { toast('⚠️ Введите имя держателя карты'); return false; }
+      if (cardNumber.length < 16) { toast('<i class="ph-light ph-warning"></i> Введите корректный номер карты'); return false; }
+      if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) { toast('<i class="ph-light ph-warning"></i> Введите срок действия (ММ/ГГ)'); return false; }
+      if (cardCVV.length < 3) { toast('<i class="ph-light ph-warning"></i> Введите CVV (3-4 цифры)'); return false; }
+      if (cardName.length < 3) { toast('<i class="ph-light ph-warning"></i> Введите имя держателя карты'); return false; }
 
       // Simple expiry date check
       const [mm, yy] = cardExpiry.split('/').map(n => parseInt(n));
       const now = new Date();
       const curY = now.getFullYear() % 100;
       const curM = now.getMonth() + 1;
-      if (mm < 1 || mm > 12) { toast('⚠️ Некорректный месяц'); return false; }
-      if (yy < curY || (yy === curY && mm < curM)) { toast('⚠️ Карта просрочена'); return false; }
+      if (mm < 1 || mm > 12) { toast('<i class="ph-light ph-warning"></i> Некорректный месяц'); return false; }
+      if (yy < curY || (yy === curY && mm < curM)) { toast('<i class="ph-light ph-warning"></i> Карта просрочена'); return false; }
 
       return true;
     }
@@ -7474,16 +8258,16 @@
       // Анимация загрузки
       const payBtn = document.getElementById('pay-button');
       const originalText = payBtn.innerHTML;
-      payBtn.innerHTML = '<span>⏳</span> АВТОРИЗАЦИЯ...';
+      payBtn.innerHTML = '<span><i class="ph-light ph-hourglass"></i></span> АВТОРИЗАЦИЯ...';
       payBtn.disabled = true;
       payBtn.style.opacity = '0.7';
 
       setTimeout(() => {
-        payBtn.innerHTML = '<span>🛡️</span> ЗАЩИЩЕННЫЙ ПЕРЕВОД...';
+        payBtn.innerHTML = '<span><i class="ph-light ph-shield-check"></i></span> ЗАЩИЩЕННЫЙ ПЕРЕВОД...';
         setTimeout(() => {
           const success = setUserPlan(currentPayPlan, currentMonths);
           if (success) {
-            toast(`✅ Оплата прошла успешно!`);
+            toast(`<i class="ph-light ph-check-circle"></i> Оплата прошла успешно!`);
             closeModal('modal-payment-real');
             showConfetti();
 
@@ -7500,7 +8284,7 @@
               }
             }, 1000);
           } else {
-            toast('❌ Ошибка активации подписки');
+            toast('<i class="ph-light ph-x-circle"></i> Ошибка активации подписки');
           }
           payBtn.innerHTML = originalText;
           payBtn.disabled = false;
@@ -7516,24 +8300,24 @@
       const cardViz = document.getElementById('card-viz');
 
       let type = 'Card';
-      let icon = '💳';
+      let icon = '<i class="ph-light ph-credit-card"></i>';
       let color = 'linear-gradient(135deg, #2c2c2c, #1a1a1a)';
 
       if (cleanNumber.startsWith('4')) {
         type = 'Visa';
-        icon = '💳';
+        icon = '<i class="ph-light ph-credit-card"></i>';
         color = 'linear-gradient(135deg, #1a1f71, #0055a4)';
       } else if (cleanNumber.match(/^5[1-5]/)) {
         type = 'Mastercard';
-        icon = '💳';
+        icon = '<i class="ph-light ph-credit-card"></i>';
         color = 'linear-gradient(135deg, #eb001b, #f79e1b)';
       } else if (cleanNumber.startsWith('34') || cleanNumber.startsWith('37')) {
         type = 'Amex';
-        icon = '💳';
+        icon = '<i class="ph-light ph-credit-card"></i>';
         color = 'linear-gradient(135deg, #2e77bb, #00a6d6)';
       } else if (cleanNumber.startsWith('2')) {
         type = 'Mir';
-        icon = '💳';
+        icon = '<i class="ph-light ph-credit-card"></i>';
         color = 'linear-gradient(135deg, #004a34, #00a651)';
       }
 
@@ -7631,7 +8415,7 @@
                     <div class="sub-actions">
                         ${planId !== 'free' ? '<button class="btn btn-ghost" onclick="cancelSubscription()">Отменить подписку</button>' : ''}
                         <button class="btn-gold" onclick="openPaymentModalReal('${planId === 'free' ? 'keeper' : planId}')" style="margin-left:1rem; padding: 0.8rem 1.5rem;">
-                            ${planId === 'free' ? '💎 Перейти на Премиум' : '💳 Продлить'}
+                            ${planId === 'free' ? '<i class="ph-light ph-diamond"></i> Перейти на Премиум' : '<i class="ph-light ph-credit-card"></i> Продлить'}
                         </button>
                     </div>
                 `;
@@ -7645,11 +8429,11 @@
                         <div class="plan-mini-name">${p.name}</div>
                         <div class="plan-mini-price">₸${p.price} <span>/мес</span></div>
                         <ul class="plan-mini-features">
-                            <li><span>✓</span> ${p.maxSecrets === 999 ? 'Безлимит' : p.maxSecrets} тайн в сейфе</li>
-                            <li><span>✓</span> ${p.maxRelatives === 999 ? 'Безлимит' : p.maxRelatives} родственников</li>
-                            <li><span>${p.price > 0 ? '✓' : '✕'}</span> Страж жизни</li>
-                            <li><span>${p.price > 0 ? '✓' : '✕'}</span> Экспорт PDF</li>
-                            ${id === 'legacy' ? '<li><span>✓</span> Печатная книга жизни</li>' : ''}
+                            <li><span><i class="ph-light ph-check"></i></span> ${p.maxSecrets === 999 ? 'Безлимит' : p.maxSecrets} тайн в сейфе</li>
+                            <li><span><i class="ph-light ph-check"></i></span> ${p.maxRelatives === 999 ? 'Безлимит' : p.maxRelatives} родственников</li>
+                            <li><span>${p.price > 0 ? '<i class="ph-light ph-check"></i>' : '✕'}</span> Страж жизни</li>
+                            <li><span>${p.price > 0 ? '<i class="ph-light ph-check"></i>' : '✕'}</span> Экспорт PDF</li>
+                            ${id === 'legacy' ? '<li><span><i class="ph-light ph-check"></i></span> Печатная книга жизни</li>' : ''}
                         </ul>
                         <button class="btn ${id === planId ? 'btn-ghost' : 'btn-primary-sm'}" 
                                 onclick="buyFromLanding('${id}')" 
@@ -7691,7 +8475,7 @@
         if (planId === 'free') {
           if (confirm('Переключиться на бесплатный тариф?')) {
             setUserPlan('free', 0);
-            toast('✅ Бесплатный тариф активирован');
+            toast('<i class="ph-light ph-check-circle"></i> Бесплатный тариф активирован');
             location.reload();
           }
         } else {
@@ -7850,7 +8634,7 @@
         globeIsDragging = true;
         globePrevMouse = { x: e.clientX, y: e.clientY };
         globeAutoRotate = false;
-        document.getElementById('globe-auto-btn').textContent = '▶';
+        document.getElementById('globe-auto-btn').textContent = '<i class="ph-light ph-play"></i>';
       });
       canvas.addEventListener('mousemove', e => {
         if (!globeIsDragging) {
@@ -8014,7 +8798,7 @@
         if (data) {
           document.getElementById('gt-name').textContent = data.rel.name;
           document.getElementById('gt-rel').textContent = data.rel.rel || '';
-          document.getElementById('gt-city').textContent = data.rel.city ? '📍 ' + data.rel.city : `${data.rel.lat?.toFixed(2)}, ${data.rel.lon?.toFixed(2)}`;
+          document.getElementById('gt-city').textContent = data.rel.city ? '<i class="ph-light ph-map-pin"></i> ' + data.rel.city : `${data.rel.lat?.toFixed(2)}, ${data.rel.lon?.toFixed(2)}`;
           tip.style.display = 'block';
           const tx = Math.min(e.clientX - rect.left + 14, rect.width - 160);
           const ty = Math.max(e.clientY - rect.top - 60, 10);
@@ -8034,12 +8818,12 @@
       globeTargetRot = { x: 0.3, y: 0 };
       globeZoomTarget = 2.8;
       globeAutoRotate = true;
-      document.getElementById('globe-auto-btn').textContent = '⏸';
+      document.getElementById('globe-auto-btn').textContent = '<i class="ph-light ph-pause"></i>';
     }
 
     function toggleGlobeAuto() {
       globeAutoRotate = !globeAutoRotate;
-      document.getElementById('globe-auto-btn').textContent = globeAutoRotate ? '⏸' : '▶';
+      document.getElementById('globe-auto-btn').textContent = globeAutoRotate ? '<i class="ph-light ph-pause"></i>' : '<i class="ph-light ph-play"></i>';
     }
 
     function flyToMarker(lat, lon) {
@@ -8048,7 +8832,7 @@
       globeTargetRot.y = -(lon + 180) * Math.PI / 180 + Math.PI;
       globeZoomTarget = 1.8;
       globeAutoRotate = false;
-      document.getElementById('globe-auto-btn').textContent = '▶';
+      document.getElementById('globe-auto-btn').textContent = '<i class="ph-light ph-play"></i>';
     }
 
     function renderGlobeList() {
@@ -8056,12 +8840,12 @@
       if (!el) return;
       const rels = STATE.relatives.filter(r => r.lat && r.lon);
       if (!rels.length) {
-        el.innerHTML = `<div class="empty"><div class="empty-icon">📍</div><div class="empty-text">Нет отметок на глобусе</div><div class="empty-sub">Добавьте родственников — координаты определятся по городу автоматически</div></div>`;
+        el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-map-pin"></i></div><div class="empty-text">Нет отметок на глобусе</div><div class="empty-sub">Добавьте родственников — координаты определятся по городу автоматически</div></div>`;
         return;
       }
       el.innerHTML = rels.map(r => `
     <div class="list-item" onclick="flyToMarker(${r.lat},${r.lon})" style="cursor:pointer">
-      <div class="list-icon" style="background:rgba(${hexToRgb(MARKER_COLORS_HEX[r.access] || '#c9a84c')},0.12);border-color:rgba(${hexToRgb(MARKER_COLORS_HEX[r.access] || '#c9a84c')},0.3)">📍</div>
+      <div class="list-icon" style="background:rgba(${hexToRgb(MARKER_COLORS_HEX[r.access] || '#c9a84c')},0.12);border-color:rgba(${hexToRgb(MARKER_COLORS_HEX[r.access] || '#c9a84c')},0.3)"><i class="ph-light ph-map-pin"></i></div>
       <div class="list-meta">
         <div class="list-title">${esc(r.name)}</div>
         <div class="list-sub">${esc(r.city || '')} · ${r.lat?.toFixed(2)}, ${r.lon?.toFixed(2)}</div>
@@ -8208,8 +8992,8 @@
     function doCheckin() {
       STATE.swDays = STATE.swPeriod;
       saveUserData(); updateSwitchUI();
-      addActivity('✓ Подтверждение жизни — Страж сброшен');
-      toast('✓ Страж жизни сброшен. Следующая проверка через ' + STATE.swPeriod + ' дней');
+      addActivity('<i class="ph-light ph-check"></i> Подтверждение жизни — Страж сброшен');
+      toast('<i class="ph-light ph-check"></i> Страж жизни сброшен. Следующая проверка через ' + STATE.swPeriod + ' дней');
     }
 
     function updateSwitchUI() {
@@ -8231,7 +9015,7 @@
       const tag = document.getElementById('executor-tag');
       if (tag) { tag.className = 'tag tag-green'; tag.textContent = name; }
       addActivity('Назначен Душеприказчик: ' + name);
-      toast('✓ Душеприказчик назначен');
+      toast('<i class="ph-light ph-check"></i> Душеприказчик назначен');
     }
 
     // ═══════════════════════════════════════════
@@ -8301,7 +9085,7 @@
       if (!STATE.notifications || !STATE.notifications.length) {
         el.innerHTML = `
           <div class="empty">
-            <div class="empty-icon">📅</div>
+            <div class="empty-icon"><i class="ph-light ph-calendar"></i></div>
             <div class="empty-text">Нет активности</div>
           </div>`;
         return;
@@ -8348,7 +9132,7 @@
       saveUserData();
       setText('user-name-top', name.split(' ')[0]);
       setText('dash-name', name.split(' ')[0]);
-      toast('✓ Настройки сохранены');
+      toast('<i class="ph-light ph-check"></i> Настройки сохранены');
     }
 
     function exportData() {
@@ -8360,18 +9144,18 @@
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
       a.download = 'soulkeeper_export.json'; a.click();
-      toast('✓ Данные экспортированы');
+      toast('<i class="ph-light ph-check"></i> Данные экспортированы');
     }
 
     function exportPDF() {
       const plan = getUserPlan();
       if (plan.id === 'free') {
-        toast('🔒 PDF экспорт доступен в тарифе Хранитель');
+        toast('<i class="ph-light ph-lock"></i> PDF экспорт доступен в тарифе Хранитель');
         openPaymentModalReal('keeper');
         return;
       }
 
-      toast('⏳ Формирование PDF документа...');
+      toast('<i class="ph-light ph-hourglass"></i> Формирование PDF документа...');
 
       setTimeout(() => {
         const { jsPDF } = window.jspdf;
@@ -8424,7 +9208,7 @@
         });
 
         doc.save(`SoulKeeper_${STATE.user.name.replace(/\s/g, '_')}.pdf`);
-        toast('✅ PDF успешно сохранен');
+        toast('<i class="ph-light ph-check-circle"></i> PDF успешно сохранен');
         addActivity('Экспорт PDF документа');
       }, 1000);
     }
@@ -8475,7 +9259,7 @@
         const tag = document.getElementById('ext-db-tag');
         if (tag) { tag.className = 'tag tag-green'; tag.textContent = 'Connected'; }
         renderDbLog();
-        toast('✓ БД подключена (демо-режим)');
+        toast('<i class="ph-light ph-check"></i> БД подключена (демо-режим)');
       });
     }
 
@@ -8499,8 +9283,8 @@
     let obStep = 0;
     const obSteps = [
       { title: 'Добро пожаловать в SoulKeeper', sub: 'Ваш цифровой сейф для самого важного. Давайте за 2 минуты покажем как он работает.', content: '<div style="font-size:3rem;margin-bottom:1rem">◆</div>' },
-      { title: 'Добавьте первую тайну', sub: 'Сейф пуст и ждёт вас. Пароль, документ, семейная история — всё защищено AES-256.', content: '<div style="font-size:3rem;margin-bottom:1rem">🔐</div>' },
-      { title: 'Настройте Страж жизни', sub: 'Выберите период неактивности и назначьте Душеприказчика. Ваше наследие будет передано в нужный момент.', content: '<div style="font-size:3rem;margin-bottom:1rem">⏳</div>' },
+      { title: 'Добавьте первую тайну', sub: 'Сейф пуст и ждёт вас. Пароль, документ, семейная история — всё защищено AES-256.', content: '<div style="font-size:3rem;margin-bottom:1rem"><i class="ph-light ph-lock-key"></i></div>' },
+      { title: 'Настройте Страж жизни', sub: 'Выберите период неактивности и назначьте Душеприказчика. Ваше наследие будет передано в нужный момент.', content: '<div style="font-size:3rem;margin-bottom:1rem"><i class="ph-light ph-hourglass"></i></div>' },
     ];
     function showOnboarding() {
       if (DB.load('onboard_done_' + (STATE.user?.email || ''))) return;
@@ -8536,7 +9320,7 @@
       // Симуляция оплаты (в реальном проекте — платёжный шлюз)
       if (confirm(`Оплатить ${PLANS[planId].price} ₸ за месяц? (Демо-режим: нажмите ОК для активации)`)) {
         setUserPlan(planId, 1);
-        toast(`✅ Тариф «${PLANS[planId].name}» активирован на 30 дней!`);
+        toast(`<i class="ph-light ph-check-circle"></i> Тариф «${PLANS[planId].name}» активирован на 30 дней!`);
         closeModal('modal-upgrade');
         location.reload(); // перезагрузить для обновления лимитов
       }
@@ -8691,8 +9475,8 @@
       STATE.releaseTriggered = true;
 
       // Notif for owner
-      addActivity('‼️ СТРАЖ СРАБОТАЛ: Данные переданы наследникам');
-      toast('🚨 Внимание! Период неактивности истек. Данные переданы.');
+      addActivity('<i class="ph-light ph-warning"></i>️ СТРАЖ СРАБОТАЛ: Данные переданы наследникам');
+      toast('<i class="ph-light ph-warning-circle"></i> Внимание! Период неактивности истек. Данные переданы.');
 
       // Visual indicator in dashboard
       const dashHeader = document.querySelector('.page-header');
@@ -8701,7 +9485,7 @@
         alert.className = 'card';
         alert.style.cssText = 'background: rgba(231, 76, 60, 0.1); border: 1px solid var(--red); margin-bottom: 1.5rem; text-align: center; padding: 1rem;';
         alert.innerHTML = `
-                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🚨</div>
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="ph-light ph-warning-circle"></i></div>
                     <div style="font-weight: 600; color: var(--red); text-transform: uppercase; letter-spacing: 1px;">Режим Наследования Активирован</div>
                     <div style="font-size: 0.85rem; color: var(--muted); margin-top: 0.3rem;">Ваши доверенные лица получили доступ к сейфу из-за отсутствия активности.</div>
                     <button class="btn btn-primary-sm" style="margin-top: 1rem; background: var(--red);" onclick="doCheckin(); this.parentElement.remove(); STATE.releaseTriggered=false;">Отменить и сбросить таймер</button>
@@ -8724,6 +9508,7 @@
           globeCamera.updateProjectionMatrix();
         }
       }
+      resizeParticleCanvas();
       renderTree();
     });
 
@@ -8775,7 +9560,7 @@
       const elAddedMe = document.getElementById('conn-list-added-me');
       if (elAddedMe) {
         if (!addedMe.length) {
-          elAddedMe.innerHTML = '<div class="empty"><div class="empty-icon">🌳</div><div class="empty-text">Никто ещё не добавил вас</div><div class="empty-sub">Поделитесь кодом выше — родственники пришлют запрос</div></div>';
+          elAddedMe.innerHTML = '<div class="empty"><div class="empty-icon"><i class="ph-light ph-tree-structure"></i></div><div class="empty-text">Никто ещё не добавил вас</div><div class="empty-sub">Поделитесь кодом выше — родственники пришлют запрос</div></div>';
         } else {
           elAddedMe.innerHTML = addedMe.map((c, i) => {
             const accentCls = { heir: 'green', observer: 'blue', trusted: '' }[c.role] || '';
@@ -8800,7 +9585,7 @@
       const elIAdded = document.getElementById('conn-list-i-added');
       if (elIAdded) {
         if (!relatives.length) {
-          elIAdded.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">Вы ещё никого не добавили</div><div class="empty-sub">Добавляйте родственников через раздел «Родственники»</div></div>';
+          elIAdded.innerHTML = '<div class="empty"><div class="empty-icon"><i class="ph-light ph-users"></i></div><div class="empty-text">Вы ещё никого не добавили</div><div class="empty-sub">Добавляйте родственников через раздел «Родственники»</div></div>';
         } else {
           elIAdded.innerHTML = relatives.map(r => {
             const accentCls = { heir: 'green', observer: 'blue', trusted: '' }[r.access] || '';
@@ -8824,7 +9609,7 @@
       const elPending = document.getElementById('conn-list-pending');
       if (elPending) {
         if (!pending.length) {
-          elPending.innerHTML = '<div class="empty"><div class="empty-icon">✉️</div><div class="empty-text">Нет входящих запросов</div><div class="empty-sub">Когда кто-то введёт ваш код — запрос появится здесь</div></div>';
+          elPending.innerHTML = '<div class="empty"><div class="empty-icon"><i class="ph-light ph-envelope-simple"></i>️</div><div class="empty-text">Нет входящих запросов</div><div class="empty-sub">Когда кто-то введёт ваш код — запрос появится здесь</div></div>';
         } else {
           elPending.innerHTML = pending.map((p, i) => `
         <div class="conn-card">
@@ -8838,7 +9623,7 @@
           <div class="conn-right">
             <span class="conn-role-badge crb-pending">Ожидает</span>
             <div class="conn-pending-actions">
-              <button class="btn btn-primary-sm btn-sm" onclick="acceptConn(${i})">✓ Принять</button>
+              <button class="btn btn-primary-sm btn-sm" onclick="acceptConn(${i})"><i class="ph-light ph-check"></i> Принять</button>
               <button class="btn btn-danger btn-sm" onclick="declineConn(${i})">✕</button>
             </div>
           </div>
@@ -8865,7 +9650,7 @@
     function copyMyCode() {
       const code = document.getElementById('my-conn-code')?.textContent || _connCode(_connEmail());
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(code).then(() => toast('✓ Код скопирован: ' + code));
+        navigator.clipboard.writeText(code).then(() => toast('<i class="ph-light ph-check"></i> Код скопирован: ' + code));
       } else {
         toast('Ваш код: ' + code);
       }
@@ -8913,7 +9698,7 @@
         date: new Date().toLocaleDateString('ru')
       });
       DB.save('conn_pending_by_code_' + code, pending);
-      toast('✓ Запрос отправлен! Ожидайте подтверждения');
+      toast('<i class="ph-light ph-check"></i> Запрос отправлен! Ожидайте подтверждения');
       // Check if there's a local account with this code and inject pending for them
       const allUsers = DB.load('users', []);
       const target = allUsers.find(u => _connCode(u.email) === code);
@@ -8935,7 +9720,7 @@
       addedMe.push({ ...conn, type: 'added_me', date: new Date().toLocaleDateString('ru') });
       DB.save(_connKey('conn_added_me'), addedMe);
       DB.save('conn_pending_' + email, pending);
-      toast('✓ Принято: ' + conn.name + ' теперь в ваших связях');
+      toast('<i class="ph-light ph-check"></i> Принято: ' + conn.name + ' теперь в ваших связях');
       renderConnections();
     }
 
@@ -9024,9 +9809,9 @@
             <div class="l-plan-name">Страж</div>
             <div class="l-plan-price">₸0</div>
             <ul class="l-plan-features" style="font-size:0.75rem">
-              <li>✓ 5 тайн</li>
-              <li>✓ 3 главы</li>
-              <li>✓ 5 родственников</li>
+              <li><i class="ph-light ph-check"></i> 5 тайн</li>
+              <li><i class="ph-light ph-check"></i> 3 главы</li>
+              <li><i class="ph-light ph-check"></i> 5 родственников</li>
             </ul>
             <button class="l-plan-btn" onclick="upgradeToPlan('free')">Текущий</button>
           </div>
@@ -9035,9 +9820,9 @@
             <div class="l-plan-name">Хранитель</div>
             <div class="l-plan-price">₸2 490 <span>/мес</span></div>
             <ul class="l-plan-features" style="font-size:0.75rem">
-              <li>✓ Безлимит тайн</li>
-              <li>✓ Безлимит биографии</li>
-              <li>✓ Страж жизни</li>
+              <li><i class="ph-light ph-check"></i> Безлимит тайн</li>
+              <li><i class="ph-light ph-check"></i> Безлимит биографии</li>
+              <li><i class="ph-light ph-check"></i> Страж жизни</li>
             </ul>
             <button class="l-plan-btn" onclick="upgradeToPlan('keeper')">Выбрать</button>
           </div>
@@ -9046,14 +9831,14 @@
             <div class="l-plan-name">Наследие</div>
             <div class="l-plan-price">₸5 990 <span>/мес</span></div>
             <ul class="l-plan-features" style="font-size:0.75rem">
-              <li>✓ Всё из Хранителя</li>
-              <li>✓ 5 аккаунтов семьи</li>
-              <li>✓ Печатная книга</li>
+              <li><i class="ph-light ph-check"></i> Всё из Хранителя</li>
+              <li><i class="ph-light ph-check"></i> 5 аккаунтов семьи</li>
+              <li><i class="ph-light ph-check"></i> Печатная книга</li>
             </ul>
             <button class="l-plan-btn" onclick="upgradeToPlan('legacy')">Выбрать</button>
           </div>
         </div>
-        <div style="margin-top:1rem; font-size:0.7rem; text-align:center; color:var(--gold)">💳 После оплаты
+        <div style="margin-top:1rem; font-size:0.7rem; text-align:center; color:var(--gold)"><i class="ph-light ph-credit-card"></i> После оплаты
           тариф активируется мгновенно</div>
       </div>
     </div>
@@ -9074,9 +9859,9 @@
         <div class="field"><label>Способ оплаты</label>
           <select id="payment-method"
             style="width:100%; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.2); color:var(--ivory)">
-            <option value="card">💳 Банковская карта (Visa/Mastercard)</option>
-            <option value="kaspi">🏦 Kaspi.kz</option>
-            <option value="halyk">🏦 Halyk Bank</option>
+            <option value="card">Банковская карта (Visa/Mastercard)</option>
+            <option value="kaspi">Kaspi.kz</option>
+            <option value="halyk">Halyk Bank</option>
           </select>
         </div>
         <div class="field"><label>Период</label>
@@ -9087,17 +9872,17 @@
           </select>
         </div>
         <div style="background:var(--ink3); padding:1rem; margin:1rem 0; border-radius:4px; font-size:0.8rem">
-          🔒 Демо-режим: оплата не списывается. Нажмите "Оплатить" для активации подписки.
+          <i class="ph-light ph-lock-key"></i> Демо-режим: оплата не списывается. Нажмите "Оплатить" для активации подписки.
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('modal-payment')">Отмена</button>
-        <button class="btn btn-primary-sm" onclick="processPayment()">💳 Оплатить</button>
+        <button class="btn btn-primary-sm" onclick="processPayment()"><i class="ph-light ph-credit-card"></i> Оплатить</button>
       </div>
     </div>
   </div>
-  <!-- 💳 КРУТАЯ ПЛАТЕЖНАЯ ФОРМА -->
-  <!-- 💳 КРУТАЯ ПЛАТЕЖНАЯ ФОРМА -->
+  <!-- <i class="ph-light ph-credit-card"></i> КРУТАЯ ПЛАТЕЖНАЯ ФОРМА -->
+  <!-- <i class="ph-light ph-credit-card"></i> КРУТАЯ ПЛАТЕЖНАЯ ФОРМА -->
   <div class="modal-overlay" id="modal-payment-real">
     <div class="modal"
       style="max-width:500px; background: rgba(18,18,18,0.85); border: 1px solid rgba(201,168,76,0.2); backdrop-filter: blur(25px); border-radius: 32px; box-shadow: 0 30px 100px rgba(0,0,0,0.8); overflow: hidden;">
@@ -9105,7 +9890,7 @@
         <div class="modal-title" style="display: flex; align-items: center; gap: 15px;">
           <div
             style="width: 45px; height: 45px; background: rgba(201,168,76,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-            💳</div>
+            <i class="ph-light ph-credit-card"></i></div>
           <div>
             <div style="font-size: 1.2rem; font-weight: 600;">Оплата <em>подписки</em></div>
             <div style="font-size: 0.75rem; color: var(--gold); letter-spacing: 1px;" id="pay-title-modal">ТАРИФ:
@@ -9119,7 +9904,7 @@
 
         <!-- Card Visualization (Glassmorphism Plastic) -->
         <div class="credit-card-viz" id="card-viz" style="margin-bottom: 2rem;">
-          <div class="card-viz-type" id="card-viz-type">💳</div>
+          <div class="card-viz-type" id="card-viz-type"><i class="ph-light ph-credit-card"></i></div>
           <div class="card-viz-chip"></div>
           <div class="card-viz-number" id="card-viz-number">•••• •••• •••• ••••</div>
           <div class="card-viz-bottom">
@@ -9208,11 +9993,11 @@
           <img src="https://img.icons8.com/color/32/visa.png" alt="Visa">
           <img src="https://img.icons8.com/color/32/mastercard.png" alt="Mastercard">
           <img src="https://img.icons8.com/color/32/american-express.png" alt="Amex">
-          <span style="font-size: 24px; color: white;">🏦</span>
+          <span style="font-size: 24px; color: white;"><i class="ph-light ph-bank"></i></span>
         </div>
 
         <div style="margin-top: 1.5rem; text-align: center; font-size: 0.65rem; color: var(--muted2);">
-          🔒 Безопасность обеспечена сквозным шифрованием SSL 256-bit
+          <i class="ph-light ph-lock-key"></i> Безопасность обеспечена сквозным шифрованием SSL 256-bit
         </div>
       </div>
     </div>
@@ -9248,11 +10033,11 @@
   <div class="modal-overlay" id="modal-vault-prompt">
     <div class="modal" style="max-width:400px; text-align:center;">
       <div class="modal-head">
-        <div class="modal-title">🔐 Доступ <em>защищен</em></div>
+        <div class="modal-title"><i class="ph-light ph-lock-key"></i> Доступ <em>защищен</em></div>
         <button class="modal-close" onclick="closeModal('modal-vault-prompt')">✕</button>
       </div>
       <div class="modal-body" style="padding: 2rem;">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
+        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--gold);"><i class="ph-light ph-shield-check"></i></div>
         <input type="hidden" id="vault-prompt-id">
         <div class="field">
           <label style="display:block; margin-bottom:12px; font-size:0.9rem;">Введите мастер-пароль для этой тайны</label>
@@ -9272,7 +10057,7 @@
     <div class="modal" style="max-width:500px; background:rgba(18,18,18,0.9); border:1px solid var(--gold-d3); backdrop-filter:blur(30px); border-radius:24px;">
       <div class="modal-head" style="border-bottom:1px solid rgba(212,175,55,0.1); padding:1.5rem 2rem;">
         <div class="modal-title" style="display:flex; align-items:center; gap:12px;">
-          <div id="sv-icon" style="font-size:1.5rem;">🔐</div>
+          <div id="sv-icon" style="font-size:1.5rem; color: var(--gold);"><i class="ph-light ph-lock-key"></i></div>
           <div>
             <div id="sv-title" style="font-size:1.1rem; font-weight:600; color:var(--ivory);">Название тайны</div>
             <div id="sv-cat" style="font-size:0.7rem; color:var(--gold); text-transform:uppercase; letter-spacing:1px;">КАТЕГОРИЯ</div>
@@ -9282,7 +10067,7 @@
       </div>
       <div class="modal-body" style="padding:2rem;">
         <div id="sv-vault-badge" style="display:none; align-items:center; gap:8px; margin-bottom:1.5rem; padding:8px 12px; background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.2); border-radius:8px; color:var(--green); font-size:0.75rem;">
-           <span>🛡️</span> Данные успешно расшифрованы мастер-паролем
+           <i class="ph-light ph-shield-check"></i> Данные успешно расшифрованы мастер-паролем
         </div>
 
         <div id="sv-media-gallery-wrap" style="margin-bottom:1.5rem; display:none;"></div>
@@ -9293,7 +10078,7 @@
             style="width:100%; min-height:120px; background:rgba(0,0,0,0.3); border:1px solid rgba(212,175,55,0.15); border-radius:12px; padding:15px; color:var(--ivory2); font-family:monospace; font-size:1rem; resize:none; outline:none; line-height:1.5;"></textarea>
           <button class="btn-copy-secret" onclick="copySecretContent()" 
             style="position:absolute; bottom:12px; right:12px; background:var(--gold); color:var(--ink); border:none; padding:6px 12px; border-radius:6px; font-size:0.7rem; font-weight:600; cursor:pointer; transition:0.2s;">
-            📋 Копировать
+            <i class="ph-light ph-copy"></i> Копировать
           </button>
         </div>
         
