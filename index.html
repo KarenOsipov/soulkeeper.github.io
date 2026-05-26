@@ -2937,6 +2937,53 @@
       filter: url(#line-glow);
     }
 
+    /* ════════════════════════════════════════════
+   TREE SIDE PANEL
+════════════════════════════════════════════ */
+    .tree-side-panel {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 480px;
+      max-width: 95vw;
+      background: rgba(13, 11, 24, 0.85);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-left: 1px solid rgba(201, 168, 76, 0.2);
+      z-index: 2000;
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+      padding: 4rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -20px 0 60px rgba(0,0,0,0.6);
+      overflow-y: auto;
+    }
+
+    .tree-side-panel.active {
+      transform: translateX(0);
+    }
+
+    .side-panel-close {
+      position: absolute;
+      top: 1.5rem; right: 1.5rem;
+      width: 40px; height: 40px;
+      background: rgba(201, 168, 76, 0.1);
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      color: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      z-index: 10;
+      font-size: 1.2rem;
+    }
+
+    .side-panel-close:hover {
+      background: var(--gold);
+      color: var(--ink);
+      transform: rotate(90deg);
+    }
+
     /* Full-screen tree specifics */
     #screen-app {
       background: var(--ink);
@@ -2992,7 +3039,7 @@
     }
 
     /* The Node Card itself */
-    .tree-node {
+    .tree .tree-node {
       background: rgba(15, 13, 22, 0.7);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(201, 168, 76, 0.2);
@@ -4548,7 +4595,7 @@
           Сохрани всё, что<br><em>важно тебе</em>
         </h1>
         <p class="l-hero-sub">
-          SoulKeeper — хранилище твоей жизни. Тайны, биография, послания близким, семейное дерево и
+          SoulKeeper — хранилище твоей жизни. Тайны, биография, послания близким, древо жизни и
           автоматическая передача наследства. Всё под защитой военного шифрования.
         </p>
         <div class="l-hero-actions">
@@ -4619,7 +4666,7 @@
           <div class="l-feat anim-reveal">
             <div class="l-feat-num">04</div>
             <div class="l-feat-icon" style="color:var(--gold)"><i class="ph-light ph-tree-structure"></i></div>
-            <div class="l-feat-title">Древо рода</div>
+            <div class="l-feat-title">Древо жизни</div>
             <div class="l-feat-desc">Интерактивное генеалогическое дерево с разграничением прав доступа.
               Наследники, наблюдатели, доверенные лица — каждый видит своё.</div>
           </div>
@@ -5033,7 +5080,7 @@
         <div class="dock-sep"></div>
         <div class="dock-item" onclick="goPage('relatives')" id="nav-relatives" data-tooltip="Семья"><span
             class="dock-icon"><i class="ph-light ph-users"></i></span></div>
-        <div class="dock-item" onclick="goPage('tree')" id="nav-tree" data-tooltip="Древо рода"><span
+        <div class="dock-item" onclick="goPage('tree')" id="nav-tree" data-tooltip="Древо жизни"><span
             class="dock-icon"><i class="ph-light ph-tree-structure"></i></span></div>
         <div class="dock-item" onclick="goPage('globe')" id="nav-globe" data-tooltip="Глобус"><span
             class="dock-icon"><i class="ph-light ph-globe"></i></span></div>
@@ -5322,7 +5369,7 @@
         <div class="page" id="page-tree">
           <div class="tree-overlay-top">
             <div class="tree-overlay-title">
-              <h1>Древо <em>рода</em></h1>
+              <h1>Древо <em>жизни</em></h1>
               <p>Интерактивное наследие</p>
             </div>
             <div class="tree-overlay-actions">
@@ -5376,7 +5423,6 @@
               <!-- Content injected via JS -->
             </div>
           </div>
-        </div>
 
         <!-- ── GLOBE ── -->
         <div class="page" id="page-globe">
@@ -5758,7 +5804,7 @@
           <div class="page-header">
             <div>
               <div class="page-title">Мои <em>связи</em></div>
-              <div class="page-sub">Кто добавил вас в своё семейное дерево</div>
+              <div class="page-sub">Кто добавил вас в своё древо жизни</div>
             </div>
             <div class="page-actions">
               <button class="btn btn-ghost btn-sm" onclick="refreshConnections()">↻ Обновить</button>
@@ -7041,6 +7087,7 @@
     // PAGE NAVIGATION
     // ═══════════════════════════════════════════
     function goPage(name) {
+      closeSidePanel();
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       const page = document.getElementById('page-' + name);
@@ -7057,7 +7104,6 @@
       if (name === 'tree') renderTree();
       const mainTabs = ['dash', 'secrets', 'connections', 'tree'];
       if (mainTabs.includes(name)) mobSetActive(name);
-      if (name === 'subscription') renderSubscriptionPage();
     }
 
     // ═══════════════════════════════════════════
@@ -7355,26 +7401,10 @@
       toast('Тайна удалена');
     }
 
-    function handleBioMedia(input) {
-        const file = input.files[0];
-        if (!file) return;
-        if (file.size > 800000) { toast('<i class="ph-light ph-x-circle"></i> Фото слишком тяжелое'); return; }
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = e.target.result;
-            document.getElementById('b-media-data').value = data;
-            const preview = document.getElementById('b-media-preview');
-            preview.style.backgroundImage = `url(${data})`;
-            preview.style.display = 'block';
-            toast('<i class="ph-light ph-camera"></i> Фото готово');
-        };
-        reader.readAsDataURL(file);
-    }
-
     // ═══════════════════════════════════════════
     // BIO
     // ═══════════════════════════════════════════
+
     let editingBioId = null;
 
     function saveBio() {
@@ -7787,8 +7817,13 @@
         if (r.motherId === id) r.motherId = '';
         if (r.spouseId === id) r.spouseId = '';
       });
-      saveUserData(); renderRelatives(); renderTree(); renderGlobeList();
+      saveUserData(); 
+      renderRelatives(); 
+      renderTree(); 
+      renderGlobeList();
+      if (typeof globeInit !== 'undefined' && globeInit) updateGlobeMarkers();
       updateDashStats();
+      updateBadges();
       toast('Удалено');
     }
 
@@ -7809,9 +7844,9 @@
         const el = document.getElementById(id);
         if (!el) return;
         const list = relSearch ? STATE.relatives.filter(r => r.name.toLowerCase().includes(relSearch)) : STATE.relatives;
-        if (!list.length) { 
-          el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-users"></i></div><div class="empty-text">Древо пока пусто</div></div>`; 
-          return; 
+        if (!list.length) {
+          el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-users"></i></div><div class="empty-text">Древо пока пусто</div></div>`;
+          return;
         }
         el.innerHTML = list.map(r => `
       <div class="list-item" onclick="openSidePanel('${r.id}')" style="cursor:pointer">
@@ -7847,15 +7882,6 @@
       }
       return true;
     }
-
-    function deleteRel(id) {
-      STATE.relatives = STATE.relatives.filter(r => r.id !== id);
-      saveUserData(); renderRelatives(); renderTree(); renderGlobeList();
-      if (globeInit) updateGlobeMarkers();
-      updateDashStats(); updateBadges();
-      toast('Родственник удалён');
-    }
-
     // ═══════════════════════════════════════════
     // FAMILY TREE v5.1 (Fixed Immersive Core)
     // ═══════════════════════════════════════════
@@ -7938,8 +7964,10 @@
         
         const node = allNodes.find(n => n.id === id);
         if (node && !collapsedNodes.has(id)) {
-          node.children.forEach(cid => assignLevel(cid, level + 1));
-          node.spouses.forEach(sid => { if (!processed.has(sid)) { levels[level].push(sid); processed.add(sid); } });
+          // Process children at the next level
+          if (node.children) node.children.forEach(cid => assignLevel(cid, level + 1));
+          // Process spouses at the same level
+          if (node.spouses) node.spouses.forEach(sid => assignLevel(sid, level));
         }
       }
 
@@ -8051,7 +8079,6 @@
       renderLines(allNodes, nodePositions, svgLayer);
 
       if (treePanX === 0 && treePanY === 0) treeReset();
-      if (!particleCanvas) initTreeParticles();
     }
 
     function renderLines(nodes, positions, svg) {
@@ -8122,9 +8149,127 @@
       const container = document.getElementById('family-tree-container');
       if (!container) return;
       treeScale = 0.55;
-      treePanX = container.clientWidth / 2;
+      treePanX = container.clientWidth / 2 - 140; // Center the first node (width 280)
       treePanY = 120;
       applyTreeTransform();
+    }
+
+    function applyTreeTransform() {
+      const canvas = document.getElementById('tree-canvas');
+      if (canvas) {
+        canvas.style.transform = `translate(${treePanX}px, ${treePanY}px) scale(${treeScale})`;
+      }
+    }
+
+    function treeZoom(delta) {
+      treeScale *= delta;
+      if (treeScale < 0.1) treeScale = 0.1;
+      if (treeScale > 5) treeScale = 5;
+      applyTreeTransform();
+    }
+
+    function startPan(e) {
+      if (e.button !== 0 || isEditMode) return;
+      isPanning = true;
+      const startX = e.clientX - treePanX;
+      const startY = e.clientY - treePanY;
+      
+      const onMouseMove = (moveE) => {
+        if (!isPanning) return;
+        treePanX = moveE.clientX - startX;
+        treePanY = moveE.clientY - startY;
+        applyTreeTransform();
+      };
+      
+      const onMouseUp = () => {
+        isPanning = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+      
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function openSidePanel(id) {
+      const panel = document.getElementById('tree-side-panel');
+      const content = document.getElementById('side-panel-content');
+      if (!panel || !content) return;
+      
+      const node = (id === 'you') ? { 
+        name: STATE.user ? STATE.user.name : 'Вы', 
+        rel: 'Глава рода', 
+        city: STATE.settings?.city || 'Мир',
+        desc: 'Это ваш профиль. Здесь вы можете управлять своим наследием.',
+        photo: STATE.user?.photoURL,
+        access: 'heir'
+      } : STATE.relatives.find(r => r.id === id);
+      
+      if (!node) return;
+      
+      content.innerHTML = `
+        <div style="text-align:center; margin-bottom:2rem;">
+          <div style="width:120px; height:120px; margin:0 auto 1.5rem; border-radius:30px; background:var(--ink3); display:flex; align-items:center; justify-content:center; font-size:3.5rem; color:var(--gold2); border:2px solid var(--gold-d3); overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+            ${node.photo ? `<img src="${node.photo}" style="width:100%; height:100%; object-fit:cover;">` : (node.name || '?').charAt(0).toUpperCase()}
+          </div>
+          <h2 style="font-family:var(--serif); font-size:2rem; margin-bottom:0.5rem; color:var(--ivory); letter-spacing:-0.5px;">${esc(node.name)}</h2>
+          <div style="color:var(--gold); text-transform:uppercase; letter-spacing:3px; font-size:0.75rem; font-weight:700; opacity:0.9;">${esc(node.rel || (id==='you'?'Глава рода':'Родственник'))}</div>
+        </div>
+        
+        <div class="card" style="margin-bottom:2rem; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:1.5rem; border-radius:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:1.2rem; align-items:center;">
+            <span style="color:var(--muted); font-size:0.85rem;">Местоположение</span>
+            <span style="color:var(--ivory); font-weight:500;">${esc(node.city || '—')}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--muted); font-size:0.85rem;">Статус доступа</span>
+            <span class="tag" style="border-color:${accessColor[node.access]||'var(--gold)'}; color:${accessColor[node.access]||'var(--gold)'}; padding:4px 12px; font-weight:600;">${_roleLabel(node.access || 'heir')}</span>
+          </div>
+        </div>
+        
+        <div class="section-label" style="margin-bottom:1rem; opacity:0.7;">История и биография</div>
+        <div class="card" style="line-height:1.8; font-size:1rem; color:var(--ivory2); background:rgba(0,0,0,0.25); border:1px solid rgba(201,168,76,0.1); padding:1.5rem; border-radius:16px; min-height:100px;">
+          ${esc(node.desc || 'Биография ещё не заполнена. Добавьте важные факты и воспоминания.')}
+        </div>
+        
+        <div style="margin-top:auto; padding-top:2.5rem; display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+          <button class="btn btn-primary-sm" style="padding:1rem; font-weight:600;" onclick="openEditRelative('${id}')"><i class="ph-light ph-pencil"></i> Изменить</button>
+          <button class="btn btn-ghost" style="padding:1rem;" onclick="closeSidePanel()">Закрыть</button>
+        </div>
+      `;
+      
+      panel.classList.add('active');
+    }
+
+    function closeSidePanel() {
+      document.getElementById('tree-side-panel')?.classList.remove('active');
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      html.classList.toggle('light-theme');
+      const isLight = html.classList.contains('light-theme');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      const icon = document.getElementById('theme-icon');
+      if (icon) {
+        icon.className = isLight ? 'ph-light ph-sun' : 'ph-light ph-moon-stars';
+      }
+    }
+
+    function exportTreeJSON() {
+      const data = {
+        user: STATE.user,
+        relatives: STATE.relatives,
+        settings: STATE.settings,
+        exportDate: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `soulkeeper_tree_${Date.now()}.json`;
+      a.click();
+      toast('Данные дерева экспортированы');
     }
 
     function toggleCollapse(id) {
@@ -9508,7 +9653,6 @@
           globeCamera.updateProjectionMatrix();
         }
       }
-      resizeParticleCanvas();
       renderTree();
     });
 
@@ -9658,7 +9802,7 @@
 
     function shareMyCode() {
       const code = document.getElementById('my-conn-code')?.textContent || _connCode(_connEmail());
-      const text = `Привет! Добавь меня в своё семейное дерево SoulKeeper.\nМой код: ${code}`;
+      const text = `Привет! Добавь меня в своё древо жизни SoulKeeper.\nМой код: ${code}`;
       if (navigator.share) {
         navigator.share({ title: 'SoulKeeper — мой код', text }).catch(() => copyMyCode());
       } else {
