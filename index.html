@@ -2731,143 +2731,76 @@
 
     .tree-overlay-top {
       position: absolute;
-      top: 1.5rem; left: 1.5rem; right: 1.5rem;
+      top: 1.5rem; 
+      left: 7rem; 
+      right: 1.5rem;
       z-index: 500;
       display: flex;
       justify-content: space-between;
       align-items: center;
       pointer-events: none;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
+
+    @media (max-width: 900px) {
+      .tree-overlay-top { left: 1.5rem; }
+      .tree-overlay-title h1 { font-size: 1.4rem; }
+    }
+
     .tree-overlay-top > * { pointer-events: auto; }
 
-    .search-mini {
-      position: relative;
-      display: flex;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--glass-border);
-      border-radius: 50px;
-      padding: 0 0.8rem;
-      transition: all 0.3s;
-      margin-right: 0.5rem;
-    }
-    .search-mini:focus-within {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: var(--gold);
-      box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
-    }
-    .search-mini i {
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
-    .search-mini input {
-      background: none;
-      border: none;
-      color: var(--ivory);
-      font-family: var(--sans);
-      font-size: 0.8rem;
-      padding: 0.4rem 0.5rem;
-      outline: none;
-      width: 100px;
-      transition: width 0.3s;
-    }
-    .search-mini input:focus {
-      width: 160px;
-    }
-
-    .tree-overlay-title h1 {
-      font-family: var(--serif);
-      font-size: 1.8rem;
-      font-weight: 300;
-      color: var(--ivory);
-      margin-bottom: 0.1rem;
-    }
-    .tree-overlay-title p {
-      font-size: 0.65rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0.8;
-    }
-
-    .tree-overlay-actions {
-      display: flex;
-      gap: 0.8rem;
-      align-items: center;
-      background: rgba(15, 13, 22, 0.6);
-      backdrop-filter: blur(15px);
-      padding: 0.5rem 1rem;
-      border-radius: 50px;
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
+    /* ... rest of overlay styles ... */
 
     .tree-overlay-bottom {
       position: absolute;
-      bottom: 1.5rem; left: 1.5rem; right: 1.5rem;
+      bottom: 1.5rem; 
+      left: 7rem; 
+      right: 1.5rem;
       z-index: 500;
       display: flex;
       justify-content: space-between;
       align-items: center;
       pointer-events: none;
     }
+
+    @media (max-width: 640px) {
+      .tree-overlay-bottom { left: 1.5rem; }
+    }
+
     .tree-overlay-bottom > * { pointer-events: auto; }
 
-    .tree-controls-horizontal {
-      display: flex;
-      gap: 0.6rem;
-      background: rgba(15, 13, 22, 0.6);
-      backdrop-filter: blur(15px);
-      padding: 0.5rem;
-      border-radius: 20px;
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
-
-    .tree-legend-minimal {
-      display: flex;
-      gap: 1.2rem;
-      background: rgba(15, 13, 22, 0.6);
-      backdrop-filter: blur(15px);
-      padding: 0.5rem 1.2rem;
-      border-radius: 50px;
-      border: 1px solid var(--glass-border);
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-    }
-
-    .tree-node {
+    /* Interactive Ports */
+    .tree-port {
       position: absolute;
-      width: 280px;
-      padding: 0;
-      background: rgba(20, 18, 26, 0.8);
-      border: 1px solid rgba(212, 175, 55, 0.15);
-      border-radius: 20px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-      cursor: grab;
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s, border-color 0.3s;
-      overflow: visible;
-    }
-    
-    /* Node connection ports */
-    .tree-node::before, .tree-node::after {
-      content: '';
-      position: absolute;
-      width: 10px; height: 10px;
-      background: var(--gold);
-      border: 2px solid var(--ink);
+      width: 14px; height: 14px;
+      background: var(--ink);
+      border: 2px solid var(--gold);
       border-radius: 50%;
       left: 50%; transform: translateX(-50%);
-      z-index: 2;
-      opacity: 0;
-      transition: opacity 0.3s;
+      z-index: 100;
+      cursor: crosshair;
+      transition: all 0.2s;
+      opacity: 0.6;
     }
-    .tree-node::before { top: -5px; } /* Input */
-    .tree-node::after { bottom: -5px; } /* Output */
-    .tree-node:hover::before, .tree-node:hover::after { opacity: 1; }
+    .tree-port:hover {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.3);
+      box-shadow: 0 0 10px var(--gold);
+    }
+    .port-top { top: -7px; }
+    .port-bottom { bottom: -7px; }
+
+    .tree-node:hover .tree-port { opacity: 0.8; }
+
+    .connection-temp-line {
+      stroke: var(--gold);
+      stroke-width: 2;
+      stroke-dasharray: 5,5;
+      fill: none;
+      opacity: 0.6;
+      pointer-events: none;
+    }
 
     .tree-node.me {
       border-color: var(--gold);
@@ -5415,29 +5348,29 @@
           <div id="relatives-list"></div>
         </div>
 
-        <!-- ── FAMILY TREE v5.2 (Restored & Fixed) ── -->
+        <!-- ── FAMILY TREE v5.6 (Fixed Layout & Interactive Nodes) ── -->
         <div class="page" id="page-tree">
-          <div class="tree-overlay-top">
-            <div class="tree-overlay-title">
-              <h1>Древо <em>жизни</em></h1>
-              <p>Интерактивное наследие</p>
+          <div class="tree-header-v5">
+            <div class="tree-header-left">
+              <div class="page-title">Древо <em>жизни</em></div>
+              <div class="page-sub">Интерактивная карта вашего наследия</div>
             </div>
-            <div class="tree-overlay-actions">
+            <div class="tree-header-center">
               <div class="search-mini">
                 <i class="ph-light ph-magnifying-glass"></i>
-                <input type="text" placeholder="Поиск..." oninput="treeSearch(this.value)">
+                <input type="text" id="tree-search-input" placeholder="Поиск в роду..." oninput="renderTree()">
               </div>
+            </div>
+            <div class="tree-header-right">
               <button class="btn btn-ghost btn-sm" onclick="toggleEditMode()" id="tree-edit-mode-btn">
-                <i class="ph-light ph-pencil"></i> Режим правок
+                <i class="ph-light ph-pencil"></i>
               </button>
-              <button class="btn btn-primary-sm" onclick="openModal('modal-relative')">+ Добавить</button>
+              <button class="btn btn-primary-sm" onclick="openModal('modal-relative')">+ Родственник</button>
             </div>
           </div>
 
           <div class="tree-container" id="family-tree-container" onmousedown="startPan(event)">
-            <!-- Dynamic particles background -->
-            <canvas id="tree-bg-particles" style="position: absolute; inset: 0; pointer-events: none; opacity: 0.2;"></canvas>
-            
+            <!-- Interactive Canvas -->
             <div class="tree-canvas" id="tree-canvas">
               <svg id="tree-svg-layer">
                 <defs>
@@ -5450,17 +5383,13 @@
               <div class="tree-nodes-layer" id="tree-nodes-layer"></div>
             </div>
 
-            <div class="tree-overlay-bottom">
-              <div class="tree-legend-minimal">
-                <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> Семья</div>
-                <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Связи</div>
-              </div>
+            <!-- Bottom Floating Controls (Keep small and bottom-right) -->
+            <div class="tree-bottom-controls">
               <div class="tree-controls-horizontal">
-                <div class="tree-btn" onclick="treeZoom(1.2)" title="Приблизить"><i class="ph-light ph-plus"></i></div>
-                <div class="tree-btn" onclick="treeZoom(0.8)" title="Отдалить"><i class="ph-light ph-minus"></i></div>
-                <div class="tree-btn" onclick="treeReset()" title="Центрировать"><i class="ph-light ph-arrows-out"></i></div>
-                <div class="tree-btn" onclick="toggleTheme()" title="Сменить тему"><i class="ph-light ph-moon-stars" id="theme-icon"></i></div>
-                <div class="tree-btn" onclick="exportTreeJSON()" title="Экспорт"><i class="ph-light ph-download-simple"></i></div>
+                <div class="tree-btn" onclick="treeZoom(1.2)"><i class="ph-light ph-plus"></i></div>
+                <div class="tree-btn" onclick="treeZoom(0.8)"><i class="ph-light ph-minus"></i></div>
+                <div class="tree-btn" onclick="treeReset()"><i class="ph-light ph-arrows-out"></i></div>
+                <div class="tree-btn" onclick="exportTreeJSON()"><i class="ph-light ph-download-simple"></i></div>
               </div>
             </div>
           </div>
@@ -7973,6 +7902,91 @@
       renderTree();
     }
 
+    let connectionStart = null;
+
+    function startConnect(e, nodeId, type) {
+      e.stopPropagation();
+      e.preventDefault();
+      const container = document.getElementById('family-tree-container');
+      if (!container) return;
+      
+      const pos = manualPositions[nodeId] || {x:0, y:0};
+      const nodeWidth = 280;
+      const nodeHeight = 135;
+      
+      const startX = pos.x + nodeWidth / 2;
+      const startY = type === 'child' ? pos.y + nodeHeight : pos.y;
+      
+      connectionStart = { nodeId, type, x: startX, y: startY };
+      document.addEventListener('mousemove', doConnect);
+      document.addEventListener('mouseup', endConnect);
+    }
+
+    function doConnect(e) {
+      if (!connectionStart) return;
+      const container = document.getElementById('family-tree-container');
+      const rect = container.getBoundingClientRect();
+      const svg = document.getElementById('tree-svg-layer');
+      if (!svg) return;
+
+      const mouseX = (e.clientX - rect.left - treePanX) / treeScale;
+      const mouseY = (e.clientY - rect.top - treePanY) / treeScale;
+      
+      let tempLine = document.getElementById('temp-connection-line');
+      if (!tempLine) {
+        tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        tempLine.id = 'temp-connection-line';
+        tempLine.setAttribute('class', 'connection-temp-line');
+        svg.appendChild(tempLine);
+      }
+      
+      const d = `M${connectionStart.x},${connectionStart.y} C${connectionStart.x},${(connectionStart.y + mouseY)/2} ${mouseX},${(connectionStart.y + mouseY)/2} ${mouseX},${mouseY}`;
+      tempLine.setAttribute('d', d);
+    }
+
+    function endConnect(e) {
+      document.removeEventListener('mousemove', doConnect);
+      document.removeEventListener('mouseup', endConnect);
+      const tempLine = document.getElementById('temp-connection-line');
+      if (tempLine) tempLine.remove();
+      if (!connectionStart) return;
+      
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const targetNodeEl = el ? el.closest('.tree-node') : null;
+      
+      if (targetNodeEl && targetNodeEl.dataset.id !== connectionStart.nodeId) {
+        const targetId = targetNodeEl.dataset.id;
+        const sourceId = connectionStart.nodeId;
+        
+        // Find actual data objects
+        const sourceObj = (sourceId === 'you') ? {id: 'you', name: 'Вы'} : STATE.relatives.find(r => r.id === sourceId);
+        const targetObj = (targetId === 'you') ? {id: 'you', name: 'Вы'} : STATE.relatives.find(r => r.id === targetId);
+
+        if (sourceObj && targetObj) {
+          if (connectionStart.type === 'child') {
+            // Dragged from bottom (parent) to target (child)
+            if (targetId === 'you') {
+              toast('Вы не можете быть чьим-то ребенком здесь');
+            } else {
+              targetObj.fatherId = sourceId;
+              toast(`Связь установлена: ${sourceObj.name} → отец ${targetObj.name}`);
+            }
+          } else {
+            // Dragged from top (child) to target (parent)
+            if (sourceId === 'you') {
+              toast('Вы не можете быть чьим-то ребенком здесь');
+            } else {
+              sourceObj.fatherId = targetId;
+              toast(`Связь установлена: ${targetObj.name} → отец ${sourceObj.name}`);
+            }
+          }
+          saveUserData();
+          renderTree();
+        }
+      }
+      connectionStart = null;
+    }
+
     function renderTree() {
       const nodesLayer = document.getElementById('tree-nodes-layer');
       const svgLayer = document.getElementById('tree-svg-layer');
@@ -7986,11 +8000,7 @@
 
       const rels = STATE.relatives || [];
       const userNode = {
-        id: 'you',
-        name: STATE.user ? STATE.user.name : 'Вы',
-        rel: 'Глава рода',
-        access: 'heir',
-        isMe: true,
+        id: 'you', name: STATE.user ? STATE.user.name : 'Вы', rel: 'Глава рода', access: 'heir', isMe: true,
         children: rels.filter(r => r.fatherId === 'you' || r.motherId === 'you').map(r => r.id),
         spouses: rels.filter(r => r.spouseId === 'you').map(r => r.id)
       };
@@ -8001,7 +8011,6 @@
         spouses: rels.filter(x => x.spouseId === r.id).concat(rels.filter(x => x.id === r.spouseId)).map(x => x.id)
       }))];
 
-      // Layout Calculation
       const levels = {};
       const nodePositions = { ...manualPositions };
       const processed = new Set();
@@ -8011,12 +8020,9 @@
         processed.add(id);
         if (!levels[level]) levels[level] = [];
         levels[level].push(id);
-        
         const node = allNodes.find(n => n.id === id);
         if (node && !collapsedNodes.has(id)) {
-          // Process children at the next level
           if (node.children) node.children.forEach(cid => assignLevel(cid, level + 1));
-          // Process spouses at the same level
           if (node.spouses) node.spouses.forEach(sid => assignLevel(sid, level));
         }
       }
@@ -8024,86 +8030,67 @@
       assignLevel('you', 0);
       allNodes.forEach(n => { if (!processed.has(n.id)) assignLevel(n.id, 0); });
 
-      const nodeWidth = 280;
-      const verticalGap = 320;
-      const horizontalGap = 120;
-
       Object.keys(levels).forEach(level => {
         const l = parseInt(level);
         const nodesInLevel = levels[level];
-        const totalWidth = nodesInLevel.length * (nodeWidth + horizontalGap) - horizontalGap;
+        const totalWidth = nodesInLevel.length * 400 - 120;
         nodesInLevel.forEach((id, idx) => {
-          if (!nodePositions[id]) {
-            nodePositions[id] = {
-              x: (idx * (nodeWidth + horizontalGap)) - (totalWidth / 2),
-              y: l * verticalGap
-            };
-          }
+          if (!nodePositions[id]) nodePositions[id] = { x: (idx * 400) - (totalWidth / 2), y: l * 300 };
         });
       });
 
-      // Render Nodes
       allNodes.forEach(n => {
         const pos = nodePositions[n.id];
         if (!pos) return;
 
         const isMatch = treeSearchQuery && (n.name.toLowerCase().includes(treeSearchQuery) || (n.rel || '').toLowerCase().includes(treeSearchQuery));
-        
         const el = document.createElement('div');
         el.className = `tree-node ${n.isMe ? 'me' : ''} ${isEditMode ? 'wiggle' : ''} ${isMatch ? 'search-match' : ''}`;
+        el.dataset.id = n.id;
         el.style.left = `${pos.x}px`;
         el.style.top = `${pos.y}px`;
         el.style.zIndex = n.isMe ? '50' : '10';
         
         if (isEditMode) {
           el.onmousedown = (e) => {
-            if (e.button !== 0) return;
+            if (e.button !== 0 || e.target.closest('.tree-port')) return;
             e.stopPropagation();
             el.style.zIndex = '9999';
-            const startX = e.clientX;
-            const startY = e.clientY;
-            const nodeStartX = pos.x;
-            const nodeStartY = pos.y;
-            
+            const startX = e.clientX, startY = e.clientY;
+            const nodeStartX = pos.x, nodeStartY = pos.y;
             const onMouseMove = (moveE) => {
-              const dx = (moveE.clientX - startX) / treeScale;
-              const dy = (moveE.clientY - startY) / treeScale;
-              const newX = nodeStartX + dx;
-              const newY = nodeStartY + dy;
-              el.style.left = newX + 'px';
-              el.style.top = newY + 'px';
+              const dx = (moveE.clientX - startX) / treeScale, dy = (moveE.clientY - startY) / treeScale;
+              const newX = nodeStartX + dx, newY = nodeStartY + dy;
+              el.style.left = newX + 'px'; el.style.top = newY + 'px';
               nodePositions[n.id] = { x: newX, y: newY };
               manualPositions[n.id] = { x: newX, y: newY };
               renderLines(allNodes, nodePositions, svgLayer);
             };
-
             const onMouseUp = () => {
               document.removeEventListener('mousemove', onMouseMove);
               document.removeEventListener('mouseup', onMouseUp);
               el.style.zIndex = n.isMe ? '50' : '10';
               saveManualPositions();
             };
-
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
           };
         }
 
-        el.onclick = (e) => {
-          if (isEditMode) return;
-          openSidePanel(n.id);
-        };
+        el.onclick = (e) => { if (!isEditMode && !e.target.closest('.tree-port')) openSidePanel(n.id); };
 
         const avatar = n.photo ? `<img src="${n.photo}" class="tree-node-photo">` : `<div class="tree-node-photo">${(n.name || '?').charAt(0).toUpperCase()}</div>`;
         const hasChildren = n.children.length > 0;
         const isCollapsed = collapsedNodes.has(n.id);
 
         el.innerHTML = `
+          <div class="tree-port port-top" onmousedown="startConnect(event, '${n.id}', 'parent')"></div>
+          <div class="tree-port port-bottom" onmousedown="startConnect(event, '${n.id}', 'child')"></div>
           <div class="tree-node-bg-gradient"></div>
           <div class="tree-node-inner">
             <div class="tree-node-head">
               ${avatar}
-              <div class="tree-node-body">
+              <div class="tree-node-info">
                 <div class="tree-node-name">${esc(n.name)}</div>
                 <div class="tree-node-role">${esc(n.rel || (n.isMe ? 'Глава рода' : 'Родственник'))}</div>
               </div>
@@ -8127,7 +8114,6 @@
       });
 
       renderLines(allNodes, nodePositions, svgLayer);
-
       if (treePanX === 0 && treePanY === 0) treeReset();
     }
 
