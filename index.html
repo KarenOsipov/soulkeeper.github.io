@@ -1929,12 +1929,14 @@
       flex-direction: column;
       flex: 1;
       min-height: 0;
-      padding: 0 0 0 5.5rem; /* Match app-main padding-left to avoid sidebar overlap */
+      position: relative;
+      padding-left: 5.5rem;
+      background: var(--ink);
     }
 
     @media (max-width: 640px) {
       #page-tree.active {
-        padding: 0;
+        padding-left: 0;
       }
     }
 
@@ -2709,14 +2711,16 @@
     }
 
     /* ════════════════════════════════════════════
-   FAMILY TREE v5.0 (Immersive Full-Screen)
+   FAMILY TREE v5.5 (Node-Based UI)
 ════════════════════════════════════════════ */
     .tree-container {
       width: 100%;
       flex: 1;
       min-height: 0;
       overflow: hidden;
-      background: radial-gradient(circle at center, var(--ink2) 0%, var(--ink) 100%);
+      background: 
+        radial-gradient(circle at center, var(--ink2) 0%, var(--ink) 100%),
+        url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 L40 0 L40 40 L0 40 Z' fill='none' stroke='rgba(212,175,55,0.03)' stroke-width='1'/%3E%3C/svg%3E");
       position: relative;
       cursor: grab;
       user-select: none;
@@ -2740,7 +2744,7 @@
       position: relative;
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--glass-border);
       border-radius: 50px;
       padding: 0 0.8rem;
@@ -2748,7 +2752,7 @@
       margin-right: 0.5rem;
     }
     .search-mini:focus-within {
-      background: rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.08);
       border-color: var(--gold);
       box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
     }
@@ -2790,12 +2794,12 @@
       display: flex;
       gap: 0.8rem;
       align-items: center;
-      background: rgba(15, 13, 22, 0.4);
+      background: rgba(15, 13, 22, 0.6);
       backdrop-filter: blur(15px);
       padding: 0.5rem 1rem;
       border-radius: 50px;
       border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     }
 
     .tree-overlay-bottom {
@@ -2812,18 +2816,18 @@
     .tree-controls-horizontal {
       display: flex;
       gap: 0.6rem;
-      background: rgba(15, 13, 22, 0.4);
+      background: rgba(15, 13, 22, 0.6);
       backdrop-filter: blur(15px);
       padding: 0.5rem;
       border-radius: 20px;
       border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     }
 
     .tree-legend-minimal {
       display: flex;
       gap: 1.2rem;
-      background: rgba(15, 13, 22, 0.4);
+      background: rgba(15, 13, 22, 0.6);
       backdrop-filter: blur(15px);
       padding: 0.5rem 1.2rem;
       border-radius: 50px;
@@ -2836,33 +2840,42 @@
 
     .tree-node {
       position: absolute;
-      width: 300px;
+      width: 280px;
       padding: 0;
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(20, 18, 26, 0.8);
       border: 1px solid rgba(212, 175, 55, 0.15);
-      border-radius: 30px;
+      border-radius: 20px;
       backdrop-filter: blur(12px);
       box-shadow: 0 10px 40px rgba(0,0,0,0.4);
       cursor: grab;
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s, border-color 0.3s;
-      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s, border-color 0.3s;
+      overflow: visible;
     }
-    .tree-node::after {
+    
+    /* Node connection ports */
+    .tree-node::before, .tree-node::after {
       content: '';
       position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top left, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
-      pointer-events: none;
+      width: 10px; height: 10px;
+      background: var(--gold);
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      left: 50%; transform: translateX(-50%);
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.3s;
     }
-    .tree-node:active { cursor: grabbing; border-color: var(--gold); }
+    .tree-node::before { top: -5px; } /* Input */
+    .tree-node::after { bottom: -5px; } /* Output */
+    .tree-node:hover::before, .tree-node:hover::after { opacity: 1; }
 
     .tree-node.me {
-      border-color: rgba(212, 175, 55, 0.4);
+      border-color: var(--gold);
       background: rgba(212, 175, 55, 0.05);
     }
 
     .tree-node:hover {
-      transform: scale(1.03) translateY(-8px);
+      transform: scale(1.02) translateY(-5px);
       border-color: var(--gold);
       box-shadow: 0 20px 50px rgba(212, 175, 55, 0.2);
       z-index: 1000 !important;
@@ -2870,35 +2883,35 @@
 
     .tree-node-head {
       display: flex;
-      gap: 1.2rem;
+      gap: 1rem;
       align-items: center;
-      padding: 1.2rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.08);
     }
 
     .tree-node-photo {
-      width: 76px; height: 76px;
-      border-radius: 22px;
+      width: 56px; height: 56px;
+      border-radius: 12px;
       background: var(--ink3);
-      border: 2px solid rgba(212, 175, 55, 0.2);
+      border: 1px solid rgba(212, 175, 55, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.8rem;
+      font-size: 1.4rem;
       color: var(--gold2);
       flex-shrink: 0;
       object-fit: cover;
-      transition: all 0.4s;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      transition: all 0.3s;
     }
     .tree-node:hover .tree-node-photo { 
-      transform: scale(1.08) rotate(3deg); 
+      transform: rotate(3deg); 
       border-color: var(--gold);
-      box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
     }
 
     .tree-node-name {
       font-family: var(--serif);
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       font-weight: 500;
       color: var(--ivory);
       line-height: 1.2;
@@ -2907,19 +2920,19 @@
     .tree-node-role {
       font-size: 0.6rem;
       text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: 1.5px;
       color: var(--gold);
       font-weight: 700;
-      margin-top: 0.3rem;
-      opacity: 0.8;
+      margin-top: 0.2rem;
+      opacity: 0.7;
     }
 
     .tree-node-footer {
-      background: rgba(0,0,0,0.3);
-      padding: 0.7rem 1.2rem;
-      font-size: 0.7rem;
+      background: rgba(0,0,0,0.2);
+      padding: 0.5rem 1rem;
+      font-size: 0.65rem;
       color: var(--muted);
-      border-top: 1px solid rgba(212, 175, 55, 0.1);
+      border-top: 1px solid rgba(212, 175, 55, 0.05);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -2927,47 +2940,43 @@
 
     .tree-node-actions-v5 {
       position: absolute;
-      top: 1rem; right: 1rem;
+      top: 0.5rem; right: 0.5rem;
       display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.4rem;
       opacity: 0;
-      transform: translateX(10px);
       transition: all 0.3s;
     }
-    .tree-node:hover .tree-node-actions-v5 {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    .tree-node:hover .tree-node-actions-v5 { opacity: 1; }
 
     .action-btn-circle {
-      width: 32px; height: 32px;
+      width: 28px; height: 28px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.05);
+      background: rgba(15, 13, 22, 0.8);
       border: 1px solid var(--glass-border);
       color: var(--ivory);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
+      font-size: 0.8rem;
       transition: all 0.2s;
     }
     .action-btn-circle:hover {
       background: var(--gold);
       color: var(--ink);
       border-color: var(--gold);
-      transform: scale(1.1);
     }
 
     .tree-line-v5 {
       fill: none;
       stroke: var(--gold);
-      stroke-width: 1.5;
-      opacity: 0.25;
+      stroke-width: 2;
+      opacity: 0.2;
       transition: all 0.5s;
       stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .tree-line-v5.active {
-      opacity: 0.7;
+      opacity: 0.5;
       stroke-width: 2.5;
       filter: drop-shadow(0 0 5px var(--gold));
     }
@@ -8147,8 +8156,8 @@
 
     function drawTreeLineV5(svg, start, end, type) {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      const nodeWidth = 300;
-      const nodeHeight = 160;
+      const nodeWidth = 280;
+      const nodeHeight = 135; // Approx height
 
       const x1 = start.x + nodeWidth / 2;
       const y1 = start.y + nodeHeight;
@@ -8157,32 +8166,33 @@
 
       let d;
       if (type === 'blood') {
-        const midY = (y1 + y2) / 2;
-        // Cubic bezier for smooth flow
-        d = `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
+        const midY = y1 + (y2 - y1) * 0.6;
+        // Node-editor style cubic bezier
+        d = `M${x1},${y1} C${x1},${midY} ${x2},${y1 + (y2-y1)*0.4} ${x2},${y2}`;
         path.setAttribute('class', 'tree-line-v5');
       } else {
         const mx1 = start.x + nodeWidth;
         const my1 = start.y + 60;
         const mx2 = end.x;
         const my2 = end.y + 60;
-        d = `M${mx1},${my1} L${mx2},${my2}`;
+        // Smooth curve for spouse connection
+        const midX = (mx1 + mx2) / 2;
+        d = `M${mx1},${my1} C${midX},${my1} ${midX},${my2} ${mx2},${my2}`;
         path.setAttribute('class', 'tree-line-v5 active');
-        path.setAttribute('style', 'stroke-dasharray: 6,6;');
+        path.setAttribute('style', 'stroke-dasharray: 4,4;');
       }
 
       path.setAttribute('d', d);
       svg.appendChild(path);
 
       if (type === 'blood') {
-        // Add multiple particles for 'cool' effect
         for (let i = 0; i < 2; i++) {
           const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          particle.setAttribute('r', (Math.random() * 1.5 + 1.5).toString());
+          particle.setAttribute('r', (Math.random() * 1 + 2).toString());
           particle.setAttribute('class', 'soul-particle');
           const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
-          anim.setAttribute('dur', (Math.random() * 3 + 3) + 's');
-          anim.setAttribute('begin', (Math.random() * -5) + 's');
+          anim.setAttribute('dur', (Math.random() * 2 + 2) + 's');
+          anim.setAttribute('begin', (Math.random() * -4) + 's');
           anim.setAttribute('repeatCount', 'indefinite');
           anim.setAttribute('path', d);
           particle.appendChild(anim);
@@ -8194,11 +8204,10 @@
     function treeReset() {
       const container = document.getElementById('family-tree-container');
       if (!container) return;
-      treeScale = 0.6;
-      // Account for the 5.5rem padding-left in the container
-      const paddingLeft = window.innerWidth > 640 ? 88 : 0; // 5.5rem approx 88px
-      treePanX = (container.clientWidth - paddingLeft) / 2 - 150; 
-      treePanY = 100;
+      treeScale = 0.7;
+      // Calculate center with respect to the page layout
+      treePanX = container.clientWidth / 2 - 140; 
+      treePanY = 150;
       applyTreeTransform();
     }
     function applyTreeTransform() {
