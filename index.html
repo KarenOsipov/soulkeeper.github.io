@@ -1929,7 +1929,13 @@
       flex-direction: column;
       flex: 1;
       min-height: 0;
-      padding: 0;
+      padding: 0 0 0 5.5rem; /* Match app-main padding-left to avoid sidebar overlap */
+    }
+
+    @media (max-width: 640px) {
+      #page-tree.active {
+        padding: 0;
+      }
     }
 
     /* ════════════════════════════════════════════
@@ -2714,28 +2720,66 @@
       position: relative;
       cursor: grab;
       user-select: none;
+      border-radius: 40px 0 0 0;
+      border-left: 1px solid var(--glass-border);
+      border-top: 1px solid var(--glass-border);
     }
 
     .tree-overlay-top {
       position: absolute;
-      top: 2rem; left: 2rem; right: 2rem;
+      top: 1.5rem; left: 1.5rem; right: 1.5rem;
       z-index: 500;
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       pointer-events: none;
     }
     .tree-overlay-top > * { pointer-events: auto; }
 
+    .search-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: 50px;
+      padding: 0 0.8rem;
+      transition: all 0.3s;
+      margin-right: 0.5rem;
+    }
+    .search-mini:focus-within {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--gold);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+    }
+    .search-mini i {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    .search-mini input {
+      background: none;
+      border: none;
+      color: var(--ivory);
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      padding: 0.4rem 0.5rem;
+      outline: none;
+      width: 100px;
+      transition: width 0.3s;
+    }
+    .search-mini input:focus {
+      width: 160px;
+    }
+
     .tree-overlay-title h1 {
       font-family: var(--serif);
-      font-size: 2.2rem;
+      font-size: 1.8rem;
       font-weight: 300;
       color: var(--ivory);
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.1rem;
     }
     .tree-overlay-title p {
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       letter-spacing: 2px;
       text-transform: uppercase;
       color: var(--gold);
@@ -2744,11 +2788,11 @@
 
     .tree-overlay-actions {
       display: flex;
-      gap: 1rem;
+      gap: 0.8rem;
       align-items: center;
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      padding: 0.6rem 1.2rem;
+      background: rgba(15, 13, 22, 0.4);
+      backdrop-filter: blur(15px);
+      padding: 0.5rem 1rem;
       border-radius: 50px;
       border: 1px solid var(--glass-border);
       box-shadow: var(--shadow);
@@ -2756,7 +2800,7 @@
 
     .tree-overlay-bottom {
       position: absolute;
-      bottom: 2rem; left: 2rem; right: 2rem;
+      bottom: 1.5rem; left: 1.5rem; right: 1.5rem;
       z-index: 500;
       display: flex;
       justify-content: space-between;
@@ -2767,10 +2811,10 @@
 
     .tree-controls-horizontal {
       display: flex;
-      gap: 0.8rem;
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      padding: 0.6rem;
+      gap: 0.6rem;
+      background: rgba(15, 13, 22, 0.4);
+      backdrop-filter: blur(15px);
+      padding: 0.5rem;
       border-radius: 20px;
       border: 1px solid var(--glass-border);
       box-shadow: var(--shadow);
@@ -2778,13 +2822,13 @@
 
     .tree-legend-minimal {
       display: flex;
-      gap: 1.5rem;
-      background: var(--glass-bg);
-      backdrop-filter: var(--glass-blur);
-      padding: 0.6rem 1.5rem;
+      gap: 1.2rem;
+      background: rgba(15, 13, 22, 0.4);
+      backdrop-filter: blur(15px);
+      padding: 0.5rem 1.2rem;
       border-radius: 50px;
       border: 1px solid var(--glass-border);
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: var(--muted);
@@ -2792,56 +2836,50 @@
 
     .tree-node {
       position: absolute;
-      width: 280px;
+      width: 300px;
       padding: 0;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      backdrop-filter: var(--glass-blur);
-      box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 30px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
       cursor: grab;
       transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s, border-color 0.3s;
       overflow: hidden;
     }
-    .tree-node:active { cursor: grabbing; border-color: var(--gold); box-shadow: var(--shadow-gold); }
-
-    .tree-node::before {
-      content: '⋮⋮';
+    .tree-node::after {
+      content: '';
       position: absolute;
-      top: 50%; left: 8px;
-      transform: translateY(-50%);
-      color: var(--muted2);
-      font-size: 1rem;
-      opacity: 0;
-      transition: opacity 0.3s;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+      pointer-events: none;
     }
-    .tree-node:hover::before { opacity: 1; }
+    .tree-node:active { cursor: grabbing; border-color: var(--gold); }
+
+    .tree-node.me {
+      border-color: rgba(212, 175, 55, 0.4);
+      background: rgba(212, 175, 55, 0.05);
+    }
 
     .tree-node:hover {
-      transform: scale(1.04) translateY(-10px);
+      transform: scale(1.03) translateY(-8px);
       border-color: var(--gold);
-      box-shadow: 0 25px 60px rgba(212, 175, 55, 0.25);
+      box-shadow: 0 20px 50px rgba(212, 175, 55, 0.2);
       z-index: 1000 !important;
     }
 
-    .tree-node-inner {
+    .tree-node-head {
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
       padding: 1.2rem;
-      position: relative;
-    }
-
-    .tree-node-bg-gradient {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, var(--gold-d2) 0%, transparent 100%);
-      opacity: 0.5;
-      pointer-events: none;
     }
 
     .tree-node-photo {
-      width: 70px; height: 70px;
-      border-radius: 20px;
+      width: 76px; height: 76px;
+      border-radius: 22px;
       background: var(--ink3);
-      border: 2px solid var(--glass-border);
+      border: 2px solid rgba(212, 175, 55, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -2849,37 +2887,39 @@
       color: var(--gold2);
       flex-shrink: 0;
       object-fit: cover;
-      transition: transform 0.3s;
+      transition: all 0.4s;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     }
-    .tree-node:hover .tree-node-photo { transform: scale(1.1) rotate(2deg); }
-
-    .tree-node-body {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
+    .tree-node:hover .tree-node-photo { 
+      transform: scale(1.08) rotate(3deg); 
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
     }
 
     .tree-node-name {
       font-family: var(--serif);
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       font-weight: 500;
       color: var(--ivory);
+      line-height: 1.2;
     }
 
     .tree-node-role {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       text-transform: uppercase;
       letter-spacing: 2px;
       color: var(--gold);
-      font-weight: 600;
+      font-weight: 700;
+      margin-top: 0.3rem;
+      opacity: 0.8;
     }
 
     .tree-node-footer {
-      background: rgba(0,0,0,0.2);
-      padding: 0.8rem 1.2rem;
-      font-size: 0.75rem;
+      background: rgba(0,0,0,0.3);
+      padding: 0.7rem 1.2rem;
+      font-size: 0.7rem;
       color: var(--muted);
-      border-top: 1px solid var(--glass-border);
+      border-top: 1px solid rgba(212, 175, 55, 0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -2903,12 +2943,10 @@
     .action-btn-circle {
       width: 32px; height: 32px;
       border-radius: 50%;
-      background: var(--glass-bg);
+      background: rgba(255,255,255,0.05);
       border: 1px solid var(--glass-border);
       color: var(--ivory);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -2922,24 +2960,22 @@
     .tree-line-v5 {
       fill: none;
       stroke: var(--gold);
-      stroke-width: 2;
-      opacity: 0.3;
-      transition: opacity 0.5s, stroke-width 0.3s;
-      stroke-dasharray: 1000;
-      stroke-dashoffset: 1000;
-      animation: drawLine 2s forwards;
+      stroke-width: 1.5;
+      opacity: 0.25;
+      transition: all 0.5s;
+      stroke-linecap: round;
     }
-    @keyframes drawLine { to { stroke-dashoffset: 0; } }
 
     .tree-line-v5.active {
-      opacity: 0.8;
-      stroke-width: 3;
-      filter: url(#line-glow);
+      opacity: 0.7;
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 5px var(--gold));
     }
 
     .soul-particle {
       fill: var(--gold);
-      filter: url(#line-glow);
+      filter: drop-shadow(0 0 3px var(--gold));
+      opacity: 0.6;
     }
 
     /* ════════════════════════════════════════════
@@ -8111,9 +8147,9 @@
 
     function drawTreeLineV5(svg, start, end, type) {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      const nodeWidth = 280;
-      const nodeHeight = 150;
-      
+      const nodeWidth = 300;
+      const nodeHeight = 160;
+
       const x1 = start.x + nodeWidth / 2;
       const y1 = start.y + nodeHeight;
       const x2 = end.x + nodeWidth / 2;
@@ -8122,13 +8158,14 @@
       let d;
       if (type === 'blood') {
         const midY = (y1 + y2) / 2;
+        // Cubic bezier for smooth flow
         d = `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
         path.setAttribute('class', 'tree-line-v5');
       } else {
         const mx1 = start.x + nodeWidth;
-        const my1 = start.y + 55;
+        const my1 = start.y + 60;
         const mx2 = end.x;
-        const my2 = end.y + 55;
+        const my2 = end.y + 60;
         d = `M${mx1},${my1} L${mx2},${my2}`;
         path.setAttribute('class', 'tree-line-v5 active');
         path.setAttribute('style', 'stroke-dasharray: 6,6;');
@@ -8138,27 +8175,32 @@
       svg.appendChild(path);
 
       if (type === 'blood') {
-        const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        particle.setAttribute('r', '2.5');
-        particle.setAttribute('class', 'soul-particle');
-        const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
-        anim.setAttribute('dur', (Math.random() * 2 + 4) + 's');
-        anim.setAttribute('repeatCount', 'indefinite');
-        anim.setAttribute('path', d);
-        particle.appendChild(anim);
-        svg.appendChild(particle);
+        // Add multiple particles for 'cool' effect
+        for (let i = 0; i < 2; i++) {
+          const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          particle.setAttribute('r', (Math.random() * 1.5 + 1.5).toString());
+          particle.setAttribute('class', 'soul-particle');
+          const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+          anim.setAttribute('dur', (Math.random() * 3 + 3) + 's');
+          anim.setAttribute('begin', (Math.random() * -5) + 's');
+          anim.setAttribute('repeatCount', 'indefinite');
+          anim.setAttribute('path', d);
+          particle.appendChild(anim);
+          svg.appendChild(particle);
+        }
       }
     }
 
     function treeReset() {
       const container = document.getElementById('family-tree-container');
       if (!container) return;
-      treeScale = 0.55;
-      treePanX = container.clientWidth / 2 - 140; // Center the first node (width 280)
-      treePanY = 120;
+      treeScale = 0.6;
+      // Account for the 5.5rem padding-left in the container
+      const paddingLeft = window.innerWidth > 640 ? 88 : 0; // 5.5rem approx 88px
+      treePanX = (container.clientWidth - paddingLeft) / 2 - 150; 
+      treePanY = 100;
       applyTreeTransform();
     }
-
     function applyTreeTransform() {
       const canvas = document.getElementById('tree-canvas');
       if (canvas) {
