@@ -2793,6 +2793,48 @@
 
     .tree-node:hover .tree-port { opacity: 0.8; }
 
+    .tree-node {
+      position: absolute;
+      width: 280px;
+      padding: 0;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      backdrop-filter: var(--glass-blur);
+      box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+      cursor: grab;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s, border-color 0.3s;
+      overflow: hidden;
+    }
+    .tree-node:active { cursor: grabbing; border-color: var(--gold); box-shadow: var(--shadow-gold); }
+
+    .tree-node::before {
+      content: '⋮⋮';
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--gold);
+      font-size: 10px;
+      opacity: 0.3;
+      letter-spacing: 2px;
+      transition: opacity 0.3s;
+    }
+    .tree-node:hover::before { opacity: 1; }
+
+    .tree-node-inner {
+      position: relative;
+      z-index: 2;
+    }
+
+    .tree-node-bg-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(201, 168, 76, 0.05) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
     .connection-temp-line {
       stroke: var(--gold);
       stroke-width: 2;
@@ -5389,6 +5431,7 @@
                 <div class="tree-btn" onclick="treeZoom(1.2)"><i class="ph-light ph-plus"></i></div>
                 <div class="tree-btn" onclick="treeZoom(0.8)"><i class="ph-light ph-minus"></i></div>
                 <div class="tree-btn" onclick="treeReset()"><i class="ph-light ph-arrows-out"></i></div>
+                <div class="tree-btn" onclick="resetTreePositions()" title="Сбросить расстановку"><i class="ph-light ph-trash-simple"></i></div>
                 <div class="tree-btn" onclick="exportTreeJSON()"><i class="ph-light ph-download-simple"></i></div>
               </div>
             </div>
@@ -7959,26 +8002,18 @@
         const sourceId = connectionStart.nodeId;
         
         // Find actual data objects
-        const sourceObj = (sourceId === 'you') ? {id: 'you', name: 'Вы'} : STATE.relatives.find(r => r.id === sourceId);
-        const targetObj = (targetId === 'you') ? {id: 'you', name: 'Вы'} : STATE.relatives.find(r => r.id === targetId);
+        const sourceObj = (sourceId === 'you') ? (STATE.user || {id:'you', name:'Вы'}) : STATE.relatives.find(r => r.id === sourceId);
+        const targetObj = (targetId === 'you') ? (STATE.user || {id:'you', name:'Вы'}) : STATE.relatives.find(r => r.id === targetId);
 
         if (sourceObj && targetObj) {
           if (connectionStart.type === 'child') {
             // Dragged from bottom (parent) to target (child)
-            if (targetId === 'you') {
-              toast('Вы не можете быть чьим-то ребенком здесь');
-            } else {
-              targetObj.fatherId = sourceId;
-              toast(`Связь установлена: ${sourceObj.name} → отец ${targetObj.name}`);
-            }
+            targetObj.fatherId = sourceId;
+            toast(`Связь установлена: ${sourceObj.name || 'Вы'} → отец ${targetObj.name || 'Вас'}`);
           } else {
             // Dragged from top (child) to target (parent)
-            if (sourceId === 'you') {
-              toast('Вы не можете быть чьим-то ребенком здесь');
-            } else {
-              sourceObj.fatherId = targetId;
-              toast(`Связь установлена: ${targetObj.name} → отец ${sourceObj.name}`);
-            }
+            sourceObj.fatherId = targetId;
+            toast(`Связь установлена: ${targetObj.name || 'Вы'} → отец ${sourceObj.name || 'Вас'}`);
           }
           saveUserData();
           renderTree();
@@ -8000,9 +8035,15 @@
 
       const rels = STATE.relatives || [];
       const userNode = {
-        id: 'you', name: STATE.user ? STATE.user.name : 'Вы', rel: 'Глава рода', access: 'heir', isMe: true,
+        id: 'you', 
+        name: STATE.user ? STATE.user.name : 'Вы', 
+        rel: 'Глава рода', 
+        access: 'heir', 
+        isMe: true,
+        fatherId: STATE.user ? STATE.user.fatherId : null,
+        motherId: STATE.user ? STATE.user.motherId : null,
         children: rels.filter(r => r.fatherId === 'you' || r.motherId === 'you').map(r => r.id),
-        spouses: rels.filter(r => r.spouseId === 'you').map(r => r.id)
+        spouses: rels.filter(r => r.spouseId === 'you' || (STATE.user && r.id === STATE.user.spouseId)).map(r => r.id)
       };
 
       const allNodes = [userNode, ...rels.map(r => ({
@@ -8015,24 +8056,58 @@
       const nodePositions = { ...manualPositions };
       const processed = new Set();
 
-      function assignLevel(id, level) {
-        if (processed.has(id)) return;
-        processed.add(id);
+      // BFS Level Assignment
+      const queue = [{id: 'you', level: 0}];
+      processed.add('you');
+      
+      let qIdx = 0;
+      while (qIdx < queue.length) {
+        const {id, level} = queue[qIdx++];
         if (!levels[level]) levels[level] = [];
-        levels[level].push(id);
+        if (!levels[level].includes(id)) levels[level].push(id);
+
         const node = allNodes.find(n => n.id === id);
-        if (node && !collapsedNodes.has(id)) {
-          if (node.children) node.children.forEach(cid => assignLevel(cid, level + 1));
-          if (node.spouses) node.spouses.forEach(sid => assignLevel(sid, level));
+        if (!node || collapsedNodes.has(id)) continue;
+
+        // Traverse Down (Children)
+        if (node.children) node.children.forEach(cid => {
+          if (!processed.has(cid)) { processed.add(cid); queue.push({id: cid, level: level + 1}); }
+        });
+        // Traverse Up (Parents)
+        if (node.fatherId && !processed.has(node.fatherId)) {
+          processed.add(node.fatherId); queue.push({id: node.fatherId, level: level - 1});
         }
+        if (node.motherId && !processed.has(node.motherId)) {
+          processed.add(node.motherId); queue.push({id: node.motherId, level: level - 1});
+        }
+        // Traverse Sideways (Spouses)
+        if (node.spouses) node.spouses.forEach(sid => {
+          if (!processed.has(sid)) { processed.add(sid); queue.push({id: sid, level: level}); }
+        });
       }
 
-      assignLevel('you', 0);
-      allNodes.forEach(n => { if (!processed.has(n.id)) assignLevel(n.id, 0); });
+      // Handle disconnected clusters
+      allNodes.forEach(n => {
+        if (!processed.has(n.id)) {
+          const subQueue = [{id: n.id, level: 0}];
+          processed.add(n.id);
+          let sqIdx = 0;
+          while (sqIdx < subQueue.length) {
+            const {id, level} = subQueue[sqIdx++];
+            if (!levels[level]) levels[level] = [];
+            levels[level].push(id);
+            const node = allNodes.find(nx => nx.id === id);
+            if (node) {
+              if (node.children) node.children.forEach(cid => { if (!processed.has(cid)) { processed.add(cid); subQueue.push({id: cid, level: level + 1}); } });
+              if (node.spouses) node.spouses.forEach(sid => { if (!processed.has(sid)) { processed.add(sid); subQueue.push({id: sid, level: level}); } });
+            }
+          }
+        }
+      });
 
-      Object.keys(levels).forEach(level => {
-        const l = parseInt(level);
-        const nodesInLevel = levels[level];
+      const sortedLevels = Object.keys(levels).map(Number).sort((a,b) => a - b);
+      sortedLevels.forEach(l => {
+        const nodesInLevel = levels[l];
         const totalWidth = nodesInLevel.length * 400 - 120;
         nodesInLevel.forEach((id, idx) => {
           if (!nodePositions[id]) nodePositions[id] = { x: (idx * 400) - (totalWidth / 2), y: l * 300 };
@@ -8184,6 +8259,14 @@
           particle.appendChild(anim);
           svg.appendChild(particle);
         }
+      }
+    }
+
+    function resetTreePositions() {
+      if (confirm('Сбросить все ручные перемещения и вернуть дерево к стандартному виду?')) {
+        manualPositions = {};
+        saveManualPositions();
+        renderTree();
       }
     }
 
