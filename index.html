@@ -1930,13 +1930,13 @@
       flex: 1;
       min-height: 0;
       position: relative;
-      padding-left: 5.5rem;
+      padding: 0 0 0 5.5rem; /* override .page padding; dock offset only */
       background: var(--ink);
     }
 
     @media (max-width: 640px) {
       #page-tree.active {
-        padding-left: 0;
+        padding: 0;
       }
     }
 
@@ -2713,6 +2713,147 @@
     /* ════════════════════════════════════════════
    FAMILY TREE v5.5 (Node-Based UI)
 ════════════════════════════════════════════ */
+
+    /* ── Tree Header ── */
+    .tree-header-v5 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.4rem 1.8rem 1rem;
+      background: linear-gradient(to bottom, rgba(15,13,22,0.95) 0%, rgba(15,13,22,0.7) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 200;
+    }
+
+    .tree-header-left {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .tree-header-left .page-title {
+      font-size: 1.7rem;
+      line-height: 1.05;
+    }
+
+    .tree-header-left .page-sub {
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .tree-header-center {
+      flex: 0 1 300px;
+    }
+
+    .tree-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    /* ── Search Mini ── */
+    .search-mini {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-mini i {
+      position: absolute;
+      left: 0.85rem;
+      font-size: 1rem;
+      color: var(--gold);
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .search-mini input {
+      width: 100%;
+      min-width: 200px;
+      background: rgba(15, 13, 22, 0.8);
+      border: 1px solid var(--glass-border);
+      border-radius: 40px;
+      color: var(--ivory);
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 300;
+      padding: 0.55rem 1rem 0.55rem 2.4rem;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .search-mini input::placeholder {
+      color: var(--muted2);
+      font-style: italic;
+    }
+
+    .search-mini input:focus {
+      border-color: rgba(212, 175, 55, 0.5);
+      background: rgba(15, 13, 22, 0.95);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.08), 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    /* ── Tree Bottom Controls ── */
+    .tree-bottom-controls {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 500;
+      pointer-events: auto;
+    }
+
+    .tree-controls-horizontal {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      background: rgba(10, 8, 18, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 40px;
+      padding: 0.4rem 0.7rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    .tree-controls-horizontal .tree-btn {
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      border: 1px solid transparent;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .tree-controls-horizontal .tree-btn:hover {
+      border-color: var(--gold);
+      transform: scale(1.12);
+    }
+
+    @media (max-width: 640px) {
+      .tree-header-v5 {
+        padding: 1rem;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+      }
+      .tree-header-center {
+        flex: 1 1 100%;
+        order: 3;
+      }
+      .search-mini input {
+        min-width: 0;
+      }
+    }
+
     .tree-container {
       width: 100%;
       flex: 1;
@@ -2727,6 +2868,41 @@
       border-radius: 40px 0 0 0;
       border-left: 1px solid var(--glass-border);
       border-top: 1px solid var(--glass-border);
+    }
+
+    /* ── Tree Canvas Layers ── */
+    .tree-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    #tree-svg-layer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 8000px;
+      height: 8000px;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .tree-nodes-layer {
+      position: absolute;
+      top: 0; left: 0;
+      width: 8000px;
+      height: 8000px;
+    }
+
+    /* Search highlight */
+    .tree-node.search-match {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 2px rgba(212,175,55,0.35), 0 0 30px rgba(212,175,55,0.25) !important;
+      z-index: 500 !important;
+    }
+
+    .tree-node.search-match .tree-node-name {
+      color: var(--gold2);
     }
 
     .tree-overlay-top {
@@ -5402,7 +5578,7 @@
             <div class="tree-header-center">
               <div class="search-mini">
                 <i class="ph-light ph-magnifying-glass"></i>
-                <input type="text" id="tree-search-input" placeholder="Поиск в роду..." oninput="renderTree()">
+                <input type="text" id="tree-search-input" placeholder="Поиск в роду..." oninput="treeSearch(this.value)">
               </div>
             </div>
             <div class="tree-header-right">
