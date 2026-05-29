@@ -3134,10 +3134,31 @@
 
     .soul-particle {
       fill: var(--gold);
-      filter: drop-shadow(0 0 1px var(--gold));
-    }
       filter: drop-shadow(0 0 3px var(--gold));
-      opacity: 0.6;
+      opacity: 0.7;
+    }
+
+    /* ── Tree Node Info (text block inside head) ── */
+    .tree-node-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    /* ── "You" ring glow ── */
+    .tree-node.me {
+      border-color: var(--gold);
+      background: rgba(212, 175, 55, 0.06);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.15), 0 15px 45px rgba(0,0,0,0.4);
+    }
+
+    /* ── Edit mode active button state ── */
+    #tree-edit-mode-btn.active {
+      background: rgba(212,175,55,0.15);
+      border-color: var(--gold);
+      color: var(--gold);
     }
 
     /* ════════════════════════════════════════════
@@ -5582,10 +5603,10 @@
               </div>
             </div>
             <div class="tree-header-right">
-              <button class="btn btn-ghost btn-sm" onclick="toggleEditMode()" id="tree-edit-mode-btn">
-                <i class="ph-light ph-pencil"></i>
+              <button class="btn btn-ghost btn-sm" onclick="toggleEditMode()" id="tree-edit-mode-btn" title="Режим редактирования">
+                <i class="ph-light ph-pencil"></i> <span class="tree-edit-label">Правки</span>
               </button>
-              <button class="btn btn-primary-sm" onclick="openModal('modal-relative')">+ Родственник</button>
+              <button class="btn btn-primary-sm" onclick="openModal('modal-relative')"><i class="ph-bold ph-plus"></i> Родственник</button>
             </div>
           </div>
 
@@ -8111,11 +8132,13 @@
       const btn = document.getElementById('tree-edit-mode-btn');
       if (btn) {
         btn.classList.toggle('active', isEditMode);
-        btn.innerHTML = isEditMode ? '<i class="ph-bold ph-check"></i> Готово' : '<i class="ph-light ph-pencil"></i> Режим правок';
+        btn.innerHTML = isEditMode
+          ? '<i class="ph-bold ph-check"></i> <span class="tree-edit-label">Готово</span>'
+          : '<i class="ph-light ph-pencil"></i> <span class="tree-edit-label">Правки</span>';
       }
       renderTree();
-      if (isEditMode) toast('Свободная расстановка включена');
-      else saveManualPositions();
+      if (isEditMode) toast('<i class="ph-light ph-pencil"></i> Свободная расстановка включена');
+      else { saveManualPositions(); toast('<i class="ph-light ph-check"></i> Расстановка сохранена'); }
     }
 
     function treeSearch(q) {
@@ -8458,12 +8481,37 @@
     function treeReset() {
       const container = document.getElementById('family-tree-container');
       if (!container) return;
-      treeScale = 0.7;
-      // Calculate center with respect to the page layout
-      treePanX = container.clientWidth / 2 - 140; 
-      treePanY = 150;
+      treeScale = 0.75;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      // Center the origin node (0,0) in canvas — offset by half node width (140)
+      treePanX = w / 2 - 140 * treeScale;
+      treePanY = h / 3;
       applyTreeTransform();
     }
+
+    // Mouse-wheel zoom on the tree canvas
+    (function initTreeWheel() {
+      function onTreeWheel(e) {
+        const container = document.getElementById('family-tree-container');
+        if (!container) return;
+        e.preventDefault();
+        const rect = container.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        const newScale = Math.min(5, Math.max(0.1, treeScale * delta));
+        // Zoom towards cursor position
+        treePanX = mouseX - (mouseX - treePanX) * (newScale / treeScale);
+        treePanY = mouseY - (mouseY - treePanY) * (newScale / treeScale);
+        treeScale = newScale;
+        applyTreeTransform();
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        const c = document.getElementById('family-tree-container');
+        if (c) c.addEventListener('wheel', onTreeWheel, { passive: false });
+      });
+    })();
     function applyTreeTransform() {
       const canvas = document.getElementById('tree-canvas');
       if (canvas) {
