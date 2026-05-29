@@ -8201,12 +8201,15 @@
         const start = positions[n.id];
         if (!start || collapsedNodes.has(n.id)) return;
 
-        n.children.forEach(cid => {
-          const end = positions[cid];
+        // Bloodlines (to parents)
+        [n.fatherId, n.motherId].forEach(pid => {
+          if (!pid) return;
+          const end = positions[pid];
           if (!end) return;
           drawTreeLineV5(svg, start, end, 'blood');
         });
 
+        // Marriages
         n.spouses.forEach(sid => {
           const end = positions[sid];
           if (!end || n.id > sid) return;
@@ -8215,45 +8218,48 @@
       });
     }
 
-    function drawTreeLineV5(svg, start, end, type) {
+    function drawTreeLineV5(svg, node1, node2, type) {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       const nodeWidth = 280;
-      const nodeHeight = 135; // Approx height
-
-      const x1 = start.x + nodeWidth / 2;
-      const y1 = start.y + nodeHeight;
-      const x2 = end.x + nodeWidth / 2;
-      const y2 = end.y;
+      const nodeHeight = 160; 
 
       let d;
       if (type === 'blood') {
-        const midY = y1 + (y2 - y1) * 0.6;
-        // Node-editor style cubic bezier
-        d = `M${x1},${y1} C${x1},${midY} ${x2},${y1 + (y2-y1)*0.4} ${x2},${y2}`;
+        // node1 is child, node2 is parent
+        const x1 = node1.x + nodeWidth / 2;
+        const y1 = node1.y; // Top port of child
+        const x2 = node2.x + nodeWidth / 2;
+        const y2 = node2.y + nodeHeight; // Bottom port of parent
+
+        const midY = y1 + (y2 - y1) * 0.5;
+        d = `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
         path.setAttribute('class', 'tree-line-v5');
       } else {
-        const mx1 = start.x + nodeWidth;
-        const my1 = start.y + 60;
-        const mx2 = end.x;
-        const my2 = end.y + 60;
-        // Smooth curve for spouse connection
-        const midX = (mx1 + mx2) / 2;
-        d = `M${mx1},${my1} C${midX},${my1} ${midX},${my2} ${mx2},${my2}`;
+        // Marriage
+        const x1 = node1.x + (node1.x < node2.x ? nodeWidth : 0);
+        const y1 = node1.y + 60;
+        const x2 = node2.x + (node2.x < node1.x ? nodeWidth : 0);
+        const y2 = node2.y + 60;
+        
+        const cp1x = x1 + (node1.x < node2.x ? 50 : -50);
+        const cp2x = x2 + (node2.x < node1.x ? 50 : -50);
+        d = `M${x1},${y1} C${cp1x},${y1} ${cp2x},${y2} ${x2},${y2}`;
         path.setAttribute('class', 'tree-line-v5 active');
-        path.setAttribute('style', 'stroke-dasharray: 4,4;');
+        path.setAttribute('style', 'stroke-dasharray: 6,4; opacity: 0.6;');
       }
 
       path.setAttribute('d', d);
       svg.appendChild(path);
 
       if (type === 'blood') {
-        for (let i = 0; i < 2; i++) {
+        const pCount = 2;
+        for (let i = 0; i < pCount; i++) {
           const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          particle.setAttribute('r', (Math.random() * 1 + 2).toString());
+          particle.setAttribute('r', (1.5 + Math.random() * 1).toString());
           particle.setAttribute('class', 'soul-particle');
           const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
-          anim.setAttribute('dur', (Math.random() * 2 + 2) + 's');
-          anim.setAttribute('begin', (Math.random() * -4) + 's');
+          anim.setAttribute('dur', (3 + Math.random() * 2) + 's');
+          anim.setAttribute('begin', (Math.random() * -5) + 's');
           anim.setAttribute('repeatCount', 'indefinite');
           anim.setAttribute('path', d);
           particle.appendChild(anim);
