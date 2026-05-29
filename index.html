@@ -2943,21 +2943,23 @@
     .tree-line-v5 {
       fill: none;
       stroke: var(--gold);
-      stroke-width: 2;
-      opacity: 0.2;
-      transition: all 0.5s;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+      stroke-width: 2.5;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+      stroke-linecap: square;
+      stroke-linejoin: miter;
     }
 
     .tree-line-v5.active {
-      opacity: 0.5;
-      stroke-width: 2.5;
-      filter: drop-shadow(0 0 5px var(--gold));
+      opacity: 1;
+      stroke-width: 3;
+      stroke-dasharray: 10,5;
     }
 
     .soul-particle {
       fill: var(--gold);
+      filter: drop-shadow(0 0 1px var(--gold));
+    }
       filter: drop-shadow(0 0 3px var(--gold));
       opacity: 0.6;
     }
@@ -8108,9 +8110,14 @@
       const sortedLevels = Object.keys(levels).map(Number).sort((a,b) => a - b);
       sortedLevels.forEach(l => {
         const nodesInLevel = levels[l];
-        const totalWidth = nodesInLevel.length * 400 - 120;
+        // Professional spacing
+        const hSpacing = 420;
+        const vSpacing = 480; 
+        const totalWidth = (nodesInLevel.length - 1) * hSpacing;
         nodesInLevel.forEach((id, idx) => {
-          if (!nodePositions[id]) nodePositions[id] = { x: (idx * 400) - (totalWidth / 2), y: l * 300 };
+          if (!nodePositions[id]) {
+            nodePositions[id] = { x: (idx * hSpacing) - (totalWidth / 2) - 140, y: l * vSpacing };
+          }
         });
       });
 
@@ -8225,46 +8232,42 @@
 
       let d;
       if (type === 'blood') {
-        // node1 is child, node2 is parent
         const x1 = node1.x + nodeWidth / 2;
-        const y1 = node1.y; // Top port of child
+        const y1 = node1.y; 
         const x2 = node2.x + nodeWidth / 2;
-        const y2 = node2.y + nodeHeight; // Bottom port of parent
+        const y2 = node2.y + nodeHeight; 
 
-        const midY = y1 + (y2 - y1) * 0.5;
-        d = `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
+        // Orthogonal Step Path (Sharp 90-degree look)
+        const midY = (y1 + y2) / 2;
+        d = `M${x1},${y1} L${x1},${midY} L${x2},${midY} L${x2},${y2}`;
         path.setAttribute('class', 'tree-line-v5');
       } else {
-        // Marriage
-        const x1 = node1.x + (node1.x < node2.x ? nodeWidth : 0);
-        const y1 = node1.y + 60;
-        const x2 = node2.x + (node2.x < node1.x ? nodeWidth : 0);
-        const y2 = node2.y + 60;
-        
-        const cp1x = x1 + (node1.x < node2.x ? 50 : -50);
-        const cp2x = x2 + (node2.x < node1.x ? 50 : -50);
-        d = `M${x1},${y1} C${cp1x},${y1} ${cp2x},${y2} ${x2},${y2}`;
+        // Sharp Side-to-Side
+        const left = node1.x < node2.x ? node1 : node2;
+        const right = node1.x < node2.x ? node2 : node1;
+        const x1 = left.x + nodeWidth;
+        const y1 = left.y + 60;
+        const x2 = right.x;
+        const y2 = right.y + 60;
+
+        const midX = (x1 + x2) / 2;
+        d = `M${x1},${y1} L${midX},${y1} L${midX},${y2} L${x2},${y2}`;
         path.setAttribute('class', 'tree-line-v5 active');
-        path.setAttribute('style', 'stroke-dasharray: 6,4; opacity: 0.6;');
       }
 
       path.setAttribute('d', d);
       svg.appendChild(path);
 
       if (type === 'blood') {
-        const pCount = 2;
-        for (let i = 0; i < pCount; i++) {
-          const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          particle.setAttribute('r', (1.5 + Math.random() * 1).toString());
-          particle.setAttribute('class', 'soul-particle');
-          const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
-          anim.setAttribute('dur', (3 + Math.random() * 2) + 's');
-          anim.setAttribute('begin', (Math.random() * -5) + 's');
-          anim.setAttribute('repeatCount', 'indefinite');
-          anim.setAttribute('path', d);
-          particle.appendChild(anim);
-          svg.appendChild(particle);
-        }
+        const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        particle.setAttribute('r', '2.5');
+        particle.setAttribute('class', 'soul-particle');
+        const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+        anim.setAttribute('dur', '4s');
+        anim.setAttribute('repeatCount', 'indefinite');
+        anim.setAttribute('path', d);
+        particle.appendChild(anim);
+        svg.appendChild(particle);
       }
     }
 
