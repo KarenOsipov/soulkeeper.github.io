@@ -2854,122 +2854,167 @@
       }
     }
 
+    /* ── Tree of Life: Procedural System ── */
     .tree-container {
       width: 100%;
       flex: 1;
       min-height: 0;
       overflow: hidden;
-      background: var(--ink);
+      background: radial-gradient(circle at center, #1a1625 0%, #0a0912 100%);
       position: relative;
       cursor: grab;
       user-select: none;
       border-radius: 40px 0 0 0;
-      border-left: 1px solid var(--glass-border);
-      border-top: 1px solid var(--glass-border);
+      border-left: 1px solid rgba(212,175,55,0.1);
+      border-top: 1px solid rgba(212,175,55,0.1);
     }
 
-    /* ── Tree Background Image (Wow Effect) ── */
     .tree-bg-decoration {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 1200px;
-      height: 1200px;
+      width: 1400px;
+      height: 1400px;
       background: url('tree.png') no-repeat center center;
       background-size: contain;
-      opacity: 0.15;
-      filter: blur(2px) sepia(0.5) saturate(1.5);
+      opacity: 0.12;
+      filter: blur(4px) brightness(1.5) sepia(0.3);
       pointer-events: none;
       z-index: 0;
-      mix-blend-mode: screen;
-      animation: tree-sway 20s ease-in-out infinite;
+      animation: tree-pulse 15s ease-in-out infinite;
     }
 
-    @keyframes tree-sway {
-      0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
-      50% { transform: translate(-50%, -50%) rotate(1deg) scale(1.05); }
+    @keyframes tree-pulse {
+      0%, 100% { opacity: 0.08; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 0.15; transform: translate(-50%, -50%) scale(1.05); }
     }
 
-    .tree-canvas {
-      position: absolute;
-      top: 0; left: 0;
-      transform-origin: 0 0;
-      will-change: transform;
-      z-index: 1;
-    }
-
-    /* ── Enhanced Tree Nodes ── */
+    /* ── Soul Orbs (Nodes) ── */
     .tree-node {
       position: absolute;
-      width: 280px;
+      width: 220px;
       padding: 0;
-      background: rgba(15, 13, 22, 0.7);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 24px;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 15px 45px rgba(0,0,0,0.5), inset 0 0 20px rgba(212,175,55,0.05);
+      background: rgba(20, 18, 31, 0.6);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 110px; /* Circular look */
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6), inset 0 0 15px rgba(212,175,55,0.05);
       cursor: grab;
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s, border-color 0.3s;
-      overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      overflow: visible; /* To allow glow overflow */
+    }
+
+    .tree-node::after {
+      content: '';
+      position: absolute;
+      inset: -5px;
+      border-radius: 115px;
+      background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      z-index: -1;
     }
 
     .tree-node:hover {
-      transform: scale(1.03) translateY(-8px);
+      transform: scale(1.08) translateY(-10px);
       border-color: var(--gold);
-      box-shadow: 0 25px 60px rgba(212, 175, 55, 0.25), 0 0 20px rgba(212, 175, 55, 0.1);
+      box-shadow: 0 20px 50px rgba(212, 175, 55, 0.3);
       z-index: 1000 !important;
+    }
+
+    .tree-node:hover::after {
+      opacity: 1;
+    }
+
+    .tree-node-head {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      gap: 0.8rem;
+    }
+
+    .tree-node-photo {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--ink3);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--gold2);
+      flex-shrink: 0;
+      object-fit: cover;
+      transition: all 0.4s;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    }
+
+    .tree-node:hover .tree-node-photo {
+      border-color: var(--gold);
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(212,175,55,0.4);
     }
 
     .tree-node-name {
       font-family: var(--serif);
-      font-size: 1.15rem;
+      font-size: 1rem;
       font-weight: 600;
       color: var(--ivory);
       line-height: 1.2;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .tree-line-v5 {
+    /* ── Organic Branches ── */
+    .tree-branch-path {
+      fill: none;
+      stroke: url(#branchGradient);
+      stroke-width: 8;
+      stroke-linecap: round;
+      opacity: 0.4;
+      transition: all 0.6s;
+      filter: drop-shadow(0 0 5px rgba(212,175,55,0.1));
+    }
+
+    .tree-branch-glow {
       fill: none;
       stroke: var(--gold);
-      stroke-width: 2.5;
-      opacity: 0.5;
-      transition: all 0.5s;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      filter: drop-shadow(0 0 2px rgba(212,175,55,0.3));
+      stroke-width: 2;
+      opacity: 0.2;
+      filter: blur(4px);
     }
 
-    .tree-line-v5.active {
-      opacity: 0.9;
-      stroke-width: 3.5;
-      stroke-dasharray: 8,4;
-      animation: line-flow 1s linear infinite;
+    .tree-node:hover ~ .tree-branch-path {
+      opacity: 0.8;
+      stroke-width: 10;
     }
 
-    @keyframes line-flow {
-      from { stroke-dashoffset: 24; }
-      to { stroke-dashoffset: 0; }
-    }
-
-    /* ── Soul Particles ── */
-    .soul-particle {
+    /* ── Leaves ── */
+    .tree-leaf {
       fill: var(--gold);
-      filter: blur(1px) drop-shadow(0 0 5px var(--gold));
-      opacity: 0;
+      opacity: 0.6;
+      animation: leaf-flutter 4s ease-in-out infinite;
     }
 
-    .soul-particle-anim {
-      animation: soul-move 4s linear infinite;
+    @keyframes leaf-flutter {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(15deg) scale(1.1); }
     }
 
-    @keyframes soul-move {
-      0% { offset-distance: 0%; opacity: 0; }
-      10% { opacity: 0.8; }
-      90% { opacity: 0.8; }
-      100% { offset-distance: 100%; opacity: 0; }
+    /* ── Procedural Growth Animation ── */
+    @keyframes grow-in {
+      from { transform: scale(0) opacity: 0; }
+      to { transform: scale(1) opacity: 1; }
+    }
+
+    .tree-node-anim {
+      animation: grow-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
     /* Node Status Colors */
@@ -7925,16 +7970,28 @@
 
       loadManualPositions();
       nodesLayer.innerHTML = '';
+      
+      // Clear SVG but keep defs
       const defs = svgLayer.querySelector('defs');
       svgLayer.innerHTML = '';
-      if (defs) svgLayer.appendChild(defs);
+      if (!defs) {
+        const newDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        newDefs.innerHTML = `
+          <linearGradient id="branchGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:var(--gold);stop-opacity:0.8" />
+            <stop offset="100%" style="stop-color:#8a6d29;stop-opacity:0.4" />
+          </linearGradient>
+        `;
+        svgLayer.appendChild(newDefs);
+      } else {
+        svgLayer.appendChild(defs);
+      }
 
       const rels = STATE.relatives || [];
       const userNode = {
         id: 'you', 
         name: STATE.user ? STATE.user.name : 'Вы', 
         rel: 'Глава рода', 
-        access: 'heir', 
         isMe: true,
         fatherId: STATE.user ? STATE.user.fatherId : null,
         motherId: STATE.user ? STATE.user.motherId : null,
@@ -7952,7 +8009,8 @@
       const nodePositions = { ...manualPositions };
       const processed = new Set();
 
-      // BFS Level Assignment
+      // BFS Level Assignment (Upwards Growth Logic)
+      // Ancestors go down (roots), descendants go up (branches)
       const queue = [{id: 'you', level: 0}];
       processed.add('you');
       
@@ -7960,57 +8018,38 @@
       while (qIdx < queue.length) {
         const {id, level} = queue[qIdx++];
         if (!levels[level]) levels[level] = [];
-        if (!levels[level].includes(id)) levels[level].push(id);
+        levels[level].push(id);
 
         const node = allNodes.find(n => n.id === id);
         if (!node || collapsedNodes.has(id)) continue;
 
-        // Traverse Down (Children)
+        // Children (Level Up)
         if (node.children) node.children.forEach(cid => {
           if (!processed.has(cid)) { processed.add(cid); queue.push({id: cid, level: level + 1}); }
         });
-        // Traverse Up (Parents)
+        // Parents (Level Down)
         if (node.fatherId && !processed.has(node.fatherId)) {
           processed.add(node.fatherId); queue.push({id: node.fatherId, level: level - 1});
         }
         if (node.motherId && !processed.has(node.motherId)) {
           processed.add(node.motherId); queue.push({id: node.motherId, level: level - 1});
         }
-        // Traverse Sideways (Spouses)
+        // Spouses (Same Level)
         if (node.spouses) node.spouses.forEach(sid => {
           if (!processed.has(sid)) { processed.add(sid); queue.push({id: sid, level: level}); }
         });
       }
 
-      // Handle disconnected clusters
-      allNodes.forEach(n => {
-        if (!processed.has(n.id)) {
-          const subQueue = [{id: n.id, level: 0}];
-          processed.add(n.id);
-          let sqIdx = 0;
-          while (sqIdx < subQueue.length) {
-            const {id, level} = subQueue[sqIdx++];
-            if (!levels[level]) levels[level] = [];
-            levels[level].push(id);
-            const node = allNodes.find(nx => nx.id === id);
-            if (node) {
-              if (node.children) node.children.forEach(cid => { if (!processed.has(cid)) { processed.add(cid); subQueue.push({id: cid, level: level + 1}); } });
-              if (node.spouses) node.spouses.forEach(sid => { if (!processed.has(sid)) { processed.add(sid); subQueue.push({id: sid, level: level}); } });
-            }
-          }
-        }
-      });
-
+      // Auto-layout for missing manual positions
       const sortedLevels = Object.keys(levels).map(Number).sort((a,b) => a - b);
       sortedLevels.forEach(l => {
         const nodesInLevel = levels[l];
-        // Professional spacing
-        const hSpacing = 420;
-        const vSpacing = 480; 
+        const hSpacing = 350;
+        const vSpacing = -450; // Negative for upwards growth
         const totalWidth = (nodesInLevel.length - 1) * hSpacing;
         nodesInLevel.forEach((id, idx) => {
           if (!nodePositions[id]) {
-            nodePositions[id] = { x: (idx * hSpacing) - (totalWidth / 2) - 140, y: l * vSpacing };
+            nodePositions[id] = { x: (idx * hSpacing) - (totalWidth / 2), y: l * vSpacing };
           }
         });
       });
@@ -8019,9 +8058,9 @@
         const pos = nodePositions[n.id];
         if (!pos) return;
 
-        const isMatch = treeSearchQuery && (n.name.toLowerCase().includes(treeSearchQuery) || (n.rel || '').toLowerCase().includes(treeSearchQuery));
+        const isMatch = treeSearchQuery && (n.name.toLowerCase().includes(treeSearchQuery));
         const el = document.createElement('div');
-        el.className = `tree-node ${n.isMe ? 'me' : ''} ${isEditMode ? 'wiggle' : ''} ${isMatch ? 'search-match' : ''}`;
+        el.className = `tree-node ${n.isMe ? 'me' : ''} ${isMatch ? 'search-match' : ''} tree-node-anim`;
         el.dataset.id = n.id;
         el.style.left = `${pos.x}px`;
         el.style.top = `${pos.y}px`;
@@ -8060,31 +8099,20 @@
         const isCollapsed = collapsedNodes.has(n.id);
 
         el.innerHTML = `
-          <div class="tree-port port-top" onmousedown="startConnect(event, '${n.id}', 'parent')"></div>
-          <div class="tree-port port-bottom" onmousedown="startConnect(event, '${n.id}', 'child')"></div>
-          <div class="tree-node-bg-gradient"></div>
-          <div class="tree-node-inner">
-            <div class="tree-node-head">
-              ${avatar}
-              <div class="tree-node-info">
-                <div class="tree-node-name">${esc(n.name)}</div>
-                <div class="tree-node-role">${esc(n.rel || (n.isMe ? 'Глава рода' : 'Родственник'))}</div>
-              </div>
-            </div>
-            <div class="tree-node-actions-v5">
-              <div class="action-btn-circle" onclick="event.stopPropagation(); addChildTo('${n.id}')" title="Добавить потомка"><i class="ph-bold ph-plus"></i></div>
-              <div class="action-btn-circle" onclick="event.stopPropagation(); openEditRelative('${n.id}')" title="Редактировать"><i class="ph-bold ph-pencil-simple"></i></div>
-            </div>
+          <div class="tree-node-head">
+            ${avatar}
+            <div class="tree-node-name">${esc(n.name)}</div>
+            <div style="font-size:0.6rem; text-transform:uppercase; color:var(--gold); opacity:0.8; letter-spacing:1px;">${esc(n.rel || (n.isMe ? 'Глава рода' : 'Родственник'))}</div>
           </div>
-          <div class="tree-node-footer">
-            <span>${esc(n.city || 'Мир')}</span>
-            ${hasChildren ? `
-              <div onclick="event.stopPropagation(); toggleCollapse('${n.id}')" style="cursor:pointer; color:var(--gold); display:flex; align-items:center; gap:5px;">
-                <span style="font-size:0.6rem">${n.children.length}</span>
-                <i class="ph-fill ${isCollapsed ? 'ph-caret-circle-down' : 'ph-caret-circle-up'}"></i>
-              </div>
-            ` : '<i class="ph-light ph-leaf" style="opacity:0.3"></i>'}
+          <div class="tree-node-actions-v5">
+            <div class="action-btn-circle" onclick="event.stopPropagation(); addChildTo('${n.id}')"><i class="ph-bold ph-plus"></i></div>
+            <div class="action-btn-circle" onclick="event.stopPropagation(); openEditRelative('${n.id}')"><i class="ph-bold ph-pencil-simple"></i></div>
           </div>
+          ${hasChildren ? `
+            <div class="tree-collapse-btn" onclick="event.stopPropagation(); toggleCollapse('${n.id}')" style="position:absolute; bottom:-12px; left:50%; transform:translateX(-50%); background:var(--ink2); border:1px solid var(--gold); border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; color:var(--gold); cursor:pointer; z-index:20;">
+              <i class="ph-fill ${isCollapsed ? 'ph-caret-circle-down' : 'ph-caret-circle-up'}"></i>
+            </div>
+          ` : ''}
         `;
         nodesLayer.appendChild(el);
       });
@@ -8102,72 +8130,76 @@
         const start = positions[n.id];
         if (!start || collapsedNodes.has(n.id)) return;
 
-        // Bloodlines (to parents)
+        // Draw branches to parents (Roots)
         [n.fatherId, n.motherId].forEach(pid => {
           if (!pid) return;
           const end = positions[pid];
           if (!end) return;
-          drawTreeLineV5(svg, start, end, 'blood');
+          drawBranch(svg, start, end, 'root');
         });
 
-        // Marriages
-        n.spouses.forEach(sid => {
-          const end = positions[sid];
-          if (!end || n.id > sid) return;
-          drawTreeLineV5(svg, start, end, 'marriage');
-        });
+        // Draw branches to children (Upwards)
+        if (n.children && !collapsedNodes.has(n.id)) {
+          n.children.forEach(cid => {
+            const end = positions[cid];
+            if (!end) return;
+            drawBranch(svg, start, end, 'branch');
+          });
+        }
       });
     }
 
-    function drawTreeLineV5(svg, node1, node2, type) {
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      const nodeWidth = 280;
+    function drawBranch(svg, parentPos, childPos, type) {
+      const nodeWidth = 220;
       const nodeHeight = 160;
 
-      let d;
-      if (type === 'blood') {
-        const x1 = node1.x + nodeWidth / 2;
-        const y1 = node1.y;
-        const x2 = node2.x + nodeWidth / 2;
-        const y2 = node2.y + nodeHeight;
+      const x1 = parentPos.x + nodeWidth / 2;
+      const y1 = parentPos.y + nodeHeight / 2;
+      const x2 = childPos.x + nodeWidth / 2;
+      const y2 = childPos.y + nodeHeight / 2;
 
-        // Organic S-Curve for Tree of Life
-        const midY = (y1 + y2) / 2;
-        d = `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
-        path.setAttribute('class', 'tree-line-v5');
-      } else {
-        // Marriage connection (subtle curve)
-        const left = node1.x < node2.x ? node1 : node2;
-        const right = node1.x < node2.x ? node2 : node1;
-        const x1 = left.x + nodeWidth;
-        const y1 = left.y + 60;
-        const x2 = right.x;
-        const y2 = right.y + 60;
+      const midY = (y1 + y2) / 2;
+      const d = `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
 
-        const midX = (x1 + x2) / 2;
-        d = `M${x1},${y1} Q${midX},${y1 - 20} ${x2},${y2}`;
-        path.setAttribute('class', 'tree-line-v5 active');
-      }
+      // Outer glow/shadow path
+      const glow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      glow.setAttribute('d', d);
+      glow.setAttribute('class', 'tree-branch-glow');
+      svg.appendChild(glow);
 
+      // Main branch path
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', d);
+      path.setAttribute('class', 'tree-branch-path');
+      
+      // Dynamic width based on generation depth
+      const depth = Math.abs(y1 - y2) / 450;
+      path.style.strokeWidth = Math.max(2, 10 - depth * 2);
+      
       svg.appendChild(path);
 
-      // Multiple Soul Particles for "Wow" Effect
-      if (type === 'blood') {
-        for (let i = 0; i < 2; i++) {
-          const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          particle.setAttribute('r', i === 0 ? '3' : '1.5');
-          particle.setAttribute('class', 'soul-particle soul-particle-anim');
+      // Add a leaf at the end of the branch
+      if (type === 'branch') {
+        const leaf = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        leaf.setAttribute('cx', x2);
+        leaf.setAttribute('cy', y2);
+        leaf.setAttribute('r', '4');
+        leaf.setAttribute('class', 'tree-leaf');
+        svg.appendChild(leaf);
+      }
 
-          const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
-          anim.setAttribute('dur', (3 + i * 2) + 's');
-          anim.setAttribute('begin', (i * 1.5) + 's');
-          anim.setAttribute('repeatCount', 'indefinite');
-          anim.setAttribute('path', d);
-
-          particle.appendChild(anim);
-          svg.appendChild(particle);
-        }
+      // Energy particles
+      for (let i = 0; i < 2; i++) {
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        p.setAttribute('r', i === 0 ? '2' : '1');
+        p.setAttribute('class', 'soul-particle soul-particle-anim');
+        const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
+        anim.setAttribute('dur', (4 + i * 2) + 's');
+        anim.setAttribute('begin', (i * 2) + 's');
+        anim.setAttribute('repeatCount', 'indefinite');
+        anim.setAttribute('path', d);
+        p.appendChild(anim);
+        svg.appendChild(p);
       }
     }
 
@@ -8216,8 +8248,13 @@
     })();
     function applyTreeTransform() {
       const canvas = document.getElementById('tree-canvas');
+      const bg = document.querySelector('.tree-bg-decoration');
       if (canvas) {
         canvas.style.transform = `translate(${treePanX}px, ${treePanY}px) scale(${treeScale})`;
+      }
+      if (bg) {
+        // Subtle parallax movement
+        bg.style.transform = `translate(calc(-50% + ${treePanX * 0.1}px), calc(-50% + ${treePanY * 0.1}px)) scale(${1 + (treeScale - 1) * 0.2})`;
       }
     }
 
