@@ -5850,7 +5850,7 @@
                   </div>
                 </div>
                 <div class="list-item" onclick="askAi('Я в ссоре с близким. Хочу оставить важное сообщение. Помоги.')">
-                  <div class="list-icon"><i class="ph-light ph-paper-plane"></i>️</div>
+                  <div class="list-icon"><i class="ph-light ph-paper-plane"></i></div>
                   <div class="list-meta">
                     <div class="list-title">Примирение</div>
                     <div class="list-sub">Трудный разговор</div>
@@ -5864,7 +5864,7 @@
                   </div>
                 </div>
                 <div class="list-item" onclick="askAi('Задай мне вопросы для составления истории жизни')">
-                  <div class="list-icon"><i class="ph-light ph-map-trifold"></i>️</div>
+                  <div class="list-icon"><i class="ph-light ph-map-trifold"></i></div>
                   <div class="list-meta">
                     <div class="list-title">История жизни</div>
                     <div class="list-sub">Вопросы для воспоминаний</div>
@@ -6131,7 +6131,7 @@
             </div>
             <div id="conn-list-pending">
               <div class="empty">
-                <div class="empty-icon"><i class="ph-light ph-envelope-simple"></i>️</div>
+                <div class="empty-icon"><i class="ph-light ph-envelope-simple"></i></div>
                 <div class="empty-text">Нет входящих запросов</div>
                 <div class="empty-sub">Когда кто-то введёт ваш код — запрос появится здесь</div>
               </div>
@@ -9591,7 +9591,7 @@
       if (!el) return;
       const list = STATE.notifications.slice(0, 15);
       if (!list.length) { el.innerHTML = '<div style="padding:1.5rem;text-align:center;font-size:0.82rem;color:var(--muted2)">Уведомлений нет</div>'; }
-      else el.innerHTML = list.map(n => `<div class="notif-item"><div class="notif-item-title">${esc(n.title)}</div><div class="notif-item-sub">${esc(n.sub || '')} · ${n.time}</div></div>`).join('');
+      else el.innerHTML = list.map(n => `<div class="notif-item"><div class="notif-item-title">${n.title}</div><div class="notif-item-sub">${n.sub || ''} · ${n.time}</div></div>`).join('');
       setText('notif-count', STATE.notifications.length > 9 ? '9+' : STATE.notifications.length);
     }
     document.addEventListener('click', e => {
@@ -9615,7 +9615,7 @@
       el.innerHTML = STATE.notifications.slice(0, 5).map(n =>
         `<div class="list-item" style="padding:0.6rem 0.8rem">
           <div class="list-meta">
-            <div class="list-title" style="font-size:0.8rem">${esc(n.title)}</div>
+            <div class="list-title" style="font-size:0.8rem">${n.title}</div>
             <div class="list-sub">${n.time}</div>
           </div>
         </div>`
@@ -9854,7 +9854,7 @@
     let toastTimer;
     function toast(msg) {
       const t = document.getElementById('toast');
-      t.textContent = msg; t.classList.add('show');
+      t.innerHTML = msg; t.classList.add('show');
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
     }
@@ -9980,7 +9980,7 @@
       const dd = document.getElementById('dash-date');
       if (dd) dd.textContent = new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-      // Background Switch Countdown (Demo: 1 day = 1 minute)
+      // Background Switch Countdown (Demo: 1 day = 24 hours)
       setInterval(() => {
         if (STATE.user && STATE.swDays > 0) {
           STATE.swDays--;
@@ -9989,7 +9989,7 @@
             triggerReleaseSimulation();
           }
         }
-      }, 60000); // 1 minute
+      }, 86400000); // 24 hours
     });
 
     function triggerReleaseSimulation() {
@@ -9997,7 +9997,7 @@
       STATE.releaseTriggered = true;
 
       // Notif for owner
-      addActivity('<i class="ph-light ph-warning"></i>️ СТРАЖ СРАБОТАЛ: Данные переданы наследникам');
+      addActivity('<i class="ph-light ph-warning"></i> СТРАЖ СРАБОТАЛ: Данные переданы наследникам');
       toast('<i class="ph-light ph-warning-circle"></i> Внимание! Период неактивности истек. Данные переданы.');
 
       // Visual indicator in dashboard
@@ -10130,7 +10130,7 @@
       const elPending = document.getElementById('conn-list-pending');
       if (elPending) {
         if (!pending.length) {
-          elPending.innerHTML = '<div class="empty"><div class="empty-icon"><i class="ph-light ph-envelope-simple"></i>️</div><div class="empty-text">Нет входящих запросов</div><div class="empty-sub">Когда кто-то введёт ваш код — запрос появится здесь</div></div>';
+          elPending.innerHTML = '<div class="empty"><div class="empty-icon"><i class="ph-light ph-envelope-simple"></i></div><div class="empty-text">Нет входящих запросов</div><div class="empty-sub">Когда кто-то введёт ваш код — запрос появится здесь</div></div>';
         } else {
           elPending.innerHTML = pending.map((p, i) => `
         <div class="conn-card">
