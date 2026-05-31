@@ -6782,7 +6782,10 @@
     };
 
     function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-    function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function esc(s) { 
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        .replace(/&lt;i class=&quot;(ph-.*?)&quot;&gt;&lt;\/i&gt;/g, '<i class="$1"></i>'); 
+    }
 
     // _saveLocalOnly — только localStorage (внутренний вызов)
     function _saveLocalOnly() {
@@ -6879,7 +6882,7 @@
       fbAuth.sendPasswordResetEmail(email, actionCodeSettings)
         .then(() => {
           console.log('Firebase подтвердил отправку письма на', email);
-          err.textContent = '<i class="ph-light ph-check"></i> Письмо для сброса пароля отправлено! Проверьте папку СПАМ через 1-2 минуты.';
+          err.innerHTML = '<i class="ph-light ph-check"></i> Письмо для сброса пароля отправлено! Проверьте папку СПАМ через 1-2 минуты.';
           err.style.display = 'block';
           err.style.color = 'var(--green)';
           toast('<i class="ph-light ph-envelope-simple"></i> Проверьте почту!');
@@ -6991,7 +6994,7 @@
       if (!btn) return;
       btn.disabled = loading;
       btn.style.opacity = loading ? '0.6' : '1';
-      if (text) btn.textContent = loading ? '<i class="ph-light ph-hourglass"></i> Подождите...' : text;
+      if (text) btn.innerHTML = loading ? '<i class="ph-light ph-hourglass"></i> Подождите...' : text;
     }
 
     // ── Toggle Password Visibility ──────────────────────────────────
@@ -6999,10 +7002,10 @@
       const input = document.getElementById(inputId);
       if (input.type === 'password') {
         input.type = 'text';
-        btnEl.textContent = '<i class="ph-light ph-eye-slash"></i>';
-      } else {
-        input.type = 'password';
-        btnEl.textContent = '<i class="ph-light ph-eye"></i>';
+        btnEl.innerHTML = '<i class="ph-light ph-eye-slash"></i>';
+        } else {
+        pass.type = 'password';
+        btnEl.innerHTML = '<i class="ph-light ph-eye"></i>';
       }
     }
 
@@ -7187,7 +7190,7 @@
       fbAuth.confirmPasswordReset(resetCode, newPass)
         .then(() => {
           setAuthLoading('btn-confirm-reset', false, 'Сохранить пароль');
-          err.textContent = '<i class="ph-light ph-check-circle"></i> Пароль успешно изменен! Перезагрузка...';
+          err.innerHTML = '<i class="ph-light ph-check-circle"></i> Пароль успешно изменен! Перезагрузка...';
           err.style.display = 'block';
           err.style.color = 'var(--green)';
           setTimeout(() => { location.href = window.location.pathname; }, 2500);
@@ -9156,8 +9159,8 @@
         globeIsDragging = true;
         globePrevMouse = { x: e.clientX, y: e.clientY };
         globeAutoRotate = false;
-        document.getElementById('globe-auto-btn').textContent = '<i class="ph-light ph-play"></i>';
-      });
+        document.getElementById('globe-auto-btn').innerHTML = '<i class="ph-light ph-play"></i>';
+        });
       canvas.addEventListener('mousemove', e => {
         if (!globeIsDragging) {
           globeHandleHover(e);
@@ -9340,12 +9343,12 @@
       globeTargetRot = { x: 0.3, y: 0 };
       globeZoomTarget = 2.8;
       globeAutoRotate = true;
-      document.getElementById('globe-auto-btn').textContent = '<i class="ph-light ph-pause"></i>';
+      document.getElementById('globe-auto-btn').innerHTML = '<i class="ph-light ph-pause"></i>';
     }
 
     function toggleGlobeAuto() {
       globeAutoRotate = !globeAutoRotate;
-      document.getElementById('globe-auto-btn').textContent = globeAutoRotate ? '<i class="ph-light ph-pause"></i>' : '<i class="ph-light ph-play"></i>';
+      document.getElementById('globe-auto-btn').innerHTML = globeAutoRotate ? '<i class="ph-light ph-pause"></i>' : '<i class="ph-light ph-play"></i>';
     }
 
     function flyToMarker(lat, lon) {
@@ -9354,7 +9357,7 @@
       globeTargetRot.y = -(lon + 180) * Math.PI / 180 + Math.PI;
       globeZoomTarget = 1.8;
       globeAutoRotate = false;
-      document.getElementById('globe-auto-btn').textContent = '<i class="ph-light ph-play"></i>';
+      document.getElementById('globe-auto-btn').innerHTML = '<i class="ph-light ph-play"></i>';
     }
 
     function renderGlobeList() {
@@ -9854,7 +9857,7 @@
     let toastTimer;
     function toast(msg) {
       const t = document.getElementById('toast');
-      t.textContent = msg; t.classList.add('show');
+      t.innerHTML = msg; t.classList.add('show');
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
     }
