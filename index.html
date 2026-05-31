@@ -3703,8 +3703,174 @@
     }
 
     /* ════════════════════════════════════════════
-   SECOND BRAIN (DASHBOARD MAP)
-════════════════════════════════════════════ */
+    DASHBOARD V2
+    ════════════════════════════════════════════ */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .dash-welcome-card {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(15, 13, 22, 0.8) 100%);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 240px;
+    }
+
+    .dash-welcome-card::after {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+      filter: blur(30px);
+    }
+
+    .dash-welcome-title {
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      color: var(--gold2);
+    }
+
+    .dash-welcome-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 400px;
+    }
+
+    .dash-health-wrap {
+      margin-top: 2rem;
+    }
+
+    .dash-health-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .dash-health-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--amber));
+      width: 45%; /* Example */
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    }
+
+    .dash-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .dash-stat-widget {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      padding: 1.2rem;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      transition: var(--transition);
+    }
+
+    .dash-stat-widget:hover {
+      transform: translateY(-5px);
+      border-color: rgba(212, 175, 55, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .dash-stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(212, 175, 55, 0.1);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .dash-stat-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dash-stat-val {
+      font-size: 1.8rem;
+      font-family: var(--serif);
+      color: var(--ivory);
+      line-height: 1;
+    }
+
+    .dash-stat-lbl {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .dash-quick-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+    }
+
+    .quick-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 1rem;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: var(--ivory);
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: left;
+    }
+
+    .quick-btn:hover {
+      background: rgba(212, 175, 55, 0.08);
+      border-color: rgba(212, 175, 55, 0.3);
+    }
+
+    .quick-btn i {
+      font-size: 1.4rem;
+      color: var(--gold);
+    }
+
+    .quick-btn-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .quick-btn-title {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .quick-btn-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    /* ════════════════════════════════════════════
+    SECOND BRAIN (DASHBOARD MAP)
+    ════════════════════════════════════════════ */
     .mind-map {
       position: relative;
       width: 100%;
@@ -5339,82 +5505,133 @@
 
         <!-- ── DASHBOARD ── -->
         <div class="page active" id="page-dash">
-          <div class="page-header">
-            <div>
-              <div class="page-title">Добро пожаловать, <em id="dash-name">Пользователь</em></div>
-              <div class="page-sub">Ваше наследие в порядке · <span id="dash-date"></span></div>
-            </div>
-            <div class="page-actions">
-              <button class="btn btn-ghost" onclick="goPage('ai')">◆ AI Мудрец</button>
-              <button class="btn btn-primary-sm" onclick="openModal('modal-secret')">+ Добавить
-                тайну</button>
-            </div>
-          </div>
-          <div class="stat-row">
-            <div class="stat-box">
-              <div class="stat-val" id="d-secrets">0</div>
-              <div class="stat-lbl">Тайн в сейфе</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-val" id="d-msgs">0</div>
-              <div class="stat-lbl">Посланий</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-val" id="d-rels">0</div>
-              <div class="stat-lbl">Родственников</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-val" id="d-bio">0</div>
-              <div class="stat-lbl">Глав биографии</div>
-            </div>
-          </div>
-          <div class="card-grid grid-2">
-            <div>
-              <div class="section-label">Последняя активность</div>
-              <div id="dash-activity">
-                <div class="empty">
-                  <div class="empty-icon"><i class="ph-light ph-clipboard"></i></div>
-                  <div class="empty-text">Нет активности</div>
+          <div class="dash-grid">
+            <!-- Left: Main Content -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              
+              <!-- Welcome Widget -->
+              <div class="dash-welcome-card">
+                <div>
+                  <div class="dash-welcome-title">Добро пожаловать, <em id="dash-name">Пользователь</em></div>
+                  <div class="dash-welcome-sub">Ваше цифровое наследие в безопасности. Сегодня <span id="dash-date"></span>.</div>
+                </div>
+                
+                <div class="dash-health-wrap">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div class="dash-stat-lbl">Заполненность наследия</div>
+                    <div style="font-family: var(--serif); color: var(--gold2); font-size: 1.2rem;" id="dash-health-pct">45%</div>
+                  </div>
+                  <div class="dash-health-bar">
+                    <div class="dash-health-fill" id="dash-health-fill" style="width: 45%;"></div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div style="grid-column: span 2;">
-              <div class="section-label">Интерактивная карта "Второго Мозга"</div>
-              <div class="mind-map">
-                <div class="brain-line" style="width:120px; top:50%; left:50%; transform: rotate(-25deg);"></div>
-                <div class="brain-line" style="width:120px; top:50%; left:50%; transform: rotate(45deg);"></div>
-                <div class="brain-line" style="width:120px; top:50%; left:50%; transform: rotate(140deg);"></div>
-                <div class="brain-line" style="width:120px; top:50%; left:50%; transform: rotate(200deg);"></div>
-                <div class="brain-line" style="width:120px; top:50%; left:50%; transform: rotate(270deg);"></div>
 
-                <div class="brain-node brain-node-center" onclick="goPage('settings')">
-                  <div class="brain-center-icon"><i class="ph-light ph-brain"></i></div>
-                  <div class="brain-label">Ваше<br>Наследие</div>
+              <!-- Stat Widgets Grid -->
+              <div class="dash-stat-grid">
+                <div class="dash-stat-widget" onclick="goPage('secrets')">
+                  <div class="dash-stat-icon"><i class="ph-light ph-lock-key"></i></div>
+                  <div class="dash-stat-info">
+                    <div class="dash-stat-val" id="d-secrets">0</div>
+                    <div class="dash-stat-lbl">Тайн в сейфе</div>
+                  </div>
                 </div>
-                <div class="brain-node brain-node-item" style="top:20%; left:25%;" onclick="openModal('modal-secret')">
-                  <div class="brain-icon"><i class="ph-light ph-lock-key"></i></div>
-                  <div class="brain-label">Сейф</div>
+                <div class="dash-stat-widget" onclick="goPage('messages')">
+                  <div class="dash-stat-icon"><i class="ph-light ph-envelope-simple"></i></div>
+                  <div class="dash-stat-info">
+                    <div class="dash-stat-val" id="d-msgs">0</div>
+                    <div class="dash-stat-lbl">Посланий близким</div>
+                  </div>
                 </div>
-                <div class="brain-node brain-node-item" style="bottom:15%; left:30%;" onclick="openModal('modal-bio')">
-                  <div class="brain-icon"><i class="ph-light ph-scroll"></i></div>
-                  <div class="brain-label">Жизнь</div>
+                <div class="dash-stat-widget" onclick="goPage('relatives')">
+                  <div class="dash-stat-icon"><i class="ph-light ph-users"></i></div>
+                  <div class="dash-stat-info">
+                    <div class="dash-stat-val" id="d-rels">0</div>
+                    <div class="dash-stat-lbl">Членов рода</div>
+                  </div>
                 </div>
-                <div class="brain-node brain-node-item" style="top:15%; right:25%;"
-                  onclick="openModal('modal-relative')">
-                  <div class="brain-icon"><i class="ph-light ph-users"></i></div>
-                  <div class="brain-label">Семья</div>
-                </div>
-                <div class="brain-node brain-node-item" style="bottom:25%; right:20%;"
-                  onclick="openModal('modal-message')">
-                  <div class="brain-icon"><i class="ph-light ph-envelope-simple"></i></div>
-                  <div class="brain-label">Письма</div>
-                </div>
-                <div class="brain-node brain-node-item" style="top:5%; left:50%; transform: translateX(-50%);"
-                  onclick="goPage('ai')">
-                  <div class="brain-icon"><i class="ph-light ph-robot"></i></div>
-                  <div class="brain-label">AI Мудрец</div>
+                <div class="dash-stat-widget" onclick="goPage('bio')">
+                  <div class="dash-stat-icon"><i class="ph-light ph-scroll"></i></div>
+                  <div class="dash-stat-info">
+                    <div class="dash-stat-val" id="d-bio">0</div>
+                    <div class="dash-stat-lbl">Глав биографии</div>
+                  </div>
                 </div>
               </div>
+
+              <!-- Activity Feed -->
+              <div class="card" style="margin-bottom: 0;">
+                <div class="section-label" style="margin-bottom: 1.2rem;">Последняя активность</div>
+                <div id="dash-activity">
+                  <div class="empty" style="padding: 2rem 1rem;">
+                    <div class="empty-icon" style="font-size: 1.5rem;"><i class="ph-light ph-clipboard"></i></div>
+                    <div class="empty-text" style="font-size: 0.9rem;">Нет активности</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right: Sidebar / Quick Actions -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              
+              <!-- Life Guard Widget -->
+              <div class="dash-stat-widget" style="background: linear-gradient(180deg, rgba(231, 76, 60, 0.05) 0%, var(--glass-bg) 100%); border-color: rgba(231, 76, 60, 0.2);" onclick="goPage('switch')">
+                <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
+                  <div class="dash-stat-icon" style="background: rgba(231, 76, 60, 0.1); color: var(--red);"><i class="ph-light ph-hourglass"></i></div>
+                  <div class="dash-stat-lbl" style="color: var(--red);">Страж жизни</div>
+                </div>
+                <div style="font-size: 2rem; font-family: var(--serif);" id="sw-days-sb">7</div>
+                <div class="dash-stat-lbl" id="sw-sub-sb">дней до проверки</div>
+                <div class="progress-bar" style="height: 4px; background: rgba(231, 76, 60, 0.1);">
+                  <div class="progress-fill" id="sw-bar-sb" style="background: var(--red); width: 100%;"></div>
+                </div>
+                <button class="btn btn-ghost btn-sm" style="width: 100%; margin-top: 0.5rem; border-color: rgba(231, 76, 60, 0.3); color: var(--red);" onclick="event.stopPropagation(); doCheckin();">Я в порядке</button>
+              </div>
+
+              <!-- Quick Actions -->
+              <div>
+                <div class="section-label">Быстрые действия</div>
+                <div class="dash-quick-actions">
+                  <div class="quick-btn" onclick="openModal('modal-secret')">
+                    <i class="ph-light ph-plus-circle"></i>
+                    <div class="quick-btn-text">
+                      <div class="quick-btn-title">Добавить тайну</div>
+                      <div class="quick-btn-sub">Защитите пароль или файл</div>
+                    </div>
+                  </div>
+                  <div class="quick-btn" onclick="goPage('ai')">
+                    <i class="ph-light ph-robot"></i>
+                    <div class="quick-btn-text">
+                      <div class="quick-btn-title">Спросить Мудреца</div>
+                      <div class="quick-btn-sub">Помощь AI с биографией</div>
+                    </div>
+                  </div>
+                  <div class="quick-btn" onclick="openModal('modal-bio')">
+                    <i class="ph-light ph-book-open"></i>
+                    <div class="quick-btn-text">
+                      <div class="quick-btn-title">Новая глава</div>
+                      <div class="quick-btn-sub">Запишите воспоминание</div>
+                    </div>
+                  </div>
+                  <div class="quick-btn" onclick="openModal('modal-relative')">
+                    <i class="ph-light ph-user-plus"></i>
+                    <div class="quick-btn-text">
+                      <div class="quick-btn-title">Добавить в род</div>
+                      <div class="quick-btn-sub">Расширьте древо жизни</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- AI Quote/Tip -->
+              <div class="card" style="background: rgba(212, 175, 55, 0.03); border-style: dashed; padding: 1.2rem;">
+                <div style="color: var(--gold); font-size: 1.2rem; margin-bottom: 0.5rem;"><i class="ph-light ph-quotes"></i></div>
+                <div style="font-size: 0.8rem; color: var(--muted); font-style: italic; line-height: 1.5;" id="dash-ai-quote">
+                  «Память — это единственный рай, из которого нас не могут изгнать». Начните свою биографию сегодня.
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -7269,6 +7486,23 @@
       }
     });
 
+    function updateAiQuote() {
+      const quotes = [
+        "«Память — это единственный рай, из которого нас не могут изгнать».",
+        "«Ваше наследие — это не то, что вы оставляете людям, а то, что вы оставляете в людях».",
+        "«История вашей жизни заслуживает быть рассказанной вашим собственным голосом».",
+        "«Каждый человек — это целая библиотека. Не дайте своей библиотеке исчезнуть бесследно».",
+        "«Защитите свои тайны сегодня, чтобы они стали мудростью для ваших потомков завтра».",
+        "«Цифровое бессмертие начинается с первой записанной главы вашей биографии».",
+        "«Ваши близкие будут благодарны за каждое слово, оставленное вами в SoulKeeper».",
+        "«Страж жизни на посту. Ваше цифровое будущее в надежных руках».",
+        "«AI Мудрец готов помочь вам найти правильные слова для самого важного»."
+      ];
+      const q = quotes[Math.floor(Math.random() * quotes.length)];
+      const el = document.getElementById('dash-ai-quote');
+      if (el) el.textContent = q;
+    }
+
     // ═══════════════════════════════════════════
     // APP INIT
     // ═══════════════════════════════════════════
@@ -7287,6 +7521,7 @@
       renderNotifs();
       updateDbStats();
       initSwitchCanvas();
+      updateAiQuote();
       goPage('dash');
       setTimeout(() => initGlobe(), 2000); // Глобус в самом конце, чтобы не тормозить вход
       setTimeout(() => { _injectDemoPending(); initConnections(); }, 800);
@@ -9793,6 +10028,18 @@
       setText('d-msgs', STATE.messages.length);
       setText('d-rels', STATE.relatives.length);
       setText('d-bio', STATE.bio.length);
+
+      // Calculate Legacy Completion
+      let completion = 0;
+      if (STATE.secrets.length > 0) completion += 25;
+      if (STATE.messages.length > 0) completion += 25;
+      if (STATE.relatives.length > 0) completion += 25;
+      if (STATE.bio.length > 0) completion += 25;
+      
+      const pctEl = document.getElementById('dash-health-pct');
+      const fillEl = document.getElementById('dash-health-fill');
+      if (pctEl) pctEl.textContent = completion + '%';
+      if (fillEl) fillEl.style.width = completion + '%';
     }
     function updateBadges() {
       setText('badge-secrets', STATE.secrets.length || '');
