@@ -14,7 +14,9 @@
   <title>SoulKeeper — Хранитель твоей жизни</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&display=swap"
+    rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -84,11 +86,22 @@
     }
 
     @keyframes wiggle {
-      0% { transform: rotate(-1deg); }
-      50% { transform: rotate(1.5deg); }
-      100% { transform: rotate(-1deg); }
+      0% {
+        transform: rotate(-1deg);
+      }
+
+      50% {
+        transform: rotate(1.5deg);
+      }
+
+      100% {
+        transform: rotate(-1deg);
+      }
     }
-    .wiggle { animation: wiggle 0.3s infinite ease-in-out; }
+
+    .wiggle {
+      animation: wiggle 0.3s infinite ease-in-out;
+    }
 
     body {
       background: var(--ink);
@@ -1924,13 +1937,15 @@
     .page.active {
       display: block;
     }
+
     #page-tree.active {
       display: flex;
       flex-direction: column;
       flex: 1;
       min-height: 0;
       position: relative;
-      padding: 0 0 0 5.5rem; /* override .page padding; dock offset only */
+      padding: 0 0 0 5.5rem;
+      /* override .page padding; dock offset only */
       background: var(--ink);
     }
 
@@ -2721,7 +2736,7 @@
       justify-content: space-between;
       gap: 1rem;
       padding: 1.4rem 1.8rem 1rem;
-      background: linear-gradient(to bottom, rgba(15,13,22,0.95) 0%, rgba(15,13,22,0.7) 100%);
+      background: linear-gradient(to bottom, rgba(15, 13, 22, 0.95) 0%, rgba(15, 13, 22, 0.7) 100%);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--glass-border);
@@ -2800,7 +2815,7 @@
     .search-mini input:focus {
       border-color: rgba(212, 175, 55, 0.5);
       background: rgba(15, 13, 22, 0.95);
-      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.08), 0 4px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.08), 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
     /* ── Tree Bottom Controls ── */
@@ -2822,7 +2837,7 @@
       border: 1px solid var(--glass-border);
       border-radius: 40px;
       padding: 0.4rem 0.7rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
 
     .tree-controls-horizontal .tree-btn {
@@ -2845,10 +2860,12 @@
         flex-wrap: wrap;
         gap: 0.8rem;
       }
+
       .tree-header-center {
         flex: 1 1 100%;
         order: 3;
       }
+
       .search-mini input {
         min-width: 0;
       }
@@ -2859,7 +2876,7 @@
       flex: 1;
       min-height: 0;
       overflow: hidden;
-      background: 
+      background:
         radial-gradient(circle at center, var(--ink2) 0%, var(--ink) 100%),
         url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 L40 0 L40 40 L0 40 Z' fill='none' stroke='rgba(212,175,55,0.03)' stroke-width='1'/%3E%3C/svg%3E");
       position: relative;
@@ -2873,14 +2890,16 @@
     /* ── Tree Canvas Layers ── */
     .tree-canvas {
       position: absolute;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       transform-origin: 0 0;
       will-change: transform;
     }
 
     #tree-svg-layer {
       position: absolute;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 8000px;
       height: 8000px;
       pointer-events: none;
@@ -2889,7 +2908,8 @@
 
     .tree-nodes-layer {
       position: absolute;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 8000px;
       height: 8000px;
     }
@@ -2897,7 +2917,7 @@
     /* Search highlight */
     .tree-node.search-match {
       border-color: var(--gold) !important;
-      box-shadow: 0 0 0 2px rgba(212,175,55,0.35), 0 0 30px rgba(212,175,55,0.25) !important;
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.35), 0 0 30px rgba(212, 175, 55, 0.25) !important;
       z-index: 500 !important;
     }
 
@@ -2907,8 +2927,8 @@
 
     .tree-overlay-top {
       position: absolute;
-      top: 1.5rem; 
-      left: 7rem; 
+      top: 1.5rem;
+      left: 7rem;
       right: 1.5rem;
       z-index: 500;
       display: flex;
@@ -2920,18 +2940,25 @@
     }
 
     @media (max-width: 900px) {
-      .tree-overlay-top { left: 1.5rem; }
-      .tree-overlay-title h1 { font-size: 1.4rem; }
+      .tree-overlay-top {
+        left: 1.5rem;
+      }
+
+      .tree-overlay-title h1 {
+        font-size: 1.4rem;
+      }
     }
 
-    .tree-overlay-top > * { pointer-events: auto; }
+    .tree-overlay-top>* {
+      pointer-events: auto;
+    }
 
     /* ... rest of overlay styles ... */
 
     .tree-overlay-bottom {
       position: absolute;
-      bottom: 1.5rem; 
-      left: 7rem; 
+      bottom: 1.5rem;
+      left: 7rem;
       right: 1.5rem;
       z-index: 500;
       display: flex;
@@ -2941,287 +2968,352 @@
     }
 
     @media (max-width: 640px) {
-      .tree-overlay-bottom { left: 1.5rem; }
+      .tree-overlay-bottom {
+        left: 1.5rem;
+      }
     }
 
-    .tree-overlay-bottom > * { pointer-events: auto; }
+    .tree-overlay-bottom>* {
+      pointer-events: auto;
+    }
 
     /* Interactive Ports */
     .tree-port {
       position: absolute;
-      width: 14px; height: 14px;
+      width: 14px;
+      height: 14px;
       background: var(--ink);
       border: 2px solid var(--gold);
       border-radius: 50%;
-      left: 50%; transform: translateX(-50%);
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 100;
       cursor: crosshair;
       transition: all 0.2s;
       opacity: 0.6;
     }
+
     .tree-port:hover {
       opacity: 1;
+      transform: translateX(-50%) scale(1.3);
+      box-shadow: 0 0 10px var(--gold);
+    }
+
+    .port-top {
+      top: -7px;
+    }
+
+    .port-bottom {
+      bottom: -7px;
+    }
+
+    .tree-node:hover .tree-port {
+      opacity: 0.8;
+    }
+
+    .tree-node {
+      position: absolute;
+      width: 300px;
+      height: 90px;
+      background: rgba(13, 11, 24, 0.75);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 45px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      cursor: grab;
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s, border-color 0.3s;
+      user-select: none;
+    }
+
+    .tree-node:active {
+      cursor: grabbing;
+    }
+
+    .tree-node.me {
+      background: rgba(212, 175, 55, 0.08);
+    }
+
+    /* Zone styles */
+    .tree-node.zone-relatives {
+      border: 1.5px solid rgba(212, 175, 55, 0.6);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.15), 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .tree-node.zone-relatives:hover, .tree-node.zone-relatives.selected {
+      border-color: rgba(212, 175, 55, 1);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.35), 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .tree-node.zone-friends {
+      border: 1.5px solid rgba(46, 204, 113, 0.6);
+      box-shadow: 0 0 15px rgba(46, 204, 113, 0.15), 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .tree-node.zone-friends:hover, .tree-node.zone-friends.selected {
+      border-color: rgba(46, 204, 113, 1);
+      box-shadow: 0 0 25px rgba(46, 204, 113, 0.35), 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .tree-node.zone-colleagues {
+      border: 1.5px solid rgba(52, 152, 219, 0.6);
+      box-shadow: 0 0 15px rgba(52, 152, 219, 0.15), 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .tree-node.zone-colleagues:hover, .tree-node.zone-colleagues.selected {
+      border-color: rgba(52, 152, 219, 1);
+      box-shadow: 0 0 25px rgba(52, 152, 219, 0.35), 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .tree-node.zone-other {
+      border: 1.5px solid rgba(155, 89, 182, 0.6);
+      box-shadow: 0 0 15px rgba(155, 89, 182, 0.15), 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .tree-node.zone-other:hover, .tree-node.zone-other.selected {
+      border-color: rgba(155, 89, 182, 1);
+      box-shadow: 0 0 25px rgba(155, 89, 182, 0.35), 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .tree-node.selected {
+      transform: scale(1.05) translateY(-4px);
+    }
+
+    /* Avatar and Status Dot */
+    .node-avatar-wrap {
+      position: relative;
+      width: 70px;
+      height: 70px;
+      flex-shrink: 0;
+    }
+
+    .node-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--ink3);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-family: var(--serif);
+      color: var(--gold2);
+      overflow: hidden;
+      object-fit: cover;
+      transition: all 0.3s;
+    }
+
+    .tree-node:hover .node-avatar {
+      transform: rotate(3deg);
+      border-color: var(--gold);
+    }
+
+    .node-status-dot {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #0f0c1c;
+      z-index: 5;
+    }
+    .status-heir { background-color: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
+    .status-observer { background-color: #3498db; box-shadow: 0 0 8px #3498db; }
+    .status-trusted { background-color: #e67e22; box-shadow: 0 0 8px #e67e22; }
+    .status-blocked { background-color: #e74c3c; box-shadow: 0 0 8px #e74c3c; }
+
+    /* Node Text Body */
+    .node-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .node-name {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--ivory);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+    }
+
+    .node-role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.65rem;
+      color: var(--gold);
+      font-weight: 700;
+      margin-top: 2px;
+      opacity: 0.85;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .node-zone-tag {
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      width: fit-content;
+      margin-top: 4px;
+    }
+    .node-zone-tag.tag-relatives { background: rgba(212, 175, 55, 0.15); color: var(--gold); }
+    .node-zone-tag.tag-friends { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+    .node-zone-tag.tag-colleagues { background: rgba(52, 152, 219, 0.15); color: #3498db; }
+    .node-zone-tag.tag-other { background: rgba(155, 89, 182, 0.15); color: #9b59b6; }
+
+    /* Node Ports & Drags */
+    .tree-port {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--ink);
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      cursor: crosshair;
+      transition: all 0.2s;
+      opacity: 0;
+    }
+    .tree-node:hover .tree-port {
+      opacity: 0.8;
+    }
+    .tree-port:hover {
+      opacity: 1 !important;
       transform: translateX(-50%) scale(1.3);
       box-shadow: 0 0 10px var(--gold);
     }
     .port-top { top: -7px; }
     .port-bottom { bottom: -7px; }
 
-    .tree-node:hover .tree-port { opacity: 0.8; }
-
-    .tree-node {
+    /* Floating node actions */
+    .node-actions {
       position: absolute;
-      width: 280px;
-      padding: 0;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      backdrop-filter: var(--glass-blur);
-      box-shadow: 0 15px 45px rgba(0,0,0,0.3);
-      cursor: grab;
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s, border-color 0.3s;
-      overflow: hidden;
-    }
-    .tree-node:active { cursor: grabbing; border-color: var(--gold); box-shadow: var(--shadow-gold); }
-
-    .tree-node::before {
-      content: '⋮⋮';
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: var(--gold);
-      font-size: 10px;
-      opacity: 0.3;
-      letter-spacing: 2px;
-      transition: opacity 0.3s;
-    }
-    .tree-node:hover::before { opacity: 1; }
-
-    .tree-node-inner {
-      position: relative;
-      z-index: 2;
-    }
-
-    .tree-node-bg-gradient {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(201, 168, 76, 0.05) 0%, transparent 100%);
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .connection-temp-line {
-      stroke: var(--gold);
-      stroke-width: 2;
-      stroke-dasharray: 5,5;
-      fill: none;
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .tree-node.me {
-      border-color: var(--gold);
-      background: rgba(212, 175, 55, 0.05);
-    }
-
-    .tree-node:hover {
-      transform: scale(1.02) translateY(-5px);
-      border-color: var(--gold);
-      box-shadow: 0 20px 50px rgba(212, 175, 55, 0.2);
-      z-index: 1000 !important;
-    }
-
-    .tree-node-head {
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
       display: flex;
-      gap: 1rem;
-      align-items: center;
-      padding: 1rem;
-      background: rgba(255,255,255,0.02);
-      border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+      gap: 5px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 20;
     }
-
-    .tree-node-photo {
-      width: 56px; height: 56px;
-      border-radius: 12px;
-      background: var(--ink3);
-      border: 1px solid rgba(212, 175, 55, 0.2);
+    .tree-node:hover .node-actions {
+      opacity: 1;
+    }
+    .node-act-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(15, 13, 22, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--ivory);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
-      color: var(--gold2);
-      flex-shrink: 0;
-      object-fit: cover;
-      transition: all 0.3s;
-    }
-    .tree-node:hover .tree-node-photo { 
-      transform: rotate(3deg); 
-      border-color: var(--gold);
-    }
-
-    .tree-node-name {
-      font-family: var(--serif);
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: var(--ivory);
-      line-height: 1.2;
-    }
-
-    .tree-node-role {
-      font-size: 0.6rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--gold);
-      font-weight: 700;
-      margin-top: 0.2rem;
-      opacity: 0.7;
-    }
-
-    .tree-node-footer {
-      background: rgba(0,0,0,0.2);
-      padding: 0.5rem 1rem;
-      font-size: 0.65rem;
-      color: var(--muted);
-      border-top: 1px solid rgba(212, 175, 55, 0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .tree-node-actions-v5 {
-      position: absolute;
-      top: 0.5rem; right: 0.5rem;
-      display: flex;
-      gap: 0.4rem;
-      opacity: 0;
-      transition: all 0.3s;
-    }
-    .tree-node:hover .tree-node-actions-v5 { opacity: 1; }
-
-    .action-btn-circle {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: rgba(15, 13, 22, 0.8);
-      border: 1px solid var(--glass-border);
-      color: var(--ivory);
-      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
       cursor: pointer;
-      font-size: 0.8rem;
       transition: all 0.2s;
     }
-    .action-btn-circle:hover {
+    .node-act-btn:hover {
       background: var(--gold);
       color: var(--ink);
       border-color: var(--gold);
+      transform: scale(1.15);
     }
 
+    /* Pipelines */
     .tree-line-v5 {
       fill: none;
-      stroke: var(--gold);
-      stroke-width: 2.5;
-      opacity: 0.7;
-      transition: opacity 0.3s;
-      stroke-linecap: square;
-      stroke-linejoin: miter;
-    }
-
-    .tree-line-v5.active {
-      opacity: 1;
       stroke-width: 3;
-      stroke-dasharray: 10,5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.65;
+      transition: opacity 0.3s, stroke-width 0.3s;
+    }
+    .tree-line-v5.line-zone-relatives { stroke: rgba(212, 175, 55, 0.6); }
+    .tree-line-v5.line-zone-friends { stroke: rgba(46, 204, 113, 0.6); }
+    .tree-line-v5.line-zone-colleagues { stroke: rgba(52, 152, 219, 0.6); }
+    .tree-line-v5.line-zone-other { stroke: rgba(155, 89, 182, 0.6); }
+
+    .tree-line-v5:hover {
+      opacity: 1;
+      stroke-width: 4.5;
     }
 
     .soul-particle {
-      fill: var(--gold);
-      filter: drop-shadow(0 0 3px var(--gold));
-      opacity: 0.7;
+      filter: drop-shadow(0 0 3px currentColor);
+      opacity: 0.85;
     }
 
-    /* ── Tree Node Info (text block inside head) ── */
-    .tree-node-info {
+    /* Layout & Sidebar */
+    .tree-layout-wrapper {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
       flex: 1;
+      width: 100%;
+      height: calc(100vh - 120px);
+      overflow: hidden;
     }
 
-    /* ── "You" ring glow ── */
-    .tree-node.me {
-      border-color: var(--gold);
-      background: rgba(212, 175, 55, 0.06);
-      box-shadow: 0 0 0 3px rgba(212,175,55,0.15), 0 15px 45px rgba(0,0,0,0.4);
-    }
-
-    /* ── Edit mode active button state ── */
-    #tree-edit-mode-btn.active {
-      background: rgba(212,175,55,0.15);
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-
-    /* ════════════════════════════════════════════
-   TREE SIDE PANEL
-════════════════════════════════════════════ */
-    .tree-side-panel-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(4px);
-      z-index: 1999;
-      display: none;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
-    .tree-side-panel-overlay.active {
-      display: block;
-      opacity: 1;
-    }
-
-    .tree-side-panel {
-      position: fixed;
-      top: 0; right: 0; bottom: 0;
-      width: 480px;
-      max-width: 95vw;
-      background: rgba(13, 11, 24, 0.9);
+    .tree-details-card {
+      width: 380px;
+      height: 100%;
+      background: rgba(10, 8, 18, 0.7);
       backdrop-filter: blur(40px);
       -webkit-backdrop-filter: blur(40px);
-      border-left: 1px solid rgba(201, 168, 76, 0.2);
-      z-index: 2000;
-      transform: translateX(100%);
-      transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-      padding: 4rem 2.5rem;
+      border-left: 1px solid rgba(212, 175, 55, 0.15);
       display: flex;
       flex-direction: column;
-      box-shadow: -20px 0 60px rgba(0,0,0,0.6);
+      padding: 2.5rem 1.8rem;
       overflow-y: auto;
+      z-index: 100;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
     }
 
-    .tree-side-panel.active {
-      transform: translateX(0);
+    .tree-details-card::-webkit-scrollbar {
+      width: 4px;
+    }
+    .tree-details-card::-webkit-scrollbar-thumb {
+      background: rgba(212, 175, 55, 0.2);
+      border-radius: 2px;
     }
 
-    .side-panel-close {
-      position: absolute;
-      top: 1.5rem; right: 1.5rem;
-      width: 40px; height: 40px;
-      background: rgba(201, 168, 76, 0.1);
-      border: 1px solid rgba(201, 168, 76, 0.2);
-      color: var(--gold);
+    .tree-details-avatar-wrap {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      margin: 0 auto 1.5rem;
+    }
+    .tree-details-avatar {
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      z-index: 10;
-      font-size: 1.2rem;
+      border: 3px solid var(--gold);
+      object-fit: cover;
+      background: var(--ink3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-family: var(--serif);
+      color: var(--gold);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     }
-
-    .side-panel-close:hover {
-      background: var(--gold);
-      color: var(--ink);
-      transform: rotate(90deg);
-    }
+    .tree-details-avatar-wrap.zone-relatives .tree-details-avatar { border-color: var(--gold); }
+    .tree-details-avatar-wrap.zone-friends .tree-details-avatar { border-color: #2ecc71; }
+    .tree-details-avatar-wrap.zone-colleagues .tree-details-avatar { border-color: #3498db; }
+    .tree-details-avatar-wrap.zone-other .tree-details-avatar { border-color: #9b59b6; }
 
     /* Full-screen tree specifics */
     #screen-app {
@@ -3237,25 +3329,36 @@
     }
 
     /* Vertical and Horizontal lines */
-    .tree li::before, .tree li::after {
-      content: '';
-      position: absolute; top: 0; right: 50%;
-      border-top: 2px solid rgba(201, 168, 76, 0.3);
-      width: 50%; height: 30px;
-    }
+    .tree li::before,
     .tree li::after {
-      right: auto; left: 50%;
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 50%;
+      border-top: 2px solid rgba(201, 168, 76, 0.3);
+      width: 50%;
+      height: 30px;
+    }
+
+    .tree li::after {
+      right: auto;
+      left: 50%;
       border-left: 2px solid rgba(201, 168, 76, 0.3);
     }
 
     /* Remove lines for only children */
-    .tree li:only-child::after, .tree li:only-child::before {
+    .tree li:only-child::after,
+    .tree li:only-child::before {
       display: none;
     }
-    .tree li:only-child { padding-top: 0; }
+
+    .tree li:only-child {
+      padding-top: 0;
+    }
 
     /* Remove left/right lines for first/last children */
-    .tree li:first-child::before, .tree li:last-child::after {
+    .tree li:first-child::before,
+    .tree li:last-child::after {
       border: 0 none;
     }
 
@@ -3264,6 +3367,7 @@
       border-right: 2px solid rgba(201, 168, 76, 0.3);
       border-radius: 0 8px 0 0;
     }
+
     .tree li:first-child::after {
       border-radius: 8px 0 0 0;
     }
@@ -3271,10 +3375,14 @@
     /* Downward lines from parents */
     .tree ul ul::before {
       content: '';
-      position: absolute; top: 0; left: 50%;
+      position: absolute;
+      top: 0;
+      left: 50%;
       border-left: 2px solid rgba(201, 168, 76, 0.3);
-      width: 0; height: 30px;
-      transform: translateX(-1px); /* pixel perfect alignment */
+      width: 0;
+      height: 30px;
+      transform: translateX(-1px);
+      /* pixel perfect alignment */
     }
 
     /* The Node Card itself */
@@ -3289,8 +3397,9 @@
       position: relative;
       transition: all 0.3s ease;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
+
     .tree-node:hover {
       transform: translateY(-4px);
       border-color: rgba(201, 168, 76, 0.8);
@@ -3299,10 +3408,22 @@
     }
 
     /* Node Status Colors */
-    .tree-node.owner { border-color: var(--gold); background: rgba(201, 168, 76, 0.1); }
-    .tree-node.heir { border-color: var(--green); }
-    .tree-node.observer { border-color: var(--blue); }
-    .tree-node.trusted { border-color: var(--amber); }
+    .tree-node.owner {
+      border-color: var(--gold);
+      background: rgba(201, 168, 76, 0.1);
+    }
+
+    .tree-node.heir {
+      border-color: var(--green);
+    }
+
+    .tree-node.observer {
+      border-color: var(--blue);
+    }
+
+    .tree-node.trusted {
+      border-color: var(--amber);
+    }
 
     .tree-node-name {
       color: var(--ivory);
@@ -3310,12 +3431,14 @@
       font-size: 1.1rem;
       margin-bottom: 3px;
     }
+
     .tree-node-role {
       color: var(--gold);
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
+
     .tree-node-icon {
       position: absolute;
       top: -12px;
@@ -3323,11 +3446,14 @@
       background: var(--ink);
       border: 1px solid var(--gold);
       border-radius: 50%;
-      width: 26px; height: 26px;
-      display: flex; align-items: center; justify-content: center;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 0.9rem;
       color: var(--gold);
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
 
     /* Partner Wrapping logic */
@@ -3337,12 +3463,14 @@
       gap: 24px;
       position: relative;
     }
+
     .tree-partner-link {
       height: 2px;
       width: 24px;
       background: rgba(201, 168, 76, 0.3);
       position: relative;
     }
+
     .tree-partner-link i {
       position: absolute;
       top: 50%;
@@ -3354,7 +3482,7 @@
       padding: 2px;
       border-radius: 50%;
     }
-    
+
     .tree-controls {
       position: absolute;
       bottom: 20px;
@@ -3363,21 +3491,147 @@
       gap: 8px;
       z-index: 100;
     }
+
     .tree-btn {
       background: rgba(15, 13, 22, 0.8);
       border: 1px solid rgba(201, 168, 76, 0.4);
       color: var(--gold);
-      width: 36px; height: 36px;
+      width: 36px;
+      height: 36px;
       border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       font-size: 1.2rem;
       transition: all 0.2s;
     }
+
     .tree-btn:hover {
       background: var(--gold);
       color: var(--ink);
     }
+
+    /* ════════════════════════════════════════════
+   TREE DETAILS CARD INTERNALS
+════════════════════════════════════════════ */
+    .tree-details-avatar-wrap {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      margin: 0 auto 0.5rem;
+    }
+    .tree-details-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 3px solid var(--gold);
+      background: var(--ink3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-family: var(--serif);
+      color: var(--gold);
+      overflow: hidden;
+      object-fit: cover;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    .tree-details-avatar-wrap.zone-relatives .tree-details-avatar { border-color: var(--gold); }
+    .tree-details-avatar-wrap.zone-friends   .tree-details-avatar { border-color: #2ecc71; }
+    .tree-details-avatar-wrap.zone-colleagues .tree-details-avatar { border-color: #3498db; }
+    .tree-details-avatar-wrap.zone-other     .tree-details-avatar { border-color: #9b59b6; }
+
+    .tdc-header { text-align: center; margin-bottom: 0.5rem; }
+
+    .tdc-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 1.2rem 0;
+    }
+
+    .tdc-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+    }
+
+    .tdc-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+    .tdc-stat {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 0.75rem;
+    }
+    .tdc-stat-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+    .tdc-stat-val {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ivory);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tdc-bio {
+      font-size: 0.875rem;
+      line-height: 1.7;
+      color: var(--ivory2);
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 0;
+    }
+
+    .tdc-connections { display: flex; flex-direction: column; gap: 0.5rem; }
+    .tdc-conn-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tdc-conn-chip:hover {
+      background: rgba(212,175,55,0.08);
+      border-color: rgba(212,175,55,0.25);
+      transform: translateX(4px);
+    }
+    .tdc-conn-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .tdc-conn-info { flex: 1; min-width: 0; }
+    .tdc-conn-name { font-size: 0.8rem; font-weight: 600; color: var(--ivory); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tdc-conn-rel  { font-size: 0.65rem; color: var(--muted); margin-top: 1px; }
+
+    .tdc-actions { display: flex; gap: 0.6rem; margin-top: 0; }
 
     /* ════════════════════════════════════════════
    GLOBE
@@ -3763,7 +4017,8 @@
     .dash-health-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--gold), var(--amber));
-      width: 45%; /* Example */
+      width: 45%;
+      /* Example */
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
     }
@@ -5411,7 +5666,8 @@
             <label>Новый пароль</label>
             <input type="password" id="new-pass-input" placeholder="Минимум 6 символов">
           </div>
-          <button id="btn-confirm-reset" class="btn-primary-sm" style="width: 100%; padding: 0.8rem;" onclick="doFinalPasswordReset()">Сохранить пароль</button>
+          <button id="btn-confirm-reset" class="btn-primary-sm" style="width: 100%; padding: 0.8rem;"
+            onclick="doFinalPasswordReset()">Сохранить пароль</button>
           <div class="auth-err" id="reset-confirm-err"></div>
         </div>
 
@@ -5452,10 +5708,12 @@
               stroke-dashoffset="20" id="top-avatar-ring" />
           </svg>
           <div class="user-avatar" id="user-avatar-btn" onclick="triggerProfilePhoto()">
-            <img id="top-avatar-img" src="" style="display:none; width:100%; height:100%; border-radius:50%; object-fit:cover;">
+            <img id="top-avatar-img" src=""
+              style="display:none; width:100%; height:100%; border-radius:50%; object-fit:cover;">
             <span id="top-avatar-initial">А</span>
           </div>
-          <input type="file" id="profile-photo-input" accept="image/*" style="display:none" onchange="uploadProfilePhoto(this)">
+          <input type="file" id="profile-photo-input" accept="image/*" style="display:none"
+            onchange="uploadProfilePhoto(this)">
           <div class="avatar-status-tooltip" id="top-avatar-tooltip">7 дней до проверки</div>
         </div>
         <span class="user-name" id="user-name-top">Пользователь</span>
@@ -5477,23 +5735,25 @@
         <div class="dock-item active" onclick="goPage('dash')" id="nav-dash" data-tooltip="Второй мозг (Главная)"><span
             class="dock-icon"><i class="ph-light ph-brain"></i></span></div>
         <div class="dock-item" onclick="goPage('secrets')" id="nav-secrets" data-tooltip="Цифровой Сейф"><span
-            class="dock-icon"><i class="ph-light ph-lock-key"></i></span><span class="dock-badge" id="badge-secrets">0</span></div>
+            class="dock-icon"><i class="ph-light ph-lock-key"></i></span><span class="dock-badge"
+            id="badge-secrets">0</span></div>
         <div class="dock-item" onclick="goPage('bio')" id="nav-bio" data-tooltip="Лента Жизни"><span
             class="dock-icon"><i class="ph-light ph-scroll"></i></span></div>
         <div class="dock-item" onclick="goPage('messages')" id="nav-messages" data-tooltip="Послания"><span
-            class="dock-icon"><i class="ph-light ph-envelope-simple"></i></span><span class="dock-badge" id="badge-msgs">0</span></div>
+            class="dock-icon"><i class="ph-light ph-envelope-simple"></i></span><span class="dock-badge"
+            id="badge-msgs">0</span></div>
         <div class="dock-sep"></div>
         <div class="dock-item" onclick="goPage('relatives')" id="nav-relatives" data-tooltip="Семья"><span
             class="dock-icon"><i class="ph-light ph-users"></i></span></div>
         <div class="dock-item" onclick="goPage('tree')" id="nav-tree" data-tooltip="Древо жизни"><span
             class="dock-icon"><i class="ph-light ph-tree-structure"></i></span></div>
-        <div class="dock-item" onclick="goPage('globe')" id="nav-globe" data-tooltip="Глобус"><span
-            class="dock-icon"><i class="ph-light ph-globe"></i></span></div>
+        <div class="dock-item" onclick="goPage('globe')" id="nav-globe" data-tooltip="Глобус"><span class="dock-icon"><i
+              class="ph-light ph-globe"></i></span></div>
         <div class="dock-sep"></div>
         <div class="dock-item" onclick="goPage('switch')" id="nav-switch" data-tooltip="Страж Жизни"><span
             class="dock-icon"><i class="ph-light ph-hourglass"></i></span></div>
-        <div class="dock-item" onclick="goPage('ai')" id="nav-ai" data-tooltip="AI Ассистент"><span
-            class="dock-icon"><i class="ph-light ph-robot"></i></span></div>
+        <div class="dock-item" onclick="goPage('ai')" id="nav-ai" data-tooltip="AI Ассистент"><span class="dock-icon"><i
+              class="ph-light ph-robot"></i></span></div>
         <div class="dock-item" onclick="goPage('subscription')" id="nav-subscription" data-tooltip="Мои подписки"><span
             class="dock-icon"><i class="ph-light ph-diamond"></i></span></div>
         <div class="dock-item" onclick="goPage('settings')" id="nav-settings" data-tooltip="Настройки"><span
@@ -5508,18 +5768,20 @@
           <div class="dash-grid">
             <!-- Left: Main Content -->
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-              
+
               <!-- Welcome Widget -->
               <div class="dash-welcome-card">
                 <div>
                   <div class="dash-welcome-title">Добро пожаловать, <em id="dash-name">Пользователь</em></div>
-                  <div class="dash-welcome-sub">Ваше цифровое наследие в безопасности. Сегодня <span id="dash-date"></span>.</div>
+                  <div class="dash-welcome-sub">Ваше цифровое наследие в безопасности. Сегодня <span
+                      id="dash-date"></span>.</div>
                 </div>
-                
+
                 <div class="dash-health-wrap">
                   <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                     <div class="dash-stat-lbl">Заполненность наследия</div>
-                    <div style="font-family: var(--serif); color: var(--gold2); font-size: 1.2rem;" id="dash-health-pct">45%</div>
+                    <div style="font-family: var(--serif); color: var(--gold2); font-size: 1.2rem;"
+                      id="dash-health-pct">45%</div>
                   </div>
                   <div class="dash-health-bar">
                     <div class="dash-health-fill" id="dash-health-fill" style="width: 45%;"></div>
@@ -5574,11 +5836,14 @@
 
             <!-- Right: Sidebar / Quick Actions -->
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-              
+
               <!-- Life Guard Widget -->
-              <div class="dash-stat-widget" style="background: linear-gradient(180deg, rgba(231, 76, 60, 0.05) 0%, var(--glass-bg) 100%); border-color: rgba(231, 76, 60, 0.2);" onclick="goPage('switch')">
+              <div class="dash-stat-widget"
+                style="background: linear-gradient(180deg, rgba(231, 76, 60, 0.05) 0%, var(--glass-bg) 100%); border-color: rgba(231, 76, 60, 0.2);"
+                onclick="goPage('switch')">
                 <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
-                  <div class="dash-stat-icon" style="background: rgba(231, 76, 60, 0.1); color: var(--red);"><i class="ph-light ph-hourglass"></i></div>
+                  <div class="dash-stat-icon" style="background: rgba(231, 76, 60, 0.1); color: var(--red);"><i
+                      class="ph-light ph-hourglass"></i></div>
                   <div class="dash-stat-lbl" style="color: var(--red);">Страж жизни</div>
                 </div>
                 <div style="font-size: 2rem; font-family: var(--serif);" id="sw-days-sb">7</div>
@@ -5586,7 +5851,9 @@
                 <div class="progress-bar" style="height: 4px; background: rgba(231, 76, 60, 0.1);">
                   <div class="progress-fill" id="sw-bar-sb" style="background: var(--red); width: 100%;"></div>
                 </div>
-                <button class="btn btn-ghost btn-sm" style="width: 100%; margin-top: 0.5rem; border-color: rgba(231, 76, 60, 0.3); color: var(--red);" onclick="event.stopPropagation(); doCheckin();">Я в порядке</button>
+                <button class="btn btn-ghost btn-sm"
+                  style="width: 100%; margin-top: 0.5rem; border-color: rgba(231, 76, 60, 0.3); color: var(--red);"
+                  onclick="event.stopPropagation(); doCheckin();">Я в порядке</button>
               </div>
 
               <!-- Quick Actions -->
@@ -5626,8 +5893,10 @@
 
               <!-- AI Quote/Tip -->
               <div class="card" style="background: rgba(212, 175, 55, 0.03); border-style: dashed; padding: 1.2rem;">
-                <div style="color: var(--gold); font-size: 1.2rem; margin-bottom: 0.5rem;"><i class="ph-light ph-quotes"></i></div>
-                <div style="font-size: 0.8rem; color: var(--muted); font-style: italic; line-height: 1.5;" id="dash-ai-quote">
+                <div style="color: var(--gold); font-size: 1.2rem; margin-bottom: 0.5rem;"><i
+                    class="ph-light ph-quotes"></i></div>
+                <div style="font-size: 0.8rem; color: var(--muted); font-style: italic; line-height: 1.5;"
+                  id="dash-ai-quote">
                   «Память — это единственный рай, из которого нас не могут изгнать». Начните свою биографию сегодня.
                 </div>
               </div>
@@ -5770,8 +6039,9 @@
               <button class="btn btn-primary-sm" onclick="openModal('modal-secret')">+ Добавить</button>
             </div>
           </div>
-          <div class="search-bar"><i class="ph-light ph-magnifying-glass" style="position:absolute; left:0.8rem; top:50%; transform:translateY(-50%); font-size:1.1rem; color:var(--muted);"></i><input type="text" placeholder="Поиск по тайнам..."
-              oninput="searchSecrets(this.value)" id="secret-search"></div>
+          <div class="search-bar"><i class="ph-light ph-magnifying-glass"
+              style="position:absolute; left:0.8rem; top:50%; transform:translateY(-50%); font-size:1.1rem; color:var(--muted);"></i><input
+              type="text" placeholder="Поиск по тайнам..." oninput="searchSecrets(this.value)" id="secret-search"></div>
           <div id="secrets-list"></div>
         </div>
 
@@ -5783,7 +6053,8 @@
               <div class="page-sub">Ваша биография для потомков</div>
             </div>
             <div class="page-actions">
-              <button class="btn btn-ghost" onclick="goPage('ai')"><i class="ph-light ph-pencil-simple"></i> Помощь AI</button>
+              <button class="btn btn-ghost" onclick="goPage('ai')"><i class="ph-light ph-pencil-simple"></i> Помощь
+                AI</button>
               <button class="btn btn-primary-sm" onclick="openModal('modal-bio')">+ Новая глава</button>
             </div>
           </div>
@@ -5816,8 +6087,9 @@
               <button class="btn btn-primary-sm" onclick="openModal('modal-relative')">+ Добавить</button>
             </div>
           </div>
-          <div class="search-bar"><i class="ph-light ph-magnifying-glass" style="position:absolute; left:0.8rem; top:50%; transform:translateY(-50%); font-size:1.1rem; color:var(--muted);"></i><input type="text" placeholder="Поиск родственников..."
-              oninput="searchRelatives(this.value)"></div>
+          <div class="search-bar"><i class="ph-light ph-magnifying-glass"
+              style="position:absolute; left:0.8rem; top:50%; transform:translateY(-50%); font-size:1.1rem; color:var(--muted);"></i><input
+              type="text" placeholder="Поиск родственников..." oninput="searchRelatives(this.value)"></div>
           <div id="relatives-list"></div>
         </div>
 
@@ -5831,51 +6103,59 @@
             <div class="tree-header-center">
               <div class="search-mini">
                 <i class="ph-light ph-magnifying-glass"></i>
-                <input type="text" id="tree-search-input" placeholder="Поиск в роду..." oninput="treeSearch(this.value)">
+                <input type="text" id="tree-search-input" placeholder="Поиск в роду..."
+                  oninput="treeSearch(this.value)">
               </div>
             </div>
             <div class="tree-header-right">
-              <button class="btn btn-ghost btn-sm" onclick="toggleEditMode()" id="tree-edit-mode-btn" title="Режим редактирования">
+              <button class="btn btn-ghost btn-sm" onclick="toggleEditMode()" id="tree-edit-mode-btn"
+                title="Режим редактирования">
                 <i class="ph-light ph-pencil"></i> <span class="tree-edit-label">Правки</span>
               </button>
-              <button class="btn btn-primary-sm" onclick="openModal('modal-relative')"><i class="ph-bold ph-plus"></i> Родственник</button>
+              <button class="btn btn-primary-sm" onclick="openModal('modal-relative')"><i class="ph-bold ph-plus"></i>
+                Родственник</button>
             </div>
           </div>
 
-          <div class="tree-container" id="family-tree-container" onmousedown="startPan(event)">
-            <!-- Interactive Canvas -->
-            <div class="tree-canvas" id="tree-canvas">
-              <svg id="tree-svg-layer">
-                <defs>
-                  <filter id="line-glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                </defs>
-              </svg>
-              <div class="tree-nodes-layer" id="tree-nodes-layer"></div>
+          <div class="tree-layout-wrapper">
+            <div class="tree-container" id="family-tree-container" onmousedown="startPan(event)">
+              <!-- Interactive Canvas -->
+              <div class="tree-canvas" id="tree-canvas">
+                <svg id="tree-svg-layer">
+                  <defs>
+                    <filter id="line-glow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="3" result="blur" />
+                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                    <linearGradient id="trunk-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                      <stop offset="0%" stop-color="rgba(15,12,28,0.8)" />
+                      <stop offset="50%" stop-color="rgba(212,175,55,0.4)" />
+                      <stop offset="100%" stop-color="rgba(212,175,55,0.8)" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="tree-nodes-layer" id="tree-nodes-layer"></div>
+              </div>
+
+              <!-- Bottom Floating Controls -->
+              <div class="tree-bottom-controls">
+                <div class="tree-controls-horizontal">
+                  <div class="tree-btn" onclick="treeZoom(1.25)"><i class="ph-light ph-plus"></i></div>
+                  <div class="tree-btn" onclick="treeZoom(0.8)"><i class="ph-light ph-minus"></i></div>
+                  <div class="tree-btn" onclick="treeReset()"><i class="ph-light ph-arrows-out"></i></div>
+                  <div class="tree-btn" onclick="resetTreePositions()" title="Сбросить расстановку"><i
+                      class="ph-light ph-trash-simple"></i></div>
+                  <div class="tree-btn" onclick="exportTreeJSON()"><i class="ph-light ph-download-simple"></i></div>
+                </div>
+              </div>
             </div>
 
-            <!-- Bottom Floating Controls (Keep small and bottom-right) -->
-            <div class="tree-bottom-controls">
-              <div class="tree-controls-horizontal">
-                <div class="tree-btn" onclick="treeZoom(1.2)"><i class="ph-light ph-plus"></i></div>
-                <div class="tree-btn" onclick="treeZoom(0.8)"><i class="ph-light ph-minus"></i></div>
-                <div class="tree-btn" onclick="treeReset()"><i class="ph-light ph-arrows-out"></i></div>
-                <div class="tree-btn" onclick="resetTreePositions()" title="Сбросить расстановку"><i class="ph-light ph-trash-simple"></i></div>
-                <div class="tree-btn" onclick="exportTreeJSON()"><i class="ph-light ph-download-simple"></i></div>
-              </div>
+            <!-- Modern Premium Right Details Sidebar Card -->
+            <div class="tree-details-card" id="tree-details-sidebar">
+              <!-- Content injected via JS selectTreeNode() -->
             </div>
           </div>
         </div>
-
-          <!-- Side Panel for Profile Details -->
-          <div class="tree-side-panel" id="tree-side-panel">
-            <button class="side-panel-close" onclick="closeSidePanel()">✕</button>
-            <div id="side-panel-content">
-              <!-- Content injected via JS -->
-            </div>
-          </div>
 
         <!-- ── GLOBE ── -->
         <div class="page" id="page-globe">
@@ -5903,7 +6183,8 @@
               <div class="globe-ctrl-btn" onclick="globeZoom(1.2)" title="Приблизить">+</div>
               <div class="globe-ctrl-btn" onclick="globeZoom(0.8)" title="Отдалить">−</div>
               <div class="globe-ctrl-btn" onclick="globeReset()" title="Сбросить">↺</div>
-              <div class="globe-ctrl-btn" onclick="toggleGlobeAuto()" id="globe-auto-btn" title="Авто-вращение"><i class="ph-light ph-pause"></i></div>
+              <div class="globe-ctrl-btn" onclick="toggleGlobeAuto()" id="globe-auto-btn" title="Авто-вращение"><i
+                  class="ph-light ph-pause"></i></div>
             </div>
             <div class="globe-legend">
               <div class="globe-legend-item">
@@ -5950,7 +6231,8 @@
                   <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,90)">90
                     дн</button>
                 </div>
-                <button class="btn-gold" onclick="doCheckin()"><i class="ph-light ph-check"></i> Подтвердить жизнь</button>
+                <button class="btn-gold" onclick="doCheckin()"><i class="ph-light ph-check"></i> Подтвердить
+                  жизнь</button>
               </div>
             </div>
             <div>
@@ -6107,8 +6389,10 @@
               <div class="page-sub">Управление локальным хранилищем и подключение внешней БД</div>
             </div>
             <div class="page-actions">
-              <button class="btn btn-ghost" onclick="testDbConnection()"><i class="ph-light ph-plug"></i> Проверить связь</button>
-              <button class="btn btn-ghost" onclick="exportData()"><i class="ph-light ph-arrow-down"></i> Экспорт</button>
+              <button class="btn btn-ghost" onclick="testDbConnection()"><i class="ph-light ph-plug"></i> Проверить
+                связь</button>
+              <button class="btn btn-ghost" onclick="exportData()"><i class="ph-light ph-arrow-down"></i>
+                Экспорт</button>
               <button class="btn btn-primary-sm" onclick="openModal('modal-db-connect')">Подключить
                 БД</button>
             </div>
@@ -6243,8 +6527,10 @@
               <div class="section-label" style="margin-top:1rem">Данные</div>
               <div class="card">
                 <div style="display:flex;gap:0.7rem;flex-wrap:wrap">
-                  <button class="btn btn-ghost" onclick="exportData()"><i class="ph-light ph-arrow-down"></i> Экспорт JSON</button>
-                  <button class="btn btn-ghost" onclick="exportPDF()"><i class="ph-light ph-arrow-down"></i> Экспорт PDF</button>
+                  <button class="btn btn-ghost" onclick="exportData()"><i class="ph-light ph-arrow-down"></i> Экспорт
+                    JSON</button>
+                  <button class="btn btn-ghost" onclick="exportPDF()"><i class="ph-light ph-arrow-down"></i> Экспорт
+                    PDF</button>
                   <button class="btn btn-danger" onclick="confirmDelete()">Удалить аккаунт</button>
                 </div>
               </div>
@@ -6263,7 +6549,8 @@
               <button class="btn btn-ghost btn-sm" onclick="refreshConnections()">↻ Обновить</button>
               <button class="btn btn-ghost" onclick="openModal('modal-join-tree')">⊕ Войти в
                 дерево</button>
-              <button class="btn btn-primary-sm" onclick="shareMyCode()"><i class="ph-light ph-arrow-up"></i> Мой код</button>
+              <button class="btn btn-primary-sm" onclick="shareMyCode()"><i class="ph-light ph-arrow-up"></i> Мой
+                код</button>
             </div>
           </div>
 
@@ -6278,8 +6565,10 @@
                 принять или отклонить.</div>
             </div>
             <div class="conn-invite-actions">
-              <button class="btn btn-primary-sm" onclick="copyMyCode()"><i class="ph-light ph-copy"></i> Копировать</button>
-              <button class="btn btn-ghost" onclick="shareMyCode()"><i class="ph-light ph-arrow-up"></i> Поделиться</button>
+              <button class="btn btn-primary-sm" onclick="copyMyCode()"><i class="ph-light ph-copy"></i>
+                Копировать</button>
+              <button class="btn btn-ghost" onclick="shareMyCode()"><i class="ph-light ph-arrow-up"></i>
+                Поделиться</button>
             </div>
           </div>
 
@@ -6394,34 +6683,43 @@
       <div class="mob-drawer-handle"></div>
       <div class="mob-drawer-grid">
         <button class="mob-drawer-item" onclick="goPage('bio');mobSetActive('bio');closeMobDrawer()">
-          <span class="mob-drawer-icon"><i class="ph-light ph-book-open"></i></span><span class="mob-drawer-label">Биография</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-book-open"></i></span><span
+            class="mob-drawer-label">Биография</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('messages');mobSetActive('messages');closeMobDrawer()">
-          <span class="mob-drawer-icon"><i class="ph-light ph-envelope-simple"></i></span><span class="mob-drawer-label">Послания</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-envelope-simple"></i></span><span
+            class="mob-drawer-label">Послания</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('relatives');mobSetActive('relatives');closeMobDrawer()">
-          <span class="mob-drawer-icon"><i class="ph-light ph-users"></i></span><span class="mob-drawer-label">Семья</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-users"></i></span><span
+            class="mob-drawer-label">Семья</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('globe');mobSetActive('globe');closeMobDrawer()">
-          <span class="mob-drawer-icon"><i class="ph-light ph-globe"></i></span><span class="mob-drawer-label">Глобус</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-globe"></i></span><span
+            class="mob-drawer-label">Глобус</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('switch');mobSetActive('switch');closeMobDrawer()">
-          <span class="mob-drawer-icon"><i class="ph-light ph-hourglass"></i></span><span class="mob-drawer-label">Страж</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-hourglass"></i></span><span
+            class="mob-drawer-label">Страж</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('ai');mobSetActive('ai');closeMobDrawer()">
-          <span class="mob-drawer-icon"><i class="ph-light ph-robot"></i></span><span class="mob-drawer-label">Мудрец</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-robot"></i></span><span
+            class="mob-drawer-label">Мудрец</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('settings');mobSetActive('settings');closeMobDrawer()">
-          <span class="mob-drawer-icon"><i class="ph-light ph-gear"></i></span><span class="mob-drawer-label">Настройки</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-gear"></i></span><span
+            class="mob-drawer-label">Настройки</span>
         </button>
         <button class="mob-drawer-item" onclick="doCheckin();closeMobDrawer()">
-          <span class="mob-drawer-icon"><i class="ph-light ph-check-circle"></i></span><span class="mob-drawer-label">Я жив</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-check-circle"></i></span><span class="mob-drawer-label">Я
+            жив</span>
         </button>
       </div>
       <div
         style="margin-top:0.8rem;border-top:1px solid rgba(201,168,76,0.08);padding-top:0.8rem;display:flex;justify-content:center">
         <button onclick="doLogout()"
-          style="font-size:0.72rem;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--sans);letter-spacing:0.1em"><i class="ph-light ph-door"></i>
+          style="font-size:0.72rem;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--sans);letter-spacing:0.1em"><i
+            class="ph-light ph-door"></i>
           Выйти из аккаунта</button>
       </div>
     </div>
@@ -6466,22 +6764,31 @@
           </select>
         </div>
         <div class="field">
-          <label>Облако воспоминаний <span style="font-size:0.7rem; color:var(--muted)">(Фото, Аудио, Видео)</span></label>
+          <label>Облако воспоминаний <span style="font-size:0.7rem; color:var(--muted)">(Фото, Аудио,
+              Видео)</span></label>
           <div class="soul-cloud-upload">
-             <input type="file" id="s-media-input" accept="image/*,audio/*,video/*" multiple style="display:none" onchange="handleSecretMedia(this)">
-             <button class="btn btn-ghost" onclick="document.getElementById('s-media-input').click()" style="width:100%; border-style:dashed; border-color:var(--gold-d);"><i class="ph-light ph-cloud-arrow-up"></i> Загрузить в облако...</button>
-             <div id="s-media-gallery" class="media-gallery-preview" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
+            <input type="file" id="s-media-input" accept="image/*,audio/*,video/*" multiple style="display:none"
+              onchange="handleSecretMedia(this)">
+            <button class="btn btn-ghost" onclick="document.getElementById('s-media-input').click()"
+              style="width:100%; border-style:dashed; border-color:var(--gold-d);"><i
+                class="ph-light ph-cloud-arrow-up"></i> Загрузить в облако...</button>
+            <div id="s-media-gallery" class="media-gallery-preview"
+              style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
           </div>
           <input type="hidden" id="s-media-data-json" value="[]">
         </div>
-        <div class="field" style="margin-top:1rem; padding:1rem; background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.1); border-radius:12px;">
+        <div class="field"
+          style="margin-top:1rem; padding:1rem; background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.1); border-radius:12px;">
           <label style="color:var(--gold); display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-            <i class="ph-light ph-shield-check"></i> Мастер-пароль тайны <span style="font-size:0.65rem; font-weight:normal; opacity:0.7;">(Опционально)</span>
+            <i class="ph-light ph-shield-check"></i> Мастер-пароль тайны <span
+              style="font-size:0.65rem; font-weight:normal; opacity:0.7;">(Опционально)</span>
           </label>
-          <input type="password" id="s-vault-pass" placeholder="Дополнительная защита..." 
+          <input type="password" id="s-vault-pass" placeholder="Дополнительная защита..."
             style="width:100%; background:var(--ink2); border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; color:var(--ivory); outline:none;">
           <div style="font-size:0.65rem; color:var(--muted); margin-top:6px; line-height:1.4;">
-            <i class="ph-light ph-warning"></i> Если вы установите этот пароль, тайна будет зашифрована ДВАЖДЫ. Без этого пароля её невозможно будет прочесть даже имея доступ к аккаунту. <b>Если вы его забудете, данные будут потеряны навсегда.</b>
+            <i class="ph-light ph-warning"></i> Если вы установите этот пароль, тайна будет зашифрована ДВАЖДЫ. Без
+            этого пароля её невозможно будет прочесть даже имея доступ к аккаунту. <b>Если вы его забудете, данные будут
+              потеряны навсегда.</b>
           </div>
         </div>
       </div>
@@ -6506,11 +6813,16 @@
         <div class="field"><label>Текст</label><textarea id="b-content"
             placeholder="Расскажите эту часть своей жизни..." style="min-height:160px"></textarea></div>
         <div class="field">
-          <label>Медиа-архив главы <span style="font-size:0.7rem; color:var(--muted)">(Альбом фото и видео)</span></label>
+          <label>Медиа-архив главы <span style="font-size:0.7rem; color:var(--muted)">(Альбом фото и
+              видео)</span></label>
           <div class="soul-cloud-upload">
-             <input type="file" id="b-media-input" accept="image/*,audio/*,video/*" multiple style="display:none" onchange="handleBioMedia(this)">
-             <button class="btn btn-ghost" onclick="document.getElementById('b-media-input').click()" style="width:100%; border-style:dashed; border-color:var(--gold-d);"><i class="ph-light ph-film-strip"></i> Добавить медиафайлы...</button>
-             <div id="b-media-gallery" class="media-gallery-preview" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
+            <input type="file" id="b-media-input" accept="image/*,audio/*,video/*" multiple style="display:none"
+              onchange="handleBioMedia(this)">
+            <button class="btn btn-ghost" onclick="document.getElementById('b-media-input').click()"
+              style="width:100%; border-style:dashed; border-color:var(--gold-d);"><i
+                class="ph-light ph-film-strip"></i> Добавить медиафайлы...</button>
+            <div id="b-media-gallery" class="media-gallery-preview"
+              style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
           </div>
           <input type="hidden" id="b-media-data-json" value="[]">
         </div>
@@ -6561,16 +6873,33 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="r-id" value="">
-        
-        <div class="field"><label>Полное имя</label><input type="text" id="r-name" placeholder="Фамилия Имя Отчество"></div>
-        
+
+        <div class="field"><label>Полное имя</label><input type="text" id="r-name" placeholder="Фамилия Имя Отчество">
+        </div>
+
         <div class="field-row">
           <div class="field">
             <label>Отношение / Роль</label>
             <input type="text" id="r-rel" placeholder="Брат, Жена, Дедушка, Друг...">
           </div>
           <div class="field">
-            <label>Статус в роду</label>
+            <label>Годы жизни / Период</label>
+            <input type="text" id="r-lifePeriod" placeholder="Напр. 1990 – настоящее время">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Зона / Категория</label>
+            <select id="r-zone">
+              <option value="relatives">Родственники (Семья)</option>
+              <option value="friends">Друзья</option>
+              <option value="colleagues">Коллеги / Партнеры</option>
+              <option value="other">Другие</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Статус доступа (роль)</label>
             <select id="r-access">
               <option value="observer">Наблюдатель</option>
               <option value="heir">Наследник</option>
@@ -6581,6 +6910,21 @@
         </div>
 
         <div class="section-label" style="margin-top:1rem">Связи в древе</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Родитель / Связующее звено</label>
+            <select id="r-parentId">
+              <option value="">Не указан</option>
+              <option value="you">Вы (Глава рода)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Супруг(а)</label>
+            <select id="r-spouseId">
+              <option value="">Нет</option>
+            </select>
+          </div>
+        </div>
         <div class="field-row">
           <div class="field">
             <label>Отец (в системе)</label>
@@ -6594,37 +6938,25 @@
               <option value="">Не указана</option>
             </select>
           </div>
+          <input type="hidden" id="r-relType" value="blood">
         </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Супруг(а)</label>
-            <select id="r-spouseId">
-              <option value="">Нет</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Тип связи</label>
-            <select id="r-relType">
-              <option value="blood">Кровное родство</option>
-              <option value="marriage">Брак</option>
-              <option value="friend">Дружба</option>
-              <option value="other">Другое</option>
-            </select>
-          </div>
-        </div>
-        
+
         <div class="field">
           <label>Биография / История</label>
-          <textarea id="r-desc" rows="4" placeholder="Напишите историю этого человека, важные даты, достижения..." style="width:100%; background:rgba(15,13,22,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; color:var(--ivory); font-family:var(--sans); resize:vertical;"></textarea>
+          <textarea id="r-desc" rows="4" placeholder="Напишите историю этого человека, важные даты, достижения..."
+            style="width:100%; background:rgba(15,13,22,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; color:var(--ivory); font-family:var(--sans); resize:vertical;"></textarea>
         </div>
 
         <div class="field">
           <label>Фотография профиля</label>
           <div style="display:flex; gap:15px; align-items:center;">
-            <div id="r-photo-preview" class="tree-node-avatar" style="width:64px; height:64px; border-radius:16px; font-size:1.5rem;">?</div>
+            <div id="r-photo-preview" class="tree-node-avatar"
+              style="width:64px; height:64px; border-radius:16px; font-size:1.5rem;">?</div>
             <div style="flex:1">
-              <input type="file" id="r-photo-input" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
-              <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('r-photo-input').click()">
+              <input type="file" id="r-photo-input" accept="image/*" style="display:none;"
+                onchange="handlePhotoUpload(this)">
+              <button type="button" class="btn btn-ghost btn-sm"
+                onclick="document.getElementById('r-photo-input').click()">
                 <i class="ph-light ph-upload"></i> Выбрать фото
               </button>
               <div style="font-size:0.65rem; color:var(--muted); margin-top:5px;">Рекомендуется квадратное фото</div>
@@ -6633,13 +6965,15 @@
           </div>
         </div>
 
-        <div class="field"><label>Email (для уведомлений)</label><input type="email" id="r-email" placeholder="email@example.com"></div>
-        
+        <div class="field"><label>Email (для уведомлений)</label><input type="email" id="r-email"
+            placeholder="email@example.com"></div>
+
         <div class="field city-search-wrap">
           <label>Местоположение</label>
           <input type="text" id="r-city" placeholder="Город..." autocomplete="off" oninput="onCityInput(this.value)">
           <div class="city-suggestions" id="city-suggestions"></div>
-          <div class="geocode-loading" id="geocode-loading"><i class="ph-light ph-magnifying-glass"></i> Поиск координат...</div>
+          <div class="geocode-loading" id="geocode-loading"><i class="ph-light ph-magnifying-glass"></i> Поиск
+            координат...</div>
         </div>
         <div class="field-row" style="display:none;">
           <input type="number" id="r-lat" step="0.0001">
@@ -6647,7 +6981,8 @@
         </div>
       </div>
       <div class="modal-footer" style="justify-content: space-between;">
-        <button class="btn btn-danger-sm" id="r-btn-delete" onclick="deleteRelativeFromModal()" style="display:none;"><i class="ph-light ph-trash"></i> Удалить</button>
+        <button class="btn btn-danger-sm" id="r-btn-delete" onclick="deleteRelativeFromModal()" style="display:none;"><i
+            class="ph-light ph-trash"></i> Удалить</button>
         <div style="display:flex; gap:10px; margin-left:auto;">
           <button class="btn btn-ghost" onclick="closeModal('modal-relative')">Отмена</button>
           <button class="btn btn-primary-sm" onclick="saveRelative()">Сохранить профиль</button>
@@ -6685,7 +7020,8 @@
         </div>
         <div
           style="font-size:0.78rem;color:var(--muted);padding:0.8rem;background:var(--ink3);border:1px solid rgba(201,168,76,0.08);line-height:1.7">
-          <i class="ph-light ph-lightbulb"></i> Для локальной разработки используйте PostgreSQL или SQLite. Подключение эмулируется в браузерной
+          <i class="ph-light ph-lightbulb"></i> Для локальной разработки используйте PostgreSQL или SQLite. Подключение
+          эмулируется в браузерной
           демо-версии.
         </div>
       </div>
@@ -6951,7 +7287,7 @@
         // Не рендерим лог при каждом чихе, если вкладка лога не открыта
         const el = document.getElementById('db-log');
         if (el && document.getElementById('page-db').classList.contains('active')) {
-             renderDbLog();
+          renderDbLog();
         }
       },
       simulateConnect(cfg) {
@@ -7075,7 +7411,7 @@
       event.preventDefault();
       const email = document.getElementById('login-email').value.trim();
       const err = document.getElementById('login-err');
-      
+
       if (!email) {
         err.textContent = 'Введите email выше для сброса пароля';
         err.style.display = 'block';
@@ -7144,8 +7480,8 @@
     function showScreen(id) {
       // Блокируем переключение на другие экраны, если идет сброс пароля
       if (id !== 'auth' && window.location.search.includes('mode=resetPassword')) {
-          console.log('Screen switch blocked: reset mode active');
-          return;
+        console.log('Screen switch blocked: reset mode active');
+        return;
       }
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById('screen-' + id).classList.add('active');
@@ -7184,7 +7520,7 @@
     }
 
     // ── PLAN B: Secret Bypass for Demo ─────────────────────────────
-    window.bypassEmailVerification = function() {
+    window.bypassEmailVerification = function () {
       const user = fbAuth.currentUser;
       if (!user) {
         toast('<i class="ph-light ph-x-circle"></i> Сначала попробуйте войти в аккаунт');
@@ -7194,7 +7530,7 @@
         toast('<i class="ph-light ph-check-circle"></i> Email уже подтвержден');
         return;
       }
-      
+
       // Это имитация подтверждения для UI (Firebase не позволяет подтвердить email через JS без ссылки)
       // Мы просто разрешаем вход в сессию
       toast('<i class="ph-light ph-wrench"></i> Активирован режим отладки: вход разрешен');
@@ -7267,11 +7603,28 @@
         ];
         STATE.bio = [{ id: uid(), title: 'Детство', period: '1970–1985', content: 'Родился в небольшом городке...', date: new Date().toLocaleDateString('ru') }];
         STATE.messages = [{ id: uid(), to: 'Сын', subject: 'На твою свадьбу', content: 'Дорогой сын...', trigger: 'wedding', date: new Date().toLocaleDateString('ru') }];
+        const child1Id = uid();
+        const child2Id = uid();
+        const sisterId = uid();
+        const spouseId = uid();
+        const fatherId = uid();
+        const motherId = uid();
+        const friend1Id = uid();
+        const friend2Id = uid();
+        const coll1Id = uid();
+        const coll2Id = uid();
+
         STATE.relatives = [
-          { id: uid(), name: 'Анна Иванова', rel: 'Дочь', access: 'heir', email: 'anna@example.com', lat: 55.7558, lon: 37.6173, city: 'Москва, Россия' },
-          { id: uid(), name: 'Сергей Иванов', rel: 'Сын', access: 'heir', email: 'sergey@example.com', lat: 51.1801, lon: 71.4460, city: 'Астана, Казахстан' },
-          { id: uid(), name: 'Мария Петрова', rel: 'Сестра', access: 'trusted', email: 'maria@example.com', lat: 48.8566, lon: 2.3522, city: 'Париж, Франция' },
-          { id: uid(), name: 'Игорь Козлов', rel: 'Брат', access: 'observer', email: 'igor@example.com', lat: 40.7128, lon: -74.006, city: 'Нью-Йорк, США' },
+          { id: fatherId, name: 'Николай Иванов', rel: 'Отец', access: 'trusted', email: 'father@example.com', lat: 55.7558, lon: 37.6173, city: 'Москва, Россия', zone: 'relatives', lifePeriod: '1955 — настоящее время', parentId: '', desc: 'Глава старшего поколения семьи. Мудрый советник и любящий отец.' },
+          { id: motherId, name: 'Елена Иванова', rel: 'Мать', access: 'trusted', email: 'mother@example.com', lat: 55.7558, lon: 37.6173, city: 'Москва, Россия', zone: 'relatives', lifePeriod: '1958 — настоящее время', parentId: '', desc: 'Хранительница домашнего очага и семейных традиций.' },
+          { id: spouseId, name: 'Мария Иванова', rel: 'Жена', access: 'trusted', email: 'spouse@example.com', lat: 55.7558, lon: 37.6173, city: 'Москва, Россия', zone: 'relatives', lifePeriod: '1985 — настоящее время', parentId: '', desc: 'Любимая супруга, опора и поддержка во всех начинаниях.' },
+          { id: child1Id, name: 'Анна Иванова', rel: 'Дочь', access: 'heir', email: 'anna@example.com', lat: 55.7558, lon: 37.6173, city: 'Москва, Россия', zone: 'relatives', lifePeriod: '2010 — настоящее время', parentId: 'you', desc: 'Учится в школе, увлекается рисованием и музыкой.' },
+          { id: child2Id, name: 'Сергей Иванов', rel: 'Сын', access: 'heir', email: 'sergey@example.com', lat: 51.1801, lon: 71.4460, city: 'Астана, Казахстан', zone: 'relatives', lifePeriod: '2013 — настоящее время', parentId: 'you', desc: 'Увлекается футболом и программированием.' },
+          { id: sisterId, name: 'Екатерина Петрова', rel: 'Сестра', access: 'observer', email: 'sister@example.com', lat: 48.8566, lon: 2.3522, city: 'Париж, Франция', zone: 'relatives', lifePeriod: '1982 — настоящее время', parentId: '', desc: 'Младшая сестра, живет и работает в Париже.' },
+          { id: friend1Id, name: 'Алексей Смирнов', rel: 'Друг', access: 'trusted', email: 'alex@example.com', lat: 59.9343, lon: 30.3351, city: 'Санкт-Петербург, Россия', zone: 'friends', lifePeriod: '1980 — настоящее время', parentId: 'you', desc: 'Лучший друг со студенческих лет. Проверен временем.' },
+          { id: friend2Id, name: 'Ольга Кузнецова', rel: 'Подруга', access: 'observer', email: 'olga@example.com', lat: 43.6045, lon: 1.4442, city: 'Тулуза, Франция', zone: 'friends', lifePeriod: '1984 — настоящее время', parentId: friend1Id, desc: 'Давняя подруга семьи, часто путешествуем вместе.' },
+          { id: coll1Id, name: 'Дмитрий Соколов', rel: 'Партнер', access: 'trusted', email: 'dmitry@example.com', lat: 55.7558, lon: 37.6173, city: 'Москва, Россия', zone: 'colleagues', lifePeriod: '1975 — настоящее время', parentId: 'you', desc: 'Деловой партнер по ключевому технологическому стартапу.' },
+          { id: coll2Id, name: 'Ирина Волкова', rel: 'Коллега', access: 'observer', email: 'irina@example.com', lat: 40.7128, lon: -74.006, city: 'Нью-Йорк, США', zone: 'colleagues', lifePeriod: '1988 — настоящее время', parentId: coll1Id, desc: 'Ведущий архитектор проектов в нашей компании.' }
         ];
         STATE.notifications = [{ id: uid(), title: 'Добро пожаловать в SoulKeeper', sub: 'Демо-режим', time: 'сейчас' }];
         saveUserData();
@@ -7345,44 +7698,44 @@
       if (mode === 'resetPassword' && actionCode) {
         resetCode = actionCode;
         console.log('!!! RESET CODE DETECTED !!!', resetCode);
-        
+
         // ПРИНУДИТЕЛЬНО ПОКАЗЫВАЕМ ЭКРАН AUTH
         showScreen('auth');
-        
+
         // МГНОВЕННОЕ СКРЫТИЕ (без задержек)
         const hideOthers = () => {
-            const tabs = document.querySelector('.auth-tabs');
-            if (tabs) tabs.style.display = 'none';
-            
-            document.querySelectorAll('.auth-form').forEach(f => {
-                f.classList.remove('active');
-                f.style.setProperty('display', 'none', 'important');
-            });
-            
-            const resetForm = document.getElementById('form-reset-confirm');
-            if (resetForm) {
-                resetForm.classList.add('active');
-                resetForm.style.setProperty('display', 'block', 'important');
-            }
+          const tabs = document.querySelector('.auth-tabs');
+          if (tabs) tabs.style.display = 'none';
 
-            const authTitle = document.querySelector('.auth-panel h2');
-            if (authTitle) authTitle.textContent = 'Новый пароль';
+          document.querySelectorAll('.auth-form').forEach(f => {
+            f.classList.remove('active');
+            f.style.setProperty('display', 'none', 'important');
+          });
 
-            const backBtn = document.querySelector('.auth-back');
-            if (backBtn) backBtn.style.display = 'none';
-            
-            // Удаляем кнопку-спасатель если она была
-            const emBtn = document.getElementById('emergency-reset-btn');
-            if (emBtn) emBtn.remove();
+          const resetForm = document.getElementById('form-reset-confirm');
+          if (resetForm) {
+            resetForm.classList.add('active');
+            resetForm.style.setProperty('display', 'block', 'important');
+          }
+
+          const authTitle = document.querySelector('.auth-panel h2');
+          if (authTitle) authTitle.textContent = 'Новый пароль';
+
+          const backBtn = document.querySelector('.auth-back');
+          if (backBtn) backBtn.style.display = 'none';
+
+          // Удаляем кнопку-спасатель если она была
+          const emBtn = document.getElementById('emergency-reset-btn');
+          if (emBtn) emBtn.remove();
         };
 
         hideOthers();
-        setTimeout(hideOthers, 500); 
+        setTimeout(hideOthers, 500);
 
         setTimeout(() => {
-            window.history.replaceState({}, document.title, window.location.pathname);
+          window.history.replaceState({}, document.title, window.location.pathname);
         }, 2000); // Задержка очистки URL
-        
+
         return true; // Индикатор активного сброса
       }
       return false;
@@ -7427,10 +7780,10 @@
       if (fbUser) {
         // Если идёт сброс пароля — НЕ переходим в приложение автоматически
         if (window.location.search.includes('mode=resetPassword')) {
-            console.log('Reset mode active, skipping auto-login');
-            return;
+          console.log('Reset mode active, skipping auto-login');
+          return;
         }
-        
+
         // emailVerified check disabled
 
         const user = {
@@ -7452,7 +7805,7 @@
 
         // Загружаем данные в фоновом режиме
         loadUserDataFromFirestore(fbUser.uid).then(() => {
-            renderAll();
+          renderAll();
         });
 
         // Проверяем отложенный план (если пришёл с лендинга)
@@ -7606,84 +7959,84 @@
     const accessTags = { private: 'tag-gold', after_death: 'tag-red', heir: 'tag-green', public: 'tag-blue' };
 
     function updateAvatarUI() {
-        const initial = document.getElementById('top-avatar-initial');
-        const img = document.getElementById('top-avatar-img');
-        const btn = document.getElementById('user-avatar-btn');
-        
-        if (STATE.user && STATE.user.photoURL) {
-            img.src = STATE.user.photoURL;
-            img.style.display = 'block';
-            initial.style.display = 'none';
-            if (btn) btn.textContent = ''; // clear initial if it was there
-            btn.appendChild(img);
-        } else if (STATE.user) {
-            img.style.display = 'none';
-            initial.style.display = 'block';
-            initial.textContent = STATE.user.name.charAt(0).toUpperCase();
-        }
+      const initial = document.getElementById('top-avatar-initial');
+      const img = document.getElementById('top-avatar-img');
+      const btn = document.getElementById('user-avatar-btn');
+
+      if (STATE.user && STATE.user.photoURL) {
+        img.src = STATE.user.photoURL;
+        img.style.display = 'block';
+        initial.style.display = 'none';
+        if (btn) btn.textContent = ''; // clear initial if it was there
+        btn.appendChild(img);
+      } else if (STATE.user) {
+        img.style.display = 'none';
+        initial.style.display = 'block';
+        initial.textContent = STATE.user.name.charAt(0).toUpperCase();
+      }
     }
 
     function triggerProfilePhoto() {
-        document.getElementById('profile-photo-input').click();
+      document.getElementById('profile-photo-input').click();
     }
 
     function uploadProfilePhoto(input) {
-        const file = input.files[0];
-        if (!file) return;
-        if (file.size > 500000) { toast('<i class="ph-light ph-x-circle"></i> Фото слишком тяжелое (макс 500KB)'); return; }
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 500000) { toast('<i class="ph-light ph-x-circle"></i> Фото слишком тяжелое (макс 500KB)'); return; }
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const base64 = e.target.result;
-            STATE.user.photoURL = base64;
-            updateAvatarUI();
-            saveUserDataToFirestore(fbUser.uid);
-            toast('<i class="ph-light ph-check-circle"></i> Фото профиля обновлено');
-            
-            // Также обновляем в Firebase Auth
-            fbAuth.currentUser.updateProfile({ photoURL: base64 });
-        };
-        reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target.result;
+        STATE.user.photoURL = base64;
+        updateAvatarUI();
+        saveUserDataToFirestore(fbUser.uid);
+        toast('<i class="ph-light ph-check-circle"></i> Фото профиля обновлено');
+
+        // Также обновляем в Firebase Auth
+        fbAuth.currentUser.updateProfile({ photoURL: base64 });
+      };
+      reader.readAsDataURL(file);
     }
 
     function handleSecretMedia(input) {
-        processCloudUpload(input, 's-media-data-json', 's-media-gallery');
+      processCloudUpload(input, 's-media-data-json', 's-media-gallery');
     }
 
     function handleBioMedia(input) {
-        processCloudUpload(input, 'b-media-data-json', 'b-media-gallery');
+      processCloudUpload(input, 'b-media-data-json', 'b-media-gallery');
     }
 
     function processCloudUpload(input, hiddenId, galleryId) {
-        const files = Array.from(input.files);
-        const gallery = document.getElementById(galleryId);
-        const hidden = document.getElementById(hiddenId);
-        let currentMedia = JSON.parse(hidden.value || "[]");
+      const files = Array.from(input.files);
+      const gallery = document.getElementById(galleryId);
+      const hidden = document.getElementById(hiddenId);
+      let currentMedia = JSON.parse(hidden.value || "[]");
 
-        files.forEach(file => {
-            // Лимит 5МБ для документов, 2МБ для медиа (Base64 растет)
-            if (file.size > 5000000) { toast('<i class="ph-light ph-x-circle"></i> Файл ' + file.name + ' слишком большой'); return; }
-            
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                let type = file.type.split('/')[0]; 
-                if (type !== 'image' && type !== 'audio' && type !== 'video') type = 'file';
-                
-                const item = { type, data: e.target.result, name: file.name };
-                currentMedia.push(item);
-                hidden.value = JSON.stringify(currentMedia);
-                renderCloudGallery(currentMedia, galleryId, hiddenId);
-            };
-            reader.readAsDataURL(file);
-        });
-        input.value = '';
+      files.forEach(file => {
+        // Лимит 5МБ для документов, 2МБ для медиа (Base64 растет)
+        if (file.size > 5000000) { toast('<i class="ph-light ph-x-circle"></i> Файл ' + file.name + ' слишком большой'); return; }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          let type = file.type.split('/')[0];
+          if (type !== 'image' && type !== 'audio' && type !== 'video') type = 'file';
+
+          const item = { type, data: e.target.result, name: file.name };
+          currentMedia.push(item);
+          hidden.value = JSON.stringify(currentMedia);
+          renderCloudGallery(currentMedia, galleryId, hiddenId);
+        };
+        reader.readAsDataURL(file);
+      });
+      input.value = '';
     }
 
     function renderCloudGallery(media, galleryId, hiddenId) {
-        const gallery = document.getElementById(galleryId);
-        gallery.innerHTML = media.map((m, idx) => {
-            const isImage = m.type === 'image' || (m.data && (m.data.includes('data:image') || m.data.includes('base64')));
-            return `
+      const gallery = document.getElementById(galleryId);
+      gallery.innerHTML = media.map((m, idx) => {
+        const isImage = m.type === 'image' || (m.data && (m.data.includes('data:image') || m.data.includes('base64')));
+        return `
             <div style="position:relative; width:100%; padding-top:100%; background:var(--ink3); border-radius:12px; overflow:hidden; border:1px solid rgba(212,175,55,0.2); box-shadow:inset 0 0 10px rgba(0,0,0,0.5);">
                 ${isImage ? `<img src="${m.data}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">` : ''}
                 ${m.type === 'audio' ? `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.8rem;"><i class="ph-light ph-music-note"></i></div>` : ''}
@@ -7692,15 +8045,15 @@
                 <button onclick="removeCloudItem(${idx}, '${galleryId}', '${hiddenId}')" style="position:absolute; top:5px; right:5px; background:rgba(255,0,0,0.8); border:none; color:white; border-radius:50%; width:24px; height:24px; font-size:12px; cursor:pointer; z-index:10; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px);">✕</button>
             </div>
             `;
-        }).join('');
+      }).join('');
     }
 
     function removeCloudItem(idx, galleryId, hiddenId) {
-        const hidden = document.getElementById(hiddenId);
-        let media = JSON.parse(hidden.value || "[]");
-        media.splice(idx, 1);
-        hidden.value = JSON.stringify(media);
-        renderCloudGallery(media, galleryId, hiddenId);
+      const hidden = document.getElementById(hiddenId);
+      let media = JSON.parse(hidden.value || "[]");
+      media.splice(idx, 1);
+      hidden.value = JSON.stringify(media);
+      renderCloudGallery(media, galleryId, hiddenId);
     }
 
     function saveSecret() {
@@ -7725,13 +8078,13 @@
       if (vaultPass && vaultPass.trim().length > 0) {
         // Двойное шифрование
         try {
-           finalContent = '<i class="ph-light ph-lock"></i>V2' + CryptoJS.AES.encrypt(content, vaultPass).toString();
-           isVault = true;
-           console.log('Double encryption enabled for:', title);
-        } catch(e) {
-           console.error('Encryption error:', e);
-           toast('<i class="ph-light ph-x-circle"></i> Ошибка шифрования');
-           return;
+          finalContent = '<i class="ph-light ph-lock"></i>V2' + CryptoJS.AES.encrypt(content, vaultPass).toString();
+          isVault = true;
+          console.log('Double encryption enabled for:', title);
+        } catch (e) {
+          console.error('Encryption error:', e);
+          toast('<i class="ph-light ph-x-circle"></i> Ошибка шифрования');
+          return;
         }
       }
 
@@ -7744,15 +8097,15 @@
         isVault: isVault,
         date: new Date().toLocaleDateString('ru')
       };
-      
+
       STATE.secrets.unshift(secret);
-      saveUserData(); 
-      renderSecrets(); 
-      updateDashStats(); 
+      saveUserData();
+      renderSecrets();
+      updateDashStats();
       updateBadges();
-      
+
       addActivity('Добавлена тайна: ' + title + (isVault ? ' (Защищена)' : ''));
-      
+
       // Очистка
       document.getElementById('s-title').value = '';
       document.getElementById('s-content').value = '';
@@ -7760,7 +8113,7 @@
       document.getElementById('s-media-data-json').value = '[]';
       document.getElementById('s-media-gallery').innerHTML = '';
       document.getElementById('s-media-input').value = '';
-      
+
       closeModal('modal-secret');
       toast(isVault ? '<i class="ph-light ph-shield-check"></i> Сверхсекретная тайна сохранена' : '<i class="ph-light ph-check"></i> Тайна добавлена');
     }
@@ -7791,30 +8144,30 @@
     }
 
     function showDecryptedSecret(s, decryptedContent) {
-        document.getElementById('sv-title').textContent = s.title;
-        document.getElementById('sv-cat').textContent = catLabels[s.category] || s.category;
-        document.getElementById('sv-icon').textContent = catIcons[s.category] || '<i class="ph-light ph-folder"></i>';
-        document.getElementById('sv-content').value = decryptedContent;
-        document.getElementById('sv-date').textContent = 'Добавлено: ' + s.date;
-        
-        const vaultBadge = document.getElementById('sv-vault-badge');
-        if (vaultBadge) vaultBadge.style.display = s.isVault ? 'flex' : 'none';
+      document.getElementById('sv-title').textContent = s.title;
+      document.getElementById('sv-cat').textContent = catLabels[s.category] || s.category;
+      document.getElementById('sv-icon').textContent = catIcons[s.category] || '<i class="ph-light ph-folder"></i>';
+      document.getElementById('sv-content').value = decryptedContent;
+      document.getElementById('sv-date').textContent = 'Добавлено: ' + s.date;
 
-        // Отображение медиа (SoulCloud Gallery)
-        const galleryWrap = document.getElementById('sv-media-gallery-wrap');
-        if (s.media && s.media.length) {
-            galleryWrap.innerHTML = s.media.map(m => {
-                if (m.type === 'image') return `<img src="${m.data}" style="width:100%; border-radius:12px; margin-bottom:10px; border:1px solid rgba(212,175,55,0.15);">`;
-                if (m.type === 'audio') return `<div style="margin-bottom:10px;"><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
-                if (m.type === 'video') return `<video controls style="width:100%; border-radius:12px; margin-bottom:10px;"><source src="${m.data}"></video>`;
-                return '';
-            }).join('');
-            galleryWrap.style.display = 'block';
-        } else {
-            galleryWrap.style.display = 'none';
-        }
+      const vaultBadge = document.getElementById('sv-vault-badge');
+      if (vaultBadge) vaultBadge.style.display = s.isVault ? 'flex' : 'none';
 
-        openModal('modal-secret-view');
+      // Отображение медиа (SoulCloud Gallery)
+      const galleryWrap = document.getElementById('sv-media-gallery-wrap');
+      if (s.media && s.media.length) {
+        galleryWrap.innerHTML = s.media.map(m => {
+          if (m.type === 'image') return `<img src="${m.data}" style="width:100%; border-radius:12px; margin-bottom:10px; border:1px solid rgba(212,175,55,0.15);">`;
+          if (m.type === 'audio') return `<div style="margin-bottom:10px;"><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
+          if (m.type === 'video') return `<video controls style="width:100%; border-radius:12px; margin-bottom:10px;"><source src="${m.data}"></video>`;
+          return '';
+        }).join('');
+        galleryWrap.style.display = 'block';
+      } else {
+        galleryWrap.style.display = 'none';
+      }
+
+      openModal('modal-secret-view');
     }
 
     function viewSecret(id) {
@@ -7822,48 +8175,48 @@
       if (!s) return;
 
       if (s.isVault) {
-          document.getElementById('vault-prompt-id').value = id;
-          document.getElementById('vault-prompt-pass').value = '';
-          openModal('modal-vault-prompt');
-          return;
+        document.getElementById('vault-prompt-id').value = id;
+        document.getElementById('vault-prompt-pass').value = '';
+        openModal('modal-vault-prompt');
+        return;
       }
 
       showDecryptedSecret(s, s.content);
     }
 
     function unlockVaultSecret() {
-        const id = document.getElementById('vault-prompt-id').value;
-        const pass = document.getElementById('vault-prompt-pass').value;
-        const s = STATE.secrets.find(x => x.id === id);
-        if (!s || !pass) return;
+      const id = document.getElementById('vault-prompt-id').value;
+      const pass = document.getElementById('vault-prompt-pass').value;
+      const s = STATE.secrets.find(x => x.id === id);
+      if (!s || !pass) return;
 
-        try {
-            const encryptedData = s.content.replace('<i class="ph-light ph-lock"></i>V2', '');
-            const decrypted = CryptoJS.AES.decrypt(encryptedData, pass).toString(CryptoJS.enc.Utf8);
-            
-            if (!decrypted) throw new Error('Wrong password');
+      try {
+        const encryptedData = s.content.replace('<i class="ph-light ph-lock"></i>V2', '');
+        const decrypted = CryptoJS.AES.decrypt(encryptedData, pass).toString(CryptoJS.enc.Utf8);
 
-            closeModal('modal-vault-prompt');
-            toast(`<i class="ph-light ph-shield-check"></i> Тайна раскрыта (v2.0)`);
-            showDecryptedSecret(s, decrypted);
-        } catch(e) {
-            toast('<i class="ph-light ph-x-circle"></i> Неверный мастер-пароль');
-            const input = document.getElementById('vault-prompt-pass');
-            input.style.borderColor = 'var(--red)';
-            setTimeout(() => input.style.borderColor = '', 1000);
-        }
+        if (!decrypted) throw new Error('Wrong password');
+
+        closeModal('modal-vault-prompt');
+        toast(`<i class="ph-light ph-shield-check"></i> Тайна раскрыта (v2.0)`);
+        showDecryptedSecret(s, decrypted);
+      } catch (e) {
+        toast('<i class="ph-light ph-x-circle"></i> Неверный мастер-пароль');
+        const input = document.getElementById('vault-prompt-pass');
+        input.style.borderColor = 'var(--red)';
+        setTimeout(() => input.style.borderColor = '', 1000);
+      }
     }
 
     function copySecretContent() {
-        const val = document.getElementById('sv-content').value;
-        if (!val) return;
-        navigator.clipboard.writeText(val).then(() => {
-            const btn = document.querySelector('.btn-copy-secret');
-            const old = btn.innerHTML;
-            btn.innerHTML = '<i class="ph-light ph-check-circle"></i> Скопировано';
-            setTimeout(() => btn.innerHTML = old, 2000);
-            toast('<i class="ph-light ph-check"></i> Скопировано в буфер обмена');
-        });
+      const val = document.getElementById('sv-content').value;
+      if (!val) return;
+      navigator.clipboard.writeText(val).then(() => {
+        const btn = document.querySelector('.btn-copy-secret');
+        const old = btn.innerHTML;
+        btn.innerHTML = '<i class="ph-light ph-check-circle"></i> Скопировано';
+        setTimeout(() => btn.innerHTML = old, 2000);
+        toast('<i class="ph-light ph-check"></i> Скопировано в буфер обмена');
+      });
     }
 
     function deleteSecret(id) {
@@ -7887,32 +8240,32 @@
       const media = JSON.parse(document.getElementById('b-media-data-json').value || "[]");
 
       if (editingBioId) {
-          const idx = STATE.bio.findIndex(c => c.id === editingBioId);
-          if (idx !== -1) {
-              STATE.bio[idx] = { ...STATE.bio[idx], title, period, content, media };
-              toast('<i class="ph-light ph-check"></i> Глава обновлена');
-          }
-          editingBioId = null;
+        const idx = STATE.bio.findIndex(c => c.id === editingBioId);
+        if (idx !== -1) {
+          STATE.bio[idx] = { ...STATE.bio[idx], title, period, content, media };
+          toast('<i class="ph-light ph-check"></i> Глава обновлена');
+        }
+        editingBioId = null;
       } else {
-          const plan = getUserPlan();
-          if (STATE.bio.length >= plan.maxBioChapters) {
-            toast(`<i class="ph-light ph-x-circle"></i> Лимит тарифа «${plan.name}»: максимум ${plan.maxBioChapters} глав. Апгрейдите тариф!`);
-            openModal('modal-upgrade');
-            return;
-          }
+        const plan = getUserPlan();
+        if (STATE.bio.length >= plan.maxBioChapters) {
+          toast(`<i class="ph-light ph-x-circle"></i> Лимит тарифа «${plan.name}»: максимум ${plan.maxBioChapters} глав. Апгрейдите тариф!`);
+          openModal('modal-upgrade');
+          return;
+        }
 
-          const chapter = {
-            id: uid(), title, period, content, media,
-            date: new Date().toLocaleDateString('ru')
-          };
-          STATE.bio.unshift(chapter);
-          toast('<i class="ph-light ph-check"></i> Глава сохранена');
+        const chapter = {
+          id: uid(), title, period, content, media,
+          date: new Date().toLocaleDateString('ru')
+        };
+        STATE.bio.unshift(chapter);
+        toast('<i class="ph-light ph-check"></i> Глава сохранена');
       }
 
-      saveUserData(); 
-      renderBio(); 
+      saveUserData();
+      renderBio();
       updateDashStats();
-      
+
       // Clear
       closeModal('modal-bio');
       resetBioForm();
@@ -7928,22 +8281,22 @@
     }
 
     function editBio(id) {
-        const b = STATE.bio.find(x => x.id === id);
-        if (!b) return;
-        
-        editingBioId = id;
-        document.getElementById('b-title').value = b.title;
-        document.getElementById('b-period').value = b.period || '';
-        document.getElementById('b-content').value = b.content || '';
-        document.getElementById('b-media-data-json').value = JSON.stringify(b.media || []);
-        renderCloudGallery(b.media || [], 'b-media-gallery', 'b-media-data-json');
-        
-        openModal('modal-bio');
+      const b = STATE.bio.find(x => x.id === id);
+      if (!b) return;
+
+      editingBioId = id;
+      document.getElementById('b-title').value = b.title;
+      document.getElementById('b-period').value = b.period || '';
+      document.getElementById('b-content').value = b.content || '';
+      document.getElementById('b-media-data-json').value = JSON.stringify(b.media || []);
+      renderCloudGallery(b.media || [], 'b-media-gallery', 'b-media-data-json');
+
+      openModal('modal-bio');
     }
 
     function _getStartYear(period) {
-        const match = (period || "").match(/\d{4}/);
-        return match ? parseInt(match[0]) : 9999;
+      const match = (period || "").match(/\d{4}/);
+      return match ? parseInt(match[0]) : 9999;
     }
 
     function renderBio() {
@@ -7954,7 +8307,7 @@
       const sortedBio = [...STATE.bio].sort((a, b) => _getStartYear(a.period) - _getStartYear(b.period));
 
       let html = `<div class="heritage-timeline" style="position:relative; padding-left:40px; margin-top:40px; width:100%; box-sizing:border-box;">`;
-      
+
       // Золотая нить жизни
       html += `<div style="position:absolute; top:0; bottom:0; left:12px; width:2px; background:linear-gradient(to bottom, transparent, var(--gold), transparent); opacity:0.3;"></div>`;
 
@@ -7964,7 +8317,7 @@
         else if (typeof ch.media === 'string' && ch.media.length > 20) mediaArr = [{ type: 'image', data: ch.media }];
 
         const firstImg = mediaArr.find(m => m.type === 'image' || (m.data && (m.data.includes('data:image') || m.data.includes('base64'))));
-        
+
         return `
     <div class="bio-plank-wow" style="position:relative; margin-bottom: 2.5rem; animation: fadeUp ${0.3 + i * 0.1}s forwards; width:100%;">
       
@@ -8019,7 +8372,7 @@
           
           <div style="display:flex; align-items:center; gap:12px; font-size:0.6rem; color:var(--muted2); margin-top:4px;">
              <span><i class="ph-light ph-calendar"></i> ${ch.date}</span>
-             ${mediaArr.length > 1 ? `<span style="color:var(--gold-d); font-weight:600;"><i class="ph-light ph-folder"></i> +${mediaArr.length-1} медиа</span>` : ''}
+             ${mediaArr.length > 1 ? `<span style="color:var(--gold-d); font-weight:600;"><i class="ph-light ph-folder"></i> +${mediaArr.length - 1} медиа</span>` : ''}
           </div>
         </div>
 
@@ -8031,41 +8384,41 @@
     }
 
     function viewBio(id) {
-        const b = STATE.bio.find(x => x.id === id);
-        if (!b) return;
+      const b = STATE.bio.find(x => x.id === id);
+      if (!b) return;
 
-        document.getElementById('bv-title').textContent = b.title;
-        document.getElementById('bv-period').textContent = b.period || 'Период не указан';
-        document.getElementById('bv-content').innerHTML = esc(b.content || '').replace(/\n/g, '<br>');
-        document.getElementById('bv-date').textContent = 'Запись от ' + b.date;
+      document.getElementById('bv-title').textContent = b.title;
+      document.getElementById('bv-period').textContent = b.period || 'Период не указан';
+      document.getElementById('bv-content').innerHTML = esc(b.content || '').replace(/\n/g, '<br>');
+      document.getElementById('bv-date').textContent = 'Запись от ' + b.date;
 
-        const gallery = document.getElementById('bv-media-gallery');
-        // Нормализация для просмотра
-        let mediaArr = [];
-        if (Array.isArray(b.media)) mediaArr = b.media;
-        else if (typeof b.media === 'string' && b.media.length > 20) mediaArr = [{ type: 'image', data: b.media }];
+      const gallery = document.getElementById('bv-media-gallery');
+      // Нормализация для просмотра
+      let mediaArr = [];
+      if (Array.isArray(b.media)) mediaArr = b.media;
+      else if (typeof b.media === 'string' && b.media.length > 20) mediaArr = [{ type: 'image', data: b.media }];
 
-        if (mediaArr.length) {
-            gallery.innerHTML = mediaArr.map(m => {
-                const isImage = (m.type === 'image') || (m.data && m.data.includes('data:image'));
-                if (isImage) return `<img src="${m.data}" style="width:100%; border-radius:16px; margin-bottom:15px; border:1px solid rgba(212,175,55,0.15); box-shadow:0 5px 15px rgba(0,0,0,0.3);">`;
-                if (m.type === 'audio') return `<div style="margin-bottom:15px; padding:15px; background:rgba(212,175,55,0.05); border-radius:12px;"><div style="font-size:0.7rem; margin-bottom:8px; color:var(--gold);"><i class="ph-light ph-music-note"></i> Голос из прошлого:</div><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
-                if (m.type === 'video') return `<video controls style="width:100%; border-radius:16px; margin-bottom:15px;"><source src="${m.data}"></video>`;
-                // Generic file
-                return `<div style="margin-bottom:15px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:12px; display:flex; align-items:center; gap:12px;">
+      if (mediaArr.length) {
+        gallery.innerHTML = mediaArr.map(m => {
+          const isImage = (m.type === 'image') || (m.data && m.data.includes('data:image'));
+          if (isImage) return `<img src="${m.data}" style="width:100%; border-radius:16px; margin-bottom:15px; border:1px solid rgba(212,175,55,0.15); box-shadow:0 5px 15px rgba(0,0,0,0.3);">`;
+          if (m.type === 'audio') return `<div style="margin-bottom:15px; padding:15px; background:rgba(212,175,55,0.05); border-radius:12px;"><div style="font-size:0.7rem; margin-bottom:8px; color:var(--gold);"><i class="ph-light ph-music-note"></i> Голос из прошлого:</div><audio controls style="width:100%"><source src="${m.data}"></audio></div>`;
+          if (m.type === 'video') return `<video controls style="width:100%; border-radius:16px; margin-bottom:15px;"><source src="${m.data}"></video>`;
+          // Generic file
+          return `<div style="margin-bottom:15px; padding:15px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:12px; display:flex; align-items:center; gap:12px;">
                     <div style="font-size:1.5rem;"><i class="ph-light ph-file-text"></i></div>
                     <div style="flex:1">
                         <div style="font-size:0.85rem; color:var(--ivory);">${esc(m.name || 'Документ')}</div>
                         <a href="${m.data}" download="${m.name || 'file'}" style="font-size:0.7rem; color:var(--gold); text-decoration:none;"><i class="ph-light ph-download-simple"></i> Скачать файл</a>
                     </div>
                 </div>`;
-            }).join('');
-            gallery.style.display = 'block';
-        } else {
-            gallery.style.display = 'none';
-        }
+        }).join('');
+        gallery.style.display = 'block';
+      } else {
+        gallery.style.display = 'none';
+      }
 
-        openModal('modal-bio-view');
+      openModal('modal-bio-view');
     }
 
     function deleteBio(id) {
@@ -8150,7 +8503,7 @@
     function handlePhotoUpload(input) {
       if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
           document.getElementById('r-photo-data').value = e.target.result;
           const preview = document.getElementById('r-photo-preview');
           preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
@@ -8160,16 +8513,19 @@
     }
 
     function populateRelativeSelects(currentId) {
-      const selects = ['r-fatherId', 'r-motherId', 'r-spouseId'];
+      const selects = ['r-fatherId', 'r-motherId', 'r-spouseId', 'r-parentId'];
       const options = STATE.relatives
         .filter(r => r.id !== currentId)
         .map(r => `<option value="${r.id}">${esc(r.name)} (${esc(r.rel || 'родственник')})</option>`)
         .join('');
-      
+
       selects.forEach(sid => {
         const el = document.getElementById(sid);
         if (el) {
-          const firstOpt = sid === 'r-spouseId' ? '<option value="">Нет</option>' : '<option value="">Не указан(а)</option>';
+          let firstOpt = '';
+          if (sid === 'r-spouseId') firstOpt = '<option value="">Нет</option>';
+          else if (sid === 'r-parentId') firstOpt = '<option value="">Не указан</option><option value="you">Вы (Глава рода)</option>';
+          else firstOpt = '<option value="">Не указан(а)</option>';
           el.innerHTML = firstOpt + options;
         }
       });
@@ -8178,7 +8534,7 @@
     function openEditRelative(id) {
       const r = STATE.relatives.find(x => x.id === id);
       if (!r) return;
-      
+
       document.getElementById('r-modal-title').textContent = 'Редактировать профиль';
       document.getElementById('r-id').value = r.id;
       document.getElementById('r-name').value = r.name || '';
@@ -8190,7 +8546,9 @@
       document.getElementById('r-lat').value = r.lat || '';
       document.getElementById('r-lon').value = r.lon || '';
       document.getElementById('r-relType').value = r.relType || 'blood';
-      
+      document.getElementById('r-lifePeriod').value = r.lifePeriod || '';
+      document.getElementById('r-zone').value = r.zone || 'relatives';
+
       const photoData = r.photo || '';
       document.getElementById('r-photo-data').value = photoData;
       const preview = document.getElementById('r-photo-preview');
@@ -8199,19 +8557,20 @@
       } else {
         preview.innerHTML = (r.name || '?').charAt(0).toUpperCase();
       }
-      
+
       populateRelativeSelects(r.id);
       document.getElementById('r-fatherId').value = r.fatherId || '';
       document.getElementById('r-motherId').value = r.motherId || '';
       document.getElementById('r-spouseId').value = r.spouseId || '';
-      
+      document.getElementById('r-parentId').value = r.parentId || '';
+
       document.getElementById('r-btn-delete').style.display = 'block';
       openModal('modal-relative');
     }
 
     // Override openModal for new relative to reset fields
     const _origOpenModal = openModal;
-    window.openModal = function(id) {
+    window.openModal = function (id) {
       if (id === 'modal-relative' && !document.getElementById('r-id').value) {
         document.getElementById('r-modal-title').textContent = 'Добавить в древо';
         document.getElementById('r-id').value = '';
@@ -8225,7 +8584,10 @@
         document.getElementById('r-photo-data').value = '';
         document.getElementById('r-photo-preview').innerHTML = '?';
         document.getElementById('r-btn-delete').style.display = 'none';
+        document.getElementById('r-lifePeriod').value = '';
+        document.getElementById('r-zone').value = 'relatives';
         populateRelativeSelects('');
+        document.getElementById('r-parentId').value = '';
       }
       _origOpenModal(id);
     };
@@ -8247,7 +8609,10 @@
         fatherId: document.getElementById('r-fatherId').value,
         motherId: document.getElementById('r-motherId').value,
         spouseId: document.getElementById('r-spouseId').value,
+        parentId: document.getElementById('r-parentId').value,
         relType: document.getElementById('r-relType').value,
+        lifePeriod: document.getElementById('r-lifePeriod').value,
+        zone: document.getElementById('r-zone').value,
         photo: document.getElementById('r-photo-data').value,
         updatedAt: Date.now()
       };
@@ -8276,6 +8641,7 @@
       saveUserData(); renderRelatives(); renderTree(); renderGlobeList();
       if (window.globeInit) updateGlobeMarkers();
       updateDashStats(); updateBadges();
+      selectTreeNode(id || 'you');
       closeModal('modal-relative');
     }
 
@@ -8287,14 +8653,16 @@
         if (r.fatherId === id) r.fatherId = '';
         if (r.motherId === id) r.motherId = '';
         if (r.spouseId === id) r.spouseId = '';
+        if (r.parentId === id) r.parentId = '';
       });
-      saveUserData(); 
-      renderRelatives(); 
-      renderTree(); 
+      saveUserData();
+      renderRelatives();
+      renderTree();
       renderGlobeList();
       if (typeof globeInit !== 'undefined' && globeInit) updateGlobeMarkers();
       updateDashStats();
       updateBadges();
+      selectTreeNode('you');
       toast('Удалено');
     }
 
@@ -8363,7 +8731,7 @@
     let isEditMode = false;
     let treeSearchQuery = '';
     let collapsedNodes = new Set();
-    let manualPositions = {}; 
+    let manualPositions = {};
 
     function loadManualPositions() {
       if (STATE.settings && STATE.settings.treePositions) {
@@ -8403,14 +8771,14 @@
       e.preventDefault();
       const container = document.getElementById('family-tree-container');
       if (!container) return;
-      
-      const pos = manualPositions[nodeId] || {x:0, y:0};
+
+      const pos = manualPositions[nodeId] || { x: 0, y: 0 };
       const nodeWidth = 280;
       const nodeHeight = 135;
-      
+
       const startX = pos.x + nodeWidth / 2;
       const startY = type === 'child' ? pos.y + nodeHeight : pos.y;
-      
+
       connectionStart = { nodeId, type, x: startX, y: startY };
       document.addEventListener('mousemove', doConnect);
       document.addEventListener('mouseup', endConnect);
@@ -8425,7 +8793,7 @@
 
       const mouseX = (e.clientX - rect.left - treePanX) / treeScale;
       const mouseY = (e.clientY - rect.top - treePanY) / treeScale;
-      
+
       let tempLine = document.getElementById('temp-connection-line');
       if (!tempLine) {
         tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -8433,8 +8801,8 @@
         tempLine.setAttribute('class', 'connection-temp-line');
         svg.appendChild(tempLine);
       }
-      
-      const d = `M${connectionStart.x},${connectionStart.y} C${connectionStart.x},${(connectionStart.y + mouseY)/2} ${mouseX},${(connectionStart.y + mouseY)/2} ${mouseX},${mouseY}`;
+
+      const d = `M${connectionStart.x},${connectionStart.y} C${connectionStart.x},${(connectionStart.y + mouseY) / 2} ${mouseX},${(connectionStart.y + mouseY) / 2} ${mouseX},${mouseY}`;
       tempLine.setAttribute('d', d);
     }
 
@@ -8444,17 +8812,17 @@
       const tempLine = document.getElementById('temp-connection-line');
       if (tempLine) tempLine.remove();
       if (!connectionStart) return;
-      
+
       const el = document.elementFromPoint(e.clientX, e.clientY);
       const targetNodeEl = el ? el.closest('.tree-node') : null;
-      
+
       if (targetNodeEl && targetNodeEl.dataset.id !== connectionStart.nodeId) {
         const targetId = targetNodeEl.dataset.id;
         const sourceId = connectionStart.nodeId;
-        
+
         // Find actual data objects
-        const sourceObj = (sourceId === 'you') ? (STATE.user || {id:'you', name:'Вы'}) : STATE.relatives.find(r => r.id === sourceId);
-        const targetObj = (targetId === 'you') ? (STATE.user || {id:'you', name:'Вы'}) : STATE.relatives.find(r => r.id === targetId);
+        const sourceObj = (sourceId === 'you') ? (STATE.user || { id: 'you', name: 'Вы' }) : STATE.relatives.find(r => r.id === sourceId);
+        const targetObj = (targetId === 'you') ? (STATE.user || { id: 'you', name: 'Вы' }) : STATE.relatives.find(r => r.id === targetId);
 
         if (sourceObj && targetObj) {
           if (connectionStart.type === 'child') {
@@ -8475,250 +8843,201 @@
 
     function renderTree() {
       const nodesLayer = document.getElementById('tree-nodes-layer');
-      const svgLayer = document.getElementById('tree-svg-layer');
+      const svgLayer   = document.getElementById('tree-svg-layer');
       if (!nodesLayer || !svgLayer) return;
 
       loadManualPositions();
       nodesLayer.innerHTML = '';
-      const defs = svgLayer.querySelector('defs');
+      const savedDefs = svgLayer.querySelector('defs');
       svgLayer.innerHTML = '';
-      if (defs) svgLayer.appendChild(defs);
+      if (savedDefs) svgLayer.appendChild(savedDefs);
 
       const rels = STATE.relatives || [];
-      const userNode = {
-        id: 'you', 
-        name: STATE.user ? STATE.user.name : 'Вы', 
-        rel: 'Глава рода', 
-        access: 'heir', 
-        isMe: true,
-        fatherId: STATE.user ? STATE.user.fatherId : null,
-        motherId: STATE.user ? STATE.user.motherId : null,
-        children: rels.filter(r => r.fatherId === 'you' || r.motherId === 'you').map(r => r.id),
-        spouses: rels.filter(r => r.spouseId === 'you' || (STATE.user && r.id === STATE.user.spouseId)).map(r => r.id)
-      };
+      const NODE_W = 300, NODE_H = 90, H_GAP = 340, V_GAP = 190;
+      const STATUS_CLS = { heir:'status-heir', observer:'status-observer', trusted:'status-trusted', blocked:'status-blocked' };
+      const ZONE_LABELS = { relatives:'Родственники', friends:'Друзья', colleagues:'Коллеги', other:'Другие' };
 
-      const allNodes = [userNode, ...rels.map(r => ({
-        ...r,
-        children: rels.filter(x => x.fatherId === r.id || x.motherId === r.id).map(x => x.id),
-        spouses: rels.filter(x => x.spouseId === r.id).concat(rels.filter(x => x.id === r.spouseId)).map(x => x.id)
-      }))];
+      /* ── Build node map ── */
+      const allNodes = { you: {
+        id:'you', name: STATE.user?.name || 'Вы', rel:'Глава рода',
+        access:'heir', isMe:true, zone:'relatives',
+        photo: STATE.user?.photoURL || '', city: STATE.settings?.city || '',
+        desc:'Ваш профиль — центр Древа жизни.', lifePeriod:''
+      }};
+      rels.forEach(r => { allNodes[r.id] = r; });
 
-      const levels = {};
-      const nodePositions = { ...manualPositions };
-      const processed = new Set();
-
-      // BFS Level Assignment
-      const queue = [{id: 'you', level: 0}];
-      processed.add('you');
-      
-      let qIdx = 0;
-      while (qIdx < queue.length) {
-        const {id, level} = queue[qIdx++];
-        if (!levels[level]) levels[level] = [];
-        if (!levels[level].includes(id)) levels[level].push(id);
-
-        const node = allNodes.find(n => n.id === id);
-        if (!node || collapsedNodes.has(id)) continue;
-
-        // Traverse Down (Children)
-        if (node.children) node.children.forEach(cid => {
-          if (!processed.has(cid)) { processed.add(cid); queue.push({id: cid, level: level + 1}); }
-        });
-        // Traverse Up (Parents)
-        if (node.fatherId && !processed.has(node.fatherId)) {
-          processed.add(node.fatherId); queue.push({id: node.fatherId, level: level - 1});
-        }
-        if (node.motherId && !processed.has(node.motherId)) {
-          processed.add(node.motherId); queue.push({id: node.motherId, level: level - 1});
-        }
-        // Traverse Sideways (Spouses)
-        if (node.spouses) node.spouses.forEach(sid => {
-          if (!processed.has(sid)) { processed.add(sid); queue.push({id: sid, level: level}); }
-        });
+      function effectiveParent(r) {
+        if (!r || r.id === 'you') return null;
+        if (r.parentId  && allNodes[r.parentId])  return r.parentId;
+        if (r.fatherId  && allNodes[r.fatherId])   return r.fatherId;
+        if (r.motherId  && allNodes[r.motherId])   return r.motherId;
+        return 'you';
       }
 
-      // Handle disconnected clusters
-      allNodes.forEach(n => {
-        if (!processed.has(n.id)) {
-          const subQueue = [{id: n.id, level: 0}];
-          processed.add(n.id);
-          let sqIdx = 0;
-          while (sqIdx < subQueue.length) {
-            const {id, level} = subQueue[sqIdx++];
-            if (!levels[level]) levels[level] = [];
-            levels[level].push(id);
-            const node = allNodes.find(nx => nx.id === id);
-            if (node) {
-              if (node.children) node.children.forEach(cid => { if (!processed.has(cid)) { processed.add(cid); subQueue.push({id: cid, level: level + 1}); } });
-              if (node.spouses) node.spouses.forEach(sid => { if (!processed.has(sid)) { processed.add(sid); subQueue.push({id: sid, level: level}); } });
-            }
-          }
-        }
-      });
+      /* ── Zone-based layout ──
+         "you" at canvas origin (0,0).
+         relatives → centre, friends → left, colleagues → right, other → far-right.
+         Each zone grows UPWARD; level=1 is nearest to "you". */
+      const zoneGroups = { relatives:[], friends:[], colleagues:[], other:[] };
+      rels.forEach(r => { (zoneGroups[r.zone] || zoneGroups.relatives).push(r.id); });
 
-      const sortedLevels = Object.keys(levels).map(Number).sort((a,b) => a - b);
-      sortedLevels.forEach(l => {
-        const nodesInLevel = levels[l];
-        // Professional spacing
-        const hSpacing = 420;
-        const vSpacing = 480; 
-        const totalWidth = (nodesInLevel.length - 1) * hSpacing;
-        nodesInLevel.forEach((id, idx) => {
-          if (!nodePositions[id]) {
-            nodePositions[id] = { x: (idx * hSpacing) - (totalWidth / 2) - 140, y: l * vSpacing };
-          }
+      function assignDepths(ids) {
+        const depth = {}, childMap = {};
+        ids.forEach(id => {
+          const p = effectiveParent(allNodes[id]);
+          if (p && ids.includes(p)) { if (!childMap[p]) childMap[p]=[]; childMap[p].push(id); }
+        });
+        const roots = ids.filter(id => { const p=effectiveParent(allNodes[id]); return !p||!ids.includes(p); });
+        const q = roots.map(id=>({id,d:1}));
+        for (let i=0;i<q.length;i++) { const {id,d}=q[i]; depth[id]=d; (childMap[id]||[]).forEach(cid=>q.push({id:cid,d:d+1})); }
+        return depth;
+      }
+
+      const ZONE_COL = { relatives:0, friends:-(H_GAP+NODE_W+80), colleagues:(H_GAP+NODE_W+80), other:(H_GAP+NODE_W+80)*2 };
+      const positions = { ...manualPositions };
+      if (!positions['you']) positions['you'] = { x:-NODE_W/2, y:0 };
+
+      Object.entries(zoneGroups).forEach(([zone, ids]) => {
+        if (!ids.length) return;
+        const depth = assignDepths(ids);
+        const byDepth = {};
+        ids.forEach(id => { const d=depth[id]||1; if(!byDepth[d]) byDepth[d]=[]; byDepth[d].push(id); });
+        const baseX = ZONE_COL[zone] || 0;
+        Object.entries(byDepth).forEach(([d, lvIds]) => {
+          const rowW = (lvIds.length-1)*(NODE_W+H_GAP);
+          lvIds.forEach((id,i) => {
+            if (!positions[id]) positions[id] = {
+              x: baseX + i*(NODE_W+H_GAP) - rowW/2 - NODE_W/2,
+              y: -(Number(d)*(NODE_H+V_GAP))
+            };
+          });
         });
       });
 
-      allNodes.forEach(n => {
-        const pos = nodePositions[n.id];
+      /* ── Render nodes ── */
+      Object.values(allNodes).forEach(n => {
+        const pos = positions[n.id];
         if (!pos) return;
+        if (collapsedNodes.has(n.id) && !n.isMe) return;
 
-        const isMatch = treeSearchQuery && (n.name.toLowerCase().includes(treeSearchQuery) || (n.rel || '').toLowerCase().includes(treeSearchQuery));
+        const zone = n.zone || 'relatives';
+        const statusCls = STATUS_CLS[n.access] || 'status-observer';
+        const isMatch = treeSearchQuery && (
+          (n.name||'').toLowerCase().includes(treeSearchQuery) ||
+          (n.rel ||'').toLowerCase().includes(treeSearchQuery));
+
         const el = document.createElement('div');
-        el.className = `tree-node ${n.isMe ? 'me' : ''} ${isEditMode ? 'wiggle' : ''} ${isMatch ? 'search-match' : ''}`;
+        el.className = ['tree-node',`zone-${zone}`,n.isMe?'me':'',isEditMode?'wiggle':'',isMatch?'search-match':''].filter(Boolean).join(' ');
         el.dataset.id = n.id;
-        el.style.left = `${pos.x}px`;
-        el.style.top = `${pos.y}px`;
-        el.style.zIndex = n.isMe ? '50' : '10';
-        
-        if (isEditMode) {
-          el.onmousedown = (e) => {
-            if (e.button !== 0 || e.target.closest('.tree-port')) return;
-            e.stopPropagation();
-            el.style.zIndex = '9999';
-            const startX = e.clientX, startY = e.clientY;
-            const nodeStartX = pos.x, nodeStartY = pos.y;
-            const onMouseMove = (moveE) => {
-              const dx = (moveE.clientX - startX) / treeScale, dy = (moveE.clientY - startY) / treeScale;
-              const newX = nodeStartX + dx, newY = nodeStartY + dy;
-              el.style.left = newX + 'px'; el.style.top = newY + 'px';
-              nodePositions[n.id] = { x: newX, y: newY };
-              manualPositions[n.id] = { x: newX, y: newY };
-              renderLines(allNodes, nodePositions, svgLayer);
-            };
-            const onMouseUp = () => {
-              document.removeEventListener('mousemove', onMouseMove);
-              document.removeEventListener('mouseup', onMouseUp);
-              el.style.zIndex = n.isMe ? '50' : '10';
-              saveManualPositions();
-            };
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-          };
-        }
+        el.style.cssText = `left:${pos.x}px;top:${pos.y}px;z-index:${n.isMe?50:10};`;
 
-        el.onclick = (e) => { if (!isEditMode && !e.target.closest('.tree-port')) openSidePanel(n.id); };
+        const initials = (n.name||'?').charAt(0).toUpperCase();
+        const avatarHTML = n.photo
+          ? `<img src="${n.photo}" class="node-avatar" style="border-radius:50%;object-fit:cover;">`
+          : `<div class="node-avatar">${initials}</div>`;
 
-        const avatar = n.photo ? `<img src="${n.photo}" class="tree-node-photo">` : `<div class="tree-node-photo">${(n.name || '?').charAt(0).toUpperCase()}</div>`;
-        const hasChildren = n.children.length > 0;
+        const kids = rels.filter(r => effectiveParent(r)===n.id);
         const isCollapsed = collapsedNodes.has(n.id);
 
         el.innerHTML = `
-          <div class="tree-port port-top" onmousedown="startConnect(event, '${n.id}', 'parent')"></div>
-          <div class="tree-port port-bottom" onmousedown="startConnect(event, '${n.id}', 'child')"></div>
-          <div class="tree-node-bg-gradient"></div>
-          <div class="tree-node-inner">
-            <div class="tree-node-head">
-              ${avatar}
-              <div class="tree-node-info">
-                <div class="tree-node-name">${esc(n.name)}</div>
-                <div class="tree-node-role">${esc(n.rel || (n.isMe ? 'Глава рода' : 'Родственник'))}</div>
-              </div>
-            </div>
-            <div class="tree-node-actions-v5">
-              <div class="action-btn-circle" onclick="event.stopPropagation(); addChildTo('${n.id}')" title="Добавить потомка"><i class="ph-bold ph-plus"></i></div>
-              <div class="action-btn-circle" onclick="event.stopPropagation(); openEditRelative('${n.id}')" title="Редактировать"><i class="ph-bold ph-pencil-simple"></i></div>
-            </div>
+          <div class="tree-port port-top"    onmousedown="startConnect(event,'${n.id}','parent')"></div>
+          <div class="tree-port port-bottom" onmousedown="startConnect(event,'${n.id}','child')"></div>
+          <div class="node-avatar-wrap">${avatarHTML}<div class="node-status-dot ${statusCls}"></div></div>
+          <div class="node-body">
+            <div class="node-name">${esc(n.name||'Без имени')}</div>
+            <div class="node-role-badge">◆ ${esc(n.rel||(n.isMe?'Глава рода':'Родственник'))}</div>
+            <span class="node-zone-tag tag-${zone}">${ZONE_LABELS[zone]||zone}</span>
           </div>
-          <div class="tree-node-footer">
-            <span>${esc(n.city || 'Мир')}</span>
-            ${hasChildren ? `
-              <div onclick="event.stopPropagation(); toggleCollapse('${n.id}')" style="cursor:pointer; color:var(--gold); display:flex; align-items:center; gap:5px;">
-                <span style="font-size:0.6rem">${n.children.length}</span>
-                <i class="ph-fill ${isCollapsed ? 'ph-caret-circle-down' : 'ph-caret-circle-up'}"></i>
-              </div>
-            ` : '<i class="ph-light ph-leaf" style="opacity:0.3"></i>'}
-          </div>
-        `;
+          <div class="node-actions">
+            ${!n.isMe?`<div class="node-act-btn" onclick="event.stopPropagation();openEditRelative('${n.id}')" title="Изменить"><i class="ph-bold ph-pencil-simple"></i></div>`:''}
+            ${kids.length?`<div class="node-act-btn" onclick="event.stopPropagation();toggleCollapse('${n.id}')" title="${isCollapsed?'Раскрыть':'Свернуть'}"><i class="ph-bold ${isCollapsed?'ph-plus':'ph-minus'}"></i></div>`:''}
+          </div>`;
+
+        if (isEditMode) {
+          el.onmousedown = (e) => {
+            if (e.button!==0||e.target.closest('.tree-port,.node-act-btn')) return;
+            e.stopPropagation(); el.style.zIndex='9999';
+            const sx=e.clientX,sy=e.clientY,nx=pos.x,ny=pos.y;
+            const mm=(me)=>{
+              const dx=(me.clientX-sx)/treeScale,dy=(me.clientY-sy)/treeScale;
+              el.style.left=(nx+dx)+'px';el.style.top=(ny+dy)+'px';
+              positions[n.id]=manualPositions[n.id]={x:nx+dx,y:ny+dy};
+              renderLines(allNodes,positions,svgLayer);
+            };
+            const mu=()=>{
+              document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);
+              el.style.zIndex=n.isMe?'50':'10'; saveManualPositions();
+            };
+            document.addEventListener('mousemove',mm);document.addEventListener('mouseup',mu);
+          };
+        }
+        el.addEventListener('click',e=>{ if(!e.target.closest('.tree-port,.node-act-btn')) selectTreeNode(n.id); });
         nodesLayer.appendChild(el);
       });
 
-      renderLines(allNodes, nodePositions, svgLayer);
-      if (treePanX === 0 && treePanY === 0) treeReset();
+      renderLines(allNodes, positions, svgLayer);
+      if (treePanX===0&&treePanY===0) treeReset();
+      selectTreeNode('you');
     }
 
     function renderLines(nodes, positions, svg) {
-      const defs = svg.querySelector('defs');
-      svg.innerHTML = '';
-      if (defs) svg.appendChild(defs);
-
-      nodes.forEach(n => {
-        const start = positions[n.id];
-        if (!start || collapsedNodes.has(n.id)) return;
-
-        // Bloodlines (to parents)
-        [n.fatherId, n.motherId].forEach(pid => {
-          if (!pid) return;
-          const end = positions[pid];
-          if (!end) return;
-          drawTreeLineV5(svg, start, end, 'blood');
-        });
-
-        // Marriages
-        n.spouses.forEach(sid => {
-          const end = positions[sid];
-          if (!end || n.id > sid) return;
-          drawTreeLineV5(svg, start, end, 'marriage');
-        });
+      const saved = svg.querySelector('defs');
+      svg.innerHTML='';
+      if (saved) svg.appendChild(saved);
+      const rels = STATE.relatives||[];
+      function ep(r){
+        if(!r||r.id==='you')return null;
+        if(r.parentId&&nodes[r.parentId])return r.parentId;
+        if(r.fatherId&&nodes[r.fatherId])return r.fatherId;
+        if(r.motherId&&nodes[r.motherId])return r.motherId;
+        return 'you';
+      }
+      const drawn=new Set();
+      rels.forEach(r=>{
+        if(collapsedNodes.has(r.id))return;
+        const pid=ep(r); if(!pid)return;
+        const key=[pid,r.id].sort().join('|');
+        if(drawn.has(key))return; drawn.add(key);
+        const from=positions[pid],to=positions[r.id];
+        if(from&&to) drawTreeLineV5(svg,from,to,r.zone||'relatives',false);
+      });
+      rels.forEach(r=>{
+        if(r.spouseId&&nodes[r.spouseId]){
+          const key=[r.id,r.spouseId].sort().join('|');
+          if(drawn.has(key))return; drawn.add(key);
+          const from=positions[r.id],to=positions[r.spouseId];
+          if(from&&to) drawTreeLineV5(svg,from,to,r.zone||'relatives',true);
+        }
       });
     }
 
-    function drawTreeLineV5(svg, node1, node2, type) {
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      const nodeWidth = 280;
-      const nodeHeight = 160; 
-
-      let d;
-      if (type === 'blood') {
-        const x1 = node1.x + nodeWidth / 2;
-        const y1 = node1.y; 
-        const x2 = node2.x + nodeWidth / 2;
-        const y2 = node2.y + nodeHeight; 
-
-        // Orthogonal Step Path (Sharp 90-degree look)
-        const midY = (y1 + y2) / 2;
-        d = `M${x1},${y1} L${x1},${midY} L${x2},${midY} L${x2},${y2}`;
-        path.setAttribute('class', 'tree-line-v5');
-      } else {
-        // Sharp Side-to-Side
-        const left = node1.x < node2.x ? node1 : node2;
-        const right = node1.x < node2.x ? node2 : node1;
-        const x1 = left.x + nodeWidth;
-        const y1 = left.y + 60;
-        const x2 = right.x;
-        const y2 = right.y + 60;
-
-        const midX = (x1 + x2) / 2;
-        d = `M${x1},${y1} L${midX},${y1} L${midX},${y2} L${x2},${y2}`;
-        path.setAttribute('class', 'tree-line-v5 active');
-      }
-
-      path.setAttribute('d', d);
+    function drawTreeLineV5(svg,p1,p2,zone,isSpouse){
+      const NODE_W=300,NODE_H=90;
+      const x1=p1.x+NODE_W/2,y1=p1.y+NODE_H;
+      const x2=p2.x+NODE_W/2,y2=p2.y;
+      const cpY1=y1+(y2-y1)*0.45, cpY2=y2-(y2-y1)*0.45;
+      let d = isSpouse
+        ? `M${p1.x+NODE_W},${p1.y+NODE_H/2} L${p2.x},${p2.y+NODE_H/2}`
+        : `M${x1},${y1} C${x1},${cpY1} ${x2},${cpY2} ${x2},${y2}`;
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',d);
+      path.setAttribute('class',`tree-line-v5 line-zone-${zone}`);
+      if(isSpouse){path.setAttribute('stroke-dasharray','8 5');path.setAttribute('opacity','0.4');}
       svg.appendChild(path);
-
-      if (type === 'blood') {
-        const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        particle.setAttribute('r', '2.5');
-        particle.setAttribute('class', 'soul-particle');
-        const anim = document.createElementNS('http://www.w3.org/2000/svg', 'animateMotion');
-        anim.setAttribute('dur', '4s');
-        anim.setAttribute('repeatCount', 'indefinite');
-        anim.setAttribute('path', d);
-        particle.appendChild(anim);
-        svg.appendChild(particle);
+      if(!isSpouse){
+        const colors={relatives:'#d4af37',friends:'#2ecc71',colleagues:'#3498db',other:'#9b59b6'};
+        const pt=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        pt.setAttribute('r','3');
+        pt.setAttribute('fill',colors[zone]||'#d4af37');
+        pt.setAttribute('class','soul-particle');
+        const am=document.createElementNS('http://www.w3.org/2000/svg','animateMotion');
+        am.setAttribute('dur',(2.5+Math.random()*2).toFixed(1)+'s');
+        am.setAttribute('repeatCount','indefinite');
+        am.setAttribute('path',d);
+        pt.appendChild(am); svg.appendChild(pt);
       }
     }
+
 
     function resetTreePositions() {
       if (confirm('Сбросить все ручные перемещения и вернуть дерево к стандартному виду?')) {
@@ -8737,7 +9056,7 @@
       // Precision centering: center (0,0) in the middle of container, 
       // then offset by half node width (140) to center the first node perfectly.
       treePanX = (w / 2) - (140 * treeScale);
-      treePanY = 150; 
+      treePanY = 150;
       applyTreeTransform();
     }
 
@@ -8782,80 +9101,144 @@
       isPanning = true;
       const startX = e.clientX - treePanX;
       const startY = e.clientY - treePanY;
-      
+
       const onMouseMove = (moveE) => {
         if (!isPanning) return;
         treePanX = moveE.clientX - startX;
         treePanY = moveE.clientY - startY;
         applyTreeTransform();
       };
-      
+
       const onMouseUp = () => {
         isPanning = false;
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
       };
-      
+
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
     }
 
-    function openSidePanel(id) {
-      const panel = document.getElementById('tree-side-panel');
-      const overlay = document.querySelector('.tree-side-panel-overlay');
-      const content = document.getElementById('side-panel-content');
-      if (!panel || !content) return;
-      
-      const node = (id === 'you') ? { 
-        name: STATE.user ? STATE.user.name : 'Вы', 
-        rel: 'Глава рода', 
-        city: STATE.settings?.city || 'Мир',
-        desc: 'Это ваш профиль. Здесь вы можете управлять своим наследием.',
-        photo: STATE.user?.photoURL,
-        access: 'heir'
-      } : STATE.relatives.find(r => r.id === id);
-      
-      if (!node) return;
-      
-      content.innerHTML = `
-        <div style="text-align:center; margin-bottom:2rem;">
-          <div style="width:120px; height:120px; margin:0 auto 1.5rem; border-radius:30px; background:var(--ink3); display:flex; align-items:center; justify-content:center; font-size:3.5rem; color:var(--gold2); border:2px solid var(--gold-d3); overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
-            ${node.photo ? `<img src="${node.photo}" style="width:100%; height:100%; object-fit:cover;">` : (node.name || '?').charAt(0).toUpperCase()}
+    function selectTreeNode(id) {
+      const sidebar = document.getElementById('tree-details-sidebar');
+      if (!sidebar) return;
+
+      // Highlight selected node
+      document.querySelectorAll('.tree-node').forEach(el => el.classList.remove('selected'));
+      const selEl = document.querySelector(`.tree-node[data-id="${id}"]`);
+      if (selEl) selEl.classList.add('selected');
+
+      const ZONE_LABELS  = { relatives:'Родственники', friends:'Друзья', colleagues:'Коллеги', other:'Другие' };
+      const ZONE_COLORS  = { relatives:'var(--gold)', friends:'#2ecc71', colleagues:'#3498db', other:'#9b59b6' };
+      const STATUS_LABEL = { heir:'Наследник', observer:'Наблюдатель', trusted:'Доверенный', blocked:'Заблокирован' };
+      const STATUS_COLOR = { heir:'#2ecc71', observer:'#3498db', trusted:'#e67e22', blocked:'#e74c3c' };
+
+      let node;
+      if (id === 'you') {
+        node = {
+          id:'you', isMe:true,
+          name: STATE.user?.name || 'Вы',
+          rel: 'Глава рода',
+          zone: 'relatives',
+          city: STATE.settings?.city || '—',
+          email: STATE.user?.email || '',
+          desc: 'Это ваш профиль — центр Древа жизни. Здесь хранится ваше наследие.',
+          photo: STATE.user?.photoURL || '',
+          access: 'heir',
+          lifePeriod: ''
+        };
+      } else {
+        node = STATE.relatives.find(r => r.id === id);
+        if (!node) return;
+      }
+
+      const zone = node.zone || 'relatives';
+      const zoneColor = ZONE_COLORS[zone] || 'var(--gold)';
+      const zoneLabel = ZONE_LABELS[zone] || zone;
+      const statusLabel = STATUS_LABEL[node.access] || 'Наблюдатель';
+      const statusColor = STATUS_COLOR[node.access] || '#3498db';
+      const initials = (node.name || '?').charAt(0).toUpperCase();
+      const avatarHTML = node.photo
+        ? `<img src="${node.photo}" class="tree-details-avatar" style="display:block;">`
+        : `<div class="tree-details-avatar">${initials}</div>`;
+
+      // Connections: children + parent
+      const rels = STATE.relatives || [];
+      function ep(r) {
+        if (!r||r.id==='you') return null;
+        if (r.parentId&&(r.parentId==='you'||rels.find(x=>x.id===r.parentId))) return r.parentId;
+        if (r.fatherId&&(r.fatherId==='you'||rels.find(x=>x.id===r.fatherId))) return r.fatherId;
+        if (r.motherId&&(r.motherId==='you'||rels.find(x=>x.id===r.motherId))) return r.motherId;
+        return 'you';
+      }
+      const children = rels.filter(r => ep(r) === id);
+      const parentId = id === 'you' ? null : ep(node);
+      const parentNode = parentId && parentId !== 'you' ? rels.find(r=>r.id===parentId) : (parentId==='you'?{id:'you',name:STATE.user?.name||'Вы',rel:'Глава рода',zone:'relatives'}:null);
+      const connectedList = [...(parentNode?[parentNode]:[]), ...children].slice(0,6);
+
+      const connectionsHTML = connectedList.length ? `
+        <div class="tdc-label">Связи</div>
+        <div class="tdc-connections">
+          ${connectedList.map(c=>`
+            <div class="tdc-conn-chip" onclick="selectTreeNode('${c.id}')" title="${esc(c.rel||'')}">
+              <div class="tdc-conn-avatar" style="background:rgba(255,255,255,0.06);">${(c.name||'?').charAt(0)}</div>
+              <div class="tdc-conn-info">
+                <div class="tdc-conn-name">${esc(c.name||'—')}</div>
+                <div class="tdc-conn-rel">${esc(c.rel||'Родственник')}</div>
+              </div>
+            </div>`).join('')}
+        </div>` : '';
+
+      const editBtn = !node.isMe
+        ? `<button class="btn btn-primary-sm" style="flex:1" onclick="openEditRelative('${id}')"><i class="ph-light ph-pencil"></i> Изменить</button>
+           <button class="btn btn-ghost"       style="padding:0.9rem 1rem;" onclick="deleteRel('${id}')"><i class="ph-light ph-trash-simple"></i></button>`
+        : `<button class="btn btn-ghost" style="flex:1" onclick="showPage('connections')"><i class="ph-light ph-share-network"></i> Связи</button>`;
+
+      sidebar.innerHTML = `
+        <div class="tdc-header">
+          <div class="tree-details-avatar-wrap ${zone}" style="margin-bottom:1rem;">
+            ${avatarHTML}
+            <div class="node-status-dot status-${node.access||'observer'}" style="width:18px;height:18px;bottom:4px;right:4px;border-width:3px;"></div>
           </div>
-          <h2 style="font-family:var(--serif); font-size:2rem; margin-bottom:0.5rem; color:var(--ivory); letter-spacing:-0.5px;">${esc(node.name)}</h2>
-          <div style="color:var(--gold); text-transform:uppercase; letter-spacing:3px; font-size:0.75rem; font-weight:700; opacity:0.9;">${esc(node.rel || (id==='you'?'Глава рода':'Родственник'))}</div>
-        </div>
-        
-        <div class="card" style="margin-bottom:2rem; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); padding:1.5rem; border-radius:16px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:1.2rem; align-items:center;">
-            <span style="color:var(--muted); font-size:0.85rem;">Местоположение</span>
-            <span style="color:var(--ivory); font-weight:500;">${esc(node.city || '—')}</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="color:var(--muted); font-size:0.85rem;">Статус доступа</span>
-            <span class="tag" style="border-color:${accessColor[node.access]||'var(--gold)'}; color:${accessColor[node.access]||'var(--gold)'}; padding:4px 12px; font-weight:600;">${_roleLabel(node.access || 'heir')}</span>
+          <div style="text-align:center;">
+            <div style="font-family:var(--serif);font-size:1.5rem;font-weight:600;color:var(--ivory);line-height:1.2;margin-bottom:0.3rem;">${esc(node.name||'—')}</div>
+            <div style="color:${zoneColor};font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.5rem;">◆ ${esc(node.rel||(node.isMe?'Глава рода':'Родственник'))}</div>
+            <span style="padding:3px 12px;border-radius:20px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;background:rgba(255,255,255,0.06);color:${zoneColor};">${zoneLabel}</span>
           </div>
         </div>
-        
-        <div class="section-label" style="margin-bottom:1rem; opacity:0.7;">История и биография</div>
-        <div class="card" style="line-height:1.8; font-size:1rem; color:var(--ivory2); background:rgba(0,0,0,0.25); border:1px solid rgba(201,168,76,0.1); padding:1.5rem; border-radius:16px; min-height:100px;">
-          ${esc(node.desc || 'Биография ещё не заполнена. Добавьте важные факты и воспоминания.')}
+
+        <div class="tdc-divider"></div>
+
+        <div class="tdc-stats">
+          <div class="tdc-stat">
+            <div class="tdc-stat-label">Статус</div>
+            <div class="tdc-stat-val" style="color:${statusColor};">${statusLabel}</div>
+          </div>
+          <div class="tdc-stat">
+            <div class="tdc-stat-label">Город</div>
+            <div class="tdc-stat-val">${esc(node.city||'—')}</div>
+          </div>
+          ${node.lifePeriod?`<div class="tdc-stat" style="grid-column:1/-1;">
+            <div class="tdc-stat-label">Период жизни</div>
+            <div class="tdc-stat-val">${esc(node.lifePeriod)}</div>
+          </div>`:''}
         </div>
-        
-        <div style="margin-top:auto; padding-top:2.5rem; display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
-          <button class="btn btn-primary-sm" style="padding:1rem; font-weight:600;" onclick="openEditRelative('${id}')"><i class="ph-light ph-pencil"></i> Изменить</button>
-          <button class="btn btn-ghost" style="padding:1rem;" onclick="closeSidePanel()">Закрыть</button>
-        </div>
-      `;
-      
-      panel.classList.add('active');
-      overlay?.classList.add('active');
+
+        ${node.desc?`
+        <div class="tdc-divider"></div>
+        <div class="tdc-label">Биография</div>
+        <div class="tdc-bio">${esc(node.desc)}</div>`:''}
+
+        ${connectionsHTML}
+
+        <div class="tdc-divider"></div>
+        <div class="tdc-actions">${editBtn}</div>`;
     }
 
-    function closeSidePanel() {
-      document.getElementById('tree-side-panel')?.classList.remove('active');
-      document.querySelector('.tree-side-panel-overlay')?.classList.remove('active');
-    }
+    /* Keep openSidePanel as alias for backward-compat */
+    function openSidePanel(id) { selectTreeNode(id); }
+    function closeSidePanel() {}
+
 
     function toggleTheme() {
       const html = document.documentElement;
@@ -8894,7 +9277,7 @@
       if (sourceId === 'you') { toast('Вы не можете быть чьим-то потомком здесь'); return; }
       const sNode = STATE.relatives.find(r => r.id === sourceId);
       if (!sNode) return;
-      
+
       const tNode = targetId === 'you' ? { name: 'вас' } : STATE.relatives.find(r => r.id === targetId);
       if (!tNode) return;
 
@@ -8912,7 +9295,7 @@
       document.getElementById('r-name').value = '';
       document.getElementById('r-rel').value = 'Ребёнок';
       populateRelativeSelects('');
-      document.getElementById('r-fatherId').value = parentId; 
+      document.getElementById('r-fatherId').value = parentId;
       openModal('modal-relative');
     }
 
@@ -10035,7 +10418,7 @@
       if (STATE.messages.length > 0) completion += 25;
       if (STATE.relatives.length > 0) completion += 25;
       if (STATE.bio.length > 0) completion += 25;
-      
+
       const pctEl = document.getElementById('dash-health-pct');
       const fillEl = document.getElementById('dash-health-fill');
       if (pctEl) pctEl.textContent = completion + '%';
@@ -10213,7 +10596,7 @@
     // ═══════════════════════════════════════════
     window.addEventListener('DOMContentLoaded', () => {
       const isResetting = checkUrlParams(); // 1. Приоритет — сброс пароля
-      
+
       initHeroCanvas();
       initLandingNav();
       initReveal();
@@ -10606,7 +10989,8 @@
             <button class="l-plan-btn" onclick="upgradeToPlan('legacy')">Выбрать</button>
           </div>
         </div>
-        <div style="margin-top:1rem; font-size:0.7rem; text-align:center; color:var(--gold)"><i class="ph-light ph-credit-card"></i> После оплаты
+        <div style="margin-top:1rem; font-size:0.7rem; text-align:center; color:var(--gold)"><i
+            class="ph-light ph-credit-card"></i> После оплаты
           тариф активируется мгновенно</div>
       </div>
     </div>
@@ -10640,12 +11024,14 @@
           </select>
         </div>
         <div style="background:var(--ink3); padding:1rem; margin:1rem 0; border-radius:4px; font-size:0.8rem">
-          <i class="ph-light ph-lock-key"></i> Демо-режим: оплата не списывается. Нажмите "Оплатить" для активации подписки.
+          <i class="ph-light ph-lock-key"></i> Демо-режим: оплата не списывается. Нажмите "Оплатить" для активации
+          подписки.
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('modal-payment')">Отмена</button>
-        <button class="btn btn-primary-sm" onclick="processPayment()"><i class="ph-light ph-credit-card"></i> Оплатить</button>
+        <button class="btn btn-primary-sm" onclick="processPayment()"><i class="ph-light ph-credit-card"></i>
+          Оплатить</button>
       </div>
     </div>
   </div>
@@ -10658,7 +11044,8 @@
         <div class="modal-title" style="display: flex; align-items: center; gap: 15px;">
           <div
             style="width: 45px; height: 45px; background: rgba(201,168,76,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-            <i class="ph-light ph-credit-card"></i></div>
+            <i class="ph-light ph-credit-card"></i>
+          </div>
           <div>
             <div style="font-size: 1.2rem; font-weight: 600;">Оплата <em>подписки</em></div>
             <div style="font-size: 0.75rem; color: var(--gold); letter-spacing: 1px;" id="pay-title-modal">ТАРИФ:
@@ -10805,77 +11192,95 @@
         <button class="modal-close" onclick="closeModal('modal-vault-prompt')">✕</button>
       </div>
       <div class="modal-body" style="padding: 2rem;">
-        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--gold);"><i class="ph-light ph-shield-check"></i></div>
+        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--gold);"><i class="ph-light ph-shield-check"></i>
+        </div>
         <input type="hidden" id="vault-prompt-id">
         <div class="field">
-          <label style="display:block; margin-bottom:12px; font-size:0.9rem;">Введите мастер-пароль для этой тайны</label>
-          <input type="password" id="vault-prompt-pass" placeholder="••••••••" 
+          <label style="display:block; margin-bottom:12px; font-size:0.9rem;">Введите мастер-пароль для этой
+            тайны</label>
+          <input type="password" id="vault-prompt-pass" placeholder="••••••••"
             style="width:100%; background:var(--ink2); border:1px solid var(--gold); border-radius:12px; padding:15px; color:var(--ivory); font-size:1.2rem; text-align:center; outline:none; box-shadow:0 0 15px rgba(212,175,55,0.1);">
         </div>
         <div style="font-size:0.7rem; color:var(--muted); margin-top:1rem; line-height:1.5;">
-          Это дополнительный уровень защиты. Данные хранятся в зашифрованном виде и не могут быть восстановлены без этого пароля.
+          Это дополнительный уровень защиты. Данные хранятся в зашифрованном виде и не могут быть восстановлены без
+          этого пароля.
         </div>
-        <button class="btn-gold" style="width:100%; margin-top:1.5rem; padding:14px;" onclick="unlockVaultSecret()">РАСКРЫТЬ ТАЙНУ</button>
+        <button class="btn-gold" style="width:100%; margin-top:1.5rem; padding:14px;"
+          onclick="unlockVaultSecret()">РАСКРЫТЬ ТАЙНУ</button>
       </div>
     </div>
   </div>
 
   <!-- ── Modal: View Secret (Decrypted) ── -->
   <div class="modal-overlay" id="modal-secret-view">
-    <div class="modal" style="max-width:500px; background:rgba(18,18,18,0.9); border:1px solid var(--gold-d3); backdrop-filter:blur(30px); border-radius:24px;">
+    <div class="modal"
+      style="max-width:500px; background:rgba(18,18,18,0.9); border:1px solid var(--gold-d3); backdrop-filter:blur(30px); border-radius:24px;">
       <div class="modal-head" style="border-bottom:1px solid rgba(212,175,55,0.1); padding:1.5rem 2rem;">
         <div class="modal-title" style="display:flex; align-items:center; gap:12px;">
           <div id="sv-icon" style="font-size:1.5rem; color: var(--gold);"><i class="ph-light ph-lock-key"></i></div>
           <div>
             <div id="sv-title" style="font-size:1.1rem; font-weight:600; color:var(--ivory);">Название тайны</div>
-            <div id="sv-cat" style="font-size:0.7rem; color:var(--gold); text-transform:uppercase; letter-spacing:1px;">КАТЕГОРИЯ</div>
+            <div id="sv-cat" style="font-size:0.7rem; color:var(--gold); text-transform:uppercase; letter-spacing:1px;">
+              КАТЕГОРИЯ</div>
           </div>
         </div>
         <button class="modal-close" onclick="closeModal('modal-secret-view')">✕</button>
       </div>
       <div class="modal-body" style="padding:2rem;">
-        <div id="sv-vault-badge" style="display:none; align-items:center; gap:8px; margin-bottom:1.5rem; padding:8px 12px; background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.2); border-radius:8px; color:var(--green); font-size:0.75rem;">
-           <i class="ph-light ph-shield-check"></i> Данные успешно расшифрованы мастер-паролем
+        <div id="sv-vault-badge"
+          style="display:none; align-items:center; gap:8px; margin-bottom:1.5rem; padding:8px 12px; background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.2); border-radius:8px; color:var(--green); font-size:0.75rem;">
+          <i class="ph-light ph-shield-check"></i> Данные успешно расшифрованы мастер-паролем
         </div>
 
         <div id="sv-media-gallery-wrap" style="margin-bottom:1.5rem; display:none;"></div>
-        
+
         <div class="field" style="position:relative;">
-          <label style="display:block; margin-bottom:10px; font-size:0.8rem; color:var(--muted);">Содержимое тайны</label>
-          <textarea id="sv-content" readonly 
+          <label style="display:block; margin-bottom:10px; font-size:0.8rem; color:var(--muted);">Содержимое
+            тайны</label>
+          <textarea id="sv-content" readonly
             style="width:100%; min-height:120px; background:rgba(0,0,0,0.3); border:1px solid rgba(212,175,55,0.15); border-radius:12px; padding:15px; color:var(--ivory2); font-family:monospace; font-size:1rem; resize:none; outline:none; line-height:1.5;"></textarea>
-          <button class="btn-copy-secret" onclick="copySecretContent()" 
+          <button class="btn-copy-secret" onclick="copySecretContent()"
             style="position:absolute; bottom:12px; right:12px; background:var(--gold); color:var(--ink); border:none; padding:6px 12px; border-radius:6px; font-size:0.7rem; font-weight:600; cursor:pointer; transition:0.2s;">
             <i class="ph-light ph-copy"></i> Копировать
           </button>
         </div>
-        
+
         <div id="sv-date" style="margin-top:1.5rem; font-size:0.7rem; color:var(--muted2); text-align:right;">—</div>
       </div>
-      <div class="modal-footer" style="background:rgba(212,175,55,0.03); border-top:1px solid rgba(212,175,55,0.05); padding:1rem 2rem;">
-        <button class="btn btn-primary-sm" style="width:100%;" onclick="closeModal('modal-secret-view')">ЗАКРЫТЬ</button>
+      <div class="modal-footer"
+        style="background:rgba(212,175,55,0.03); border-top:1px solid rgba(212,175,55,0.05); padding:1rem 2rem;">
+        <button class="btn btn-primary-sm" style="width:100%;"
+          onclick="closeModal('modal-secret-view')">ЗАКРЫТЬ</button>
       </div>
     </div>
   </div>
 
   <!-- ── Modal: Full Bio Story View ── -->
   <div class="modal-overlay" id="modal-bio-view">
-    <div class="modal" style="max-width:800px; background:rgba(18,18,18,0.95); border:1px solid rgba(212,175,55,0.2); backdrop-filter:blur(40px); border-radius:32px;">
+    <div class="modal"
+      style="max-width:800px; background:rgba(18,18,18,0.95); border:1px solid rgba(212,175,55,0.2); backdrop-filter:blur(40px); border-radius:32px;">
       <div class="modal-head" style="padding:2.5rem 3rem 1.5rem; border:none;">
         <div class="modal-title" style="text-align:center; width:100%;">
-          <div id="bv-period" style="font-size:0.8rem; color:var(--gold); letter-spacing:3px; text-transform:uppercase; margin-bottom:10px;">ПЕРИОД ЖИЗНИ</div>
-          <div id="bv-title" style="font-family:var(--serif); font-size:2.4rem; color:var(--ivory); font-weight:300;">Название главы</div>
+          <div id="bv-period"
+            style="font-size:0.8rem; color:var(--gold); letter-spacing:3px; text-transform:uppercase; margin-bottom:10px;">
+            ПЕРИОД ЖИЗНИ</div>
+          <div id="bv-title" style="font-family:var(--serif); font-size:2.4rem; color:var(--ivory); font-weight:300;">
+            Название главы</div>
         </div>
-        <button class="modal-close" onclick="closeModal('modal-bio-view')" style="position:absolute; top:30px; right:30px;">✕</button>
+        <button class="modal-close" onclick="closeModal('modal-bio-view')"
+          style="position:absolute; top:30px; right:30px;">✕</button>
       </div>
       <div class="modal-body" style="padding:0 3rem 3rem; max-height:70vh; overflow-y:auto;">
         <div id="bv-media-gallery" style="margin-bottom:2.5rem;"></div>
-        
-        <div id="bv-content" style="font-size:1.1rem; color:var(--ivory2); line-height:2; white-space:pre-wrap; font-family:var(--sans);">
+
+        <div id="bv-content"
+          style="font-size:1.1rem; color:var(--ivory2); line-height:2; white-space:pre-wrap; font-family:var(--sans);">
           Текст истории...
         </div>
-        
-        <div id="bv-date" style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid rgba(212,175,55,0.1); font-size:0.8rem; color:var(--muted2); text-align:center;">—</div>
+
+        <div id="bv-date"
+          style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid rgba(212,175,55,0.1); font-size:0.8rem; color:var(--muted2); text-align:center;">
+          —</div>
       </div>
     </div>
   </div>
