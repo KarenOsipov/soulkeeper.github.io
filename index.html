@@ -3332,6 +3332,11 @@
         padding: 0 !important;
         border-top: none !important;
       }
+      .tree-bottom-controls {
+        bottom: 85px !important;
+        right: 50% !important;
+        transform: translateX(50%) !important;
+      }
     }
 
     .tree-details-card::-webkit-scrollbar {
@@ -9384,6 +9389,29 @@
       setText('dash-date', new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
       fillSettings();
       renderAll();
+
+      // Инициализация тач-перетаскивания (свайпов) для дерева на телефоне
+      const treeContainer = document.getElementById('family-tree-container');
+      if (treeContainer) {
+        let touchStartX = 0, touchStartY = 0;
+        treeContainer.addEventListener('touchstart', (e) => {
+          if (isEditMode || e.touches.length !== 1) return;
+          isPanning = true;
+          touchStartX = e.touches[0].clientX - treePanX;
+          touchStartY = e.touches[0].clientY - treePanY;
+        }, { passive: true });
+
+        treeContainer.addEventListener('touchmove', (e) => {
+          if (!isPanning || e.touches.length !== 1) return;
+          treePanX = e.touches[0].clientX - touchStartX;
+          treePanY = e.touches[0].clientY - touchStartY;
+          applyTreeTransform();
+        }, { passive: true });
+
+        treeContainer.addEventListener('touchend', () => {
+          isPanning = false;
+        });
+      }
       updateSwitchUI();
       renderNotifs();
       updateDbStats();
@@ -14601,7 +14629,7 @@ ${socialsContext}
       }
 
       const chatId = [myUid, uid].sort().join('_');
-      const chatKey = CryptoJS.PBKDF2(chatId, 'SoulKeeperChatSalt', { keySize: 256 / 32, iterations: 500, hasher: CryptoJS.algo.SHA256 });
+      const chatKey = CryptoJS.SHA256(chatId);
 
       chatMessagesUnsubscribe = fbDb.collection('chats').doc(chatId).collection('messages')
         .orderBy('createdAt', 'asc')
@@ -14698,7 +14726,7 @@ ${socialsContext}
       }
 
       const chatId = [myUid, activeChatContact.uid].sort().join('_');
-      const chatKey = CryptoJS.PBKDF2(chatId, 'SoulKeeperChatSalt', { keySize: 256 / 32, iterations: 500, hasher: CryptoJS.algo.SHA256 });
+      const chatKey = CryptoJS.SHA256(chatId);
 
       try {
         input.value = '';
