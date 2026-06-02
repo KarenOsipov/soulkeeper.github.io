@@ -5996,8 +5996,8 @@
         <div class="dock-item" onclick="goPage('legacy')" id="nav-legacy" data-tooltip="Цифровое Наследие"><span
             class="dock-icon"><i class="ph-light ph-vault"></i></span></div>
         <div class="dock-sep"></div>
-        <div class="dock-item" onclick="goPage('relatives')" id="nav-relatives" data-tooltip="Семья"><span
-            class="dock-icon"><i class="ph-light ph-users"></i></span></div>
+        <div class="dock-item" onclick="goPage('connections')" id="nav-connections" data-tooltip="Семья и связи"><span
+            class="dock-icon"><i class="ph-light ph-link"></i></span></div>
         <div class="dock-item" onclick="goPage('chat-page')" id="nav-chat-page" data-tooltip="Сообщения (Чат)"><span
             class="dock-icon"><i class="ph-light ph-chats"></i></span></div>
         <div class="dock-item" onclick="goPage('tree')" id="nav-tree" data-tooltip="Древо жизни"><span
@@ -6062,7 +6062,7 @@
                     <div class="dash-stat-lbl">Посланий близким</div>
                   </div>
                 </div>
-                <div class="dash-stat-widget" onclick="goPage('relatives')">
+                <div class="dash-stat-widget" onclick="goPage('connections')">
                   <div class="dash-stat-icon"><i class="ph-light ph-users"></i></div>
                   <div class="dash-stat-info">
                     <div class="dash-stat-val" id="d-rels">0</div>
@@ -7669,10 +7669,9 @@
             </div>
             <div class="page-actions">
               <button class="btn btn-ghost btn-sm" onclick="refreshConnections()">↻ Обновить</button>
-              <button class="btn btn-ghost" onclick="openModal('modal-join-tree')">⊕ Войти в
-                дерево</button>
-              <button class="btn btn-primary-sm" onclick="shareMyCode()"><i class="ph-light ph-arrow-up"></i> Мой
-                код</button>
+              <button class="btn btn-ghost" onclick="openModal('modal-relative')">⊕ Добавить вручную</button>
+              <button class="btn btn-ghost" onclick="openModal('modal-join-tree')">⊕ Войти по коду</button>
+              <button class="btn btn-primary-sm" onclick="shareMyCode()"><i class="ph-light ph-arrow-up"></i> Мой код</button>
             </div>
           </div>
 
@@ -7847,7 +7846,7 @@
     <div class="mob-drawer" id="mob-drawer">
       <div class="mob-drawer-handle"></div>
       <div class="mob-drawer-grid">
-        <button class="mob-drawer-item" onclick="goPage('relatives');mobSetActive('relatives');closeMobDrawer()">
+        <button class="mob-drawer-item" onclick="goPage('connections');mobSetActive('connections');closeMobDrawer()">
           <span class="mob-drawer-icon"><i class="ph-light ph-users"></i></span><span
             class="mob-drawer-label">Семья</span>
         </button>
