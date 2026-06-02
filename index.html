@@ -5001,6 +5001,7 @@
     .mob-nav-icon {
       font-size: 22px;
       line-height: 1;
+      color: rgba(245, 240, 232, 0.45);
     }
 
     .mob-nav-label {
@@ -5053,6 +5054,43 @@
 
     .mob-drawer-scrim.open {
       display: block;
+    }
+
+    /* Mobile Chat Responsive Styles */
+    @media (max-width: 768px) {
+      .chat-wrapper {
+        position: relative;
+        height: 65vh !important;
+        overflow: hidden;
+      }
+      .chat-sidebar {
+        width: 100% !important;
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        z-index: 5;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .chat-main {
+        width: 100% !important;
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        z-index: 4;
+        background: rgb(15, 13, 22) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .chat-wrapper.chat-active .chat-sidebar {
+        transform: translateX(-100%);
+      }
+      .chat-wrapper.chat-active .chat-main {
+        z-index: 6;
+        transform: translateX(0);
+      }
+      .chat-wrapper:not(.chat-active) .chat-main {
+        transform: translateX(100%);
+      }
+      .btn-chat-back {
+        display: inline-flex !important;
+      }
     }
 
     .mob-drawer-handle {
@@ -14525,9 +14563,13 @@ ${socialsContext}
       activeChatContact = { uid, name, email };
       renderChatContacts();
 
+      const wrapper = document.querySelector('.chat-wrapper');
+      if (wrapper) wrapper.classList.add('chat-active');
+
       const header = document.getElementById('chat-active-header');
       if (header) {
         header.innerHTML = `
+          <button class="btn btn-ghost btn-sm btn-chat-back" onclick="closeActiveChat()" style="padding:0.4rem 0.6rem; min-height:auto; display:none; align-items:center; gap:0.3rem; margin-right:0.6rem;"><i class="ph-bold ph-arrow-left"></i></button>
           <div style="width:36px; height:36px; border-radius:50%; background:var(--gold-d3); border:1px solid rgba(212,175,55,0.25); display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:0.9rem; font-weight:600; flex-shrink:0;">
             ${name.charAt(0).toUpperCase()}
           </div>
@@ -14559,6 +14601,7 @@ ${socialsContext}
       }
 
       const chatId = [myUid, uid].sort().join('_');
+      const chatKey = CryptoJS.PBKDF2(chatId, 'SoulKeeperChatSalt', { keySize: 256 / 32, iterations: 500, hasher: CryptoJS.algo.SHA256 });
 
       chatMessagesUnsubscribe = fbDb.collection('chats').doc(chatId).collection('messages')
         .orderBy('createdAt', 'asc')
@@ -14572,15 +14615,45 @@ ${socialsContext}
             const align = isMe ? 'flex-end' : 'flex-start';
             const time = m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
 
-            // ZERO-KNOWLEDGE: расшифровываем сообщение на клиенте
-            const rawText = m.zk ? CryptoEngine.decrypt(m.text) : (m.text || '');
-            const displayText = typeof rawText === 'string' ? rawText : JSON.stringify(rawText);
+            // ZERO-KNOWLEDGE: расшифровываем сообщение с помощью общего ключа чата
+            let displayText = m.text || '';
+            if (typeof m.text === 'string' && m.text.startsWith('ZK_CHAT::')) {
+              try {
+                const payload = m.text.slice('ZK_CHAT::'.length);
+                const colonIdx = payload.indexOf(':');
+                if (colonIdx !== -1) {
+                  const ivHex = payload.slice(0, colonIdx);
+                  const cryptText = payload.slice(colonIdx + 1);
+                  const iv = CryptoJS.enc.Hex.parse(ivHex);
+                  const decrypted = CryptoJS.AES.decrypt(cryptText, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+                  displayText = decrypted.toString(CryptoJS.enc.Utf8) || displayText;
+                }
+              } catch (e) { console.error("Decryption error:", e); }
+            } else if (m.zk) {
+              const rawText = CryptoEngine.decrypt(m.text);
+              displayText = typeof rawText === 'string' ? rawText : JSON.stringify(rawText);
+            }
 
             // Определяем имя отправителя
             let senderName = '';
             if (!isMe && m.senderMeta) {
-              const meta = m.zk ? CryptoEngine.decrypt(m.senderMeta) : m.senderMeta;
-              senderName = (meta && meta.name) ? meta.name : '';
+              if (typeof m.senderMeta === 'string' && m.senderMeta.startsWith('ZK_CHAT::')) {
+                try {
+                  const payload = m.senderMeta.slice('ZK_CHAT::'.length);
+                  const colonIdx = payload.indexOf(':');
+                  if (colonIdx !== -1) {
+                    const ivHex = payload.slice(0, colonIdx);
+                    const cryptText = payload.slice(colonIdx + 1);
+                    const iv = CryptoJS.enc.Hex.parse(ivHex);
+                    const decrypted = CryptoJS.AES.decrypt(cryptText, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+                    const meta = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+                    senderName = (meta && meta.name) ? meta.name : '';
+                  }
+                } catch (e) { console.error("Meta decryption error:", e); }
+              } else {
+                const meta = m.zk ? CryptoEngine.decrypt(m.senderMeta) : m.senderMeta;
+                senderName = (meta && meta.name) ? meta.name : '';
+              }
             }
 
             html += `
@@ -14590,7 +14663,7 @@ ${socialsContext}
                   <div style="font-size:0.85rem; color:var(--ivory); word-break:break-word; white-space:pre-wrap;">${esc(displayText)}</div>
                   <div style="font-size:0.6rem; color:var(--muted); align-self:flex-end; display:flex; align-items:center; gap:0.3rem;">
                     ${time}
-                    ${m.zk ? '<i class="ph-light ph-lock" style="font-size:0.7rem; color:var(--gold); opacity:0.7;"></i>' : ''}
+                    ${m.zk || (typeof m.text === 'string' && m.text.startsWith('ZK_CHAT::')) ? '<i class="ph-light ph-lock" style="font-size:0.7rem; color:var(--gold); opacity:0.7;"></i>' : ''}
                   </div>
                 </div>
               </div>
@@ -14625,25 +14698,37 @@ ${socialsContext}
       }
 
       const chatId = [myUid, activeChatContact.uid].sort().join('_');
+      const chatKey = CryptoJS.PBKDF2(chatId, 'SoulKeeperChatSalt', { keySize: 256 / 32, iterations: 500, hasher: CryptoJS.algo.SHA256 });
 
       try {
         input.value = '';
-        // ZERO-KNOWLEDGE: текст сообщения шифруется перед отправкой в Firebase
-        const encryptedText = CryptoEngine.hasKey() ? CryptoEngine.encrypt(text) : text;
+        
+        // Шифруем текст сообщения
+        const iv = CryptoJS.lib.WordArray.random(16);
+        const encrypted = CryptoJS.AES.encrypt(text, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+        const encryptedText = 'ZK_CHAT::' + iv.toString() + ':' + encrypted.toString();
+
+        // Шифруем метаданные отправителя
+        const senderMetaRaw = JSON.stringify({ email: STATE.user?.email || '', name: STATE.user?.name || 'Пользователь' });
+        const metaIv = CryptoJS.lib.WordArray.random(16);
+        const encryptedMeta = CryptoJS.AES.encrypt(senderMetaRaw, chatKey, { iv: metaIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+        const encryptedSenderMeta = 'ZK_CHAT::' + metaIv.toString() + ':' + encryptedMeta.toString();
+
         await fbDb.collection('chats').doc(chatId).collection('messages').add({
           senderUid: myUid,
-          // Шифруем имя и email отправителя (только UID остаётся открытым для маршрутизации)
-          senderMeta: CryptoEngine.hasKey()
-            ? CryptoEngine.encrypt({ email: STATE.user.email, name: STATE.user.name })
-            : { email: STATE.user.email, name: STATE.user.name },
+          senderMeta: encryptedSenderMeta,
           text: encryptedText,
-          zk: CryptoEngine.hasKey(), // флаг: зашифровано ли
+          zk: true,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         // Метаданные чата (шифруем preview сообщения)
+        const lastMsgIv = CryptoJS.lib.WordArray.random(16);
+        const encryptedLastMsg = CryptoJS.AES.encrypt(text.slice(0, 50), chatKey, { iv: lastMsgIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+        const encryptedLastMessage = 'ZK_CHAT::' + lastMsgIv.toString() + ':' + encryptedLastMsg.toString();
+
         await fbDb.collection('chats').doc(chatId).set({
-          lastMessage: CryptoEngine.hasKey() ? CryptoEngine.encrypt(text.slice(0, 50)) : text.slice(0, 50),
+          lastMessage: encryptedLastMessage,
           lastSenderUid: myUid,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           users: [myUid, activeChatContact.uid]
@@ -14653,6 +14738,22 @@ ${socialsContext}
         console.error("Message send error:", err);
         toast('Ошибка отправки сообщения');
       }
+    }
+
+    function closeActiveChat() {
+      activeChatContact = null;
+      const wrapper = document.querySelector('.chat-wrapper');
+      if (wrapper) wrapper.classList.remove('chat-active');
+      renderChatContacts();
+      const header = document.getElementById('chat-active-header');
+      if (header) {
+        header.innerHTML = '<div style="color:var(--muted); font-size:0.85rem; padding-left:0.5rem;">Выберите собеседника для начала общения</div>';
+      }
+      const inputBar = document.getElementById('chat-input-bar');
+      if (inputBar) inputBar.style.display = 'none';
+      const feed = document.getElementById('chat-messages-feed');
+      if (feed) feed.innerHTML = '';
+      if (chatMessagesUnsubscribe) { chatMessagesUnsubscribe(); chatMessagesUnsubscribe = null; }
     }
 
     // connections + mobile nav уже встроены в goPage и initApp выше
