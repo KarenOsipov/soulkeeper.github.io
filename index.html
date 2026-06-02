@@ -6000,6 +6000,10 @@
             class="dock-icon"><i class="ph-light ph-users"></i></span></div>
         <div class="dock-item" onclick="goPage('chat-page')" id="nav-chat-page" data-tooltip="Сообщения (Чат)"><span
             class="dock-icon"><i class="ph-light ph-chats"></i></span></div>
+        <div class="dock-item" onclick="goPage('connections')" id="nav-connections" data-tooltip="Связи (Запросы)">
+          <span class="dock-icon"><i class="ph-light ph-link"></i></span>
+          <span class="dock-badge" id="badge-connections" style="display:none">0</span>
+        </div>
         <div class="dock-item" onclick="goPage('tree')" id="nav-tree" data-tooltip="Древо жизни"><span
             class="dock-icon"><i class="ph-light ph-tree-structure"></i></span></div>
         <div class="dock-item" onclick="goPage('globe')" id="nav-globe" data-tooltip="Глобус"><span class="dock-icon"><i
@@ -8929,8 +8933,8 @@
           // Создаём документ пользователя в Firestore
           return fbDb.collection('users').doc(cred.user.uid).set({
             name: name,
-            email: email,
-            code: _connCode(email),
+            email: email.toLowerCase(),
+            code: _connCode(email.toLowerCase()),
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
         })
@@ -9022,8 +9026,8 @@
         try {
           await fbDb.collection('users').doc(currentGoogleUser.uid).set({
             name: currentGoogleUser.displayName || currentGoogleUser.email.split('@')[0],
-            email: currentGoogleUser.email,
-            code: _connCode(currentGoogleUser.email),
+            email: currentGoogleUser.email.toLowerCase(),
+            code: _connCode(currentGoogleUser.email.toLowerCase()),
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             zkVersion: 2
           }, { merge: true });
@@ -9220,7 +9224,7 @@
         const user = {
           id: fbUser.uid,
           name: fbUser.displayName || fbUser.email.split('@')[0],
-          email: fbUser.email,
+          email: fbUser.email.toLowerCase(),
           photoURL: fbUser.photoURL || '',
           uid: fbUser.uid
         };
@@ -10673,7 +10677,7 @@
       const editBtn = !node.isMe
         ? `<button class="btn btn-primary-sm" style="flex:1" onclick="openEditRelative('${id}')"><i class="ph-light ph-pencil"></i> Изменить</button>
            <button class="btn btn-ghost"       style="padding:0.9rem 1rem;" onclick="deleteRel('${id}')"><i class="ph-light ph-trash-simple"></i></button>`
-        : `<button class="btn btn-ghost" style="flex:1" onclick="showPage('connections')"><i class="ph-light ph-share-network"></i> Связи</button>`;
+        : `<button class="btn btn-ghost" style="flex:1" onclick="goPage('connections')"><i class="ph-light ph-share-network"></i> Связи</button>`;
 
       // Calculate distance if coordinates exist
       let distanceHTML = '';
