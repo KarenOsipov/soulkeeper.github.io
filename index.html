@@ -13981,10 +13981,9 @@ ${socialsContext}
 
       const user = fbAuth.currentUser;
       if (user && !STATE.user.isDemo) {
-        const myUid = user.uid;
         // Listen to connections sent to me
         connectionsUnsubscribe = fbDb.collection('connections')
-          .where('toUid', '==', myUid)
+          .where('toEmail', '==', email)
           .onSnapshot(snapshot => {
             const incoming = [];
             snapshot.forEach(doc => {
@@ -14005,7 +14004,7 @@ ${socialsContext}
 
         // Listen to connections I sent and were accepted
         fbDb.collection('connections')
-          .where('fromUid', '==', myUid)
+          .where('fromEmail', '==', email)
           .where('status', '==', 'accepted')
           .onSnapshot(snapshot => {
             const iAdded = [];
@@ -14187,7 +14186,7 @@ ${socialsContext}
           }
         }
 
-        const qSnap = await fbDb.collection('connections').where('toUid', '==', user.uid).get();
+        const qSnap = await fbDb.collection('connections').where('toEmail', '==', user.email.toLowerCase()).get();
         toast(`Входящих запросов в БД: ${qSnap.size}`);
         
         renderConnections();
@@ -14302,7 +14301,7 @@ ${socialsContext}
           fromEmail: myEmail,
           fromName: STATE.user.name,
           toUid: targetUid,
-          toEmail: targetEmail,
+          toEmail: targetEmail.toLowerCase(),
           toName: targetName,
           status: 'pending',
           role: role,
