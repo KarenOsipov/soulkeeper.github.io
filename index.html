@@ -14632,7 +14632,7 @@ ${socialsContext}
       }
 
       const chatId = [myUid, uid].sort().join('_');
-      const chatKey = CryptoJS.SHA256(chatId).toString();
+      const chatKey = CryptoJS.SHA256(chatId);
 
       chatMessagesUnsubscribe = fbDb.collection('chats').doc(chatId).collection('messages')
         .orderBy('createdAt', 'asc')
@@ -14836,7 +14836,7 @@ ${socialsContext}
       }
 
       const chatId = [myUid, activeChatContact.uid].sort().join('_');
-      const chatKey = CryptoJS.SHA256(chatId).toString();
+      const chatKey = CryptoJS.SHA256(chatId);
 
       toast('Обработка и шифрование фото...');
 
