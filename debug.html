@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoulKeeper — Отладка Базы Данных</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <style>
+    :root {
+      --ink: #050508;
+      --ink2: #0f0d16;
+      --ink3: #181524;
+      --gold: #d4af37;
+      --gold2: #f3e5ab;
+      --glass-bg: rgba(15, 13, 22, 0.65);
+      --glass-border: rgba(212, 175, 55, 0.18);
+      --glass-blur: blur(20px);
+      --ivory: #fdfcfb;
+      --muted: rgba(253, 252, 251, 0.55);
+    }
+    body {
+      background: var(--ink);
+      color: var(--ivory);
+      font-family: 'Inter', sans-serif;
+      padding: 2rem;
+      margin: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-weight: 300;
+      color: var(--gold2);
+      border-bottom: 1px solid var(--glass-border);
+      padding-bottom: 1rem;
+    }
+    .panel {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--glass-blur);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.85rem;
+    }
+    th {
+      color: var(--gold);
+      font-weight: 500;
+    }
+    .btn {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid var(--gold);
+      color: var(--gold2);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .btn:hover {
+      background: rgba(212, 175, 55, 0.2);
+    }
+    .auth-status {
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Панель отладки Firestore — SoulKeeper</h1>
+    
+    <div class="panel">
+      <div class="auth-status" id="auth-status">Проверка авторизации...</div>
+      <button class="btn" onclick="location.href='index.html'">Вернуться на сайт</button>
+      <button class="btn" onclick="loadDebugData()">↻ Обновить данные</button>
+    </div>
+
+    <div class="panel">
+      <h2>Коллекция: users (Пользователи)</h2>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>UID (ID документа)</th>
+              <th>Имя (name)</th>
+              <th>Email (email)</th>
+              <th>Код подключения (code)</th>
+            </tr>
+          </thead>
+          <tbody id="users-table">
+            <tr><td colspan="4" style="text-align: center; color: var(--muted);">Нажмите "Обновить данные"</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Коллекция: connections (Связи и запросы)</h2>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID документа</th>
+              <th>От кого (fromEmail / UID)</th>
+              <th>Кому (toEmail / UID)</th>
+              <th>Статус</th>
+              <th>Роль / Связь</th>
+            </tr>
+          </thead>
+          <tbody id="connections-table">
+            <tr><td colspan="5" style="text-align: center; color: var(--muted);">Нажмите "Обновить данные"</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAlPRsaxE_7MZqJRKuKRh7Tm_XCbA50Zu4",
+      authDomain: "soulkeeper-001-b60bc.firebaseapp.com",
+      projectId: "soulkeeper-001-b60bc",
+      storageBucket: "soulkeeper-001-b60bc.firebasestorage.app",
+      messagingSenderId: "904292574455",
+      appId: "1:904292574455:web:1fcc95c3af1bca1f08dff2",
+      measurementId: "G-KQHXJYLG24"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(user => {
+      const el = document.getElementById('auth-status');
+      if (user) {
+        el.innerHTML = `Авторизован как: <strong style="color:var(--gold);">${user.email}</strong> (UID: ${user.uid})`;
+        loadDebugData();
+      } else {
+        el.innerHTML = `<span style="color:var(--gold);">Вы не авторизованы.</span> Зайдите в аккаунт на основном сайте, затем обновите эту страницу.`;
+      }
+    });
+
+    async function loadDebugData() {
+      if (!auth.currentUser) return;
+      
+      // Users
+      try {
+        const usersSnap = await db.collection('users').get();
+        const usersTable = document.getElementById('users-table');
+        if (usersSnap.empty) {
+          usersTable.innerHTML = '<tr><td colspan="4" style="text-align: center;">Нет пользователей</td></tr>';
+        } else {
+          let html = '';
+          usersSnap.forEach(doc => {
+            const data = doc.data();
+            html += `<tr>
+              <td><code>${doc.id}</code></td>
+              <td>${data.name || '—'}</td>
+              <td>${data.email || '—'}</td>
+              <td><strong style="color:var(--gold);">${data.code || '—'}</strong></td>
+            </tr>`;
+          });
+          usersTable.innerHTML = html;
+        }
+      } catch (err) {
+        document.getElementById('users-table').innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">Ошибка: ${err.message}</td></tr>`;
+      }
+
+      // Connections
+      try {
+        const connSnap = await db.collection('connections').get();
+        const connTable = document.getElementById('connections-table');
+        if (connSnap.empty) {
+          connTable.innerHTML = '<tr><td colspan="5" style="text-align: center;">Нет созданных связей</td></tr>';
+        } else {
+          let html = '';
+          connSnap.forEach(doc => {
+            const data = doc.data();
+            html += `<tr>
+              <td><code>${doc.id}</code></td>
+              <td>${data.fromEmail || '—'}<br><small style="color:var(--muted);">${data.fromUid || '—'}</small></td>
+              <td>${data.toEmail || '—'}<br><small style="color:var(--muted);">${data.toUid || '—'}</small></td>
+              <td><span style="color:${data.status === 'accepted' ? '#2ecc71' : '#f39c12'}">${data.status || '—'}</span></td>
+              <td>${data.role || '—'} ${data.relation ? `(${data.relation})` : ''}</td>
+            </tr>`;
+          });
+          connTable.innerHTML = html;
+        }
+      } catch (err) {
+        document.getElementById('connections-table').innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Ошибка: ${err.message}</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>
