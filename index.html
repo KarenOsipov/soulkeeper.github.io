@@ -3299,6 +3299,39 @@
       overflow-y: auto;
       z-index: 100;
       box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, width 0.3s ease, padding 0.3s ease;
+      position: relative;
+    }
+
+    .tree-details-card.collapsed {
+      transform: translateX(100%);
+      opacity: 0;
+      pointer-events: none;
+      width: 0 !important;
+      padding: 0 !important;
+      border-left: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .tree-layout-wrapper {
+        flex-direction: column;
+      }
+      .tree-details-card {
+        width: 100% !important;
+        height: auto;
+        max-height: 48vh;
+        border-left: none;
+        border-top: 1px solid rgba(212, 175, 55, 0.15);
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+        padding: 1.8rem 1.2rem;
+      }
+      .tree-details-card.collapsed {
+        transform: translateY(100%) !important;
+        max-height: 0 !important;
+        opacity: 0;
+        padding: 0 !important;
+        border-top: none !important;
+      }
     }
 
     .tree-details-card::-webkit-scrollbar {
@@ -5057,6 +5090,11 @@
 
     .mob-drawer-icon {
       font-size: 1.5rem;
+      color: var(--gold);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
     }
 
     .mob-drawer-label {
@@ -7850,6 +7888,10 @@
           <span class="mob-drawer-icon"><i class="ph-light ph-users"></i></span><span
             class="mob-drawer-label">Семья</span>
         </button>
+        <button class="mob-drawer-item" onclick="goPage('chat-page');mobSetActive('chat-page');closeMobDrawer()">
+          <span class="mob-drawer-icon"><i class="ph-light ph-chats"></i></span><span
+            class="mob-drawer-label">Чат</span>
+        </button>
         <button class="mob-drawer-item" onclick="goPage('globe');mobSetActive('globe');closeMobDrawer()">
           <span class="mob-drawer-icon"><i class="ph-light ph-globe"></i></span><span
             class="mob-drawer-label">Глобус</span>
@@ -9096,7 +9138,9 @@
         toast('Введите корректный код (SK-XXXXXX)'); 
         return; 
       }
-      _sendJoinRequest(code, 'heir', '');
+      const jtCodeInput = document.getElementById('jt-code');
+      if (jtCodeInput) jtCodeInput.value = code;
+      openModal('modal-join-tree');
       if (input) input.value = '';
     }
 
@@ -10602,6 +10646,7 @@
     function selectTreeNode(id) {
       const sidebar = document.getElementById('tree-details-sidebar');
       if (!sidebar) return;
+      sidebar.classList.remove('collapsed');
 
       // Highlight selected node
       document.querySelectorAll('.tree-node').forEach(el => el.classList.remove('selected'));
@@ -10689,6 +10734,8 @@
       }
 
       sidebar.innerHTML = `
+        <button class="btn-close-sidebar" onclick="closeSidePanel()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--gold); font-size: 1.25rem; cursor: pointer; z-index: 10; padding: 0.3rem;"><i class="ph-bold ph-x"></i></button>
+        
         <div class="tdc-header">
           <div class="tree-details-avatar-wrap ${zone}" style="margin-bottom:1rem;">
             ${avatarHTML}
@@ -10732,7 +10779,11 @@
 
     /* Keep openSidePanel as alias for backward-compat */
     function openSidePanel(id) { selectTreeNode(id); }
-    function closeSidePanel() {}
+    function closeSidePanel() {
+      const sidebar = document.getElementById('tree-details-sidebar');
+      if (sidebar) sidebar.classList.add('collapsed');
+      document.querySelectorAll('.tree-node').forEach(el => el.classList.remove('selected'));
+    }
 
 
     function toggleTheme() {
@@ -14221,7 +14272,9 @@ ${socialsContext}
       const input = document.getElementById('join-code-input');
       const val = (input?.value || '').trim();
       if (!val) { toast('Введите email или код'); return; }
-      _sendJoinRequest(val, 'heir', '');
+      const jtCodeInput = document.getElementById('jt-code');
+      if (jtCodeInput) jtCodeInput.value = val;
+      openModal('modal-join-tree');
       if (input) input.value = '';
     }
 
