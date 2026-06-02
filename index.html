@@ -8264,7 +8264,7 @@
     const fbAuth = firebase.auth();
     const fbDb = firebase.firestore();
     // Enable offline persistence for better UX
-    fbDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+    // fbDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 
     // Вспомогалки для ошибок Firebase Auth
     function fbErrMsg(code) {
@@ -9115,6 +9115,7 @@
       fbAuth.signOut().then(() => {
         DB.remove('user');
         STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
+        fbDb.clearPersistence().catch(() => {});
         showLanding();
       });
     }
