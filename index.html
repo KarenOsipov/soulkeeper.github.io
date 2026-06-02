@@ -7879,8 +7879,11 @@
                 <!-- Сообщения будут выводиться здесь -->
               </div>
               
-              <!-- Панель ввода -->
               <div id="chat-input-bar" style="padding:1rem; border-top:1px solid rgba(201,168,76,0.1); display:none; gap:0.7rem; align-items:center; background:rgba(15,13,22,0.4);">
+                <input type="file" id="chat-file-input" accept="image/*" style="display:none;" onchange="handleChatFileSelect(this)">
+                <button class="btn btn-ghost" onclick="document.getElementById('chat-file-input').click()" style="padding:0.6rem; border-radius:50%; min-width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--gold);">
+                  <i class="ph-light ph-image" style="font-size:1.25rem;"></i>
+                </button>
                 <input type="text" id="chat-message-input" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter')sendDirectMessage()" style="flex:1; border-radius:30px; padding:0.6rem 1.2rem; background:rgba(5,5,8,0.5); border:1px solid rgba(201,168,76,0.15); color:var(--ivory); outline:none;">
                 <button class="btn btn-primary-sm" onclick="sendDirectMessage()" style="padding:0.6rem; border-radius:50%; min-width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                   <i class="ph-light ph-paper-plane-right" style="font-size:1.1rem;"></i>
@@ -14629,7 +14632,7 @@ ${socialsContext}
       }
 
       const chatId = [myUid, uid].sort().join('_');
-      const chatKey = CryptoJS.SHA256(chatId);
+      const chatKey = CryptoJS.SHA256(chatId).toString();
 
       chatMessagesUnsubscribe = fbDb.collection('chats').doc(chatId).collection('messages')
         .orderBy('createdAt', 'asc')
@@ -14657,9 +14660,25 @@ ${socialsContext}
                   displayText = decrypted.toString(CryptoJS.enc.Utf8) || displayText;
                 }
               } catch (e) { console.error("Decryption error:", e); }
-            } else if (m.zk) {
+            } else if (m.zk && m.text) {
               const rawText = CryptoEngine.decrypt(m.text);
               displayText = typeof rawText === 'string' ? rawText : JSON.stringify(rawText);
+            }
+
+            // ZERO-KNOWLEDGE: расшифровываем картинку
+            let decryptedImage = '';
+            if (typeof m.image === 'string' && m.image.startsWith('ZK_CHAT::')) {
+              try {
+                const payload = m.image.slice('ZK_CHAT::'.length);
+                const colonIdx = payload.indexOf(':');
+                if (colonIdx !== -1) {
+                  const ivHex = payload.slice(0, colonIdx);
+                  const cryptText = payload.slice(colonIdx + 1);
+                  const iv = CryptoJS.enc.Hex.parse(ivHex);
+                  const decrypted = CryptoJS.AES.decrypt(cryptText, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+                  decryptedImage = decrypted.toString(CryptoJS.enc.Utf8);
+                }
+              } catch (e) { console.error("Image decryption error:", e); }
             }
 
             // Определяем имя отправителя
@@ -14688,10 +14707,11 @@ ${socialsContext}
               <div style="align-self:${align}; max-width:80%; display:flex; flex-direction:column; gap:0.15rem;">
                 ${!isMe && senderName ? `<div style="font-size:0.65rem; color:var(--gold); padding-left:0.5rem; opacity:0.8;">${esc(senderName)}</div>` : ''}
                 <div style="background:${bg}; border:${border}; padding:0.65rem 1rem; border-radius:${isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px'}; display:flex; flex-direction:column; gap:0.2rem; box-shadow:0 4px 15px rgba(0,0,0,0.15);">
-                  <div style="font-size:0.85rem; color:var(--ivory); word-break:break-word; white-space:pre-wrap;">${esc(displayText)}</div>
+                  ${decryptedImage ? `<img src="${decryptedImage}" style="max-width:260px; width:100%; border-radius:8px; margin-bottom:0.3rem; display:block; cursor:pointer;" onclick="openFullImageModal('${decryptedImage}')">` : ''}
+                  ${displayText ? `<div style="font-size:0.85rem; color:var(--ivory); word-break:break-word; white-space:pre-wrap;">${esc(displayText)}</div>` : ''}
                   <div style="font-size:0.6rem; color:var(--muted); align-self:flex-end; display:flex; align-items:center; gap:0.3rem;">
                     ${time}
-                    ${m.zk || (typeof m.text === 'string' && m.text.startsWith('ZK_CHAT::')) ? '<i class="ph-light ph-lock" style="font-size:0.7rem; color:var(--gold); opacity:0.7;"></i>' : ''}
+                    ${m.zk || (typeof m.text === 'string' && m.text.startsWith('ZK_CHAT::')) || (typeof m.image === 'string' && m.image.startsWith('ZK_CHAT::')) ? '<i class="ph-light ph-lock" style="font-size:0.7rem; color:var(--gold); opacity:0.7;"></i>' : ''}
                   </div>
                 </div>
               </div>
@@ -14782,6 +14802,109 @@ ${socialsContext}
       const feed = document.getElementById('chat-messages-feed');
       if (feed) feed.innerHTML = '';
       if (chatMessagesUnsubscribe) { chatMessagesUnsubscribe(); chatMessagesUnsubscribe = null; }
+    }
+
+    function openFullImageModal(src) {
+      const viewer = document.getElementById('full-image-viewer');
+      const img = document.getElementById('full-image-img');
+      if (viewer && img) {
+        img.src = src;
+        viewer.style.display = 'flex';
+      }
+    }
+
+    async function handleChatFileSelect(input) {
+      if (!input || !input.files || !input.files[0]) return;
+      const file = input.files[0];
+      if (!file.type.startsWith('image/')) {
+        toast('Разрешено отправлять только изображения');
+        input.value = '';
+        return;
+      }
+
+      if (!activeChatContact) {
+        toast('Выберите собеседника для отправки фото');
+        input.value = '';
+        return;
+      }
+
+      const myUid = fbAuth.currentUser ? fbAuth.currentUser.uid : 'demo';
+      if (myUid === 'demo') {
+        toast('Чат доступен только зарегистрированным пользователям');
+        input.value = '';
+        return;
+      }
+
+      const chatId = [myUid, activeChatContact.uid].sort().join('_');
+      const chatKey = CryptoJS.SHA256(chatId).toString();
+
+      toast('Обработка и шифрование фото...');
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = async function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 800;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          
+          const base64Data = canvas.toDataURL('image/jpeg', 0.7);
+
+          try {
+            const iv = CryptoJS.lib.WordArray.random(16);
+            const encrypted = CryptoJS.AES.encrypt(base64Data, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+            const encryptedImageStr = 'ZK_CHAT::' + iv.toString() + ':' + encrypted.toString();
+
+            const senderMetaRaw = JSON.stringify({ email: STATE.user?.email || '', name: STATE.user?.name || 'Пользователь' });
+            const metaIv = CryptoJS.lib.WordArray.random(16);
+            const encryptedMeta = CryptoJS.AES.encrypt(senderMetaRaw, chatKey, { iv: metaIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+            const encryptedSenderMeta = 'ZK_CHAT::' + metaIv.toString() + ':' + encryptedMeta.toString();
+
+            await fbDb.collection('chats').doc(chatId).collection('messages').add({
+              senderUid: myUid,
+              senderMeta: encryptedSenderMeta,
+              text: '',
+              image: encryptedImageStr,
+              zk: true,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            const lastMsgIv = CryptoJS.lib.WordArray.random(16);
+            const encryptedLastMsg = CryptoJS.AES.encrypt('[Изображение]', chatKey, { iv: lastMsgIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+            const encryptedLastMessage = 'ZK_CHAT::' + lastMsgIv.toString() + ':' + encryptedLastMsg.toString();
+
+            await fbDb.collection('chats').doc(chatId).set({
+              lastMessage: encryptedLastMessage,
+              lastSenderUid: myUid,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              users: [myUid, activeChatContact.uid]
+            }, { merge: true });
+
+            toast('Фото успешно отправлено');
+          } catch(err) {
+            console.error("Image send error:", err);
+            toast('Ошибка шифрования или отправки фото');
+          } finally {
+            input.value = '';
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
     }
 
     // connections + mobile nav уже встроены в goPage и initApp выше
@@ -15208,6 +15331,11 @@ ${socialsContext}
         <button class="btn-gold" style="width:100%; margin-top:1.5rem; padding:14px;" onclick="submitSessionUnlock()">РАЗБЛОКИРОВАТЬ</button>
       </div>
     </div>
+  </div>
+
+  <!-- Fullscreen Image Viewer Modal -->
+  <div id="full-image-viewer" onclick="this.style.display='none'" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center; cursor:zoom-out;">
+    <img id="full-image-img" style="max-width:95%; max-height:95%; border-radius:8px; box-shadow:0 0 40px rgba(0,0,0,0.8);">
   </div>
 
 </body>
