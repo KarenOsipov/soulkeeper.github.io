@@ -14182,22 +14182,22 @@ ${socialsContext}
 
     function joinByCode() {
       const input = document.getElementById('join-code-input');
-      const code = (input?.value || '').trim().toUpperCase();
-      if (!code.startsWith('SK-') || code.length < 6) { toast('Введите корректный код (SK-XXXXXX)'); return; }
-      _sendJoinRequest(code, 'heir', '');
+      const val = (input?.value || '').trim();
+      if (!val) { toast('Введите email или код'); return; }
+      _sendJoinRequest(val, 'heir', '');
       if (input) input.value = '';
     }
 
     function joinByCodeModal() {
-      const code = (document.getElementById('jt-code')?.value || '').trim().toUpperCase();
+      const val = (document.getElementById('jt-code')?.value || '').trim();
       const role = document.getElementById('jt-role')?.value || 'heir';
       const rel = document.getElementById('jt-relation')?.value?.trim() || '';
-      if (!code.startsWith('SK-') || code.length < 6) { toast('Введите корректный код (SK-XXXXXX)'); return; }
-      _sendJoinRequest(code, role, rel);
+      if (!val) { toast('Введите email или код'); return; }
+      _sendJoinRequest(val, role, rel);
       closeModal('modal-join-tree');
     }
 
-    async function _sendJoinRequest(code, role, relation) {
+    async function _sendJoinRequest(inputVal, role, relation) {
       if (STATE.user && STATE.user.isDemo) {
         toast('Запросы недоступны в демо-режиме');
         return;
@@ -14206,15 +14206,35 @@ ${socialsContext}
       if (!myUid) { toast('Войдите в аккаунт'); return; }
 
       const myEmail = STATE.user.email;
-      if (code === _connCode(myEmail)) {
-        toast('Вы не можете добавить себя');
-        return;
+      const cleanInput = inputVal.trim();
+      if (!cleanInput) return;
+
+      let query;
+      if (cleanInput.includes('@')) {
+        // Поиск по Email
+        const targetEmailLower = cleanInput.toLowerCase();
+        if (targetEmailLower === myEmail.toLowerCase()) {
+          toast('Вы не можете добавить себя');
+          return;
+        }
+        query = fbDb.collection('users').where('email', '==', targetEmailLower);
+      } else {
+        // Поиск по коду (автоматически добавляем SK- при необходимости)
+        let code = cleanInput.toUpperCase();
+        if (!code.startsWith('SK-')) {
+          code = 'SK-' + code;
+        }
+        if (code === _connCode(myEmail)) {
+          toast('Вы не можете добавить себя');
+          return;
+        }
+        query = fbDb.collection('users').where('code', '==', code);
       }
 
       try {
-        const querySnapshot = await fbDb.collection('users').where('code', '==', code).get();
+        const querySnapshot = await query.get();
         if (querySnapshot.empty) {
-          toast('<i class="ph-light ph-x-circle"></i> Код не найден');
+          toast('<i class="ph-light ph-x-circle"></i> Пользователь не найден. Проверьте код или email');
           return;
         }
 
