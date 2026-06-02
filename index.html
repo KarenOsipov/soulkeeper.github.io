@@ -5998,6 +5998,8 @@
         <div class="dock-sep"></div>
         <div class="dock-item" onclick="goPage('relatives')" id="nav-relatives" data-tooltip="Семья"><span
             class="dock-icon"><i class="ph-light ph-users"></i></span></div>
+        <div class="dock-item" onclick="goPage('chat-page')" id="nav-chat-page" data-tooltip="Сообщения (Чат)"><span
+            class="dock-icon"><i class="ph-light ph-chats"></i></span></div>
         <div class="dock-item" onclick="goPage('tree')" id="nav-tree" data-tooltip="Древо жизни"><span
             class="dock-icon"><i class="ph-light ph-tree-structure"></i></span></div>
         <div class="dock-item" onclick="goPage('globe')" id="nav-globe" data-tooltip="Глобус"><span class="dock-icon"><i
@@ -7715,7 +7717,6 @@
               Запросы
               <span class="conn-ftab-badge" id="conn-pending-badge" style="display:none">0</span>
             </button>
-            <button class="conn-ftab" onclick="switchConnTab(this,'chat')">Диалоги</button>
           </div>
 
           <!-- Панель: кто добавил меня -->
@@ -7764,38 +7765,45 @@
             </div>
           </div>
 
-          <!-- Панель: диалоги (мессенджер) -->
-          <div id="conn-panel-chat" style="display:none">
-            <div class="chat-wrapper" style="display:flex; height:500px; background:rgba(255,255,255,0.02); border:1px solid rgba(201,168,76,0.15); border-radius:16px; overflow:hidden; margin-top:1.5rem;">
-              <!-- Левая панель: Список контактов -->
-              <div class="chat-sidebar" style="width:250px; border-right:1px solid rgba(201,168,76,0.15); display:flex; flex-direction:column; background:rgba(15,13,22,0.4); flex-shrink:0;">
-                <div style="padding:1rem; border-bottom:1px solid rgba(201,168,76,0.1); font-family:var(--serif); color:var(--gold); font-size:0.95rem; font-weight:500;">
-                  Собеседники
-                </div>
-                <div id="chat-contacts-list" style="flex:1; overflow-y:auto;">
-                  <!-- Динамический список контактов -->
-                </div>
-              </div>
+        </div>
 
-              <!-- Правая панель: Чат -->
-              <div class="chat-main" style="flex:1; display:flex; flex-direction:column; min-width:0;">
-                <!-- Заголовок активного контакта -->
-                <div id="chat-active-header" style="padding:1rem; border-bottom:1px solid rgba(201,168,76,0.1); display:flex; align-items:center; gap:0.6rem; background:rgba(15,13,22,0.2); min-height:60px;">
-                  <div style="font-size:0.9rem; color:var(--muted)">Выберите собеседника для начала общения</div>
-                </div>
-                
-                <!-- Лента сообщений -->
-                <div id="chat-messages-feed" style="flex:1; padding:1.2rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.8rem; background:rgba(5,5,8,0.3);">
-                  <!-- Сообщения будут выводиться здесь -->
-                </div>
-                
-                <!-- Панель ввода -->
-                <div id="chat-input-bar" style="padding:1rem; border-top:1px solid rgba(201,168,76,0.1); display:none; gap:0.7rem; align-items:center; background:rgba(15,13,22,0.4);">
-                  <input type="text" id="chat-message-input" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter')sendDirectMessage()" style="flex:1; border-radius:30px; padding:0.6rem 1.2rem; background:rgba(5,5,8,0.5); border:1px solid rgba(201,168,76,0.15); color:var(--ivory); outline:none;">
-                  <button class="btn btn-primary-sm" onclick="sendDirectMessage()" style="padding:0.6rem; border-radius:50%; min-width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <i class="ph-light ph-paper-plane-right" style="font-size:1.1rem;"></i>
-                  </button>
-                </div>
+        <!-- ── CHAT PAGE (MESSENGER) ── -->
+        <div class="page" id="page-chat-page">
+          <div class="page-header">
+            <div>
+              <div class="page-title">Ваш <em>мессенджер</em></div>
+              <div class="page-sub">Безопасное Zero-Knowledge общение с близкими</div>
+            </div>
+          </div>
+          <div class="chat-wrapper" style="display:flex; height:600px; background:rgba(255,255,255,0.02); border:1px solid rgba(201,168,76,0.15); border-radius:16px; overflow:hidden; margin-top:1.5rem;">
+            <!-- Левая панель: Список контактов -->
+            <div class="chat-sidebar" style="width:250px; border-right:1px solid rgba(201,168,76,0.15); display:flex; flex-direction:column; background:rgba(15,13,22,0.4); flex-shrink:0;">
+              <div style="padding:1rem; border-bottom:1px solid rgba(201,168,76,0.1); font-family:var(--serif); color:var(--gold); font-size:0.95rem; font-weight:500;">
+                Собеседники
+              </div>
+              <div id="chat-contacts-list" style="flex:1; overflow-y:auto;">
+                <!-- Динамический список контактов -->
+              </div>
+            </div>
+
+            <!-- Правая панель: Чат -->
+            <div class="chat-main" style="flex:1; display:flex; flex-direction:column; min-width:0;">
+              <!-- Заголовок активного контакта -->
+              <div id="chat-active-header" style="padding:1rem; border-bottom:1px solid rgba(201,168,76,0.1); display:flex; align-items:center; gap:0.6rem; background:rgba(15,13,22,0.2); min-height:60px;">
+                <div style="font-size:0.9rem; color:var(--muted)">Выберите собеседника для начала общения</div>
+              </div>
+              
+              <!-- Лента сообщений -->
+              <div id="chat-messages-feed" style="flex:1; padding:1.2rem; overflow-y:auto; display:flex; flex-direction:column; gap:0.8rem; background:rgba(5,5,8,0.3);">
+                <!-- Сообщения будут выводиться здесь -->
+              </div>
+              
+              <!-- Панель ввода -->
+              <div id="chat-input-bar" style="padding:1rem; border-top:1px solid rgba(201,168,76,0.1); display:none; gap:0.7rem; align-items:center; background:rgba(15,13,22,0.4);">
+                <input type="text" id="chat-message-input" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter')sendDirectMessage()" style="flex:1; border-radius:30px; padding:0.6rem 1.2rem; background:rgba(5,5,8,0.5); border:1px solid rgba(201,168,76,0.15); color:var(--ivory); outline:none;">
+                <button class="btn btn-primary-sm" onclick="sendDirectMessage()" style="padding:0.6rem; border-radius:50%; min-width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <i class="ph-light ph-paper-plane-right" style="font-size:1.1rem;"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -8825,13 +8833,19 @@
 
       setAuthLoading('btn-login', true, 'Войти');
 
+      // Zero-Knowledge: ключ ставится ДО авторизации для устранения гонки в onAuthStateChanged
+      CryptoEngine.setKey(pass);
+
       fbAuth.signInWithEmailAndPassword(email, pass)
         .then(cred => {
-          // Zero-Knowledge: ключ ставится только ПОСЛЕ успешного входа
-          CryptoEngine.setKey(pass);
+          // Успешный вход
           // showApp() будет вызван автоматически через onAuthStateChanged
         })
         .catch(e => {
+          // Сбрасываем ключ при ошибке
+          CryptoEngine._key = null;
+          sessionStorage.removeItem('sk_session_key');
+          
           setAuthLoading('btn-login', false, 'Войти');
           console.error('Full Auth Error:', e); // Логируем всё для отладки
           err.textContent = fbErrMsg(e.code);
@@ -8897,10 +8911,11 @@
 
       setAuthLoading('btn-register', true, 'Создать аккаунт');
 
+      // Zero-Knowledge: ключ ставится СРАЗУ для исключения гонки в onAuthStateChanged
+      CryptoEngine.setKey(pass);
+
       fbAuth.createUserWithEmailAndPassword(email, pass)
         .then(cred => {
-          // Zero-Knowledge: сохраняем ключ в сессии
-          CryptoEngine.setKey(pass);
           return cred.user.updateProfile({ displayName: name }).then(() => cred);
         })
         .then(cred => {
@@ -8917,6 +8932,10 @@
           // Приложение само переключится на экран 'app' через onAuthStateChanged
         })
         .catch(e => {
+          // Сбрасываем ключ при ошибке
+          CryptoEngine._key = null;
+          sessionStorage.removeItem('sk_session_key');
+
           err.textContent = fbErrMsg(e.code);
           err.style.display = 'block';
           err.style.color = 'var(--red)';
@@ -9363,7 +9382,8 @@
       if (name === 'tree') renderTree();
       if (name === 'ai') initAiPage();
       if (name === 'twin') initTwinPage();
-      const mainTabs = ['dash', 'legacy', 'connections', 'tree'];
+      if (name === 'chat-page') renderChatContacts();
+      const mainTabs = ['dash', 'legacy', 'connections', 'tree', 'chat-page'];
       if (mainTabs.includes(name)) mobSetActive(name);
     }
 
