@@ -13981,9 +13981,10 @@ ${socialsContext}
 
       const user = fbAuth.currentUser;
       if (user && !STATE.user.isDemo) {
+        const myUid = user.uid;
         // Listen to connections sent to me
         connectionsUnsubscribe = fbDb.collection('connections')
-          .where('toEmail', '==', email)
+          .where('toUid', '==', myUid)
           .onSnapshot(snapshot => {
             const incoming = [];
             snapshot.forEach(doc => {
@@ -13999,11 +14000,12 @@ ${socialsContext}
             renderChatContacts();
           }, err => {
             console.error("Connections sync error:", err);
+            toast('Ошибка получения запросов: ' + err.message);
           });
 
         // Listen to connections I sent and were accepted
         fbDb.collection('connections')
-          .where('fromEmail', '==', email)
+          .where('fromUid', '==', myUid)
           .where('status', '==', 'accepted')
           .onSnapshot(snapshot => {
             const iAdded = [];
@@ -14040,6 +14042,8 @@ ${socialsContext}
 
             renderConnections();
             renderChatContacts();
+          }, err => {
+            console.error("Connections outgoing sync error:", err);
           });
       } else {
         renderConnections();
