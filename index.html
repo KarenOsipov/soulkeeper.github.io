@@ -14187,8 +14187,9 @@ ${socialsContext}
           }
         }
 
-        const qSnap = await fbDb.collection('connections').where('toEmail', '==', user.email.toLowerCase()).get();
-        toast(`Входящих запросов в БД: ${qSnap.size}`);
+        const queryEmail = user.email.toLowerCase();
+        const qSnap = await fbDb.collection('connections').where('toEmail', '==', queryEmail).get();
+        toast(`Ищем: ${queryEmail} | Найдено: ${qSnap.size}`);
         
         renderConnections();
       } catch (err) {
