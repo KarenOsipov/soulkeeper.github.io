@@ -14079,11 +14079,12 @@ ${socialsContext}
         } else {
           elAddedMe.innerHTML = addedMe.map((c, i) => {
             const accentCls = { heir: 'green', observer: 'blue', trusted: '' }[c.role] || '';
+            const dispName = c.fromName || c.fromEmail || 'Родственник';
             return `<div class="conn-card">
           <div class="conn-card-accent ${accentCls}"></div>
-          <div class="conn-avatar">${c.fromName.charAt(0).toUpperCase()}</div>
+          <div class="conn-avatar">${dispName.charAt(0).toUpperCase()}</div>
           <div class="conn-info">
-            <div class="conn-name">${c.fromName}</div>
+            <div class="conn-name">${dispName}</div>
             <div class="conn-relation">${c.relation || 'Родственник'}</div>
             <div class="conn-meta">Добавил вас · ${_roleLabel(c.role)}</div>
           </div>
@@ -14104,11 +14105,12 @@ ${socialsContext}
         } else {
           elIAdded.innerHTML = relatives.map(r => {
             const accentCls = { heir: 'green', observer: 'blue', trusted: '' }[r.access] || '';
+            const dispName = r.name || r.email || 'Родственник';
             return `<div class="conn-card">
           <div class="conn-card-accent ${accentCls}"></div>
-          <div class="conn-avatar">${(r.name || '?').charAt(0).toUpperCase()}</div>
+          <div class="conn-avatar">${dispName.charAt(0).toUpperCase()}</div>
           <div class="conn-info">
-            <div class="conn-name">${r.name}</div>
+            <div class="conn-name">${dispName}</div>
             <div class="conn-relation">${r.relation || 'Родственник'}</div>
             <div class="conn-meta">${r.city || 'Город не указан'}</div>
           </div>
@@ -14126,12 +14128,14 @@ ${socialsContext}
         if (!pending.length) {
           elPending.innerHTML = '<div class="empty"><div class="empty-icon"><i class="ph-light ph-envelope-simple"></i></div><div class="empty-text">Нет входящих запросов</div><div class="empty-sub">Когда кто-то введёт ваш код — запрос появится здесь</div></div>';
         } else {
-          elPending.innerHTML = pending.map((p, i) => `
+          elPending.innerHTML = pending.map((p, i) => {
+            const dispName = p.fromName || p.fromEmail || 'Родственник';
+            return `
         <div class="conn-card">
           <div class="conn-card-accent amber"></div>
-          <div class="conn-avatar">${p.fromName.charAt(0).toUpperCase()}</div>
+          <div class="conn-avatar">${dispName.charAt(0).toUpperCase()}</div>
           <div class="conn-info">
-            <div class="conn-name">${p.fromName}</div>
+            <div class="conn-name">${dispName}</div>
             <div class="conn-relation">${p.relation || 'Родственник'}</div>
             <div class="conn-meta">Хочет видеть вас как: ${_roleLabel(p.role)}</div>
           </div>
@@ -14142,7 +14146,8 @@ ${socialsContext}
               <button class="btn btn-danger btn-sm" onclick="declineConn(${i})">✕</button>
             </div>
           </div>
-        </div>`).join('');
+        </div>`;
+          }).join('');
         }
       }
     }
