@@ -14168,7 +14168,34 @@ ${socialsContext}
       }
     }
 
-    function refreshConnections() { renderConnections(); toast('↻ Обновлено'); }
+    async function refreshConnections() {
+      toast('Синхронизация...');
+      try {
+        const user = fbAuth.currentUser;
+        if (!user) {
+          toast('Ошибка: вы не авторизованы в Firebase Auth');
+          return;
+        }
+        
+        const userDoc = await fbDb.collection('users').doc(user.uid).get();
+        if (!userDoc.exists) {
+          toast('Предупреждение: вашего профиля нет в БД. Перезайдите в аккаунт.');
+        } else {
+          const data = userDoc.data();
+          if (!data.code) {
+            await fbDb.collection('users').doc(user.uid).set({ code: _connCode(user.email) }, { merge: true });
+          }
+        }
+
+        const qSnap = await fbDb.collection('connections').where('toUid', '==', user.uid).get();
+        toast(`Входящих запросов в БД: ${qSnap.size}`);
+        
+        renderConnections();
+      } catch (err) {
+        console.error("Diagnostic error:", err);
+        toast('Ошибка синхронизации: ' + err.message);
+      }
+    }
 
     function copyMyCode() {
       const code = document.getElementById('my-conn-code')?.textContent || _connCode(_connEmail());
