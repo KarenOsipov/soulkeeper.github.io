@@ -8301,6 +8301,13 @@
             return;
           }
 
+          // Если у существующего пользователя нет поля code в базе, дописываем его
+          if (!data.code && STATE.user && STATE.user.email) {
+            fbDb.collection('users').doc(uid).set({
+              code: _connCode(STATE.user.email)
+            }, { merge: true }).catch(err => console.error(err));
+          }
+
           // Дешифруем все чувствительные данные на устройстве клиента
           STATE.secrets = CryptoEngine.decrypt(data.secrets) || [];
           STATE.bio = CryptoEngine.decrypt(data.bio) || [];
@@ -8923,6 +8930,7 @@
           return fbDb.collection('users').doc(cred.user.uid).set({
             name: name,
             email: email,
+            code: _connCode(email),
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
         })
@@ -9015,6 +9023,7 @@
           await fbDb.collection('users').doc(currentGoogleUser.uid).set({
             name: currentGoogleUser.displayName || currentGoogleUser.email.split('@')[0],
             email: currentGoogleUser.email,
+            code: _connCode(currentGoogleUser.email),
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             zkVersion: 2
           }, { merge: true });
