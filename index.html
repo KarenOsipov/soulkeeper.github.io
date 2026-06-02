@@ -5848,6 +5848,23 @@
           <button id="btn-login" class="btn-primary-sm"
             style="width: 100%; justify-content: center; padding: 0.8rem; margin-bottom: 1rem;"
             onclick="doLogin()">Войти</button>
+          
+          <div class="auth-divider" style="display: flex; align-items: center; text-align: center; margin: 1rem 0; color: var(--muted); font-size: 0.8rem;">
+            <span style="flex-grow: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
+            <span style="padding: 0 0.8rem;">или</span>
+            <span style="flex-grow: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
+          </div>
+
+          <button onclick="doGoogleLogin()" class="btn-ghost" style="width: 100%; justify-content: center; padding: 0.8rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <svg style="width:1.1rem; height:1.1rem;" viewBox="0 0 24 24">
+              <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.58 15.02 1 12 1 7.35 1 3.37 3.68 1.48 7.58l3.8 2.95C6.18 7.55 8.87 5.04 12 5.04z"/>
+              <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.42 3.58l3.76 2.91c2.2-2.03 3.69-5.02 3.69-8.64z"/>
+              <path fill="#FBBC05" d="M5.28 14.77a7.22 7.22 0 0 1 0-4.54L1.48 7.28a11.95 11.95 0 0 0 0 9.44l3.8-2.95z"/>
+              <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.76-2.91c-1.1.74-2.5 1.18-4.2 1.18-3.13 0-5.82-2.51-6.72-5.49L1.48 15.82C3.37 19.72 7.35 23 12 23z"/>
+            </svg>
+            Войти через Google
+          </button>
+
           <button class="btn-ghost" style="width: 100%; justify-content: center; padding: 0.8rem; margin-bottom:0.5rem;"
             onclick="doDemoLogin()">◆ Демо-вход (без регистрации)</button>
           <div style="text-align:center; margin-top:0.6rem;">
@@ -5876,8 +5893,25 @@
             </div>
           </div>
           <button id="btn-register" class="btn-primary-sm"
-            style="width: 100%; justify-content: center; padding: 0.8rem;" onclick="doRegister()">Создать
+            style="width: 100%; justify-content: center; padding: 0.8rem; margin-bottom: 1rem;" onclick="doRegister()">Создать
             аккаунт</button>
+
+          <div class="auth-divider" style="display: flex; align-items: center; text-align: center; margin: 1rem 0; color: var(--muted); font-size: 0.8rem;">
+            <span style="flex-grow: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
+            <span style="padding: 0 0.8rem;">или</span>
+            <span style="flex-grow: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
+          </div>
+
+          <button onclick="doGoogleLogin()" class="btn-ghost" style="width: 100%; justify-content: center; padding: 0.8rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <svg style="width:1.1rem; height:1.1rem;" viewBox="0 0 24 24">
+              <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.58 15.02 1 12 1 7.35 1 3.37 3.68 1.48 7.58l3.8 2.95C6.18 7.55 8.87 5.04 12 5.04z"/>
+              <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.42 3.58l3.76 2.91c2.2-2.03 3.69-5.02 3.69-8.64z"/>
+              <path fill="#FBBC05" d="M5.28 14.77a7.22 7.22 0 0 1 0-4.54L1.48 7.28a11.95 11.95 0 0 0 0 9.44l3.8-2.95z"/>
+              <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.76-2.91c-1.1.74-2.5 1.18-4.2 1.18-3.13 0-5.82-2.51-6.72-5.49L1.48 15.82C3.37 19.72 7.35 23 12 23z"/>
+            </svg>
+            Зарегистрироваться через Google
+          </button>
+
           <div class="auth-err" id="reg-err"></div>
         </div>
 
@@ -6459,6 +6493,31 @@
               <button class="btn btn-primary-sm" onclick="openModal('modal-relative')">+ Добавить</button>
             </div>
           </div>
+
+          <!-- Блок подключения (Connection Widget) -->
+          <div class="relatives-connect-box" style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; margin-bottom: 1.5rem; padding: 1.2rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.1); border-radius: 16px;">
+            <!-- Левая колонка: Ваш код -->
+            <div style="border-right: 1px solid rgba(255,255,255,0.06); padding-right: 1.5rem; display: flex; flex-direction: column; justify-content: center;">
+              <div style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem;">Ваш код подключения</div>
+              <div style="display: flex; align-items: center; gap: 0.8rem;">
+                <div class="conn-code-badge" id="relatives-my-code" style="font-family: monospace; font-size: 1.2rem; color: var(--gold); font-weight: bold; background: rgba(212,175,55,0.05); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px dashed rgba(212,175,55,0.25);">SK-••••••</div>
+                <button class="btn btn-ghost btn-sm" onclick="copyMyCode()" style="padding: 0.4rem 0.6rem; min-height: auto;" title="Скопировать код">
+                  <i class="ph-light ph-copy"></i>
+                </button>
+              </div>
+            </div>
+            <!-- Правая колонка: Отправить запрос родственнику -->
+            <div style="display: flex; flex-direction: column; justify-content: center;">
+              <div style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">Подключить родственника (по его коду)</div>
+              <div style="display: flex; gap: 0.6rem;">
+                <input type="text" id="relatives-connect-input" placeholder="Введите код (например, SK-A1B2C3)" style="flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.5rem 0.8rem; color: var(--ivory); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                <button class="btn btn-primary-sm" onclick="sendConnectionRequestFromRelativesPage()" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                  <i class="ph-light ph-link"></i> Подключить
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="search-bar"><i class="ph-light ph-magnifying-glass"
               style="position:absolute; left:0.8rem; top:50%; transform:translateY(-50%); font-size:1.1rem; color:var(--muted);"></i><input
               type="text" placeholder="Поиск родственников..." oninput="searchRelatives(this.value)"></div>
@@ -8214,6 +8273,8 @@
       return map[code] || 'Ошибка: ' + code;
     }
 
+    let tempLockedData = null;
+
     // Загрузка данных пользователя из Firestore (облако → STATE → localStorage)
     // ZERO-KNOWLEDGE: все чувствительные данные расшифровываются ТОЛЬКО на устройстве
     async function loadUserDataFromFirestore(uid) {
@@ -8222,6 +8283,15 @@
         const userDoc = await fbDb.collection('users').doc(uid).get();
         if (userDoc.exists) {
           const data = userDoc.data();
+
+          // Проверяем, зашифрованы ли данные и есть ли ключ шифрования
+          const isZk = data.secrets && typeof data.secrets === 'string' && data.secrets.startsWith(ZK_PREFIX);
+          if (isZk && !CryptoEngine.hasKey()) {
+            // Ключа в сессии нет, сохраняем зашифрованные данные во временную переменную и показываем форму разблокировки
+            tempLockedData = data;
+            openModal('modal-session-unlock');
+            return;
+          }
 
           // Дешифруем все чувствительные данные на устройстве клиента
           STATE.secrets = CryptoEngine.decrypt(data.secrets) || [];
@@ -8852,6 +8922,154 @@
           err.style.color = 'var(--red)';
           setAuthLoading('btn-register', false, 'Создать аккаунт');
         });
+    }
+
+    // ── GOOGLE SIGN-IN & ZERO-KNOWLEDGE ─────────────────────────────
+    let currentGoogleUser = null;
+    let isGoogleNewUser = false;
+
+    function doGoogleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      setAuthLoading('btn-login', true, 'Войти');
+      setAuthLoading('btn-register', true, 'Создать аккаунт');
+
+      fbAuth.signInWithPopup(provider)
+        .then(async (cred) => {
+          currentGoogleUser = cred.user;
+          // Проверяем, существует ли уже документ пользователя в Firestore
+          const userDoc = await fbDb.collection('users').doc(cred.user.uid).get();
+          
+          setAuthLoading('btn-login', false, 'Войти');
+          setAuthLoading('btn-register', false, 'Создать аккаунт');
+
+          if (userDoc.exists && userDoc.data().zkVersion) {
+            // Пользователь уже зарегистрирован и данные зашифрованы
+            isGoogleNewUser = false;
+            showGoogleZKPrompt(false);
+          } else {
+            // Новый пользователь
+            isGoogleNewUser = true;
+            showGoogleZKPrompt(true);
+          }
+        })
+        .catch(e => {
+          setAuthLoading('btn-login', false, 'Войти');
+          setAuthLoading('btn-register', false, 'Создать аккаунт');
+          console.error(e);
+          toast('Ошибка входа через Google: ' + e.message);
+        });
+    }
+
+    function showGoogleZKPrompt(isNew) {
+      const title = document.getElementById('gzk-title');
+      const desc = document.getElementById('gzk-description');
+      const btn = document.getElementById('btn-gzk-submit');
+      const input = document.getElementById('gzk-pass-input');
+
+      input.value = '';
+
+      if (isNew) {
+        title.innerHTML = '<i class="ph-light ph-lock-key"></i> Создайте Мастер-Пароль';
+        desc.textContent = 'Для защиты ваших данных в режиме Zero-Knowledge, пожалуйста, придумайте Мастер-Пароль. Он будет шифровать все ваши данные.';
+        btn.textContent = 'СОЗДАТЬ И ВОЙТИ';
+        btn.onclick = submitGoogleZKPassword;
+      } else {
+        title.innerHTML = '<i class="ph-light ph-lock-key"></i> Доступ защищен';
+        desc.textContent = 'Введите ваш существующий Мастер-Пароль, созданный ранее, чтобы расшифровать данные на этом устройстве.';
+        btn.textContent = 'РАСШИФРОВАТЬ И ВОЙТИ';
+        btn.onclick = submitGoogleZKPassword;
+      }
+      openModal('modal-google-zk-prompt');
+    }
+
+    async function submitGoogleZKPassword() {
+      const pass = document.getElementById('gzk-pass-input').value;
+      if (!pass || pass.length < 6) {
+        toast('Пароль должен содержать минимум 6 символов');
+        return;
+      }
+
+      CryptoEngine.setKey(pass);
+
+      if (isGoogleNewUser && currentGoogleUser) {
+        try {
+          await fbDb.collection('users').doc(currentGoogleUser.uid).set({
+            name: currentGoogleUser.displayName || currentGoogleUser.email.split('@')[0],
+            email: currentGoogleUser.email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            zkVersion: 2
+          }, { merge: true });
+        } catch (e) {
+          console.error('Error creating user doc:', e);
+        }
+      }
+
+      closeModal('modal-google-zk-prompt');
+      
+      const appScreen = document.getElementById('screen-app');
+      if (!appScreen || !appScreen.classList.contains('active')) {
+        showApp();
+      }
+      loadUserDataFromFirestore(currentGoogleUser.uid).then(() => {
+        renderAll();
+      });
+      toast('<i class="ph-light ph-hand-waving"></i> Добро пожаловать!');
+    }
+
+    // ── SESSION UNLOCK ──────────────────────────────────────────────
+    async function submitSessionUnlock() {
+      const pass = document.getElementById('session-unlock-pass').value;
+      const errEl = document.getElementById('session-unlock-err');
+      errEl.style.display = 'none';
+
+      if (!pass) {
+        errEl.textContent = 'Введите пароль';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      CryptoEngine.setKey(pass);
+
+      if (tempLockedData) {
+        try {
+          const dec = CryptoEngine.decrypt(tempLockedData.secrets);
+          if (typeof dec === 'string' && dec.startsWith(ZK_PREFIX)) {
+            throw new Error('Incorrect password');
+          }
+          closeModal('modal-session-unlock');
+          
+          STATE.secrets = dec || [];
+          STATE.bio = CryptoEngine.decrypt(tempLockedData.bio) || [];
+          STATE.messages = CryptoEngine.decrypt(tempLockedData.messages) || [];
+          STATE.relatives = CryptoEngine.decrypt(tempLockedData.relatives) || [];
+          STATE.notifications = CryptoEngine.decrypt(tempLockedData.notifications) || [];
+          STATE.executor = CryptoEngine.decrypt(tempLockedData.executor) || null;
+          
+          _saveLocalOnly();
+          renderAll();
+          tempLockedData = null;
+          toast('<i class="ph-light ph-lock-open"></i> Данные успешно расшифрованы!');
+        } catch (e) {
+          CryptoEngine._key = null;
+          sessionStorage.removeItem('sk_session_key');
+          errEl.textContent = 'Неверный Мастер-Пароль';
+          errEl.style.display = 'block';
+        }
+      } else {
+        closeModal('modal-session-unlock');
+      }
+    }
+
+    // ── RELATIVES PAGE CONNECTION WIDGET ────────────────────────────
+    function sendConnectionRequestFromRelativesPage() {
+      const input = document.getElementById('relatives-connect-input');
+      const code = (input?.value || '').trim().toUpperCase();
+      if (!code.startsWith('SK-') || code.length < 6) { 
+        toast('Введите корректный код (SK-XXXXXX)'); 
+        return; 
+      }
+      _sendJoinRequest(code, 'heir', '');
+      if (input) input.value = '';
     }
 
     // ── LOGOUT ────────────────────────────────────────────────────────
@@ -13727,6 +13945,8 @@ ${socialsContext}
       const code = _connCode(email);
       const el = document.getElementById('my-conn-code');
       if (el) el.textContent = code;
+      const el2 = document.getElementById('relatives-my-code');
+      if (el2) el2.textContent = code;
 
       if (connectionsUnsubscribe) connectionsUnsubscribe();
 
@@ -14674,6 +14894,50 @@ ${socialsContext}
         <div id="bv-date"
           style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid rgba(212,175,55,0.1); font-size:0.8rem; color:var(--muted2); text-align:center;">
           —</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Google Zero-Knowledge Master Password Prompt -->
+  <div class="modal-overlay" id="modal-google-zk-prompt" style="backdrop-filter: blur(20px);">
+    <div class="modal" style="max-width:400px; text-align:center; border: 1px solid var(--gold);">
+      <div class="modal-head">
+        <div class="modal-title" id="gzk-title"><i class="ph-light ph-lock-key"></i> Zero-Knowledge Защита</div>
+      </div>
+      <div class="modal-body" style="padding: 2rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--gold);"><i class="ph-light ph-shield-check"></i></div>
+        <p id="gzk-description" style="font-size:0.85rem; color:var(--muted); margin-bottom:1.5rem; line-height:1.5;"></p>
+        <div class="field">
+          <label style="display:block; margin-bottom:12px; font-size:0.9rem;">Мастер-пароль</label>
+          <input type="password" id="gzk-pass-input" placeholder="••••••••"
+            style="width:100%; background:var(--ink2); border:1px solid var(--gold); border-radius:12px; padding:15px; color:var(--ivory); font-size:1.2rem; text-align:center; outline:none; box-shadow:0 0 15px rgba(212,175,55,0.1);">
+        </div>
+        <div style="font-size:0.7rem; color:var(--muted); margin-top:1rem; line-height:1.5;">
+          Этот пароль используется ИСКЛЮЧИТЕЛЬНО на вашем устройстве для шифрования/дешифрования данных. Ни сайт, ни сервер его не хранят. Потеря пароля приведет к невозможности расшифровать ваши данные.
+        </div>
+        <button class="btn-gold" id="btn-gzk-submit" style="width:100%; margin-top:1.5rem; padding:14px;">ПОДТВЕРДИТЬ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Unlock Session -->
+  <div class="modal-overlay" id="modal-session-unlock" style="backdrop-filter: blur(20px);">
+    <div class="modal" style="max-width:400px; text-align:center; border: 1px solid var(--gold);">
+      <div class="modal-head">
+        <div class="modal-title"><i class="ph-light ph-lock-key"></i> Сессия заблокирована</div>
+      </div>
+      <div class="modal-body" style="padding: 2rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--gold);"><i class="ph-light ph-shield-check"></i></div>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.5rem; line-height:1.5;">
+          Ваши данные надежно зашифрованы алгоритмом Zero-Knowledge. Пожалуйста, введите ваш Мастер-Пароль для разблокировки и просмотра данных.
+        </p>
+        <div class="field">
+          <input type="password" id="session-unlock-pass" placeholder="Введите ваш Мастер-Пароль"
+            style="width:100%; background:var(--ink2); border:1px solid var(--gold); border-radius:12px; padding:15px; color:var(--ivory); font-size:1.2rem; text-align:center; outline:none; box-shadow:0 0 15px rgba(212,175,55,0.1);"
+            onkeydown="if(event.key==='Enter')submitSessionUnlock()">
+        </div>
+        <div class="auth-err" id="session-unlock-err" style="display:none; margin-top:1rem; color:var(--red);"></div>
+        <button class="btn-gold" style="width:100%; margin-top:1.5rem; padding:14px;" onclick="submitSessionUnlock()">РАЗБЛОКИРОВАТЬ</button>
       </div>
     </div>
   </div>
