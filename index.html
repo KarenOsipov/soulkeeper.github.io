@@ -31,6 +31,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <style>
     /* ════════════════════════════════════════════
    DESIGN TOKENS
@@ -6756,6 +6757,9 @@
               <i class="ph-light ph-lock-key"></i> Цифровой сейф
               <span class="dock-badge" id="badge-legacy-secrets" style="position:static; transform:none; margin-left:0.4rem; display:none;">0</span>
             </button>
+            <button class="legacy-tab-btn" id="tab-legacy-cloud-btn" onclick="setLegacyTab('cloud')">
+              <i class="ph-light ph-cloud"></i> Облако воспоминаний
+            </button>
           </div>
 
           <!-- Content Sections -->
@@ -6784,19 +6788,66 @@
           <div class="legacy-tab-content" id="legacy-tab-secrets">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
               <span style="font-family:var(--serif); color:var(--gold); font-size:1.1rem; letter-spacing:0.5px;">Зашифрованное хранилище тайн</span>
-              <button class="btn btn-primary-sm" onclick="openModal('modal-secret')" style="font-size:0.8rem; padding:0.5rem 1rem;">+ Добавить тайну</button>
+              <button class="btn btn-primary-sm" id="secrets-add-btn" onclick="openModal('modal-secret')" style="font-size:0.8rem; padding:0.5rem 1rem;">+ Добавить тайну</button>
             </div>
-            <div class="page-actions" style="display:flex; gap:0.4rem; margin-bottom:1rem; flex-wrap:wrap;">
-              <button class="btn btn-ghost btn-sm" onclick="filterSecrets('all')">Все</button>
-              <button class="btn btn-ghost btn-sm" onclick="filterSecrets('password')">Пароли</button>
-              <button class="btn btn-ghost btn-sm" onclick="filterSecrets('document')">Документы</button>
-              <button class="btn btn-ghost btn-sm" onclick="filterSecrets('personal')">Личное</button>
+            <!-- Lock Overlay for Secrets -->
+            <div id="vault-lock-overlay" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:3rem 1.5rem; background:rgba(15,13,22,0.65); border:1px dashed rgba(212,175,55,0.2); border-radius:16px; backdrop-filter:blur(15px); margin-top:1rem; margin-bottom:1.5rem;">
+              <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
+              <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Сейф заблокирован</h3>
+              <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Чтобы расшифровать ваши личные данные, введите секретную сид-фразу из 12 слов.</p>
+              
+              <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:0.8rem;">
+                <textarea id="vault-seed-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:70px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.25); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none;"></textarea>
+                <div style="display:flex; gap:0.5rem;">
+                  <button class="btn btn-primary" onclick="unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
+                  <button class="btn btn-ghost" onclick="initVaultSeedSetup()" id="vault-init-setup-btn" style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
+                </div>
+              </div>
             </div>
-            <div class="search-bar" style="position:relative; margin-bottom:1.5rem; width:100%;">
-              <i class="ph-light ph-magnifying-glass" style="position:absolute; left:0.8rem; top:50%; transform:translateY(-50%); font-size:1.1rem; color:var(--muted);"></i>
-              <input type="text" placeholder="Поиск по сейфу..." oninput="searchSecrets(this.value)" id="secret-search" style="padding-left:2.5rem; width:100%; border-radius:20px;">
+
+            <div id="secrets-container-wrap">
+              <div class="page-actions" style="display:flex; gap:0.4rem; margin-bottom:1rem; flex-wrap:wrap;">
+                <button class="btn btn-ghost btn-sm" onclick="filterSecrets('all')">Все</button>
+                <button class="btn btn-ghost btn-sm" onclick="filterSecrets('password')">Пароли</button>
+                <button class="btn btn-ghost btn-sm" onclick="filterSecrets('document')">Документы</button>
+                <button class="btn btn-ghost btn-sm" onclick="filterSecrets('personal')">Личное</button>
+              </div>
+              <div class="search-bar" style="position:relative; margin-bottom:1.5rem; width:100%;">
+                <i class="ph-light ph-magnifying-glass" style="position:absolute; left:0.8rem; top:50%; transform:translateY(-50%); font-size:1.1rem; color:var(--muted);"></i>
+                <input type="text" placeholder="Поиск по сейфу..." oninput="searchSecrets(this.value)" id="secret-search" style="padding-left:2.5rem; width:100%; border-radius:20px;">
+              </div>
+              <div id="secrets-list"></div>
             </div>
-            <div id="secrets-list"></div>
+          </div>
+
+          <!-- Tab 4: Cloud Media Archive -->
+          <div class="legacy-tab-content" id="legacy-tab-cloud">
+            <!-- Lock Overlay for Cloud -->
+            <div id="cloud-lock-overlay" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:3rem 1.5rem; background:rgba(15,13,22,0.65); border:1px dashed rgba(212,175,55,0.2); border-radius:16px; backdrop-filter:blur(15px); margin-top:1rem;">
+              <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
+              <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Хранилище заблокировано</h3>
+              <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Чтобы открыть ваше медиа-облако, разблокируйте Цифровой Сейф.</p>
+              <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к разблокировке</button>
+            </div>
+
+            <div id="cloud-container-wrap">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.8rem;">
+                <span style="font-family:var(--serif); color:var(--gold); font-size:1.1rem; letter-spacing:0.5px;">Облачный архив воспоминаний</span>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                  <button class="btn btn-ghost btn-sm" onclick="createCloudFolder()"><i class="ph-light ph-folder-plus"></i> Создать папку</button>
+                  <label class="btn btn-primary-sm" style="font-size:0.8rem; padding:0.5rem 1rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="ph-light ph-upload-simple"></i> Загрузить файл
+                    <input type="file" id="cloud-file-input" onchange="uploadCloudFile(this)" style="display:none;">
+                  </label>
+                </div>
+              </div>
+
+              <!-- Path Breadcrumbs -->
+              <div id="cloud-breadcrumbs" style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--muted); margin-bottom:1.2rem; background:rgba(255,255,255,0.01); padding:0.6rem 1rem; border-radius:10px; border:1px solid rgba(255,255,255,0.03);"></div>
+
+              <!-- Files Grid -->
+              <div id="cloud-files-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:1.2rem; margin-bottom:2rem;"></div>
+            </div>
           </div>
         </div>
 
@@ -8624,8 +8675,8 @@
             }, { merge: true }).catch(err => console.error(err));
           }
 
-          // Дешифруем все чувствительные данные на устройстве клиента
-          STATE.secrets = CryptoEngine.decrypt(data.secrets) || [];
+          // Дешифруем все чувствительные данные на устройстве клиента (с поддержкой BIP39 сид-фразы)
+          STATE.secrets = CryptoEngine.decryptVault(data.secrets) || [];
           STATE.bio = CryptoEngine.decrypt(data.bio) || [];
           STATE.messages = CryptoEngine.decrypt(data.messages) || [];
           // relatives тоже зашифрованы с v2+
@@ -8638,6 +8689,12 @@
           STATE.settings = data.settings || {};
           STATE.planId = data.planId || 'free';
           STATE.planExpiry = data.planExpiry || 0;
+          // Load cloud items list
+          STATE.cloudItems = data.cloudItems || [];
+          if (typeof data.secrets === 'string' && data.secrets.startsWith('VAULT::')) {
+            tempLockedData = { secrets: data.secrets };
+          }
+          setTimeout(() => checkVaultLockState(), 500);
 
           _saveLocalOnly(); // Mirror to local
         } else {
@@ -8670,7 +8727,7 @@
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           zkVersion: 2, // zero-knowledge schema version
           // ↓ Всё ниже — зашифровано AES-256 на устройстве клиента
-          secrets: CryptoEngine.encrypt(STATE.secrets),
+          secrets: CryptoEngine.encryptVault(STATE.secrets),
           bio: CryptoEngine.encrypt(STATE.bio),
           messages: CryptoEngine.encrypt(STATE.messages),
           relatives: CryptoEngine.encrypt(STATE.relatives),
@@ -8680,7 +8737,8 @@
           swPeriod: STATE.swPeriod,
           swDays: STATE.swDays,
           planId: STATE.planId,
-          planExpiry: STATE.planExpiry
+          planExpiry: STATE.planExpiry,
+          cloudItems: STATE.cloudItems || []
         }, { merge: true });
         DB._addLog('OK', '🔒 Данные зашифрованы и синхронизированы (Zero-Knowledge)');
       } catch (err) {
@@ -8703,6 +8761,7 @@
 
     const CryptoEngine = {
       _key: null,
+      _vaultKey: null,
 
       // Derive key from master password using PBKDF2-SHA256
       setKey(password) {
@@ -8721,6 +8780,18 @@
         const saved = sessionStorage.getItem('sk_session_key');
         if (saved) {
           this._key = CryptoJS.enc.Hex.parse(saved);
+        }
+        const vaultSaved = sessionStorage.getItem('sk_vault_key');
+        if (vaultSaved) {
+          this._vaultKey = CryptoJS.enc.Hex.parse(vaultSaved);
+        }
+        return !!this._key;
+      },
+
+      initVaultFromSession() {
+        const vaultSaved = sessionStorage.getItem('sk_vault_key');
+        if (vaultSaved) {
+          this._vaultKey = CryptoJS.enc.Hex.parse(vaultSaved);
           return true;
         }
         return false;
@@ -8745,6 +8816,23 @@
           return ZK_PREFIX + iv.toString() + ':' + encrypted.toString();
         } catch (e) {
           console.error('Encryption error:', e);
+          return data;
+        }
+      },
+
+      encryptVault(data) {
+        if (!this._vaultKey) return this.encrypt(data); // Fallback to master key if seed phrase not set
+        try {
+          const json = typeof data === 'string' ? data : JSON.stringify(data);
+          const iv = CryptoJS.lib.WordArray.random(16);
+          const encrypted = CryptoJS.AES.encrypt(json, this._vaultKey, {
+            iv: iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+          });
+          return 'VAULT::' + iv.toString() + ':' + encrypted.toString();
+        } catch (e) {
+          console.error('Vault encryption error:', e);
           return data;
         }
       },
@@ -8786,6 +8874,29 @@
           console.warn('Decrypt failed, returning raw:', e.message);
           return ciphertext;
         }
+      },
+
+      decryptVault(ciphertext) {
+        if (typeof ciphertext !== 'string') return ciphertext;
+        if (ciphertext.startsWith('VAULT::')) {
+          if (!this._vaultKey) return ciphertext; // Keep encrypted if vault is locked
+          try {
+            const parts = ciphertext.substring(7).split(':');
+            const iv = CryptoJS.enc.Hex.parse(parts[0]);
+            const encrypted = parts[1];
+            const decrypted = CryptoJS.AES.decrypt(encrypted, this._vaultKey, {
+              iv: iv,
+              mode: CryptoJS.mode.CBC,
+              padding: CryptoJS.pad.Pkcs7
+            });
+            const str = decrypted.toString(CryptoJS.enc.Utf8);
+            return JSON.parse(str);
+          } catch (e) {
+            console.error('Vault decryption error:', e);
+            return ciphertext;
+          }
+        }
+        return this.decrypt(ciphertext);
       }
     };
 
@@ -8903,7 +9014,7 @@
       if (!STATE.user) return;
       const e = STATE.user.email;
       // Шифруем только чувствительные данные
-      DB.save('secrets_' + e, STATE.secrets, true);
+      DB.save('secrets_' + e, CryptoEngine.encryptVault(STATE.secrets), true);
       DB.save('bio_' + e, STATE.bio, true);
       DB.save('msgs_' + e, STATE.messages, true);
       DB.save('rels_' + e, STATE.relatives); // Родственников обычно не шифруют, но можно
@@ -8958,7 +9069,7 @@
       const e = STATE.user.email;
       CryptoEngine.initFromSession();
 
-      STATE.secrets = DB.load('secrets_' + e, [], true);
+      STATE.secrets = CryptoEngine.decryptVault(DB.load('secrets_' + e, [], true)) || [];
       STATE.bio = DB.load('bio_' + e, [], true);
       STATE.messages = DB.load('msgs_' + e, [], true);
       STATE.relatives = DB.load('rels_' + e, []);
@@ -14915,6 +15026,391 @@ ${socialsContext}
     }
     function mobFabAction() { openModal('modal-secret'); }
 
+    // ═══════════════════════════════════════════
+    // MNEMONIC VAULT AND CLOUD SYSTEM (Zero-Knowledge)
+    // ═══════════════════════════════════════════
+    const SEED_WORDLIST = [
+      "alpha", "anchor", "artist", "aspect", "autumn", "avatar", "beacon", "beauty", 
+      "beyond", "binary", "wisdom", "border", "brave", "bright", "bronze", "bubble", 
+      "cactus", "canvas", "canyon", "castle", "carbon", "change", "charge", "cipher", 
+      "citrus", "cobalt", "cosmos", "cradle", "cruise", "crystal", "danger", "dawn", 
+      "desert", "detail", "device", "doctor", "domain", "dragon", "dream", "dynamic", 
+      "eagle", "earth", "echo", "elixir", "empire", "energy", "engine", "enigma", 
+      "escape", "exile", "exotic", "factor", "falcon", "forest", "fossil", "fusion", 
+      "galaxy", "garden", "genius", "gentle", "glacier", "globe", "glory", "golden", 
+      "gravity", "harbor", "haven", "hazard", "hybrid", "impact", "indigo", "island", 
+      "jungle", "karma", "layout", "legacy", "legend", "lemon", "leopard", "liquid", 
+      "lunar", "luxury", "magnet", "matrix", "melody", "meteor", "miracle", "module", 
+      "nature", "nebula", "nectar", "neural", "neutron", "nexus", "nomad", "nucleus", 
+      "oasis", "ocean", "octave", "olympic", "orbit", "oxygen", "ozone", "palace", 
+      "patriot", "pearl", "phantom", "phoenix", "planet", "plasma", "portal", "quartz", 
+      "radar", "rainbow", "rebel", "ritual", "safari", "sapphire", "shadow", "shield", 
+      "signal", "silicon", "silver", "solar", "sphere", "spiral", "spirit", "summit", 
+      "synergy", "temple", "theory", "titan", "topaz", "tornado", "tracker", "trophy", 
+      "tunnel", "unique", "vacuum", "valley", "vector", "velvet", "vessel", "vintage", 
+      "vision", "vortex", "warmth", "wizard", "wonder", "zenith", "zodiac"
+    ];
+
+    let currentCloudPath = '/';
+    let generatedMnemonic = '';
+
+    // Generate 12 random words seed phrase
+    function generateSeedPhrase() {
+      const words = [];
+      const cryptoObj = window.crypto || window.msCrypto;
+      const array = new Uint32Array(12);
+      cryptoObj.getRandomValues(array);
+      for (let i = 0; i < 12; i++) {
+        const index = array[i] % SEED_WORDLIST.length;
+        words.push(SEED_WORDLIST[index]);
+      }
+      return words.join(' ');
+    }
+
+    window.initVaultSeedSetup = function() {
+      generatedMnemonic = generateSeedPhrase();
+      const box = document.getElementById('generated-seed-box');
+      if (box) {
+        box.innerHTML = generatedMnemonic.split(' ').map((w, i) => `
+          <div style="font-size:0.75rem; color:var(--muted);"><span style="color:var(--gold); font-size:0.65rem; margin-right:4px;">${i+1}.</span>${w}</div>
+        `).join('');
+      }
+      closeModal('modal-upgrade');
+      openModal('modal-vault-setup');
+    };
+
+    window.confirmSeedSaved = function() {
+      closeModal('modal-vault-setup');
+      document.getElementById('vault-confirm-input').value = '';
+      openModal('modal-vault-confirm');
+    };
+
+    window.submitVaultSeedSetup = function() {
+      const input = document.getElementById('vault-confirm-input').value.trim().toLowerCase().replace(/\s+/g, ' ');
+      if (input !== generatedMnemonic) {
+        toast('Ошибка: Введенная сид-фраза не совпадает с сгенерированной.');
+        return;
+      }
+
+      // Hash seed phrase to verify later
+      const seedHash = CryptoJS.SHA256(generatedMnemonic).toString();
+      if (!STATE.user) return;
+      
+      STATE.user.vaultSeedHash = seedHash;
+      
+      // Derive Vault Key
+      CryptoEngine._vaultKey = CryptoJS.PBKDF2(generatedMnemonic, CryptoJS.enc.Hex.parse('5661756c745365656453616c74'), {
+        keySize: 256 / 32,
+        iterations: 5000,
+        hasher: CryptoJS.algo.SHA256
+      });
+      sessionStorage.setItem('sk_vault_key', CryptoEngine._vaultKey.toString());
+      
+      // Initialize Cloud items list if empty
+      if (!STATE.cloudItems) STATE.cloudItems = [];
+
+      saveUserDataToFirestore();
+      closeModal('modal-vault-confirm');
+      toast('<i class="ph-light ph-shield-check"></i> Сверхзащита активирована!');
+      
+      checkVaultLockState();
+    };
+
+    window.unlockVaultBySeed = function() {
+      const input = document.getElementById('vault-seed-input').value.trim().toLowerCase().replace(/\s+/g, ' ');
+      if (!input) {
+        toast('Введите вашу сид-фразу.');
+        return;
+      }
+      
+      const hash = CryptoJS.SHA256(input).toString();
+      if (STATE.user && STATE.user.vaultSeedHash && STATE.user.vaultSeedHash !== hash) {
+        toast('Неверная сид-фраза.');
+        return;
+      }
+
+      // Derive Vault Key
+      CryptoEngine._vaultKey = CryptoJS.PBKDF2(input, CryptoJS.enc.Hex.parse('5661756c745365656453616c74'), {
+        keySize: 256 / 32,
+        iterations: 5000,
+        hasher: CryptoJS.algo.SHA256
+      });
+      sessionStorage.setItem('sk_vault_key', CryptoEngine._vaultKey.toString());
+
+      toast('<i class="ph-light ph-lock-key-open"></i> Доступы расшифрованы!');
+      
+      // Decrypt secrets in place
+      if (tempLockedData && tempLockedData.secrets) {
+        STATE.secrets = CryptoEngine.decryptVault(tempLockedData.secrets) || [];
+      } else {
+        // Reload from local storage or cloud
+        const localData = DB.load('secrets_' + STATE.user.email, [], true);
+        STATE.secrets = CryptoEngine.decryptVault(localData) || [];
+      }
+
+      checkVaultLockState();
+      renderSecrets();
+    };
+
+
+
+    function checkVaultLockState() {
+      const setupBtn = document.getElementById('vault-init-setup-btn');
+      const lockOverlay = document.getElementById('vault-lock-overlay');
+      const secretsWrap = document.getElementById('secrets-container-wrap');
+      const cloudOverlay = document.getElementById('cloud-lock-overlay');
+      const cloudWrap = document.getElementById('cloud-container-wrap');
+      const addBtn = document.getElementById('secrets-add-btn');
+
+      const isProtected = STATE.user && STATE.user.vaultSeedHash;
+      const isUnlocked = !!CryptoEngine._vaultKey;
+
+      if (isProtected) {
+        if (isUnlocked) {
+          if (lockOverlay) lockOverlay.style.display = 'none';
+          if (secretsWrap) secretsWrap.style.display = 'block';
+          if (addBtn) addBtn.style.display = 'block';
+          if (cloudOverlay) cloudOverlay.style.display = 'none';
+          if (cloudWrap) cloudWrap.style.display = 'block';
+          
+          renderCloudGrid();
+        } else {
+          if (lockOverlay) lockOverlay.style.display = 'flex';
+          if (secretsWrap) secretsWrap.style.display = 'none';
+          if (addBtn) addBtn.style.display = 'none';
+          if (cloudOverlay) cloudOverlay.style.display = 'flex';
+          if (cloudWrap) cloudWrap.style.display = 'none';
+          if (setupBtn) setupBtn.style.display = 'none';
+        }
+      } else {
+        // Vault is not protected by seed phrase yet
+        if (lockOverlay) lockOverlay.style.display = 'none';
+        if (secretsWrap) secretsWrap.style.display = 'block';
+        if (addBtn) addBtn.style.display = 'block';
+        
+        // Show setup option inside Cloud block to prompt initialization
+        if (cloudOverlay) {
+          cloudOverlay.style.display = 'flex';
+          cloudOverlay.innerHTML = `
+            <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
+            <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация шифрования Облака</h3>
+            <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Чтобы использовать Облако воспоминаний, активируйте сверхзащиту сейфа на базе секретной 12-значной сид-фразы.</p>
+            <button class="btn btn-primary" onclick="initVaultSeedSetup()" style="padding:0.75rem 1.5rem;">Сгенерировать сид-фразу</button>
+          `;
+        }
+        if (cloudWrap) cloudWrap.style.display = 'none';
+      }
+    }
+
+    // Override setLegacyTab to check lock state
+    const _origSetLegacyTab = window.setLegacyTab;
+    window.setLegacyTab = function(tab) {
+      if (tab === 'secrets' || tab === 'cloud') {
+        checkVaultLockState();
+      }
+      _origSetLegacyTab(tab);
+    };
+
+
+    // ── CLOUD ARCHIVE METHODS ──
+
+    window.createCloudFolder = function() {
+      const name = prompt('Введите имя папки:');
+      if (!name || !name.trim()) return;
+
+      if (!STATE.cloudItems) STATE.cloudItems = [];
+      STATE.cloudItems.push({
+        id: 'folder_' + uid(),
+        name: name.trim(),
+        type: 'folder',
+        parentId: currentCloudPath,
+        createdAt: Date.now()
+      });
+
+      saveUserDataToFirestore();
+      renderCloudGrid();
+    };
+
+    window.uploadCloudFile = async function(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      if (!window.firebase || !firebase.storage) {
+        toast('Ошибка: Firebase Storage не инициализирован.');
+        return;
+      }
+
+      toast('<i class="ph-light ph-spinner ph-spin"></i> Шифрование и загрузка файла...');
+
+      const fileId = 'file_' + uid();
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(`users/${firebase.auth().currentUser.uid}/${fileId}`);
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          const base64Data = e.target.result;
+          // Encrypt file on client side!
+          const encryptedData = CryptoEngine.encryptVault(base64Data);
+
+          // Upload text blob
+          const blob = new Blob([encryptedData], { type: 'text/plain' });
+          await fileRef.put(blob);
+
+          const downloadURL = await fileRef.getDownloadURL();
+
+          if (!STATE.cloudItems) STATE.cloudItems = [];
+          STATE.cloudItems.push({
+            id: fileId,
+            name: file.name,
+            type: 'file',
+            fileType: getFileType(file.name),
+            size: file.size,
+            parentId: currentCloudPath,
+            downloadURL: downloadURL,
+            createdAt: Date.now()
+          });
+
+          saveUserDataToFirestore();
+          renderCloudGrid();
+          toast('<i class="ph-light ph-check-circle"></i> Файл успешно зашифрован и загружен!');
+        } catch (err) {
+          console.error(err);
+          toast('Ошибка при загрузке: ' + err.message);
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.deleteCloudItem = function(id, name) {
+      if (!confirm(`Вы действительно хотите удалить "${name}"?`)) return;
+
+      if (!STATE.cloudItems) return;
+      
+      const item = STATE.cloudItems.find(x => x.id === id);
+      if (item && item.type === 'file') {
+        // Delete from Storage
+        try {
+          const fileRef = firebase.storage().ref().child(`users/${firebase.auth().currentUser.uid}/${id}`);
+          fileRef.delete().catch(e => console.warn('Storage file delete ignored:', e));
+        } catch(e) {}
+      }
+
+      STATE.cloudItems = STATE.cloudItems.filter(x => x.id !== id);
+      saveUserDataToFirestore();
+      renderCloudGrid();
+    };
+
+    window.openCloudItem = async function(id) {
+      const item = STATE.cloudItems.find(x => x.id === id);
+      if (!item) return;
+
+      if (item.type === 'folder') {
+        currentCloudPath = item.id;
+        renderCloudGrid();
+        return;
+      }
+
+      // Download and decrypt file
+      toast('<i class="ph-light ph-spinner ph-spin"></i> Скачивание и дешифрование...');
+      try {
+        const res = await fetch(item.downloadURL);
+        const encryptedText = await res.text();
+        const base64Data = CryptoEngine.decryptVault(encryptedText);
+
+        if (!base64Data || !base64Data.startsWith('data:')) {
+          throw new Error('Не удалось расшифровать файл. Проверьте сид-фразу.');
+        }
+
+        // Show image/audio or trigger download
+        if (item.fileType === 'image') {
+          // Open image modal
+          const w = window.open();
+          w.document.write(`<img src="${base64Data}" style="max-width:100%; max-height:100vh; display:block; margin:auto;">`);
+        } else if (item.fileType === 'audio') {
+          const w = window.open();
+          w.document.write(`<audio controls autoplay src="${base64Data}" style="display:block; margin:50px auto;"></audio>`);
+        } else {
+          const link = document.createElement('a');
+          link.href = base64Data;
+          link.download = item.name;
+          link.click();
+        }
+      } catch (err) {
+        console.error(err);
+        toast('Ошибка при открытии: ' + err.message);
+      }
+    };
+
+    window.navigateCloudBack = function() {
+      if (currentCloudPath === '/') return;
+      const currentFolder = STATE.cloudItems.find(x => x.id === currentCloudPath);
+      if (currentFolder) {
+        currentCloudPath = currentFolder.parentId || '/';
+        renderCloudGrid();
+      }
+    };
+
+    function getFileType(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
+      if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) return 'audio';
+      if (['mp4', 'webm', 'mov'].includes(ext)) return 'video';
+      if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'].includes(ext)) return 'document';
+      return 'other';
+    }
+
+    function renderCloudGrid() {
+      const grid = document.getElementById('cloud-files-grid');
+      const breadcrumbs = document.getElementById('cloud-breadcrumbs');
+      if (!grid) return;
+
+      const items = (STATE.cloudItems || []).filter(x => x.parentId === currentCloudPath);
+
+      // Render Breadcrumbs
+      let pathName = 'Облако';
+      if (currentCloudPath !== '/') {
+        const folder = STATE.cloudItems.find(x => x.id === currentCloudPath);
+        if (folder) pathName = `Облако / ${folder.name}`;
+      }
+      breadcrumbs.innerHTML = `
+        <span style="cursor:pointer;" onclick="currentCloudPath='/'; renderCloudGrid();"><i class="ph-light ph-folder"></i> Корневая папка</span>
+        ${currentCloudPath !== '/' ? `<span>/</span> <span style="color:var(--gold)">${pathName.replace('Облако / ', '')}</span>` : ''}
+        ${currentCloudPath !== '/' ? `<button class="btn btn-ghost btn-sm" onclick="navigateCloudBack()" style="margin-left:auto; font-size:0.75rem; padding:2px 8px; min-height:auto;"><i class="ph-light ph-arrow-left"></i> Назад</button>` : ''}
+      `;
+
+      if (!items.length) {
+        grid.innerHTML = `<div class="empty" style="grid-column:1/-1; padding:3rem 1.5rem;"><div class="empty-icon"><i class="ph-light ph-folder-open"></i></div><div class="empty-text">Папка пуста</div><div class="empty-sub">Загрузите файлы или создайте подпапки</div></div>`;
+        return;
+      }
+
+      grid.innerHTML = items.map(item => {
+        let icon = 'ph-light ph-file';
+        let color = 'var(--muted)';
+        
+        if (item.type === 'folder') {
+          icon = 'ph-fill ph-folder';
+          color = 'var(--gold)';
+        } else {
+          if (item.fileType === 'image') { icon = 'ph-light ph-image'; color = '#2ecc71'; }
+          else if (item.fileType === 'audio') { icon = 'ph-light ph-music-notes'; color = '#5c7cfa'; }
+          else if (item.fileType === 'video') { icon = 'ph-light ph-video-camera'; color = '#e9a03f'; }
+          else if (item.fileType === 'document') { icon = 'ph-light ph-file-text'; color = '#9c27b0'; }
+        }
+
+        return `
+          <div class="cloud-item-card" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:1rem; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:12px; cursor:pointer; position:relative; transition:all 0.3s;" onclick="openCloudItem('${item.id}')">
+            <button onclick="event.stopPropagation(); deleteCloudItem('${item.id}', '${item.name}')" style="position:absolute; top:4px; right:4px; background:none; border:none; color:var(--muted); font-size:0.8rem; cursor:pointer;" title="Удалить"><i class="ph-light ph-trash"></i></button>
+            <i class="${icon}" style="font-size:2.5rem; color:${color}; margin-bottom:0.8rem;"></i>
+            <div style="font-size:0.78rem; font-weight:500; color:var(--ivory); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:2px;" title="${item.name}">${item.name}</div>
+            ${item.type === 'file' ? `<div style="font-size:0.62rem; color:var(--muted);">${(item.size / 1024).toFixed(0)} KB</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+
+
     // Register PWA Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -14973,6 +15469,40 @@ ${socialsContext}
       </div>
     </div>
   </div>
+  <!-- MODAL VAULT SETUP -->
+  <div class="modal-overlay" id="modal-vault-setup">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-head">
+        <div class="modal-title">Сид-фраза <em>сверхзащиты</em></div><button class="modal-close" onclick="closeModal('modal-vault-setup')">✕</button>
+      </div>
+      <div class="modal-body" style="text-align:center;">
+        <i class="ph-fill ph-shield-checkered" style="font-size:2.8rem; color:var(--gold); margin-bottom:1rem;"></i>
+        <h4 style="font-family:var(--serif); color:var(--ivory); font-size:1.1rem; margin-bottom:0.5rem;">Сгенерирована секретная фраза</h4>
+        <p style="font-size:0.75rem; color:var(--muted); line-height:1.4; margin-bottom:1.5rem; padding:0 0.5rem;">Запишите эти 12 слов на бумаге и храните в надежном месте. Они нужны для шифрования Сейфа и Облака. Если вы их потеряете, восстановить данные будет <strong>невозможно</strong>.</p>
+        
+        <div id="generated-seed-box" style="background:rgba(212,175,55,0.04); border:1px dashed rgba(212,175,55,0.25); border-radius:12px; padding:1rem; font-family:monospace; font-size:0.95rem; color:var(--gold2); display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin-bottom:1.5rem; text-align:left;"></div>
+
+        <button class="btn btn-primary" onclick="confirmSeedSaved()" style="width:100%; padding:0.8rem;">Я записал фразу</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL VAULT CONFIRM -->
+  <div class="modal-overlay" id="modal-vault-confirm">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-head">
+        <div class="modal-title">Подтверждение <em>фразы</em></div><button class="modal-close" onclick="closeModal('modal-vault-confirm')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.78rem; color:var(--muted); text-align:center; margin-bottom:1.2rem;">Чтобы убедиться, что вы сохранили фразу, введите её ниже в правильном порядке.</p>
+        
+        <textarea id="vault-confirm-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:80px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.2); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none; margin-bottom:1.2rem;"></textarea>
+
+        <button class="btn btn-primary" onclick="submitVaultSeedSetup()" style="width:100%; padding:0.8rem;">Активировать сверхзащиту сейфа</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Payment -->
   <div class="modal-overlay" id="modal-payment">
     <div class="modal" style="max-width:480px">
