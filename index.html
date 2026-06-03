@@ -7839,7 +7839,7 @@
                         </select>
                       </div>
 
-                      <div id="twin-group-eleven" style="display: flex; flex-direction: column; gap: 0.8rem; background: rgba(201,168,76,0.03); border: 1px solid rgba(201,168,76,0.1); padding: 0.8rem; border-radius: 8px;">
+                      <div id="twin-group-eleven" style="display: none; flex-direction: column; gap: 0.8rem; background: rgba(201,168,76,0.03); border: 1px solid rgba(201,168,76,0.1); padding: 0.8rem; border-radius: 8px;">
                         <div class="field" style="margin-bottom: 0;">
                           <label>Идентификатор слепка голоса (Voice ID)</label>
                           <input type="text" id="twin-eleven-voice-id" placeholder="Напр. 21m00Tcm4TlvDq8ikWAM" oninput="saveTwinSettings()">
@@ -8789,6 +8789,11 @@
     firebase.initializeApp(firebaseConfig);
     const fbAuth = firebase.auth();
     const fbDb = firebase.firestore();
+    
+    // ════════════════════════════════════════════════════════════
+    // 💡 БЕСПЛАТНЫЙ КЛЮЧ GEMINI ИИ (Получите на https://aistudio.google.com/)
+    // ════════════════════════════════════════════════════════════
+    const GEMINI_API_KEY = "AQ.Ab8RN6L4iB8aQ2rGloN_tMvOYGOOINk7udNx4MyrRfoZUv_Lbg";
     // Enable offline persistence for better UX
     // fbDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 
@@ -9152,7 +9157,7 @@
       planExpiry: 0,
       twinChatHistory: [],
       twinSettings: {
-        consent: false,
+        consent: true,
         name: '',
         voiceId: '',
         voiceRate: 1.0,
@@ -9244,7 +9249,7 @@
       STATE.planExpiry = DB.load('planExp_' + e, 0);
       STATE.twinChatHistory = DB.load('twin_history_' + e, []);
       STATE.twinSettings = DB.load('twin_settings_' + e, {
-        consent: false,
+        consent: true,
         name: '',
         voiceId: '',
         voiceRate: 1.0,
@@ -12549,7 +12554,7 @@ ${secretsInfo}
       const typing = document.createElement('div'); typing.className = 'typing'; typing.textContent = 'Мудрец думает...'; msgs.appendChild(typing);
       msgs.scrollTop = msgs.scrollHeight;
 
-      const key = (typeof firebase !== 'undefined' && firebase.app && firebase.app().options && firebase.app().options.apiKey) || 'AQ.Ab8RN6LdAdUawqlvnP54OQoRDg8HcTVCVkJt3T-wDT4fhApNbg';
+      const key = (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY) ? GEMINI_API_KEY : ((typeof firebase !== 'undefined' && firebase.app && firebase.app().options && firebase.app().options.apiKey) || '');
       const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
 
       const system = buildAiSystemPrompt();
@@ -12940,7 +12945,7 @@ ${secretsInfo}
       const engine = select.value;
       const grpEleven = document.getElementById('twin-group-eleven');
       const grpLocal = document.getElementById('twin-group-local');
-      if (grpEleven) grpEleven.style.display = (engine === 'eleven') ? 'flex' : 'none';
+      if (grpEleven) grpEleven.style.display = 'none';
       if (grpLocal) grpLocal.style.display = (engine === 'local') ? 'flex' : 'none';
     }
 
@@ -13108,6 +13113,9 @@ ${secretsInfo}
     function initTwinPage() {
       if (!STATE.user) return;
       const s = STATE.twinSettings || {};
+      if (s.consent === undefined || s.consent === false) {
+        s.consent = true;
+      }
       
       // Ensure call state is inactive on page load to comply with gesture policy
       s.voiceCallActive = false;
@@ -13783,7 +13791,7 @@ ${socialsContext}
       msgs.appendChild(typing);
       msgs.scrollTop = msgs.scrollHeight;
 
-      const key = (typeof firebase !== 'undefined' && firebase.app && firebase.app().options && firebase.app().options.apiKey) || 'AQ.Ab8RN6LdAdUawqlvnP54OQoRDg8HcTVCVkJt3T-wDT4fhApNbg';
+      const key = (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY) ? GEMINI_API_KEY : ((typeof firebase !== 'undefined' && firebase.app && firebase.app().options && firebase.app().options.apiKey) || '');
       const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
 
       const system = buildTwinSystemPrompt(text);
@@ -13960,7 +13968,7 @@ ${socialsContext}
           STATE.bio = data.bio || [];
           STATE.messages = data.messages || [];
           STATE.relatives = data.relatives || [];
-          STATE.twinSettings = data.twinSettings || { consent: false };
+          STATE.twinSettings = data.twinSettings || { consent: true };
           STATE.twinChatHistory = data.twinChatHistory || [];
 
           saveUserData();
