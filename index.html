@@ -8793,7 +8793,7 @@
     // ════════════════════════════════════════════════════════════
     // 💡 БЕСПЛАТНЫЙ КЛЮЧ GEMINI ИИ (Получите на https://aistudio.google.com/)
     // ════════════════════════════════════════════════════════════
-    const GEMINI_API_KEY = "AQ.Ab8RN6L4iB8aQ2rGloN_tMvOYGOOINk7udNx4MyrRfoZUv_Lbg";
+    const GEMINI_API_KEY = "AQ.Ab8RN6K3gGZhg41cNBur9lSI2VxJQJzjqTBB51He3ZUPZ6L-g";
     // Enable offline persistence for better UX
     // fbDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 
@@ -12573,10 +12573,11 @@ ${secretsInfo}
 
         for (let attempt = 0; attempt <= retries; attempt++) {
           try {
-            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-goog-api-key': key
               },
               body: JSON.stringify({
                 contents: contents,
@@ -13810,10 +13811,11 @@ ${socialsContext}
 
         for (let attempt = 0; attempt <= retries; attempt++) {
           try {
-            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-goog-api-key': key
               },
               body: JSON.stringify({
                 contents: contents,
