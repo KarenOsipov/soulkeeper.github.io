@@ -8749,6 +8749,9 @@
           setTimeout(() => checkVaultLockState(), 500);
 
           _saveLocalOnly(); // Mirror to local
+          if (STATE.settings && STATE.settings.zenlyActive) {
+            setTimeout(() => { startZenlyTracking(); }, 1200);
+          }
         } else {
           loadUserData();
         }
@@ -9149,6 +9152,9 @@
         uploadedFiles: []
       });
       DB._addLog('INFO', `Данные пользователя загружены (${e})`);
+      if (STATE.settings && STATE.settings.zenlyActive) {
+        setTimeout(() => { startZenlyTracking(); }, 1200);
+      }
     }
 
     // ── Forgot Password ──────────────────────────────────────────────
@@ -11822,91 +11828,129 @@
 
     function toggleGlobeAuto() {}
 
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          console.log('Screen Wake Lock is active');
+        }
+      } catch (err) {
+        console.warn('Wake Lock request failed:', err);
+      }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLock !== null) {
+        try { wakeLock.release(); } catch(e) {}
+        wakeLock = null;
+      }
+    }
+
+    function startZenlyTracking() {
+      if (!navigator.geolocation) {
+        toast('Геолокация не поддерживается вашим браузером');
+        return;
+      }
+
+      const btn = document.getElementById('zenly-toggle-btn');
+      if (btn) btn.innerHTML = `<i class="ph-bold ph-spinner-gap ph-spin"></i> Подключение...`;
+
+      if (watchLocationId !== null) {
+        navigator.geolocation.clearWatch(watchLocationId);
+      }
+
+      requestWakeLock();
+
+      watchLocationId = navigator.geolocation.watchPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+
+          if (!STATE.user) return;
+          STATE.user.lat = lat;
+          STATE.user.lon = lon;
+
+          zenlyModeActive = true;
+          STATE.settings.zenlyActive = true;
+
+          const btn = document.getElementById('zenly-toggle-btn');
+          if (btn) {
+            btn.classList.add('zenly-active-pulse');
+            btn.innerHTML = `<i class="ph-fill ph-radar"></i> Геопозиция активна`;
+          }
+
+          // Try to reverse geocode city name
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ru`);
+            const data = await res.json();
+            if (data && data.address) {
+              const city = data.address.city || data.address.town || data.address.village || data.address.hamlet || 'Ваше место';
+              const country = data.address.country || '';
+              STATE.settings.city = city + (country ? `, ${country}` : '');
+            }
+          } catch (err) {
+            console.warn('Reverse geocoding failed:', err);
+            STATE.settings.city = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+          }
+
+          saveUserData();
+          updateGlobeMarkers();
+          renderGlobeList();
+
+          const btnEl = document.getElementById('zenly-toggle-btn');
+          if (btnEl && btnEl.dataset.initialFly !== 'true') {
+            flyToMarker(lat, lon);
+            btnEl.dataset.initialFly = 'true';
+            toast(`Местоположение определено: ${STATE.settings.city || 'Ваш город'}`);
+          }
+        },
+        (err) => {
+          console.error('watchPosition error:', err);
+          let msg = 'Не удалось получить геолокацию';
+          if (err.code === 1) msg = 'Доступ к геолокации запрещен браузером';
+          toast(msg);
+
+          const btn = document.getElementById('zenly-toggle-btn');
+          if (btn) {
+            btn.classList.remove('zenly-active-pulse');
+            btn.innerHTML = `<i class="ph-bold ph-radar"></i> Моя геопозиция`;
+          }
+          zenlyModeActive = false;
+          STATE.settings.zenlyActive = false;
+          releaseWakeLock();
+          saveUserData();
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      );
+    }
+
     function toggleZenlyMode() {
       const btn = document.getElementById('zenly-toggle-btn');
       if (!btn) return;
-      
+
       if (zenlyModeActive) {
-        // Turn off
         if (watchLocationId !== null) {
           navigator.geolocation.clearWatch(watchLocationId);
           watchLocationId = null;
         }
         zenlyModeActive = false;
         STATE.settings.zenlyActive = false;
+        if (STATE.user) {
+          delete STATE.user.lat;
+          delete STATE.user.lon;
+        }
+        releaseWakeLock();
         saveUserData();
-        
+
         btn.classList.remove('zenly-active-pulse');
         btn.innerHTML = `<i class="ph-bold ph-radar"></i> Моя геопозиция`;
         toast('Трансляция геопозиции отключена');
-        
+
         updateGlobeMarkers();
         renderGlobeList();
       } else {
-        // Turn on
-        if (!navigator.geolocation) {
-          toast('Геолокация не поддерживается вашим браузером');
-          return;
-        }
-        
-        btn.innerHTML = `<i class="ph-bold ph-spinner-gap ph-spin"></i> Подключение...`;
-        
-        watchLocationId = navigator.geolocation.watchPosition(
-          async (pos) => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            
-            if (!STATE.user) return;
-            STATE.user.lat = lat;
-            STATE.user.lon = lon;
-            
-            // Activate state
-            zenlyModeActive = true;
-            STATE.settings.zenlyActive = true;
-            
-            btn.classList.add('zenly-active-pulse');
-            btn.innerHTML = `<i class="ph-fill ph-radar"></i> Геопозиция активна`;
-            
-            // Try to reverse geocode city name
-            try {
-              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=ru`);
-              const data = await res.json();
-              if (data && data.address) {
-                const city = data.address.city || data.address.town || data.address.village || data.address.hamlet || 'Ваше место';
-                const country = data.address.country || '';
-                STATE.settings.city = city + (country ? `, ${country}` : '');
-              }
-            } catch (err) {
-              console.warn('Reverse geocoding failed:', err);
-              STATE.settings.city = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
-            }
-            
-            saveUserData();
-            updateGlobeMarkers();
-            renderGlobeList();
-            
-            // Smoothly fly to User's location on initial connection
-            if (btn.dataset.initialFly !== 'true') {
-              flyToMarker(lat, lon);
-              btn.dataset.initialFly = 'true';
-              toast(`Местоположение определено: ${STATE.settings.city || 'Ваш город'}`);
-            }
-          },
-          (err) => {
-            console.error('watchPosition error:', err);
-            let msg = 'Не удалось получить геолокацию';
-            if (err.code === 1) msg = 'Доступ к геолокации запрещен браузером';
-            toast(msg);
-            
-            // Reset button
-            btn.classList.remove('zenly-active-pulse');
-            btn.innerHTML = `<i class="ph-bold ph-radar"></i> Моя геопозиция`;
-            zenlyModeActive = false;
-            STATE.settings.zenlyActive = false;
-            saveUserData();
-          },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-        );
+        startZenlyTracking();
       }
     }
 
