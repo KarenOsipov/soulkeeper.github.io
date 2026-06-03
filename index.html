@@ -1484,6 +1484,65 @@
       display: block;
     }
 
+    /* ── Floating Background Orbs inside Auth Screen ── */
+    .auth-bg-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      z-index: 1;
+      opacity: 0.12;
+      pointer-events: none;
+      animation: floatGlow 20s infinite alternate ease-in-out;
+    }
+    
+    .auth-bg-glow-1 {
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, var(--gold) 0%, transparent 80%);
+      top: -5%;
+      left: -5%;
+    }
+    
+    .auth-bg-glow-2 {
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle, rgb(80, 40, 140) 0%, transparent 80%);
+      bottom: -10%;
+      right: -5%;
+      animation-duration: 28s;
+      animation-delay: -5s;
+    }
+
+    @keyframes floatGlow {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+      50% {
+        transform: translate(60px, -70px) scale(1.1);
+      }
+      100% {
+        transform: translate(-50px, 60px) scale(0.95);
+      }
+    }
+
+    .btn-google-auth {
+      background: rgba(255, 255, 255, 0.02) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      color: var(--ivory) !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .btn-google-auth:hover {
+      background: rgba(255, 255, 255, 0.06) !important;
+      border-color: rgba(212, 175, 55, 0.3) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    }
+
+    .btn-google-auth:active {
+      transform: translateY(0);
+    }
+
     /* ════════════════════════════════════════════
    SHARED FORM ELEMENTS
 ════════════════════════════════════════════ */
@@ -2449,12 +2508,16 @@
       display: flex;
       flex-direction: column;
       height: 520px;
-      border: 1px solid rgba(201, 168, 76, 0.1);
-      background: var(--ink);
+      border: 1px solid rgba(212, 175, 55, 0.08) !important;
+      background: rgba(15, 13, 22, 0.55) !important;
+      backdrop-filter: blur(20px) !important;
+      border-radius: 20px !important;
+      box-shadow: 0 10px 45px rgba(0, 0, 0, 0.4) !important;
+      overflow: hidden;
     }
 
     .chat-head {
-      padding: 1rem 1.2rem;
+      padding: 1.2rem 1.4rem;
       border-bottom: 1px solid rgba(201, 168, 76, 0.07);
       display: flex;
       align-items: center;
@@ -2471,12 +2534,14 @@
       align-items: center;
       justify-content: center;
       font-size: 14px;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
     }
 
     .ai-nm {
       font-family: var(--serif);
-      font-size: 1rem;
-      color: var(--ivory);
+      font-size: 1.05rem;
+      color: var(--gold2);
+      font-weight: 500;
     }
 
     .ai-st {
@@ -2484,38 +2549,43 @@
       letter-spacing: 0.15em;
       text-transform: uppercase;
       color: var(--green);
+      font-weight: 600;
+      opacity: 0.95;
     }
 
     .chat-msgs {
       flex: 1;
       overflow-y: auto;
-      padding: 1rem;
+      padding: 1.2rem;
       display: flex;
       flex-direction: column;
-      gap: 0.8rem;
+      gap: 1rem;
     }
 
     .msg {
       max-width: 82%;
-      padding: 0.8rem 1rem;
-      font-size: 0.83rem;
+      padding: 0.9rem 1.2rem;
+      font-size: 0.85rem;
       line-height: 1.65;
       font-weight: 300;
       animation: fadeIn 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     }
 
     .msg.ai {
       align-self: flex-start;
-      background: rgba(201, 168, 76, 0.07);
-      border-left: 2px solid var(--gold);
-      color: var(--ivory2);
+      background: rgba(212, 175, 55, 0.06) !important;
+      border: 1px solid rgba(212, 175, 55, 0.12) !important;
+      border-radius: 4px 16px 16px 16px !important;
+      color: var(--ivory2) !important;
     }
 
     .msg.user {
       align-self: flex-end;
-      background: rgba(245, 240, 232, 0.05);
-      border-right: 2px solid rgba(201, 168, 76, 0.28);
-      color: var(--ivory);
+      background: rgba(255, 255, 255, 0.03) !important;
+      border: 1px solid rgba(255, 255, 255, 0.06) !important;
+      border-radius: 16px 16px 4px 16px !important;
+      color: var(--ivory) !important;
     }
 
     .typing {
@@ -2527,20 +2597,32 @@
 
     .chat-input-wrap {
       display: flex;
-      border-top: 1px solid rgba(201, 168, 76, 0.08);
+      padding: 1rem 1.2rem;
+      background: rgba(9, 8, 14, 0.3);
+      border-top: 1px solid rgba(201, 168, 76, 0.06);
       flex-shrink: 0;
+      align-items: center;
+      gap: 0.6rem;
     }
 
     .chat-inp {
       flex: 1;
-      background: transparent;
-      border: none;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       color: var(--ivory);
       font-family: var(--sans);
       font-size: 0.85rem;
-      padding: 0.9rem 1rem;
+      padding: 0.75rem 1.2rem;
       outline: none;
       font-weight: 300;
+      border-radius: 30px;
+      transition: all 0.3s;
+    }
+    
+    .chat-inp:focus {
+      border-color: rgba(212, 175, 55, 0.3);
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.05);
     }
 
     .chat-inp::placeholder {
@@ -2548,22 +2630,23 @@
     }
 
     .chat-send {
-      padding: 0.9rem 1.2rem;
-      background: var(--gold-d);
+      padding: 0.75rem 1.4rem;
+      background: linear-gradient(135deg, var(--gold), var(--amber));
       border: none;
-      border-left: 1px solid rgba(201, 168, 76, 0.1);
-      color: var(--gold2);
+      color: var(--ink);
       cursor: pointer;
       font-size: 0.72rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       font-family: var(--sans);
-      transition: all 0.25s;
-      font-weight: 400;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      font-weight: 600;
+      border-radius: 30px;
     }
 
     .chat-send:hover {
-      background: var(--gold-d3);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(212, 175, 55, 0.25);
     }
 
     /* ════════════════════════════════════════════
@@ -4198,6 +4281,63 @@
 
     #sw-canvas {
       display: block;
+      margin: 0 auto;
+      filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.4));
+    }
+
+    /* Premium style improvements for Life Guardian ("Страж жизни") Page */
+    #page-switch .card {
+      border: 1px solid rgba(212, 175, 55, 0.08) !important;
+      background: rgba(15, 13, 22, 0.55) !important;
+      backdrop-filter: blur(20px) !important;
+      border-radius: 20px !important;
+      padding: 2.2rem 2rem !important;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 45px rgba(0, 0, 0, 0.4) !important;
+    }
+    
+    .sw-p-btn {
+      border-radius: 24px !important;
+      padding: 0.6rem 1.4rem !important;
+      font-size: 0.78rem !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.08em !important;
+      border: 1px solid rgba(255, 255, 255, 0.05) !important;
+      background: rgba(255, 255, 255, 0.01) !important;
+      color: var(--muted) !important;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .sw-p-btn.active {
+      background: var(--gold-d3) !important;
+      border-color: var(--gold) !important;
+      color: var(--gold2) !important;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.18) !important;
+      transform: translateY(-1px);
+    }
+
+    .sw-p-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.05) !important;
+      color: var(--ivory) !important;
+      border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .tag-gold, .tag-green {
+      background: rgba(212, 175, 55, 0.06) !important;
+      border: 1px solid rgba(212, 175, 55, 0.18) !important;
+      color: var(--gold2) !important;
+      padding: 0.3rem 0.8rem !important;
+      border-radius: 12px !important;
+      font-size: 0.72rem !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.04em !important;
+    }
+
+    .tag-green {
+      background: rgba(46, 204, 113, 0.06) !important;
+      border: 1px solid rgba(46, 204, 113, 0.2) !important;
+      color: #2ecc71 !important;
     }
 
     /* ════════════════════════════════════════════
@@ -5889,6 +6029,10 @@
      AUTH SCREEN
 ════════════════════════════════════════════ -->
   <div id="screen-auth" class="screen">
+    <!-- Floating dynamic background glow orbs -->
+    <div class="auth-bg-glow auth-bg-glow-1"></div>
+    <div class="auth-bg-glow auth-bg-glow-2"></div>
+
     <div class="auth-visual">
       <div class="auth-orb"></div>
       <div style="position: absolute; z-index: 2; text-align: center;">
@@ -5936,7 +6080,7 @@
             <span style="flex-grow: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
           </div>
 
-          <button onclick="doGoogleLogin()" class="btn-ghost" style="width: 100%; justify-content: center; padding: 0.8rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+          <button onclick="doGoogleLogin()" class="btn-ghost btn-google-auth" style="width: 100%; justify-content: center; padding: 0.8rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
             <svg style="width:1.1rem; height:1.1rem;" viewBox="0 0 24 24">
               <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.58 15.02 1 12 1 7.35 1 3.37 3.68 1.48 7.58l3.8 2.95C6.18 7.55 8.87 5.04 12 5.04z"/>
               <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.42 3.58l3.76 2.91c2.2-2.03 3.69-5.02 3.69-8.64z"/>
@@ -5983,7 +6127,7 @@
             <span style="flex-grow: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
           </div>
 
-          <button onclick="doGoogleLogin()" class="btn-ghost" style="width: 100%; justify-content: center; padding: 0.8rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <button onclick="doGoogleLogin()" class="btn-ghost btn-google-auth" style="width: 100%; justify-content: center; padding: 0.8rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
             <svg style="width:1.1rem; height:1.1rem;" viewBox="0 0 24 24">
               <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.58 15.02 1 12 1 7.35 1 3.37 3.68 1.48 7.58l3.8 2.95C6.18 7.55 8.87 5.04 12 5.04z"/>
               <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.42 3.58l3.76 2.91c2.2-2.03 3.69-5.02 3.69-8.64z"/>
@@ -6680,7 +6824,7 @@
               <div class="page-sub">Где живут ваши близкие</div>
             </div>
             <div class="page-actions">
-              <button class="btn btn-ghost-sm" id="zenly-toggle-btn" onclick="toggleZenlyMode()" style="gap:6px; font-weight:600; border:1px solid rgba(255,255,255,0.1); margin-right:8px;"><i class="ph-bold ph-radar"></i> Режим Zenly</button>
+              <button class="btn btn-ghost-sm" id="zenly-toggle-btn" onclick="toggleZenlyMode()" style="gap:6px; font-weight:600; border:1px solid rgba(255,255,255,0.1); margin-right:8px;"><i class="ph-bold ph-radar"></i> Моя геопозиция</button>
               <button class="btn btn-primary-sm" onclick="openModal('modal-relative')">+ Добавить</button>
             </div>
           </div>
@@ -9505,6 +9649,7 @@
       if (name === 'tree') renderTree();
       if (name === 'ai') initAiPage();
       if (name === 'twin') initTwinPage();
+      if (name === 'switch') initSwitchCanvas();
       if (name === 'chat-page') renderChatContacts();
       const mainTabs = ['dash', 'legacy', 'connections', 'tree', 'chat-page'];
       if (mainTabs.includes(name)) mobSetActive(name);
@@ -11744,8 +11889,8 @@
         saveUserData();
         
         btn.classList.remove('zenly-active-pulse');
-        btn.innerHTML = `<i class="ph-bold ph-radar"></i> Режим Zenly`;
-        toast('Режим Zenly отключен');
+        btn.innerHTML = `<i class="ph-bold ph-radar"></i> Моя геопозиция`;
+        toast('Трансляция геопозиции отключена');
         
         updateGlobeMarkers();
         renderGlobeList();
@@ -11772,7 +11917,7 @@
             STATE.settings.zenlyActive = true;
             
             btn.classList.add('zenly-active-pulse');
-            btn.innerHTML = `<i class="ph-fill ph-radar"></i> Zenly Активен`;
+            btn.innerHTML = `<i class="ph-fill ph-radar"></i> Геопозиция активна`;
             
             // Try to reverse geocode city name
             try {
@@ -11807,7 +11952,7 @@
             
             // Reset button
             btn.classList.remove('zenly-active-pulse');
-            btn.innerHTML = `<i class="ph-bold ph-radar"></i> Режим Zenly`;
+            btn.innerHTML = `<i class="ph-bold ph-radar"></i> Моя геопозиция`;
             zenlyModeActive = false;
             STATE.settings.zenlyActive = false;
             saveUserData();
@@ -12027,38 +12172,61 @@
       function drawSwitch() {
         const w = sc.width, h = sc.height, cx = w / 2, cy = h / 2, R = 100;
         ctx.clearRect(0, 0, w, h);
-        swAngle += 0.006;
+        swAngle += 0.005;
+        
+        // Soft backdrop glow
+        ctx.beginPath(); ctx.arc(cx, cy, R - 10, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.015)'; ctx.fill();
+
         // Outer glow ring
         ctx.beginPath(); ctx.arc(cx, cy, R + 22, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(201,168,76,0.06)'; ctx.lineWidth = 1; ctx.stroke();
-        // Background arc
+        ctx.strokeStyle = 'rgba(201,168,76,0.04)'; ctx.lineWidth = 1; ctx.stroke();
+        
+        // Background track arc (sleek thin gray line)
         ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(201,168,76,0.06)'; ctx.lineWidth = 20; ctx.stroke();
-        // Progress
-        const prog = (STATE.swPeriod - Math.max(0, STATE.swDays - STATE.swPeriod + STATE.swPeriod)) / STATE.swPeriod;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)'; ctx.lineWidth = 8; ctx.stroke();
+        
+        // Progress (gold gradient with shadow)
         const progress = Math.max(0.05, Math.min(0.92, (STATE.swDays / STATE.swPeriod)));
+        
+        ctx.save();
+        ctx.shadowColor = 'rgba(201, 168, 76, 0.4)';
+        ctx.shadowBlur = 12;
+        
+        const grad = ctx.createLinearGradient(cx - R, cy - R, cx + R, cy + R);
+        grad.addColorStop(0, '#f3e5ab'); // gold2
+        grad.addColorStop(1, '#c9a84c'); // gold
+        
         ctx.beginPath(); ctx.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
-        ctx.strokeStyle = '#c9a84c'; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.stroke();
-        // Grace arc
+        ctx.strokeStyle = grad; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.stroke();
+        ctx.restore();
+        
+        // Grace arc (red indicator)
         const graceStart = -Math.PI / 2 + Math.PI * 2 * progress;
-        ctx.beginPath(); ctx.arc(cx, cy, R, graceStart, graceStart + Math.PI * 2 * 0.08);
-        ctx.strokeStyle = '#d84040'; ctx.lineWidth = 4; ctx.stroke();
-        // Particles
-        for (let i = 0; i < 10; i++) {
-          const a = swAngle + (i / 10) * Math.PI * 2;
-          const pr = R + 30 + Math.sin(swAngle * 3 + i) * 6;
-          ctx.beginPath(); ctx.arc(cx + Math.cos(a) * pr, cy + Math.sin(a) * pr, 1.5, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(201,168,76,${0.2 + 0.25 * Math.abs(Math.sin(swAngle + i))})`; ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy, R, graceStart, graceStart + Math.PI * 2 * 0.06);
+        ctx.strokeStyle = 'rgba(216, 64, 64, 0.85)'; ctx.lineWidth = 8; ctx.stroke();
+        
+        // Orbiting particles
+        for (let i = 0; i < 8; i++) {
+          const a = swAngle + (i / 8) * Math.PI * 2;
+          const pr = R + 22 + Math.sin(swAngle * 2 + i) * 5;
+          ctx.beginPath(); ctx.arc(cx + Math.cos(a) * pr, cy + Math.sin(a) * pr, 1.2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(201,168,76,${0.15 + 0.25 * Math.abs(Math.sin(swAngle + i))})`; ctx.fill();
         }
-        // Center
-        ctx.beginPath(); ctx.arc(cx, cy, 52, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(13,11,24,0.9)'; ctx.fill();
-        ctx.strokeStyle = 'rgba(201,168,76,0.25)'; ctx.lineWidth = 1; ctx.stroke();
-        ctx.fillStyle = '#c9a84c'; ctx.font = '500 24px Cormorant Garamond,serif';
+        
+        // Inner circle backdrop
+        ctx.beginPath(); ctx.arc(cx, cy, R - 16, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(11, 9, 16, 0.8)'; ctx.fill();
+        ctx.strokeStyle = 'rgba(201,168,76,0.15)'; ctx.lineWidth = 1; ctx.stroke();
+        
+        // Inside text
+        ctx.fillStyle = '#f3e5ab'; ctx.font = '300 36px var(--serif)';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(STATE.swDays + ' дн', cx, cy - 8);
-        ctx.fillStyle = 'rgba(245,240,232,0.38)'; ctx.font = '300 10px DM Sans,sans-serif';
-        ctx.fillText('осталось', cx, cy + 12);
+        ctx.fillText(STATE.swDays, cx, cy - 8);
+        
+        ctx.fillStyle = 'rgba(253, 252, 251, 0.4)'; ctx.font = '500 10px var(--sans)';
+        ctx.fillText('дн осталось', cx, cy + 18);
+        
         swAnimFrame = requestAnimationFrame(drawSwitch);
       }
       if (swAnimFrame) cancelAnimationFrame(swAnimFrame);
