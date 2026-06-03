@@ -8537,8 +8537,15 @@
           </div>
         </div>
 
-        <div class="field"><label>Email (для уведомлений)</label><input type="email" id="r-email"
-            placeholder="email@example.com"></div>
+        <div class="field">
+          <label>Email (для связи и карты)</label>
+          <div style="display:flex; gap:10px;">
+            <input type="email" id="r-email" placeholder="email@example.com" style="flex:1;">
+            <button type="button" id="r-btn-invite-map" class="btn btn-primary-sm" onclick="inviteActiveRelativeFromModal()" style="height:42px; min-height:42px; padding:0 1rem; border-radius:8px;">
+              <i class="ph-light ph-link"></i> Пригласить
+            </button>
+          </div>
+        </div>
 
         <div class="field city-search-wrap">
           <label>Местоположение</label>
@@ -9713,6 +9720,7 @@
         loadUserDataFromFirestore(fbUser.uid).then(() => {
           renderAll();
           listenRelativesLocations();
+          applyPendingJoinCode();
         });
 
         // Проверяем отложенный план (если пришёл с лендинга)
@@ -14180,6 +14188,7 @@ ${socialsContext}
 
       if (!isResetting) {
         checkAutoLogin();
+        checkUrlForJoinCode();
       }
 
       // Dash date
@@ -14276,6 +14285,14 @@ ${socialsContext}
             });
             const pending = incoming.filter(c => c.status === 'pending');
             const addedMe = incoming.filter(c => c.status === 'accepted');
+
+            // Alert user of any new incoming requests
+            const lastPending = DB.load(_connKey('conn_pending'), []);
+            if (pending.length > lastPending.length) {
+              const newest = pending[pending.length - 1];
+              toast(`<i class="ph-bold ph-bell-ringing" style="color:var(--gold);"></i> Новое приглашение от ${newest.fromName || 'родственника'}!`);
+              showWebNotification("Новое приглашение в древо", `Пользователь ${newest.fromName || 'родственник'} хочет добавиться к вам.`);
+            }
 
             DB.save(_connKey('conn_pending'), pending);
             DB.save(_connKey('conn_added_me'), addedMe);
@@ -14484,8 +14501,9 @@ ${socialsContext}
 
     function copyMyCode() {
       const code = document.getElementById('my-conn-code')?.textContent || _connCode(_connEmail());
+      const joinLink = `${window.location.origin}${window.location.pathname}?join=${code}`;
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(code).then(() => toast('<i class="ph-light ph-check"></i> Код скопирован: ' + code));
+        navigator.clipboard.writeText(joinLink).then(() => toast('<i class="ph-light ph-link"></i> Ссылка-приглашение скопирована!'));
       } else {
         toast('Ваш код: ' + code);
       }
@@ -14493,12 +14511,39 @@ ${socialsContext}
 
     function shareMyCode() {
       const code = document.getElementById('my-conn-code')?.textContent || _connCode(_connEmail());
-      const text = `Привет! Добавь меня в своё древо жизни SoulKeeper.\nМой код: ${code}`;
+      const joinLink = `${window.location.origin}${window.location.pathname}?join=${code}`;
+      const text = `Привет! Перейди по ссылке, чтобы добавить меня в своё древо жизни SoulKeeper:\n${joinLink}`;
       if (navigator.share) {
-        navigator.share({ title: 'SoulKeeper — мой код', text }).catch(() => copyMyCode());
+        navigator.share({ title: 'SoulKeeper — Приглашение', text, url: joinLink }).catch(() => copyMyCode());
       } else {
         copyMyCode();
       }
+    }
+
+    function checkUrlForJoinCode() {
+      const params = new URLSearchParams(window.location.search);
+      const joinCode = params.get('join');
+      if (joinCode) {
+        const newUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+        sessionStorage.setItem('pendingJoinCode', joinCode);
+      }
+      applyPendingJoinCode();
+    }
+
+    function applyPendingJoinCode() {
+      const joinCode = sessionStorage.getItem('pendingJoinCode');
+      if (!joinCode || !STATE.user || STATE.user.isDemo) return;
+      sessionStorage.removeItem('pendingJoinCode');
+
+      setTimeout(() => {
+        openModal('modal-join-tree');
+        const input = document.getElementById('jt-code');
+        if (input) {
+          input.value = joinCode;
+          toast(`<i class="ph-bold ph-link-simple" style="color:var(--gold);"></i> Код приглашения ${joinCode} автоматически применен!`);
+        }
+      }, 1500);
     }
 
     function joinByCode() {
@@ -14518,6 +14563,19 @@ ${socialsContext}
       if (!val) { toast('Введите email или код'); return; }
       _sendJoinRequest(val, role, rel);
       closeModal('modal-join-tree');
+    }
+
+    function inviteActiveRelativeFromModal() {
+      const email = (document.getElementById('r-email')?.value || '').trim();
+      const role = document.getElementById('r-access')?.value || 'observer';
+      const rel = (document.getElementById('r-rel')?.value || '').trim();
+
+      if (!email) {
+        toast('Введите email родственника для приглашения');
+        return;
+      }
+      _sendJoinRequest(email, role, rel);
+      closeModal('modal-relative');
     }
 
     async function _sendJoinRequest(inputVal, role, relation) {
