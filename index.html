@@ -5297,7 +5297,10 @@
     @media (max-width: 768px) {
       .chat-wrapper {
         position: relative;
-        height: 65vh !important;
+        height: calc(100vh - 120px) !important;
+        margin: 0 -0.9rem -0.9rem -0.9rem !important;
+        border-radius: 0 !important;
+        border: none !important;
         overflow: hidden;
       }
       .chat-sidebar {
@@ -5671,9 +5674,9 @@
         min-width: 700px;
       }
 
-      /* Globe smaller */
+      /* Globe larger on mobile */
       #globe-wrap {
-        height: 280px;
+        height: 60vh !important;
       }
 
       /* Toast above nav */
@@ -6340,17 +6343,17 @@
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
               <!-- Redesigned Welcome Widget -->
-              <div class="dash-welcome-card" style="background: linear-gradient(135deg, rgba(20,18,30,0.85) 0%, rgba(10,9,15,0.95) 100%); border: 1px solid rgba(212,175,55,0.12); box-shadow: 0 12px 40px rgba(0,0,0,0.6); padding: 2.2rem; border-radius: 24px; position: relative; overflow: hidden;">
+              <div class="dash-welcome-card" style="background: linear-gradient(135deg, rgba(20,18,30,0.85) 0%, rgba(10,9,15,0.95) 100%); border: 1px solid rgba(212,175,55,0.1); box-shadow: 0 8px 30px rgba(0,0,0,0.4); padding: 1.5rem !important; min-height: auto !important; border-radius: 24px; position: relative; overflow: hidden;">
                 <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%); pointer-events: none;"></div>
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; position: relative; z-index: 2;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; position: relative; z-index: 2;">
                   <div>
-                    <div class="dash-welcome-title" style="font-family: var(--serif); font-size: 1.8rem; color: var(--ivory); font-weight: 300; letter-spacing: -0.5px;">Наследие рода <em id="dash-name" style="color: var(--gold); font-style: normal; font-weight: 500; text-shadow: 0 0 15px rgba(212,175,55,0.2);">Пользователь</em></div>
-                    <div class="dash-welcome-sub" style="font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; font-weight: 300; display: flex; align-items: center; gap: 0.4rem;">
+                    <div class="dash-welcome-title" style="font-family: var(--serif); font-size: 1.6rem; color: var(--ivory); font-weight: 300; letter-spacing: -0.5px;">Наследие рода <em id="dash-name" style="color: var(--gold); font-style: normal; font-weight: 500; text-shadow: 0 0 15px rgba(212,175,55,0.2);">Пользователь</em></div>
+                    <div class="dash-welcome-sub" style="font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; font-weight: 300; display: flex; align-items: center; gap: 0.4rem;">
                       <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71;"></span>
-                      Сквозное AES-256 шифрование активно. Сегодня <span id="dash-date" style="color: var(--gold2); font-weight: 400;"></span>.
+                      Шифрование AES-256 активно. Сегодня <span id="dash-date" style="color: var(--gold2); font-weight: 400;"></span>.
                     </div>
                   </div>
-                  <div class="dash-avatar-badge" style="width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(212,175,55,0.25); background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.02) 100%); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1.4rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);"><i class="ph-fill ph-brain"></i></div>
+                  <div class="dash-avatar-badge" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(212,175,55,0.25); background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.02) 100%); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1.3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);"><i class="ph-fill ph-brain"></i></div>
                 </div>
 
                 <div class="dash-health-wrap" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 1rem 1.4rem; position: relative; z-index: 2;">
@@ -11661,10 +11664,49 @@
         subdomains: 'abcd'
       }).addTo(leafletMap);
 
+      // Add map click listener to add relative at location
+      leafletMap.on('click', function(e) {
+        const lat = e.latlng.lat.toFixed(6);
+        const lon = e.latlng.lng.toFixed(6);
+        L.popup()
+          .setLatLng(e.latlng)
+          .setContent(`
+            <div style="color:var(--ivory); font-family:var(--sans); padding:0.4rem; text-align:center; font-size:0.8rem;">
+              <div style="font-weight:600; margin-bottom:0.4rem; color:var(--gold);">Координаты: ${lat}, ${lon}</div>
+              <button class="btn btn-primary-sm" onclick="window.openAddRelativeAtLocation(${lat}, ${lon})" style="font-size:0.75rem; padding:0.4rem 0.8rem; height:auto; min-height:auto; text-transform:none; border-radius:12px;">+ Добавить здесь</button>
+            </div>
+          `)
+          .openOn(leafletMap);
+      });
+
       globeInit = true;
       updateGlobeMarkers();
       renderGlobeList();
     }
+
+    window.openAddRelativeAtLocation = function(lat, lon) {
+      openModal('modal-relative');
+      document.getElementById('r-id').value = '';
+      document.getElementById('r-name').value = '';
+      document.getElementById('r-rel').value = '';
+      document.getElementById('r-lifePeriod').value = '';
+      document.getElementById('r-parentId').value = '';
+      document.getElementById('r-spouseId').value = '';
+      document.getElementById('r-desc').value = '';
+      document.getElementById('r-photo-data').value = '';
+      document.getElementById('r-photo-preview').textContent = '?';
+      document.getElementById('r-email').value = '';
+      
+      document.getElementById('r-lat').value = lat;
+      document.getElementById('r-lon').value = lon;
+      document.getElementById('r-city').value = `Выбрано на карте (${lat}, ${lon})`;
+      
+      document.getElementById('r-zone').value = 'relatives';
+      document.getElementById('r-access').value = 'observer';
+      
+      document.getElementById('r-btn-delete').style.display = 'none';
+      document.getElementById('r-modal-title').textContent = 'Добавить родственника';
+    };
 
     function updateGlobeMarkers() {
       if (!leafletMap) return;
