@@ -11,6 +11,11 @@
     2. Ensure GitHub Pages is set to deploy from the "main" branch in Repository Settings.
   -->
   <link rel="icon" type="image/png" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SoulKeeper">
+  <link rel="apple-touch-icon" href="icon.png">
   <title>SoulKeeper — Хранитель твоей жизни</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -14910,7 +14915,14 @@ ${socialsContext}
     }
     function mobFabAction() { openModal('modal-secret'); }
 
-
+    // Register PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+          .catch(err => console.error('Service Worker registration failed:', err));
+      });
+    }
   </script>
   <!-- MODAL UPGRADE -->
   <div class="modal-overlay" id="modal-upgrade">
