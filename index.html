@@ -12,6 +12,8 @@
   -->
   <link rel="icon" type="image/png" href="icon.png">
   <title>SoulKeeper — Хранитель твоей жизни</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
@@ -2647,6 +2649,90 @@
     .chat-send:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    /* Leaflet Map Customizations and Radar Markers */
+    .family-map-marker {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .map-avatar-container {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: var(--ink2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+    .map-avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .map-avatar-initials {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ivory);
+    }
+    .map-pulse-ring {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border: 1.5px solid;
+      border-radius: 50%;
+      animation: mapRadarPulse 2s infinite ease-out;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+    }
+    @keyframes mapRadarPulse {
+      0% {
+        transform: scale(0.6);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(1.3);
+        opacity: 0;
+      }
+    }
+    /* Hide Leaflet default elements we don't want */
+    .leaflet-container {
+      font-family: var(--sans) !important;
+      background-color: #050508 !important;
+    }
+    .leaflet-bar {
+      border: 1px solid rgba(212, 175, 55, 0.15) !important;
+      box-shadow: none !important;
+      border-radius: 8px !important;
+      overflow: hidden;
+    }
+    .leaflet-bar a {
+      background-color: rgba(15, 13, 22, 0.95) !important;
+      color: var(--gold2) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+      transition: all 0.2s;
+    }
+    .leaflet-bar a:hover {
+      background-color: var(--gold-d3) !important;
+      color: var(--gold2) !important;
+    }
+    .leaflet-popup-content-wrapper {
+      background: rgba(15, 13, 22, 0.92) !important;
+      backdrop-filter: blur(12px) !important;
+      border: 1px solid rgba(212, 175, 55, 0.15) !important;
+      color: var(--ivory) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    }
+    .leaflet-popup-tip {
+      background: rgba(15, 13, 22, 0.92) !important;
+      border: 1px solid rgba(212, 175, 55, 0.15) !important;
     }
 
     /* ════════════════════════════════════════════
@@ -6828,35 +6914,21 @@
               <button class="btn btn-primary-sm" onclick="openModal('modal-relative')">+ Добавить</button>
             </div>
           </div>
-          <div id="globe-wrap">
-            <!-- Globe Search Overlay -->
-            <div class="globe-search-container">
+          <div id="globe-wrap" style="position: relative; overflow: hidden; border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.08); box-shadow: 0 10px 45px rgba(0, 0, 0, 0.4);">
+            <!-- Map Search Overlay -->
+            <div class="globe-search-container" style="z-index: 1000;">
               <div class="globe-search-box">
                 <i class="ph-bold ph-magnifying-glass"></i>
-                <input type="text" class="globe-search-input" id="globe-search" placeholder="Поиск близких..." oninput="onGlobeSearch(this.value)" onfocus="onGlobeSearch(this.value)" onblur="setTimeout(()=>document.getElementById('globe-search-results').classList.remove('show'), 200)">
+                <input type="text" class="globe-search-input" id="globe-search" placeholder="Поиск близких на карте..." oninput="onGlobeSearch(this.value)" onfocus="onGlobeSearch(this.value)" onblur="setTimeout(()=>document.getElementById('globe-search-results').classList.remove('show'), 200)">
                 <div class="globe-search-results" id="globe-search-results"></div>
               </div>
             </div>
-            <canvas id="globe-c"></canvas>
-            <div id="globe-pins-container" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; z-index:5;"></div>
-            <div class="globe-overlay"><i class="ph-light ph-globe"></i> Перетащите для вращения · колесо для зума</div>
-            <div class="globe-stats">
+            <div id="family-map" style="width: 100%; height: 580px; background: #050508;"></div>
+            <div class="globe-stats" style="z-index: 1000;">
               <div class="globe-stats-val" id="globe-marker-count">0</div>
               <div class="globe-stats-lbl">отметок</div>
             </div>
-            <div id="globe-tip">
-              <strong id="gt-name"></strong>
-              <div class="tip-rel" id="gt-rel"></div>
-              <div class="tip-city" id="gt-city"></div>
-            </div>
-            <div class="globe-controls">
-              <div class="globe-ctrl-btn" onclick="globeZoom(1.2)" title="Приблизить">+</div>
-              <div class="globe-ctrl-btn" onclick="globeZoom(0.8)" title="Отдалить">−</div>
-              <div class="globe-ctrl-btn" onclick="globeReset()" title="Сбросить">↺</div>
-              <div class="globe-ctrl-btn" onclick="toggleGlobeAuto()" id="globe-auto-btn" title="Авто-вращение"><i
-                  class="ph-light ph-pause"></i></div>
-            </div>
-            <div class="globe-legend">
+            <div class="globe-legend" style="z-index: 1000; background: rgba(15, 13, 22, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px; bottom: 20px; left: 20px; width: auto; position: absolute; margin: 0; display: flex; flex-direction: column; gap: 4px;">
               <div class="globe-legend-item">
                 <div class="globe-legend-dot" style="background:#3db87a"></div> Наследник
               </div>
@@ -8265,6 +8337,13 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="r-id" value="">
+
+        <div class="field" id="r-contact-picker-wrap">
+          <label>Или выберите из существующих контактов</label>
+          <select id="r-contact-picker" onchange="onTreeContactSelected(this.value)">
+            <option value="">-- Ввести данные вручную (новый контакт) --</option>
+          </select>
+        </div>
 
         <div class="field"><label>Полное имя</label><input type="text" id="r-name" placeholder="Фамилия Имя Отчество">
         </div>
@@ -10298,23 +10377,26 @@
     // Override openModal for new relative to reset fields
     const _origOpenModal = openModal;
     window.openModal = function (id) {
-      if (id === 'modal-relative' && !document.getElementById('r-id').value) {
-        document.getElementById('r-modal-title').textContent = 'Добавить в древо';
-        document.getElementById('r-id').value = '';
-        document.getElementById('r-name').value = '';
-        document.getElementById('r-rel').value = '';
-        document.getElementById('r-desc').value = '';
-        document.getElementById('r-email').value = '';
-        document.getElementById('r-city').value = '';
-        document.getElementById('r-lat').value = '';
-        document.getElementById('r-lon').value = '';
-        document.getElementById('r-photo-data').value = '';
-        document.getElementById('r-photo-preview').innerHTML = '?';
-        document.getElementById('r-btn-delete').style.display = 'none';
-        document.getElementById('r-lifePeriod').value = '';
-        document.getElementById('r-zone').value = 'relatives';
-        populateRelativeSelects('');
-        document.getElementById('r-parentId').value = '';
+      if (id === 'modal-relative') {
+        if (!document.getElementById('r-id').value) {
+          document.getElementById('r-modal-title').textContent = 'Добавить в древо';
+          document.getElementById('r-id').value = '';
+          document.getElementById('r-name').value = '';
+          document.getElementById('r-rel').value = '';
+          document.getElementById('r-desc').value = '';
+          document.getElementById('r-email').value = '';
+          document.getElementById('r-city').value = '';
+          document.getElementById('r-lat').value = '';
+          document.getElementById('r-lon').value = '';
+          document.getElementById('r-photo-data').value = '';
+          document.getElementById('r-photo-preview').innerHTML = '?';
+          document.getElementById('r-btn-delete').style.display = 'none';
+          document.getElementById('r-lifePeriod').value = '';
+          document.getElementById('r-zone').value = 'relatives';
+          populateRelativeSelects('');
+          document.getElementById('r-parentId').value = '';
+        }
+        if (window.populateContactPicker) window.populateContactPicker();
       }
       _origOpenModal(id);
     };
@@ -11397,354 +11479,50 @@
     }
 
     // ═══════════════════════════════════════════
-    // GLOBE — Full 3D with texture & interactive markers
+    // MAP — Leaflet flat map with user and relatives live location tracking
     // ═══════════════════════════════════════════
-    let globeInit = false, globeRenderer, globeScene, globeCamera, globeEarth, globeAtmo, globeClouds;
-    let globeIsDragging = false, globePrevMouse = { x: 0, y: 0 };
-    let globeAutoRotate = true, globeMarkerMeshes = [], globeMarkerData = [];
-    let globeTargetRot = { x: 0.3, y: 0 };
-    let globeCurrentRot = { x: 0.3, y: 0 };
-    let globeVelocity = { x: 0, y: 0 };
-    let globePinchDist = 0;
-    let globeZoomTarget = 2.8, globeZoomCurrent = 2.8;
-    let globePulseT = 0;
-    const MARKER_COLORS = { heir: 0x3db87a, observer: 0x5c7cfa, trusted: 0xc9a84c, blocked: 0xd84848 };
+    let globeInit = false;
+    let leafletMap = null;
+    let leafletMarkers = {};
+    let watchLocationId = null, zenlyModeActive = false;
     const MARKER_COLORS_HEX = { heir: '#3db87a', observer: '#5c7cfa', trusted: '#c9a84c', blocked: '#d84848' };
 
-    let globeArcMeshes = [], globeArcParticles = [];
-    let watchLocationId = null, zenlyModeActive = false;
-
-    // High-fidelity continental contours (mapped to 1024x512 canvas)
-    const CONTINENTS_POLYS = [
-      // North America
-      [[150, 80], [210, 80], [240, 60], [280, 80], [320, 100], [290, 140], [350, 150], [330, 200], [360, 230], [320, 280], [290, 280], [270, 300], [260, 270], [220, 250], [170, 200], [140, 180], [140, 130]],
-      // Greenland
-      [[360, 40], [420, 40], [440, 70], [390, 100], [350, 80]],
-      // South America
-      [[280, 310], [330, 330], [350, 370], [320, 430], [290, 480], [270, 480], [260, 430], [250, 380], [260, 330]],
-      // Africa
-      [[470, 220], [550, 220], [590, 240], [600, 270], [590, 310], [550, 360], [520, 420], [500, 420], [490, 340], [440, 300], [440, 260]],
-      // Eurasia
-      [[470, 210], [450, 150], [430, 120], [470, 100], [500, 70], [590, 60], [690, 50], [790, 50], [890, 60], [930, 90], [930, 140], [870, 170], [900, 210], [840, 230], [830, 270], [790, 280], [760, 240], [720, 270], [680, 270], [660, 230], [610, 230], [570, 190]],
-      // Australia
-      [[810, 350], [880, 350], [900, 390], [870, 420], [820, 410], [800, 380]],
-      // Antarctica
-      [[100, 480], [900, 480], [800, 500], [200, 500]]
-    ];
-
-    const ISLANDS_POLYS = [
-      // Japan
-      [[840, 180], [850, 190], [840, 220], [835, 210]],
-      // UK
-      [[475, 140], [482, 140], [480, 155], [470, 150]],
-      // Madagascar
-      [[595, 360], [610, 370], [600, 400], [590, 390]],
-      // Iceland
-      [[420, 100], [440, 100], [435, 115], [415, 110]],
-      // New Zealand
-      [[890, 430], [905, 450], [900, 470], [885, 450]]
-    ];
-
     function initGlobe() {
-      if (globeInit) return;
-      const canvas = document.getElementById('globe-c');
-      const wrap = document.getElementById('globe-wrap');
-      if (!canvas || !wrap || !window.THREE) return;
-
-      const W = wrap.clientWidth, H = wrap.clientHeight;
-
-      globeRenderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      globeRenderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-      globeRenderer.setSize(W, H);
-      globeRenderer.setClearColor(0x000000, 0);
-
-      globeScene = new THREE.Scene();
-      globeCamera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
-      globeCamera.position.z = globeZoomCurrent;
-
-      // Earth sphere
-      const earthGeo = new THREE.SphereGeometry(1, 64, 64);
-
-      // Build procedural Earth texture on canvas (offline/fallback mode)
-      const texCanvas = document.createElement('canvas');
-      texCanvas.width = 1024; texCanvas.height = 512;
-      const tc = texCanvas.getContext('2d');
-      const oceanGrad = tc.createLinearGradient(0, 0, 0, 512);
-      oceanGrad.addColorStop(0, '#050a14');
-      oceanGrad.addColorStop(0.5, '#0a162b');
-      oceanGrad.addColorStop(1, '#03060d');
-      tc.fillStyle = oceanGrad;
-      tc.fillRect(0, 0, 1024, 512);
-
-      // Fine grid lines for sci-fi look
-      tc.strokeStyle = 'rgba(212,175,55,0.06)'; tc.lineWidth = 0.5;
-      for (let lat = -90; lat <= 90; lat += 15) { const y = (90 - lat) / 180 * 512; tc.beginPath(); tc.moveTo(0, y); tc.lineTo(1024, y); tc.stroke(); }
-      for (let lon = 0; lon <= 360; lon += 15) { const x = lon / 360 * 1024; tc.beginPath(); tc.moveTo(x, 0); tc.lineTo(x, 512); tc.stroke(); }
-
-      // Draw high-fidelity continent base shadows/glows and fills
-      tc.shadowColor = 'rgba(212, 175, 55, 0.35)';
-      tc.shadowBlur = 15;
-      tc.fillStyle = 'rgba(16, 26, 48, 0.95)'; // cyber dark blue
-      tc.strokeStyle = 'rgba(212, 175, 55, 0.8)';
-      tc.lineWidth = 1.2;
-
-      const drawAllLand = () => {
-        CONTINENTS_POLYS.concat(ISLANDS_POLYS).forEach(p => {
-          tc.beginPath();
-          tc.moveTo(p[0][0], p[0][1]);
-          for(let i = 1; i < p.length; i++) tc.lineTo(p[i][0], p[i][1]);
-          tc.closePath();
-          tc.fill();
-          tc.stroke();
-        });
-      };
-      drawAllLand();
-
-      // Draw dot matrix pattern inside land to look like Zenly hologram
-      const patternCanvas = document.createElement('canvas');
-      patternCanvas.width = 8; patternCanvas.height = 8;
-      const pc = patternCanvas.getContext('2d');
-      pc.fillStyle = '#d4af37';
-      pc.beginPath(); pc.arc(4, 4, 1.2, 0, Math.PI*2); pc.fill();
-      const pattern = tc.createPattern(patternCanvas, 'repeat');
-
-      tc.save();
-      tc.shadowBlur = 0;
-      tc.beginPath();
-      CONTINENTS_POLYS.concat(ISLANDS_POLYS).forEach(p => {
-        tc.moveTo(p[0][0], p[0][1]);
-        for(let i = 1; i < p.length; i++) tc.lineTo(p[i][0], p[i][1]);
-      });
-      tc.clip();
-
-      tc.fillStyle = pattern;
-      tc.globalAlpha = 0.22;
-      tc.fillRect(0, 0, 1024, 512);
-      tc.restore();
-
-      const procEarthTex = new THREE.CanvasTexture(texCanvas);
-
-      const earthMat = new THREE.MeshPhongMaterial({
-        map: procEarthTex,
-        specular: new THREE.Color(0x334466),
-        shininess: 12
-      });
-      
-      globeEarth = new THREE.Mesh(earthGeo, earthMat);
-      globeEarth.rotation.set(0.3, 0, 0); // initial angle
-      globeScene.add(globeEarth);
-
-      // Load premium high-resolution Earth assets from CDN (swaps on load)
-      const loader = new THREE.TextureLoader();
-      loader.load(
-        'https://unpkg.com/three@0.128.0/examples/textures/planets/earth_atmos_2048.jpg',
-        (tex) => {
-          earthMat.map = tex;
-          earthMat.needsUpdate = true;
-          DB._addLog('OK', 'Globe: Реалистичная текстура Земли успешно загружена');
-        },
-        undefined,
-        () => console.warn('Using procedural fallback Earth texture.')
-      );
-      loader.load(
-        'https://unpkg.com/three@0.128.0/examples/textures/planets/earth_specular_2048.jpg',
-        (tex) => {
-          earthMat.specularMap = tex;
-          earthMat.needsUpdate = true;
-        }
-      );
-      loader.load(
-        'https://unpkg.com/three@0.128.0/examples/textures/planets/earth_clouds_1024.png',
-        (tex) => {
-          const cloudsGeo = new THREE.SphereGeometry(1.006, 64, 64);
-          const cloudsMat = new THREE.MeshPhongMaterial({
-            map: tex,
-            transparent: true,
-            opacity: 0.35,
-            depthWrite: false
-          });
-          const cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
-          globeEarth.add(cloudsMesh);
-          globeClouds = cloudsMesh;
-        }
-      );
-
-      // Atmosphere glow
-      const atmoGeo = new THREE.SphereGeometry(1.06, 32, 32);
-      const atmoMat = new THREE.MeshBasicMaterial({
-        color: 0x1a3a6c, transparent: true, opacity: 0.12, side: THREE.BackSide
-      });
-      globeAtmo = new THREE.Mesh(atmoGeo, atmoMat);
-      globeScene.add(globeAtmo);
-
-      // Outer glow ring
-      const glowGeo = new THREE.SphereGeometry(1.08, 32, 32);
-      const glowMat = new THREE.MeshBasicMaterial({
-        color: 0x0a2040, transparent: true, opacity: 0.06, side: THREE.BackSide
-      });
-      globeScene.add(new THREE.Mesh(glowGeo, glowMat));
-
-      // Stars
-      const starGeo = new THREE.BufferGeometry();
-      const starVerts = [];
-      for (let i = 0; i < 1200; i++) {
-        const th = Math.acos(2 * Math.random() - 1), ph = 2 * Math.PI * Math.random(), r = 40 + Math.random() * 10;
-        starVerts.push(r * Math.sin(th) * Math.cos(ph), r * Math.cos(th), r * Math.sin(th) * Math.sin(ph));
+      if (globeInit && leafletMap) {
+        setTimeout(() => leafletMap.invalidateSize(), 200);
+        return;
       }
-      starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVerts, 3));
-      const starMat = new THREE.PointsMaterial({ color: 0xfff8e0, size: 0.08, transparent: true, opacity: 0.55 });
-      globeScene.add(new THREE.Points(starGeo, starMat));
+      const mapContainer = document.getElementById('family-map');
+      if (!mapContainer) return;
 
-      // Lights
-      globeScene.add(new THREE.AmbientLight(0x334466, 0.6));
-      const sun = new THREE.DirectionalLight(0xfff4e0, 1.2);
-      sun.position.set(4, 2, 4);
-      globeScene.add(sun);
-      const rim = new THREE.DirectionalLight(0x2244aa, 0.3);
-      rim.position.set(-4, -1, -2);
-      globeScene.add(rim);
+      // Initialize Leaflet Map
+      leafletMap = L.map('family-map', {
+        zoomControl: true,
+        attributionControl: false
+      }).setView([55.75, 37.62], 3);
 
-      // Add markers from current relatives
-      updateGlobeMarkers();
+      // Add CartoDB Dark Matter tile layer
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20,
+        subdomains: 'abcd'
+      }).addTo(leafletMap);
 
-      // Auto-activate Zenly Mode if settings say so
-      if (STATE.settings && STATE.settings.zenlyActive) {
-        setTimeout(() => {
-          zenlyModeActive = false;
-          toggleZenlyMode();
-        }, 800);
-      }
-
-      // ── Events ──
-      canvas.addEventListener('mousedown', e => {
-        globeIsDragging = true;
-        globePrevMouse = { x: e.clientX, y: e.clientY };
-        globeVelocity = { x: 0, y: 0 };
-        globeAutoRotate = false;
-        document.getElementById('globe-auto-btn').innerHTML = '<i class="ph-light ph-play"></i>';
-      });
-      canvas.addEventListener('mousemove', e => {
-        if (!globeIsDragging) {
-          globeHandleHover(e);
-          return;
-        }
-        const dx = e.clientX - globePrevMouse.x;
-        const dy = e.clientY - globePrevMouse.y;
-        
-        globeVelocity.y = dx * 0.004;
-        globeVelocity.x = dy * 0.004;
-        
-        globeTargetRot.y += globeVelocity.y;
-        globeTargetRot.x += globeVelocity.x;
-        globeTargetRot.x = Math.max(-1.4, Math.min(1.4, globeTargetRot.x));
-        globePrevMouse = { x: e.clientX, y: e.clientY };
-      });
-      canvas.addEventListener('mouseup', () => { globeIsDragging = false; });
-      canvas.addEventListener('mouseleave', () => {
-        globeIsDragging = false;
-        document.getElementById('globe-tip').style.display = 'none';
-      });
-      canvas.addEventListener('wheel', e => {
-        e.preventDefault();
-        globeZoomTarget += e.deltaY * 0.003;
-        globeZoomTarget = Math.max(1.4, Math.min(5.0, globeZoomTarget));
-      }, { passive: false });
-
-      // Touch
-      canvas.addEventListener('touchstart', e => {
-        if (e.touches.length === 1) {
-          globeIsDragging = true;
-          globePrevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-          globeVelocity = { x: 0, y: 0 };
-          globeAutoRotate = false;
-        } else if (e.touches.length === 2) {
-          globePinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        }
-        e.preventDefault();
-      }, { passive: false });
-      canvas.addEventListener('touchmove', e => {
-        if (e.touches.length === 1 && globeIsDragging) {
-          const dx = e.touches[0].clientX - globePrevMouse.x;
-          const dy = e.touches[0].clientY - globePrevMouse.y;
-          
-          globeVelocity.y = dx * 0.004;
-          globeVelocity.x = dy * 0.004;
-          
-          globeTargetRot.y += globeVelocity.y;
-          globeTargetRot.x += globeVelocity.x;
-          globeTargetRot.x = Math.max(-1.4, Math.min(1.4, globeTargetRot.x));
-          globePrevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        } else if (e.touches.length === 2) {
-          const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-          globeZoomTarget -= (d - globePinchDist) * 0.01;
-          globeZoomTarget = Math.max(1.4, Math.min(5.0, globeZoomTarget));
-          globePinchDist = d;
-        }
-        e.preventDefault();
-      }, { passive: false });
-      canvas.addEventListener('touchend', () => { globeIsDragging = false; });
-
-      // Animate
-      function animateGlobe() {
-        requestAnimationFrame(animateGlobe);
-        globePulseT += 0.04;
-
-        // Rotate clouds layer if loaded
-        if (globeClouds) {
-          globeClouds.rotation.y += 0.0008;
-        }
-
-        // Smooth rotation with momentum damping
-        if (globeAutoRotate) {
-          globeTargetRot.y += 0.002;
-        } else if (!globeIsDragging) {
-          // Slide with inertia
-          globeTargetRot.y += globeVelocity.y;
-          globeTargetRot.x += globeVelocity.x;
-          // Apply friction
-          globeVelocity.y *= 0.95;
-          globeVelocity.x *= 0.95;
-        }
-        
-        globeTargetRot.x = Math.max(-1.4, Math.min(1.4, globeTargetRot.x));
-        globeCurrentRot.x += (globeTargetRot.x - globeCurrentRot.x) * 0.08;
-        globeCurrentRot.y += (globeTargetRot.y - globeCurrentRot.y) * 0.08;
-        
-        globeEarth.rotation.x = globeCurrentRot.x;
-        globeEarth.rotation.y = globeCurrentRot.y;
-        globeAtmo.rotation.x = globeCurrentRot.x;
-        globeAtmo.rotation.y = globeCurrentRot.y;
-
-        // Smooth zoom
-        globeZoomCurrent += (globeZoomTarget - globeZoomCurrent) * 0.1;
-        globeCamera.position.z = globeZoomCurrent;
-
-        // Pulse markers
-        globeMarkerMeshes.forEach((group, i) => {
-          const pulse = group.userData.pulse;
-          if (pulse) {
-            const s = 1 + 0.35 * Math.abs(Math.sin(globePulseT * 0.9 + i * 0.8));
-            pulse.scale.setScalar(s);
-            pulse.material.opacity = 0.4 - 0.3 * Math.abs(Math.sin(globePulseT * 0.9 + i * 0.8));
-          }
-        });
-
-        globeRenderer.render(globeScene, globeCamera);
-      }
-      animateGlobe();
       globeInit = true;
+      updateGlobeMarkers();
+      renderGlobeList();
     }
 
     function updateGlobeMarkers() {
-      if (!globeEarth) return;
-      // Remove old markers
-      globeMarkerMeshes.forEach(g => globeEarth.remove(g));
-      globeMarkerMeshes = [];
-      globeMarkerData = [];
+      if (!leafletMap) return;
+
+      // Clear existing markers
+      Object.values(leafletMarkers).forEach(m => leafletMap.removeLayer(m));
+      leafletMarkers = {};
 
       const rels = STATE.relatives.filter(r => r.lat && r.lon);
-      
       const markersList = [];
+
+      // Add Current User
       if (STATE.user && STATE.user.lat && STATE.user.lon) {
         markersList.push({
           id: 'you',
@@ -11752,127 +11530,87 @@
           lat: STATE.user.lat,
           lon: STATE.user.lon,
           access: 'heir',
-          isMe: true
+          isMe: true,
+          photo: STATE.user.photoURL || ''
         });
       }
-      markersList.push(...rels.map(r => ({
-        id: r.id,
-        name: r.name,
-        lat: r.lat,
-        lon: r.lon,
-        access: r.access || 'observer',
-        isMe: false,
-        rel: r
-      })));
+
+      // Add relatives
+      rels.forEach(r => {
+        markersList.push({
+          id: r.id,
+          name: r.name,
+          lat: r.lat,
+          lon: r.lon,
+          access: r.access || 'observer',
+          isMe: false,
+          photo: r.photo || '',
+          rel: r
+        });
+      });
 
       markersList.forEach(item => {
-        const phi = (90 - item.lat) * Math.PI / 180;
-        const theta = (item.lon + 180) * Math.PI / 180;
-        const rad = 1.015;
-        const x = -rad * Math.sin(phi) * Math.cos(theta);
-        const z = rad * Math.sin(phi) * Math.sin(theta);
-        const y = rad * Math.cos(phi);
+        const color = item.isMe ? '#2ecc71' : (MARKER_COLORS_HEX[item.access] || '#c9a84c');
 
-        const color = item.isMe ? 0x2ecc71 : (MARKER_COLORS[item.access] || 0xc9a84c);
-        const group = new THREE.Group();
-        group.position.set(x, y, z);
-
-        // Spike pointing outward
-        const normal = new THREE.Vector3(x, y, z).normalize();
-        group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
-
-        // Core dot
-        const dotGeo = new THREE.SphereGeometry(0.022, 8, 8);
-        const dotMat = new THREE.MeshBasicMaterial({ color });
-        const dot = new THREE.Mesh(dotGeo, dotMat);
-        group.add(dot);
-
-        // Pulse ring
-        const ringGeo = new THREE.RingGeometry(0.03, 0.05, 16);
-        const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.position.y = 0.002;
-        group.add(ring);
-        group.userData.pulse = ring;
-
-        // Outer pulse ring 2
-        const ring2Geo = new THREE.RingGeometry(0.055, 0.075, 16);
-        const ring2Mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.2, side: THREE.DoubleSide });
-        const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
-        ring2.position.y = 0.001;
-        group.add(ring2);
-
-        globeEarth.add(group);
-        globeMarkerMeshes.push(group);
-        globeMarkerData.push({ 
-          mesh: group, 
-          rel: item.isMe ? { id: 'you', name: item.name, rel: 'Глава рода', city: STATE.settings?.city || '—', lat: item.lat, lon: item.lon } : item.rel, 
-          pos: new THREE.Vector3(x, y, z) 
+        // DivIcon using avatar image or initial
+        const icon = L.divIcon({
+          className: 'family-map-marker',
+          html: `
+            <div class="map-pulse-ring" style="border-color: ${color};"></div>
+            <div class="map-avatar-container" style="border: 2px solid ${color}; box-shadow: 0 0 10px ${color}80;">
+              ${item.photo ? `<img src="${item.photo}" class="map-avatar-img">` : `<span class="map-avatar-initials">${item.name.charAt(0)}</span>`}
+            </div>
+          `,
+          iconSize: [40, 40],
+          iconAnchor: [20, 20]
         });
+
+        const popupContent = `
+          <div style="padding: 4px; font-family: var(--sans); min-width: 140px;">
+            <strong style="color: var(--gold2); font-size: 0.9rem; display:block; margin-bottom: 2px;">${item.name}</strong>
+            <span style="font-size: 0.72rem; color: var(--muted); display:block; margin-bottom: 4px;">
+              ${item.isMe ? 'Глава рода' : (item.rel?.rel || 'Родственник')}
+            </span>
+            <span style="font-size: 0.75rem; color: var(--ivory); display: flex; align-items: center; gap: 4px;">
+              <i class="ph-light ph-map-pin" style="color: ${color}"></i> ${item.isMe ? (STATE.settings?.city || 'Ваш город') : (item.rel?.city || 'Координаты')}
+            </span>
+          </div>
+        `;
+
+        const marker = L.marker([item.lat, item.lon], { icon })
+          .bindPopup(popupContent)
+          .addTo(leafletMap);
+
+        leafletMarkers[item.id] = marker;
       });
 
       const countEl = document.getElementById('globe-marker-count');
       if (countEl) countEl.textContent = rels.length;
     }
 
-    const _globeRaycaster = new THREE.Raycaster();
-    const _globeMouse = new THREE.Vector2();
-
-    function globeHandleHover(e) {
-      const canvas = document.getElementById('globe-c');
-      const wrap = document.getElementById('globe-wrap');
-      if (!canvas || !wrap || !globeInit) return;
-      const rect = canvas.getBoundingClientRect();
-      _globeMouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      _globeMouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-      _globeRaycaster.setFromCamera(_globeMouse, globeCamera);
-
-      // Check markers
-      const dotMeshes = globeMarkerMeshes.map(g => g.children[0]);
-      const hits = _globeRaycaster.intersectObjects(dotMeshes, false);
-      const tip = document.getElementById('globe-tip');
-      if (hits.length) {
-        const idx = dotMeshes.indexOf(hits[0].object);
-        const data = globeMarkerData[idx];
-        if (data) {
-          document.getElementById('gt-name').textContent = data.rel.name;
-          document.getElementById('gt-rel').textContent = data.rel.rel || '';
-          document.getElementById('gt-city').innerHTML = data.rel.city ? '<i class="ph-light ph-map-pin"></i> ' + data.rel.city : `${data.rel.lat?.toFixed(2)}, ${data.rel.lon?.toFixed(2)}`;
-          tip.style.display = 'block';
-          const tx = Math.min(e.clientX - rect.left + 14, rect.width - 160);
-          const ty = Math.max(e.clientY - rect.top - 60, 10);
-          tip.style.left = tx + 'px';
-          tip.style.top = ty + 'px';
-        }
-      } else {
-        tip.style.display = 'none';
-      }
+    function flyToMarker(lat, lon) {
+      if (!leafletMap) return;
+      leafletMap.flyTo([lat, lon], 14, {
+        animate: true,
+        duration: 1.5
+      });
     }
 
     function globeZoom(factor) {
-      globeZoomTarget = Math.max(1.4, Math.min(5.0, globeZoomTarget / factor));
+      if (!leafletMap) return;
+      if (factor > 1) {
+        leafletMap.zoomIn();
+      } else {
+        leafletMap.zoomOut();
+      }
     }
 
     function globeReset() {
-      globeTargetRot = { x: 0.3, y: 0 };
-      globeZoomTarget = 2.8;
-      globeAutoRotate = true;
-      document.getElementById('globe-auto-btn').innerHTML = '<i class="ph-light ph-pause"></i>';
+      if (!leafletMap) return;
+      leafletMap.setView([55.75, 37.62], 3);
     }
 
-    function toggleGlobeAuto() {
-      globeAutoRotate = !globeAutoRotate;
-      document.getElementById('globe-auto-btn').innerHTML = globeAutoRotate ? '<i class="ph-light ph-pause"></i>' : '<i class="ph-light ph-play"></i>';
-    }
-
-    function flyToMarker(lat, lon) {
-      // Compute target rotation
-      globeTargetRot.x = -(lat * Math.PI / 180) * 0.9;
-      globeTargetRot.y = -(lon + 180) * Math.PI / 180 + Math.PI;
-      globeZoomTarget = 1.8;
-      globeAutoRotate = false;
-      document.getElementById('globe-auto-btn').innerHTML = '<i class="ph-light ph-play"></i>';
-    }
+    function toggleGlobeAuto() {}
 
     function toggleZenlyMode() {
       const btn = document.getElementById('zenly-toggle-btn');
@@ -11966,7 +11704,7 @@
       const el = document.getElementById('globe-rel-list');
       if (!el) return;
       const rels = STATE.relatives.filter(r => r.lat && r.lon);
-      
+
       const listItems = [];
       if (STATE.user && STATE.user.lat && STATE.user.lon) {
         listItems.push({
@@ -11980,7 +11718,7 @@
           access: 'heir'
         });
       }
-      
+
       listItems.push(...rels.map(r => ({
         id: r.id,
         isMe: false,
@@ -11993,7 +11731,7 @@
       })));
 
       if (!listItems.length) {
-        el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-map-pin"></i></div><div class="empty-text">Нет отметок на глобусе</div><div class="empty-sub">Добавьте родственников — координаты определятся по городу автоматически</div></div>`;
+        el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-map-pin"></i></div><div class="empty-text">Нет отметок на карте</div><div class="empty-sub">Добавьте родственников — координаты определятся по городу автоматически</div></div>`;
         return;
       }
       el.innerHTML = listItems.map(r => {
@@ -12001,9 +11739,9 @@
         const displayLabel = r.isMe ? 'Вы' : (accessLabel[r.access] || r.access);
         const tagStyle = r.isMe ? 'border-color:#2ecc71;color:#2ecc71;' : `border-color:${colorHex};color:${colorHex};`;
         const iconStyle = r.isMe ? 'background:rgba(46,204,113,0.12);border-color:rgba(46,204,113,0.3)' : `background:rgba(${hexToRgb(colorHex)},0.12);border-color:rgba(${hexToRgb(colorHex)},0.3)`;
-        
+
         return `
-          <div class="list-item" onclick="flyToMarker(${r.lat},${r.lon}); selectTreeNode('${r.id}')" style="cursor:pointer">
+          <div class="list-item" onclick="flyToMarker(${r.lat},${r.lon}); if(window.selectTreeNode) selectTreeNode('${r.id}')" style="cursor:pointer">
             <div class="list-icon" style="${iconStyle}"><i class="ph-light ph-map-pin"></i></div>
             <div class="list-meta">
               <div class="list-title" style="${r.isMe ? 'font-weight:600;color:var(--green);' : ''}">${esc(r.name)}</div>
@@ -12011,7 +11749,7 @@
             </div>
             <div class="list-right">
               <span class="tag" style="${tagStyle}">${displayLabel}</span>
-              <span style="font-size:0.7rem;color:var(--muted)">→ на глобусе</span>
+              <span style="font-size:0.7rem;color:var(--muted)">→ на карте</span>
             </div>
           </div>`;
       }).join('');
@@ -12084,7 +11822,7 @@
       if (resultsEl) resultsEl.classList.remove('show');
 
       flyToMarker(lat, lon);
-      selectTreeNode(id);
+      if (window.selectTreeNode) selectTreeNode(id);
     }
 
     function hexToRgb(hex) {
@@ -12093,6 +11831,62 @@
       const b = parseInt(hex.slice(5, 7), 16);
       return `${r},${g},${b}`;
     }
+
+    /* ── Tree Dropdown Contact Selector Functions ── */
+    window.populateContactPicker = function() {
+      const select = document.getElementById('r-contact-picker');
+      if (!select) return;
+      select.innerHTML = '<option value="">-- Ввести данные вручную (новый контакт) --</option>';
+      const currentId = document.getElementById('r-id').value;
+      const rels = STATE.relatives || [];
+      rels.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.textContent = `${r.name} (${r.rel || r.relation || 'без роли'}) - ${r.email || 'без email'}`;
+        if (r.id === currentId) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+    };
+
+    window.onTreeContactSelected = function(id) {
+      if (!id) {
+        document.getElementById('r-id').value = '';
+        document.getElementById('r-name').value = '';
+        document.getElementById('r-email').value = '';
+        document.getElementById('r-rel').value = '';
+        document.getElementById('r-desc').value = '';
+        document.getElementById('r-city').value = '';
+        document.getElementById('r-lat').value = '';
+        document.getElementById('r-lon').value = '';
+        document.getElementById('r-photo-data').value = '';
+        document.getElementById('r-photo-preview').innerHTML = '?';
+        return;
+      }
+      const r = STATE.relatives.find(x => x.id === id);
+      if (!r) return;
+
+      document.getElementById('r-id').value = r.id;
+      document.getElementById('r-name').value = r.name || '';
+      document.getElementById('r-email').value = r.email || '';
+      document.getElementById('r-rel').value = r.rel || r.relation || '';
+      document.getElementById('r-desc').value = r.desc || '';
+      document.getElementById('r-city').value = r.city || '';
+      document.getElementById('r-lat').value = r.lat || '';
+      document.getElementById('r-lon').value = r.lon || '';
+      document.getElementById('r-photo-data').value = r.photo || '';
+
+      if (r.photo) {
+        document.getElementById('r-photo-preview').innerHTML = `<img src="${r.photo}">`;
+      } else {
+        document.getElementById('r-photo-preview').innerHTML = '?';
+      }
+
+      if (r.access) document.getElementById('r-access').value = r.access;
+      if (r.zone) document.getElementById('r-zone').value = r.zone;
+      if (r.lifePeriod) document.getElementById('r-lifePeriod').value = r.lifePeriod;
+    };
 
     // ── City geocoding (Nominatim free API) ──
     let cityInputTimer = null;
