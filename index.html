@@ -5543,15 +5543,11 @@
       }
 
       .page-actions {
-        overflow-x: auto;
-        padding-bottom: 2px;
-        flex-wrap: nowrap;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
         width: 100%;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      .page-actions::-webkit-scrollbar {
-        display: none;
+        overflow-x: visible;
       }
 
       /* Grids */
@@ -6343,65 +6339,70 @@
             <!-- Left: Main Content -->
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
-              <!-- Welcome Widget -->
-              <div class="dash-welcome-card">
-                <div>
-                  <div class="dash-welcome-title">Добро пожаловать, <em id="dash-name">Пользователь</em></div>
-                  <div class="dash-welcome-sub">Ваше цифровое наследие в безопасности. Сегодня <span
-                      id="dash-date"></span>.</div>
+              <!-- Redesigned Welcome Widget -->
+              <div class="dash-welcome-card" style="background: linear-gradient(135deg, rgba(20,18,30,0.85) 0%, rgba(10,9,15,0.95) 100%); border: 1px solid rgba(212,175,55,0.12); box-shadow: 0 12px 40px rgba(0,0,0,0.6); padding: 2.2rem; border-radius: 24px; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%); pointer-events: none;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; position: relative; z-index: 2;">
+                  <div>
+                    <div class="dash-welcome-title" style="font-family: var(--serif); font-size: 1.8rem; color: var(--ivory); font-weight: 300; letter-spacing: -0.5px;">Наследие рода <em id="dash-name" style="color: var(--gold); font-style: normal; font-weight: 500; text-shadow: 0 0 15px rgba(212,175,55,0.2);">Пользователь</em></div>
+                    <div class="dash-welcome-sub" style="font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; font-weight: 300; display: flex; align-items: center; gap: 0.4rem;">
+                      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71;"></span>
+                      Сквозное AES-256 шифрование активно. Сегодня <span id="dash-date" style="color: var(--gold2); font-weight: 400;"></span>.
+                    </div>
+                  </div>
+                  <div class="dash-avatar-badge" style="width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(212,175,55,0.25); background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.02) 100%); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1.4rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);"><i class="ph-fill ph-brain"></i></div>
                 </div>
 
-                <div class="dash-health-wrap">
-                  <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                    <div class="dash-stat-lbl">Заполненность наследия</div>
-                    <div style="font-family: var(--serif); color: var(--gold2); font-size: 1.2rem;"
-                      id="dash-health-pct">45%</div>
+                <div class="dash-health-wrap" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 1rem 1.4rem; position: relative; z-index: 2;">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem;">
+                    <div class="dash-stat-lbl" style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Заполненность Архива Души</div>
+                    <div style="font-family: var(--sans); color: var(--gold2); font-size: 1rem; font-weight: 600;" id="dash-health-pct">45%</div>
                   </div>
-                  <div class="dash-health-bar">
-                    <div class="dash-health-fill" id="dash-health-fill" style="width: 45%;"></div>
+                  <div class="dash-health-bar" style="height: 6px; background: rgba(255,255,255,0.03); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.01);">
+                    <div class="dash-health-fill" id="dash-health-fill" style="width: 45%; height: 100%; background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 100%); border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);"></div>
                   </div>
                 </div>
               </div>
 
               <!-- Stat Widgets Grid -->
-              <div class="dash-stat-grid">
-                <div class="dash-stat-widget" onclick="goPage('secrets')">
-                  <div class="dash-stat-icon"><i class="ph-light ph-lock-key"></i></div>
-                  <div class="dash-stat-info">
-                    <div class="dash-stat-val" id="d-secrets">0</div>
-                    <div class="dash-stat-lbl">Тайн в сейфе</div>
+              <div class="dash-stat-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                <div class="dash-stat-widget" onclick="goPage('secrets')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
+                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-lock-key"></i></div>
+                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
+                    <div class="dash-stat-val" id="d-secrets" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
+                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Сейф тайн</div>
                   </div>
                 </div>
-                <div class="dash-stat-widget" onclick="goPage('messages')">
-                  <div class="dash-stat-icon"><i class="ph-light ph-envelope-simple"></i></div>
-                  <div class="dash-stat-info">
-                    <div class="dash-stat-val" id="d-msgs">0</div>
-                    <div class="dash-stat-lbl">Посланий близким</div>
+                <div class="dash-stat-widget" onclick="goPage('messages')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
+                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-envelope-simple"></i></div>
+                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
+                    <div class="dash-stat-val" id="d-msgs" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
+                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Послания</div>
                   </div>
                 </div>
-                <div class="dash-stat-widget" onclick="goPage('connections')">
-                  <div class="dash-stat-icon"><i class="ph-light ph-users"></i></div>
-                  <div class="dash-stat-info">
-                    <div class="dash-stat-val" id="d-rels">0</div>
-                    <div class="dash-stat-lbl">Членов рода</div>
+                <div class="dash-stat-widget" onclick="goPage('connections')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
+                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-users"></i></div>
+                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
+                    <div class="dash-stat-val" id="d-rels" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
+                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Члены рода</div>
                   </div>
                 </div>
-                <div class="dash-stat-widget" onclick="goPage('bio')">
-                  <div class="dash-stat-icon"><i class="ph-light ph-scroll"></i></div>
-                  <div class="dash-stat-info">
-                    <div class="dash-stat-val" id="d-bio">0</div>
-                    <div class="dash-stat-lbl">Глав биографии</div>
+                <div class="dash-stat-widget" onclick="goPage('bio')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
+                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-scroll"></i></div>
+                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
+                    <div class="dash-stat-val" id="d-bio" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
+                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Биография</div>
                   </div>
                 </div>
               </div>
 
               <!-- Activity Feed -->
-              <div class="card" style="margin-bottom: 0;">
-                <div class="section-label" style="margin-bottom: 1.2rem;">Последняя активность</div>
+              <div class="card" style="margin-bottom: 0; background: rgba(20,18,30,0.4); border: 1px solid rgba(255,255,255,0.03); border-radius: 24px; padding: 1.8rem; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+                <div class="section-label" style="margin-bottom: 1.2rem; color: var(--gold2); font-family: var(--serif); font-size: 1.05rem; letter-spacing: 0.5px;">Последняя активность</div>
                 <div id="dash-activity">
                   <div class="empty" style="padding: 2rem 1rem;">
-                    <div class="empty-icon" style="font-size: 1.5rem;"><i class="ph-light ph-clipboard"></i></div>
-                    <div class="empty-text" style="font-size: 0.9rem;">Нет активности</div>
+                    <div class="empty-icon" style="font-size: 1.5rem; color: var(--muted); opacity: 0.6;"><i class="ph-light ph-clipboard"></i></div>
+                    <div class="empty-text" style="font-size: 0.9rem; color: var(--muted); font-weight: 300;">Нет активности</div>
                   </div>
                 </div>
               </div>
@@ -6733,6 +6734,21 @@
               }
               .premium-list-meta {
                 margin-left: 0;
+              }
+              @media (max-width: 640px) {
+                .legacy-tabs {
+                  flex-wrap: wrap;
+                  gap: 0.4rem;
+                  border-bottom: none;
+                }
+                .legacy-tab-btn {
+                  padding: 0.5rem 0.8rem;
+                  font-size: 0.8rem;
+                  background: rgba(255, 255, 255, 0.02);
+                  border: 1px solid rgba(212, 175, 55, 0.08);
+                  flex: 1 1 auto;
+                  justify-content: center;
+                }
               }
             }
           </style>
@@ -8151,15 +8167,37 @@
                 <!-- Сообщения будут выводиться здесь -->
               </div>
               
-              <div id="chat-input-bar" style="padding:1rem; border-top:1px solid rgba(201,168,76,0.1); display:none; gap:0.7rem; align-items:center; background:rgba(15,13,22,0.4);">
+              <div id="chat-input-bar" style="padding:1rem; border-top:1px solid rgba(201,168,76,0.1); display:none; gap:0.7rem; align-items:center; background:rgba(15,13,22,0.4); position:relative;">
                 <input type="file" id="chat-file-input" accept="image/*" style="display:none;" onchange="handleChatFileSelect(this)">
-                <button class="btn btn-ghost" onclick="document.getElementById('chat-file-input').click()" style="padding:0.6rem; border-radius:50%; min-width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--gold);">
+                
+                <button class="btn btn-ghost" onclick="document.getElementById('chat-file-input').click()" style="padding:0.6rem; border-radius:50%; min-width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--gold);" title="Прикрепить изображение">
                   <i class="ph-light ph-image" style="font-size:1.25rem;"></i>
                 </button>
+                
+                <!-- Voice message button -->
+                <button class="btn btn-ghost" id="chat-voice-btn" onclick="toggleVoiceRecord()" style="padding:0.6rem; border-radius:50%; min-width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--gold);" title="Голосовое сообщение">
+                  <i class="ph-light ph-microphone" id="chat-voice-icon" style="font-size:1.25rem;"></i>
+                </button>
+
+                <!-- Voice Recording Status -->
+                <div id="chat-voice-status" style="display:none; flex:1; align-items:center; gap:0.6rem; background:rgba(231,76,60,0.12); border:1px solid rgba(231,76,60,0.25); padding:0.5rem 1rem; border-radius:30px; color:#e74c3c; font-size:0.82rem; font-weight:500;">
+                  <span style="width:8px; height:8px; border-radius:50%; background:#e74c3c; display:inline-block; animation: chat-pulse-anim 1s infinite alternate;"></span>
+                  <span>Запись: <span id="chat-voice-timer">0:00</span></span>
+                  <button class="btn btn-ghost btn-xs" onclick="cancelVoiceRecord()" style="margin-left:auto; color:var(--muted); padding:0.1rem 0.5rem; font-size:0.75rem; border:1px solid rgba(255,255,255,0.1); border-radius:12px; background:rgba(0,0,0,0.2);">Отмена</button>
+                </div>
+
                 <input type="text" id="chat-message-input" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter')sendDirectMessage()" style="flex:1; border-radius:30px; padding:0.6rem 1.2rem; background:rgba(5,5,8,0.5); border:1px solid rgba(201,168,76,0.15); color:var(--ivory); outline:none;">
-                <button class="btn btn-primary-sm" onclick="sendDirectMessage()" style="padding:0.6rem; border-radius:50%; min-width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                
+                <button class="btn btn-primary-sm" id="chat-send-btn" onclick="sendDirectMessage()" style="padding:0.6rem; border-radius:50%; min-width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0;" title="Отправить">
                   <i class="ph-light ph-paper-plane-right" style="font-size:1.1rem;"></i>
                 </button>
+
+                <style>
+                  @keyframes chat-pulse-anim {
+                    0% { opacity: 0.3; transform: scale(0.9); }
+                    100% { opacity: 1; transform: scale(1.1); }
+                  }
+                </style>
               </div>
             </div>
           </div>
@@ -14615,11 +14653,86 @@ ${socialsContext}
     // ═══════════════════════════════════════════
     // CHAT MESSENGER JS (Firebase based)
     // ═══════════════════════════════════════════
+    let chatsUnsubscribe = null;
+    let unreadCounts = {};
+    let isChatsSubscribed = false;
+
+    function showWebNotification(title, body) {
+      if (!("Notification" in window)) return;
+      if (Notification.permission === "granted") {
+        try {
+          new Notification(title, { body: body, icon: "icon.png" });
+        } catch (e) {
+          if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+            navigator.serviceWorker.ready.then(reg => {
+              reg.showNotification(title, { body: body, icon: "icon.png" });
+            }).catch(err => console.error(err));
+          }
+        }
+      }
+    }
+
+    function subscribeToChats() {
+      const myUid = fbAuth.currentUser ? fbAuth.currentUser.uid : 'demo';
+      if (myUid === 'demo') return;
+      if (isChatsSubscribed) return;
+      isChatsSubscribed = true;
+
+      // Request browser notification permissions
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+
+      let isInitialChats = true;
+      // Mark initial load finished after 2.5 seconds to prevent spamming notifications for old chats
+      setTimeout(() => { isInitialChats = false; }, 2500);
+
+      chatsUnsubscribe = fbDb.collection('chats').where('users', 'array-contains', myUid)
+        .onSnapshot(snapshot => {
+          snapshot.docChanges().forEach(change => {
+            if ((change.type === 'modified' || change.type === 'added') && !isInitialChats) {
+              const data = change.doc.data();
+              if (data.lastSenderUid && data.lastSenderUid !== myUid) {
+                const updatedAtMs = data.updatedAt ? data.updatedAt.toMillis() : Date.now();
+                if (Date.now() - updatedAtMs < 15000) { // within last 15 seconds
+                  showWebNotification("SoulKeeper Мессенджер", "У вас новое сообщение.");
+                }
+              }
+            }
+          });
+
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const otherUid = data.users.find(u => u !== myUid);
+            if (otherUid) {
+              fbDb.collection('chats').doc(doc.id).collection('messages')
+                .where('senderUid', '==', otherUid)
+                .where('read', '==', false)
+                .get()
+                .then(msgSnap => {
+                  const count = msgSnap.size;
+                  if (count > 0) {
+                    unreadCounts[otherUid] = count;
+                  } else {
+                    delete unreadCounts[otherUid];
+                  }
+                  renderChatContacts();
+                }).catch(e => console.error(e));
+            }
+          });
+        }, err => {
+          console.error("Chats subscription error:", err);
+        });
+    }
+
     function renderChatContacts() {
       const el = document.getElementById('chat-contacts-list');
       if (!el) return;
       const email = _connEmail();
       if (!email) return;
+
+      // Automatically subscribe to chats updates to track unread badges
+      subscribeToChats();
 
       const addedMe = DB.load(_connKey('conn_added_me'), []);
       const relatives = STATE.relatives || [];
@@ -14654,6 +14767,11 @@ ${socialsContext}
 
       el.innerHTML = contacts.map(c => {
         const isSelected = activeChatContact && activeChatContact.email === c.email;
+        const badgeCount = unreadCounts[c.uid] || 0;
+        const badgeHtml = badgeCount > 0 ? `
+          <div style="background:var(--gold); color:black; font-size:0.7rem; font-weight:700; min-width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; padding:0 4px; box-shadow:0 2px 6px rgba(212,175,55,0.4);">${badgeCount}</div>
+        ` : '';
+
         return `
           <div class="chat-contact-item" onclick="selectChatContact('${c.uid}', '${esc(c.name)}', '${esc(c.email)}')" style="padding:0.8rem 1rem; border-bottom:1px solid rgba(201,168,76,0.05); display:flex; align-items:center; gap:0.6rem; cursor:pointer; transition:background-color 0.2s; ${isSelected ? 'background:rgba(201,168,76,0.08);' : ''}">
             <div style="width:32px; height:32px; border-radius:50%; background:var(--gold-d3); border:1px solid rgba(212,175,55,0.2); display:flex; align-items:center; justify-content:center; color:var(--gold); font-size:0.85rem; font-weight:600; flex-shrink:0;">
@@ -14663,9 +14781,165 @@ ${socialsContext}
               <div style="font-size:0.85rem; color:var(--ivory); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(c.name)}</div>
               <div style="font-size:0.7rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(c.relation)}</div>
             </div>
+            ${badgeHtml}
           </div>
         `;
       }).join('');
+    }
+
+    let mediaRecorder = null;
+    let voiceChunks = [];
+    let voiceTimerInterval = null;
+    let voiceDuration = 0;
+
+    async function toggleVoiceRecord() {
+      const btn = document.getElementById('chat-voice-btn');
+      const statusWrap = document.getElementById('chat-voice-status');
+      const textInput = document.getElementById('chat-message-input');
+      const voiceIcon = document.getElementById('chat-voice-icon');
+
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        voiceChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) voiceChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          clearInterval(voiceTimerInterval);
+          statusWrap.style.display = 'none';
+          textInput.style.display = 'block';
+          if (voiceIcon) {
+            voiceIcon.className = 'ph-light ph-microphone';
+            voiceIcon.style.color = '';
+          }
+
+          stream.getTracks().forEach(track => track.stop());
+
+          if (voiceChunks.length === 0) return;
+
+          const blob = new Blob(voiceChunks, { type: 'audio/webm' });
+          if (blob.size < 100) return;
+
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onloadend = async () => {
+            const base64data = reader.result;
+            await sendDirectMessage(null, base64data);
+          };
+        };
+
+        mediaRecorder.start();
+        
+        statusWrap.style.display = 'flex';
+        textInput.style.display = 'none';
+        if (voiceIcon) {
+          voiceIcon.className = 'ph-fill ph-stop';
+          voiceIcon.style.color = '#e74c3c';
+        }
+        
+        voiceDuration = 0;
+        document.getElementById('chat-voice-timer').textContent = '0:00';
+        voiceTimerInterval = setInterval(() => {
+          voiceDuration++;
+          const mins = Math.floor(voiceDuration / 60);
+          const secs = (voiceDuration % 60).toString().padStart(2, '0');
+          document.getElementById('chat-voice-timer').textContent = `${mins}:${secs}`;
+        }, 1000);
+
+      } catch (err) {
+        console.error("Microphone access error:", err);
+        toast("Нет доступа к микрофону");
+      }
+    }
+
+    function cancelVoiceRecord() {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.onstop = () => {
+          clearInterval(voiceTimerInterval);
+          document.getElementById('chat-voice-status').style.display = 'none';
+          document.getElementById('chat-message-input').style.display = 'block';
+          const voiceIcon = document.getElementById('chat-voice-icon');
+          if (voiceIcon) {
+            voiceIcon.className = 'ph-light ph-microphone';
+            voiceIcon.style.color = '';
+          }
+          voiceChunks = [];
+        };
+        mediaRecorder.stop();
+      }
+    }
+
+    let currentAudio = null;
+    let currentPlayBtn = null;
+    function togglePlayVoice(btn, base64Data) {
+      const icon = btn.querySelector('i');
+      const container = btn.closest('.voice-player');
+      const timer = container.querySelector('.voice-timer');
+      
+      if (currentAudio && currentPlayBtn === btn) {
+        if (currentAudio.paused) {
+          currentAudio.play();
+          icon.className = 'ph-fill ph-pause';
+        } else {
+          currentAudio.pause();
+          icon.className = 'ph-fill ph-play';
+          icon.style.marginLeft = '2px';
+        }
+        return;
+      }
+      
+      if (currentAudio) {
+        currentAudio.pause();
+        if (currentPlayBtn) {
+          const prevIcon = currentPlayBtn.querySelector('i');
+          if (prevIcon) {
+            prevIcon.className = 'ph-fill ph-play';
+            prevIcon.style.marginLeft = '2px';
+          }
+        }
+      }
+      
+      currentPlayBtn = btn;
+      
+      try {
+        const binaryVal = atob(base64Data.split(',')[1] || base64Data);
+        const array = [];
+        for (let i = 0; i < binaryVal.length; i++) {
+          array.push(binaryVal.charCodeAt(i));
+        }
+        const blob = new Blob([new Uint8Array(array)], { type: 'audio/webm' });
+        const blobUrl = URL.createObjectURL(blob);
+        
+        currentAudio = new Audio(blobUrl);
+        currentAudio.play();
+        icon.className = 'ph-fill ph-pause';
+        icon.style.marginLeft = '0';
+        
+        currentAudio.addEventListener('timeupdate', () => {
+          const mins = Math.floor(currentAudio.currentTime / 60);
+          const secs = Math.floor(currentAudio.currentTime % 60).toString().padStart(2, '0');
+          timer.textContent = `${mins}:${secs}`;
+        });
+        
+        currentAudio.addEventListener('ended', () => {
+          icon.className = 'ph-fill ph-play';
+          icon.style.marginLeft = '2px';
+          timer.textContent = 'Голосовое сообщение';
+          currentAudio = null;
+          currentPlayBtn = null;
+        });
+      } catch (e) {
+        console.error("Audio playback error:", e);
+        toast("Ошибка воспроизведения аудио");
+      }
     }
 
     function selectChatContact(uid, name, email) {
@@ -14724,6 +14998,11 @@ ${socialsContext}
             const align = isMe ? 'flex-end' : 'flex-start';
             const time = m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...';
 
+            // Mark received messages as read
+            if (!isMe && m.read !== true) {
+              doc.ref.update({ read: true }).catch(err => console.error("Error marking message as read:", err));
+            }
+
             // ZERO-KNOWLEDGE: расшифровываем сообщение с помощью общего ключа чата
             let displayText = m.text || '';
             if (typeof m.text === 'string' && m.text.startsWith('ZK_CHAT::')) {
@@ -14741,6 +15020,22 @@ ${socialsContext}
             } else if (m.zk && m.text) {
               const rawText = CryptoEngine.decrypt(m.text);
               displayText = typeof rawText === 'string' ? rawText : JSON.stringify(rawText);
+            }
+
+            // ZERO-KNOWLEDGE: расшифровываем голосовое сообщение
+            let decryptedVoice = '';
+            if (typeof m.voice === 'string' && m.voice.startsWith('ZK_CHAT::')) {
+              try {
+                const payload = m.voice.slice('ZK_CHAT::'.length);
+                const colonIdx = payload.indexOf(':');
+                if (colonIdx !== -1) {
+                  const ivHex = payload.slice(0, colonIdx);
+                  const cryptText = payload.slice(colonIdx + 1);
+                  const iv = CryptoJS.enc.Hex.parse(ivHex);
+                  const decrypted = CryptoJS.AES.decrypt(cryptText, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+                  decryptedVoice = decrypted.toString(CryptoJS.enc.Utf8);
+                }
+              } catch (e) { console.error("Voice decryption error:", e); }
             }
 
             // ZERO-KNOWLEDGE: расшифровываем картинку
@@ -14767,12 +15062,12 @@ ${socialsContext}
                   const payload = m.senderMeta.slice('ZK_CHAT::'.length);
                   const colonIdx = payload.indexOf(':');
                   if (colonIdx !== -1) {
-                    const ivHex = payload.slice(0, colonIdx);
-                    const cryptText = payload.slice(colonIdx + 1);
-                    const iv = CryptoJS.enc.Hex.parse(ivHex);
-                    const decrypted = CryptoJS.AES.decrypt(cryptText, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-                    const meta = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
-                    senderName = (meta && meta.name) ? meta.name : '';
+                     const ivHex = payload.slice(0, colonIdx);
+                     const cryptText = payload.slice(colonIdx + 1);
+                     const iv = CryptoJS.enc.Hex.parse(ivHex);
+                     const decrypted = CryptoJS.AES.decrypt(cryptText, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+                     const meta = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+                     senderName = (meta && meta.name) ? meta.name : '';
                   }
                 } catch (e) { console.error("Meta decryption error:", e); }
               } else {
@@ -14781,15 +15076,46 @@ ${socialsContext}
               }
             }
 
+            // Checkmark status ticks: single ✓ for sent, double gold ✓✓ for read
+            const statusTicks = isMe ? (
+              m.read === true ? 
+              '<span style="color:var(--gold); font-size:0.8rem; margin-left:0.25rem; font-weight:600;" title="Прочитано">✓✓</span>' : 
+              '<span style="color:var(--muted); font-size:0.8rem; margin-left:0.25rem; opacity:0.6;" title="Доставлено">✓</span>'
+            ) : '';
+
             html += `
               <div style="align-self:${align}; max-width:80%; display:flex; flex-direction:column; gap:0.15rem;">
                 ${!isMe && senderName ? `<div style="font-size:0.65rem; color:var(--gold); padding-left:0.5rem; opacity:0.8;">${esc(senderName)}</div>` : ''}
                 <div style="background:${bg}; border:${border}; padding:0.65rem 1rem; border-radius:${isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px'}; display:flex; flex-direction:column; gap:0.2rem; box-shadow:0 4px 15px rgba(0,0,0,0.15);">
                   ${decryptedImage ? `<img src="${decryptedImage}" style="max-width:260px; width:100%; border-radius:8px; margin-bottom:0.3rem; display:block; cursor:pointer;" onclick="openFullImageModal('${decryptedImage}')">` : ''}
+                  
+                  ${decryptedVoice ? `
+                    <div class="voice-player" style="display:flex; align-items:center; gap:0.6rem; min-width:190px; padding:0.3rem 0;">
+                      <button class="btn btn-ghost" onclick="togglePlayVoice(this, '${decryptedVoice}')" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(212,175,55,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold); padding:0; flex-shrink:0; background:rgba(212,175,55,0.05); outline:none;">
+                        <i class="ph-fill ph-play" style="font-size:1rem; margin-left:2px;"></i>
+                      </button>
+                      <div style="flex:1;">
+                        <div class="voice-wave-container" style="height:20px; display:flex; align-items:center; gap:2px; overflow:hidden;">
+                          <span style="height:4px; width:2px; background:var(--gold); border-radius:1px; opacity:0.4;"></span>
+                          <span style="height:10px; width:2px; background:var(--gold); border-radius:1px; opacity:0.6;"></span>
+                          <span style="height:6px; width:2px; background:var(--gold); border-radius:1px; opacity:0.5;"></span>
+                          <span style="height:14px; width:2px; background:var(--gold); border-radius:1px; opacity:0.7;"></span>
+                          <span style="height:8px; width:2px; background:var(--gold); border-radius:1px; opacity:0.5;"></span>
+                          <span style="height:16px; width:2px; background:var(--gold); border-radius:1px; opacity:0.8;"></span>
+                          <span style="height:10px; width:2px; background:var(--gold); border-radius:1px; opacity:0.6;"></span>
+                          <span style="height:12px; width:2px; background:var(--gold); border-radius:1px; opacity:0.7;"></span>
+                          <span style="height:4px; width:2px; background:var(--gold); border-radius:1px; opacity:0.4;"></span>
+                        </div>
+                        <div style="font-size:0.7rem; color:var(--muted); margin-top:2px;" class="voice-timer">Голосовое сообщение</div>
+                      </div>
+                    </div>
+                  ` : ''}
+
                   ${displayText ? `<div style="font-size:0.85rem; color:var(--ivory); word-break:break-word; white-space:pre-wrap;">${esc(displayText)}</div>` : ''}
-                  <div style="font-size:0.6rem; color:var(--muted); align-self:flex-end; display:flex; align-items:center; gap:0.3rem;">
+                  <div style="font-size:0.6rem; color:var(--muted); align-self:flex-end; display:flex; align-items:center; gap:0.1rem;">
                     ${time}
-                    ${m.zk || (typeof m.text === 'string' && m.text.startsWith('ZK_CHAT::')) || (typeof m.image === 'string' && m.image.startsWith('ZK_CHAT::')) ? '<i class="ph-light ph-lock" style="font-size:0.7rem; color:var(--gold); opacity:0.7;"></i>' : ''}
+                    ${m.zk || (typeof m.text === 'string' && m.text.startsWith('ZK_CHAT::')) || (typeof m.image === 'string' && m.image.startsWith('ZK_CHAT::')) || (typeof m.voice === 'string' && m.voice.startsWith('ZK_CHAT::')) ? '<i class="ph-light ph-lock" style="font-size:0.7rem; color:var(--gold); opacity:0.7; margin-left:0.2rem;"></i>' : ''}
+                    ${statusTicks}
                   </div>
                 </div>
               </div>
@@ -14808,18 +15134,23 @@ ${socialsContext}
         });
     }
 
-    async function sendDirectMessage() {
-      const input = document.getElementById('chat-message-input');
-      if (!input) return;
-      const text = input.value.trim();
-      if (!text) return;
+    async function sendDirectMessage(textOverride = null, voiceBase64 = null) {
+      let text = '';
+      if (textOverride) {
+        text = textOverride;
+      } else {
+        const input = document.getElementById('chat-message-input');
+        if (!input) return;
+        text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+      }
 
       if (!activeChatContact) { toast('Выберите собеседника'); return; }
 
       const myUid = fbAuth.currentUser ? fbAuth.currentUser.uid : 'demo';
       if (myUid === 'demo') {
         toast('Чат доступен только для зарегистрированных пользователей');
-        input.value = '';
         return;
       }
 
@@ -14827,30 +15158,44 @@ ${socialsContext}
       const chatKey = CryptoJS.SHA256(chatId);
 
       try {
-        input.value = '';
+        let encryptedText = '';
+        let encryptedVoice = '';
         
-        // Шифруем текст сообщения
-        const iv = CryptoJS.lib.WordArray.random(16);
-        const encrypted = CryptoJS.AES.encrypt(text, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-        const encryptedText = 'ZK_CHAT::' + iv.toString() + ':' + encrypted.toString();
+        if (voiceBase64) {
+          const voiceIv = CryptoJS.lib.WordArray.random(16);
+          const encryptedV = CryptoJS.AES.encrypt(voiceBase64, chatKey, { iv: voiceIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+          encryptedVoice = 'ZK_CHAT::' + voiceIv.toString() + ':' + encryptedV.toString();
+        } else {
+          const iv = CryptoJS.lib.WordArray.random(16);
+          const encrypted = CryptoJS.AES.encrypt(text, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+          encryptedText = 'ZK_CHAT::' + iv.toString() + ':' + encrypted.toString();
+        }
 
-        // Шифруем метаданные отправителя
         const senderMetaRaw = JSON.stringify({ email: STATE.user?.email || '', name: STATE.user?.name || 'Пользователь' });
         const metaIv = CryptoJS.lib.WordArray.random(16);
         const encryptedMeta = CryptoJS.AES.encrypt(senderMetaRaw, chatKey, { iv: metaIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
         const encryptedSenderMeta = 'ZK_CHAT::' + metaIv.toString() + ':' + encryptedMeta.toString();
 
-        await fbDb.collection('chats').doc(chatId).collection('messages').add({
+        const messageObj = {
           senderUid: myUid,
           senderMeta: encryptedSenderMeta,
-          text: encryptedText,
           zk: true,
+          read: false,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        };
 
-        // Метаданные чата (шифруем preview сообщения)
+        if (voiceBase64) {
+          messageObj.voice = encryptedVoice;
+        } else {
+          messageObj.text = encryptedText;
+        }
+
+        await fbDb.collection('chats').doc(chatId).collection('messages').add(messageObj);
+
+        // Update preview of the chat
+        const previewText = voiceBase64 ? '🎤 Голосовое сообщение' : text;
         const lastMsgIv = CryptoJS.lib.WordArray.random(16);
-        const encryptedLastMsg = CryptoJS.AES.encrypt(text.slice(0, 50), chatKey, { iv: lastMsgIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+        const encryptedLastMsg = CryptoJS.AES.encrypt(previewText.slice(0, 50), chatKey, { iv: lastMsgIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
         const encryptedLastMessage = 'ZK_CHAT::' + lastMsgIv.toString() + ':' + encryptedLastMsg.toString();
 
         await fbDb.collection('chats').doc(chatId).set({
