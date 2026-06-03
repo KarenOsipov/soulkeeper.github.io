@@ -12549,7 +12549,7 @@ ${secretsInfo}
       const typing = document.createElement('div'); typing.className = 'typing'; typing.textContent = 'Мудрец думает...'; msgs.appendChild(typing);
       msgs.scrollTop = msgs.scrollHeight;
 
-      const key = 'AQ.Ab8RN6LdAdUawqlvnP54OQoRDg8HcTVCVkJt3T-wDT4fhApNbg';
+      const key = (typeof firebase !== 'undefined' && firebase.app && firebase.app().options && firebase.app().options.apiKey) || 'AQ.Ab8RN6LdAdUawqlvnP54OQoRDg8HcTVCVkJt3T-wDT4fhApNbg';
       const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
 
       const system = buildAiSystemPrompt();
@@ -12934,6 +12934,16 @@ ${secretsInfo}
       }
     }
 
+    function onVoiceEngineChange() {
+      const select = document.getElementById('twin-voice-engine');
+      if (!select) return;
+      const engine = select.value;
+      const grpEleven = document.getElementById('twin-group-eleven');
+      const grpLocal = document.getElementById('twin-group-local');
+      if (grpEleven) grpEleven.style.display = (engine === 'eleven') ? 'flex' : 'none';
+      if (grpLocal) grpLocal.style.display = (engine === 'local') ? 'flex' : 'none';
+    }
+
     function speakTwinText(text) {
       if (!twinAudioSynth) return;
       twinAudioSynth.cancel();
@@ -13130,6 +13140,11 @@ ${secretsInfo}
       const autoSpeakCheck = document.getElementById('twin-auto-speak');
       if (autoSpeakCheck) autoSpeakCheck.checked = !!s.autoSpeak;
 
+      const engineSelect = document.getElementById('twin-voice-engine');
+      if (engineSelect) {
+        engineSelect.value = s.voiceEngine || 'eleven';
+        onVoiceEngineChange();
+      }
 
       const elevenVoiceInp = document.getElementById('twin-eleven-voice-id');
       if (elevenVoiceInp) elevenVoiceInp.value = s.voiceId || '';
@@ -13276,6 +13291,7 @@ ${secretsInfo}
       const elevenVoiceInp = document.getElementById('twin-eleven-voice-id');
       const socialsInp = document.getElementById('twin-socials');
       const selectVoice = document.getElementById('twin-voice-select');
+      const engineSelect = document.getElementById('twin-voice-engine');
 
       const s = STATE.twinSettings || {};
       s.name = userNameInp ? userNameInp.value.trim() : s.name || '';
@@ -13284,6 +13300,7 @@ ${secretsInfo}
       s.voicePitch = pitchInp ? parseFloat(pitchInp.value) : s.voicePitch || 1.0;
       s.voiceRate = rateInp ? parseFloat(rateInp.value) : s.voiceRate || 1.0;
       s.autoSpeak = autoSpeakCheck ? autoSpeakCheck.checked : !!s.autoSpeak;
+      s.voiceEngine = engineSelect ? engineSelect.value : s.voiceEngine || 'eleven';
       s.voiceId = (selectVoice && selectVoice.value) || (elevenVoiceInp ? elevenVoiceInp.value.trim() : s.voiceId || '');
       s.socials = socialsInp ? socialsInp.value.trim() : s.socials || '';
 
@@ -13766,7 +13783,7 @@ ${socialsContext}
       msgs.appendChild(typing);
       msgs.scrollTop = msgs.scrollHeight;
 
-      const key = 'AQ.Ab8RN6LdAdUawqlvnP54OQoRDg8HcTVCVkJt3T-wDT4fhApNbg';
+      const key = (typeof firebase !== 'undefined' && firebase.app && firebase.app().options && firebase.app().options.apiKey) || 'AQ.Ab8RN6LdAdUawqlvnP54OQoRDg8HcTVCVkJt3T-wDT4fhApNbg';
       const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
 
       const system = buildTwinSystemPrompt(text);
