@@ -1,0 +1,22 @@
+{
+  "short_name": "SoulKeeper",
+  "name": "SoulKeeper — Хранитель твоей жизни",
+  "description": "Цифровое наследие, зашифрованный мессенджер и семейный архив поколения.",
+  "icons": [
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#050508",
+  "theme_color": "#0f0d16",
+  "display": "standalone",
+  "orientation": "portrait-primary"
+}
