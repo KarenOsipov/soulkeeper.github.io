@@ -9712,6 +9712,7 @@
         // Загружаем данные в фоновом режиме
         loadUserDataFromFirestore(fbUser.uid).then(() => {
           renderAll();
+          listenRelativesLocations();
         });
 
         // Проверяем отложенный план (если пришёл с лендинга)
@@ -9880,6 +9881,7 @@
       if (page) page.classList.add('active');
       if (nav) nav.classList.add('active');
       if (name === 'globe') {
+        listenRelativesLocations();
         if (!globeInit) { setTimeout(() => { initGlobe(); }, 120); }
         else { renderGlobeList(); updateGlobeMarkers(); }
       }
@@ -14582,6 +14584,8 @@ ${socialsContext}
           }
         }
 
+        const shareLoc = confirm(`Хотите ли вы делиться своей геопозицией на карте с пользователем ${targetName || 'членом рода'}?`);
+
         await fbDb.collection('connections').doc(connId).set({
           fromUid: myUid,
           fromEmail: myEmail,
@@ -14592,6 +14596,7 @@ ${socialsContext}
           status: 'pending',
           role: role,
           relation: relation,
+          shareLocationFrom: shareLoc,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -14615,8 +14620,11 @@ ${socialsContext}
       if (!conn || !conn.id) return;
 
       try {
+        const shareLoc = confirm(`Хотите ли вы делиться своей геопозицией на карте с пользователем ${conn.fromName || 'членом рода'}?`);
+
         await fbDb.collection('connections').doc(conn.id).update({
           status: 'accepted',
+          shareLocationTo: shareLoc,
           acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -14702,6 +14710,84 @@ ${socialsContext}
     let chatsUnsubscribe = null;
     let unreadCounts = {};
     let isChatsSubscribed = false;
+
+    let relativesLocationsUnsubscribe = {};
+
+    function listenRelativesLocations() {
+      const myUid = fbAuth.currentUser ? fbAuth.currentUser.uid : 'demo';
+      if (myUid === 'demo') return;
+
+      // Clear existing listeners
+      Object.values(relativesLocationsUnsubscribe).forEach(unsub => {
+        try { unsub(); } catch(e) {}
+      });
+      relativesLocationsUnsubscribe = {};
+
+      const myEmail = STATE.user ? STATE.user.email : null;
+      if (!myEmail) return;
+
+      fbDb.collection('connections')
+        .where('status', '==', 'accepted')
+        .onSnapshot(snapshot => {
+          snapshot.forEach(doc => {
+            const conn = doc.data();
+            const isToMe = conn.toEmail.toLowerCase() === myEmail.toLowerCase();
+            const otherUid = isToMe ? conn.fromUid : conn.toUid;
+            const canSeeLocation = isToMe ? conn.shareLocationFrom === true : conn.shareLocationTo === true;
+
+            if (canSeeLocation && otherUid) {
+              if (!relativesLocationsUnsubscribe[otherUid]) {
+                relativesLocationsUnsubscribe[otherUid] = fbDb.collection('users').doc(otherUid)
+                  .onSnapshot(userDoc => {
+                    if (userDoc.exists) {
+                      const userData = userDoc.data();
+                      if (userData.lat && userData.lon) {
+                        const rIndex = STATE.relatives.findIndex(r => r.id === otherUid || (r.email && r.email.toLowerCase() === userData.email.toLowerCase()));
+                        if (rIndex !== -1) {
+                          STATE.relatives[rIndex].lat = userData.lat;
+                          STATE.relatives[rIndex].lon = userData.lon;
+                          if (userData.city) {
+                            STATE.relatives[rIndex].city = userData.city;
+                          }
+                          if (typeof updateGlobeMarkers === 'function') updateGlobeMarkers();
+                          if (typeof renderGlobeList === 'function') renderGlobeList();
+                        } else {
+                          STATE.relatives.push({
+                            id: otherUid,
+                            name: userData.name || (isToMe ? conn.fromName : conn.toName),
+                            email: userData.email,
+                            access: isToMe ? conn.role : 'observer',
+                            relation: conn.relation || 'Родственник',
+                            lat: userData.lat,
+                            lon: userData.lon,
+                            city: userData.city || 'В сети',
+                            isOnline: true
+                          });
+                          if (typeof updateGlobeMarkers === 'function') updateGlobeMarkers();
+                          if (typeof renderGlobeList === 'function') renderGlobeList();
+                        }
+                      }
+                    }
+                  });
+              }
+            } else {
+              if (relativesLocationsUnsubscribe[otherUid]) {
+                try { relativesLocationsUnsubscribe[otherUid](); } catch(e) {}
+                delete relativesLocationsUnsubscribe[otherUid];
+                const rIndex = STATE.relatives.findIndex(r => r.id === otherUid);
+                if (rIndex !== -1) {
+                  delete STATE.relatives[rIndex].lat;
+                  delete STATE.relatives[rIndex].lon;
+                  if (typeof updateGlobeMarkers === 'function') updateGlobeMarkers();
+                  if (typeof renderGlobeList === 'function') renderGlobeList();
+                }
+              }
+            }
+          });
+        }, err => {
+          console.error("Relatives tracking error:", err);
+        });
+    }
 
     function showWebNotification(title, body) {
       if (!("Notification" in window)) return;
