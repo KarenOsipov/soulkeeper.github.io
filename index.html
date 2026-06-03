@@ -6322,8 +6322,8 @@
             class="dock-icon"><i class="ph-light ph-chats"></i></span></div>
         <div class="dock-item" onclick="goPage('tree')" id="nav-tree" data-tooltip="Древо жизни"><span
             class="dock-icon"><i class="ph-light ph-tree-structure"></i></span></div>
-        <div class="dock-item" onclick="goPage('globe')" id="nav-globe" data-tooltip="Глобус"><span class="dock-icon"><i
-              class="ph-light ph-globe"></i></span></div>
+        <div class="dock-item" onclick="goPage('globe')" id="nav-globe" data-tooltip="Карта близких"><span class="dock-icon"><i
+              class="ph-light ph-map-trifold"></i></span></div>
         <div class="dock-sep"></div>
         <div class="dock-item" onclick="goPage('switch')" id="nav-switch" data-tooltip="Страж Жизни"><span
             class="dock-icon"><i class="ph-light ph-hourglass"></i></span></div>
@@ -6981,16 +6981,16 @@
           </div>
         </div>
 
-        <!-- ── GLOBE ── -->
+        <!-- ── MAP ── -->
         <div class="page" id="page-globe">
           <div class="page-header">
             <div>
-              <div class="page-title">Глобус <em>семьи</em></div>
+              <div class="page-title">Карта <em>близких</em></div>
               <div class="page-sub">Где живут ваши близкие</div>
             </div>
             <div class="page-actions">
               <button class="btn btn-ghost-sm" id="zenly-toggle-btn" onclick="toggleZenlyMode()" style="gap:6px; font-weight:600; border:1px solid rgba(255,255,255,0.1); margin-right:8px;"><i class="ph-bold ph-radar"></i> Моя геопозиция</button>
-              <button class="btn btn-primary-sm" onclick="openModal('modal-relative')">+ Добавить</button>
+              <button class="btn btn-primary-sm" onclick="openModal('modal-map-invite')">+ Добавить близкого</button>
             </div>
           </div>
           <div id="globe-wrap" style="position: relative; overflow: hidden; border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.08); box-shadow: 0 10px 45px rgba(0, 0, 0, 0.4);">
@@ -7022,7 +7022,7 @@
               </div>
             </div>
           </div>
-          <div class="section-label">На глобусе</div>
+          <div class="section-label">На карте</div>
           <div id="globe-rel-list"></div>
         </div>
 
@@ -8256,8 +8256,8 @@
             class="mob-drawer-label">Чат</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('globe');mobSetActive('globe');closeMobDrawer()">
-          <span class="mob-drawer-icon"><i class="ph-light ph-globe"></i></span><span
-            class="mob-drawer-label">Глобус</span>
+          <span class="mob-drawer-icon"><i class="ph-light ph-map-trifold"></i></span><span
+            class="mob-drawer-label">Карта</span>
         </button>
         <button class="mob-drawer-item" onclick="goPage('switch');mobSetActive('switch');closeMobDrawer()">
           <span class="mob-drawer-icon"><i class="ph-light ph-hourglass"></i></span><span
@@ -8635,6 +8635,39 @@
         <div style="display:flex;gap:0.7rem;justify-content:flex-end;margin-top:1rem">
           <button class="btn btn-ghost" onclick="closeModal('modal-join-tree')">Отмена</button>
           <button class="btn btn-primary-sm" onclick="joinByCodeModal()">Отправить запрос</button>
+        </div>
+  </div>
+
+  <!-- Modal: Пригласить на карту / Связать контакты -->
+  <div class="modal-overlay" id="modal-map-invite">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title">Добавить на карту</div>
+        <button class="modal-close" onclick="closeModal('modal-map-invite')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.84rem;color:var(--muted);margin-bottom:1.2rem;line-height:1.7">
+          Введите Email или персональный Код родственника (вида SK-XXXXXX), чтобы связать ваши аккаунты и обмениваться геопозицией на карте.
+        </p>
+        <div class="field">
+          <label>Email или Код близкого</label>
+          <input type="text" id="map-invite-input" placeholder="example@mail.com или SK-XXXXXX" style="font-size:1rem">
+        </div>
+        <div class="field">
+          <label>Ваша роль для него</label>
+          <select id="map-invite-role">
+            <option value="observer">Наблюдатель (только просмотр)</option>
+            <option value="heir">Наследник</option>
+            <option value="trusted">Доверенный</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Кем он вам приходится</label>
+          <input type="text" id="map-invite-rel" placeholder="Брат, Сестра, Друг...">
+        </div>
+        <div style="display:flex;gap:0.7rem;justify-content:flex-end;margin-top:1.5rem">
+          <button class="btn btn-ghost" onclick="closeModal('modal-map-invite')">Отмена</button>
+          <button class="btn btn-primary-sm" onclick="sendMapInviteFromModal()">Отправить приглашение</button>
         </div>
       </div>
     </div>
@@ -11194,6 +11227,10 @@
            <button class="btn btn-ghost"       style="padding:0.9rem 1rem;" onclick="deleteRel('${id}')"><i class="ph-light ph-trash-simple"></i></button>`
         : `<button class="btn btn-ghost" style="flex:1" onclick="goPage('connections')"><i class="ph-light ph-share-network"></i> Связи</button>`;
 
+      const inviteMapBtn = (!node.isMe && !node.lat)
+        ? `<button class="btn btn-primary-sm" style="width:100%; background:var(--gold-d); border-color:var(--gold);" onclick="inviteRelativeFromSidebar('${node.email || ''}', '${node.access || 'observer'}', '${node.rel || ''}', '${node.id}')"><i class="ph-light ph-link"></i> Пригласить на карту</button>`
+        : '';
+
       // Calculate distance if coordinates exist
       let distanceHTML = '';
       if (!node.isMe && node.lat && node.lon && STATE.user && STATE.user.lat && STATE.user.lon) {
@@ -11247,7 +11284,12 @@
         ${connectionsHTML}
 
         <div class="tdc-divider"></div>
-        <div class="tdc-actions">${editBtn}</div>`;
+        <div class="tdc-actions" style="display:flex; flex-direction:column; gap:8px;">
+          ${inviteMapBtn}
+          <div style="display:flex; gap:8px; width:100%;">
+            ${editBtn}
+          </div>
+        </div>`;
     }
 
     /* Keep openSidePanel as alias for backward-compat */
@@ -11681,7 +11723,11 @@
       // Add CartoDB Dark Matter tile layer
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 20,
-        subdomains: 'abcd'
+        subdomains: 'abcd',
+        updateWhenIdle: false,
+        updateWhenZooming: true,
+        keepBuffer: 6,
+        preload: 3
       }).addTo(leafletMap);
 
       // Add map click listener to add relative at location
@@ -14622,6 +14668,25 @@ ${socialsContext}
       closeModal('modal-relative');
     }
 
+    function inviteRelativeFromSidebar(email, access, rel, nodeId) {
+      if (!email) {
+        toast('Пожалуйста, укажите email родственника, чтобы отправить приглашение.');
+        openEditRelative(nodeId);
+        return;
+      }
+      _sendJoinRequest(email, access, rel);
+      closeSidePanel();
+    }
+
+    function sendMapInviteFromModal() {
+      const val = (document.getElementById('map-invite-input')?.value || '').trim();
+      const role = document.getElementById('map-invite-role')?.value || 'observer';
+      const rel = (document.getElementById('map-invite-rel')?.value || '').trim();
+      if (!val) { toast('Введите email или код'); return; }
+      _sendJoinRequest(val, role, rel);
+      closeModal('modal-map-invite');
+    }
+
     async function _sendJoinRequest(inputVal, role, relation) {
       if (STATE.user && STATE.user.isDemo) {
         toast('Запросы недоступны в демо-режиме');
@@ -14659,8 +14724,29 @@ ${socialsContext}
       try {
         const querySnapshot = await query.get();
         if (querySnapshot.empty) {
-          toast('<i class="ph-light ph-x-circle"></i> Пользователь не найден. Проверьте код или email');
-          return;
+          if (cleanInput.includes('@')) {
+            const targetEmailLower = cleanInput.toLowerCase();
+            const connId = 'pending_mail_' + myUid + '_' + targetEmailLower.replace(/[^a-zA-Z0-9]/g, '');
+            const shareLoc = confirm(`Хотите ли вы делиться своей геопозицией на карте с пользователем ${targetEmailLower}?`);
+            await fbDb.collection('connections').doc(connId).set({
+              fromUid: myUid,
+              fromEmail: myEmail,
+              fromName: STATE.user.name,
+              toUid: '',
+              toEmail: targetEmailLower,
+              toName: relation || 'Член рода',
+              status: 'pending',
+              role: role,
+              relation: relation,
+              shareLocationFrom: shareLoc,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            toast('<i class="ph-light ph-check-circle"></i> Приглашение отправлено! Пользователь подключится автоматически после регистрации.');
+            return;
+          } else {
+            toast('<i class="ph-light ph-x-circle"></i> Пользователь не найден. Проверьте код или email');
+            return;
+          }
         }
 
         let targetUid = null;
