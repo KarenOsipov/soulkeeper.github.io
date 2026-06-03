@@ -15105,6 +15105,7 @@ ${socialsContext}
         hasher: CryptoJS.algo.SHA256
       });
       sessionStorage.setItem('sk_vault_key', CryptoEngine._vaultKey.toString());
+      localStorage.setItem('sk_vault_key_remember', CryptoEngine._vaultKey.toString());
       
       // Initialize Cloud items list if empty
       if (!STATE.cloudItems) STATE.cloudItems = [];
@@ -15136,6 +15137,7 @@ ${socialsContext}
         hasher: CryptoJS.algo.SHA256
       });
       sessionStorage.setItem('sk_vault_key', CryptoEngine._vaultKey.toString());
+      localStorage.setItem('sk_vault_key_remember', CryptoEngine._vaultKey.toString());
 
       toast('<i class="ph-light ph-lock-key-open"></i> Доступы расшифрованы!');
       
@@ -15155,60 +15157,96 @@ ${socialsContext}
 
 
     function checkVaultLockState() {
-      const setupBtn = document.getElementById('vault-init-setup-btn');
       const lockOverlay = document.getElementById('vault-lock-overlay');
       const secretsWrap = document.getElementById('secrets-container-wrap');
       const cloudOverlay = document.getElementById('cloud-lock-overlay');
       const cloudWrap = document.getElementById('cloud-container-wrap');
-      const addBtn = document.getElementById('secrets-add-btn');
-
+      
       const isProtected = STATE.user && STATE.user.vaultSeedHash;
+      
+      // Auto-load vault key from localStorage if saved
+      if (!CryptoEngine._vaultKey) {
+        const savedVaultKey = localStorage.getItem('sk_vault_key_remember');
+        if (savedVaultKey) {
+          CryptoEngine._vaultKey = CryptoJS.enc.Hex.parse(savedVaultKey);
+        }
+      }
+
       const isUnlocked = !!CryptoEngine._vaultKey;
 
       if (isProtected) {
         if (isUnlocked) {
           if (lockOverlay) lockOverlay.style.display = 'none';
           if (secretsWrap) secretsWrap.style.display = 'block';
-          if (addBtn) addBtn.style.display = 'block';
           if (cloudOverlay) cloudOverlay.style.display = 'none';
           if (cloudWrap) cloudWrap.style.display = 'block';
           
+          // Render data
+          renderSecrets();
           renderCloudGrid();
         } else {
+          // Lock Secrets
           if (lockOverlay) lockOverlay.style.display = 'flex';
           if (secretsWrap) secretsWrap.style.display = 'none';
-          if (addBtn) addBtn.style.display = 'none';
+          
+          // Lock Cloud
           if (cloudOverlay) cloudOverlay.style.display = 'flex';
+          if (cloudOverlay) {
+            cloudOverlay.innerHTML = `
+              <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
+              <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Хранилище заблокировано</h3>
+              <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Введите секретную сид-фразу из 12 слов во вкладке "Цифровой Сейф" для разблокировки всего Наследия.</p>
+              <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к разблокировке</button>
+            `;
+          }
           if (cloudWrap) cloudWrap.style.display = 'none';
+          
+          // Show Create Seed option if hash not setup yet (fallback safety)
+          const setupBtn = document.getElementById('vault-init-setup-btn');
           if (setupBtn) setupBtn.style.display = 'none';
         }
       } else {
-        // Vault is not protected by seed phrase yet
-        if (lockOverlay) lockOverlay.style.display = 'none';
-        if (secretsWrap) secretsWrap.style.display = 'block';
-        if (addBtn) addBtn.style.display = 'block';
-        
-        // Show setup option inside Cloud block to prompt initialization
+        // Not protected yet -> Prompt setup
+        if (lockOverlay) lockOverlay.style.display = 'flex';
+        if (lockOverlay) {
+          lockOverlay.innerHTML = `
+            <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
+            <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
+            <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Для защиты Сейфа и Облака сгенерируйте секретную 12-значную сид-фразу по стандарту BIP39.</p>
+            <button class="btn btn-primary" onclick="initVaultSeedSetup()" style="padding:0.75rem 1.5rem;">Сгенерировать сид-фразу</button>
+          `;
+        }
+        if (secretsWrap) secretsWrap.style.display = 'none';
+
         if (cloudOverlay) {
           cloudOverlay.style.display = 'flex';
           cloudOverlay.innerHTML = `
             <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
-            <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация шифрования Облака</h3>
-            <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Чтобы использовать Облако воспоминаний, активируйте сверхзащиту сейфа на базе секретной 12-значной сид-фразы.</p>
-            <button class="btn btn-primary" onclick="initVaultSeedSetup()" style="padding:0.75rem 1.5rem;">Сгенерировать сид-фразу</button>
+            <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
+            <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Сгенерируйте сид-фразу во вкладке "Цифровой Сейф" для начала работы с зашифрованным Облаком.</p>
+            <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к настройке</button>
           `;
         }
         if (cloudWrap) cloudWrap.style.display = 'none';
       }
     }
 
+    // Lock Vault manually option (for premium settings or header)
+    window.lockVaultManually = function() {
+      CryptoEngine._vaultKey = null;
+      localStorage.removeItem('sk_vault_key_remember');
+      sessionStorage.removeItem('sk_vault_key');
+      toast('Сейф успешно заблокирован.');
+      checkVaultLockState();
+    };
+
     // Override setLegacyTab to check lock state
     const _origSetLegacyTab = window.setLegacyTab;
     window.setLegacyTab = function(tab) {
+      _origSetLegacyTab(tab);
       if (tab === 'secrets' || tab === 'cloud') {
         checkVaultLockState();
       }
-      _origSetLegacyTab(tab);
     };
 
 
@@ -15235,29 +15273,42 @@ ${socialsContext}
       const file = input.files[0];
       if (!file) return;
 
-      if (!window.firebase || !firebase.storage) {
-        toast('Ошибка: Firebase Storage не инициализирован.');
-        return;
-      }
-
       toast('<i class="ph-light ph-spinner ph-spin"></i> Шифрование и загрузка файла...');
 
       const fileId = 'file_' + uid();
-      const storageRef = firebase.storage().ref();
-      const fileRef = storageRef.child(`users/${firebase.auth().currentUser.uid}/${fileId}`);
-
       const reader = new FileReader();
+      
       reader.onload = async function(e) {
         try {
           const base64Data = e.target.result;
-          // Encrypt file on client side!
+          // Local encryption (Zero-Knowledge AES-256)
           const encryptedData = CryptoEngine.encryptVault(base64Data);
 
-          // Upload text blob
-          const blob = new Blob([encryptedData], { type: 'text/plain' });
-          await fileRef.put(blob);
+          let downloadURL = '';
+          
+          // Try to upload to Firebase Storage
+          if (window.firebase && firebase.storage) {
+            try {
+              const storageRef = firebase.storage().ref();
+              const fileRef = storageRef.child(`users/${firebase.auth().currentUser.uid}/${fileId}`);
+              const blob = new Blob([encryptedData], { type: 'text/plain' });
+              await fileRef.put(blob);
+              downloadURL = await fileRef.getDownloadURL();
+            } catch (storageErr) {
+              console.warn("Storage upload failed, falling back to Firestore database:", storageErr);
+            }
+          }
 
-          const downloadURL = await fileRef.getDownloadURL();
+          // Fallback: If Storage is not active or throws permission error, save directly inside Firestore as document!
+          if (!downloadURL) {
+            // Save in database collection cloud_files
+            await fbDb.collection('cloud_files').doc(fileId).set({
+              userId: firebase.auth().currentUser.uid,
+              encryptedPayload: encryptedData,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            downloadURL = 'db::' + fileId;
+          }
 
           if (!STATE.cloudItems) STATE.cloudItems = [];
           STATE.cloudItems.push({
@@ -15273,7 +15324,7 @@ ${socialsContext}
 
           saveUserDataToFirestore();
           renderCloudGrid();
-          toast('<i class="ph-light ph-check-circle"></i> Файл успешно зашифрован и загружен!');
+          toast('<i class="ph-light ph-check-circle"></i> Файл успешно зашифрован и сохранен!');
         } catch (err) {
           console.error(err);
           toast('Ошибка при загрузке: ' + err.message);
@@ -15282,18 +15333,29 @@ ${socialsContext}
       reader.readAsDataURL(file);
     };
 
-    window.deleteCloudItem = function(id, name) {
+    window.deleteCloudItem = async function(id, name) {
       if (!confirm(`Вы действительно хотите удалить "${name}"?`)) return;
 
       if (!STATE.cloudItems) return;
       
       const item = STATE.cloudItems.find(x => x.id === id);
       if (item && item.type === 'file') {
-        // Delete from Storage
-        try {
-          const fileRef = firebase.storage().ref().child(`users/${firebase.auth().currentUser.uid}/${id}`);
-          fileRef.delete().catch(e => console.warn('Storage file delete ignored:', e));
-        } catch(e) {}
+        // Delete from Firebase Storage if it was uploaded there
+        if (item.downloadURL && !item.downloadURL.startsWith('db::')) {
+          try {
+            const fileRef = firebase.storage().ref().child(`users/${firebase.auth().currentUser.uid}/${id}`);
+            await fileRef.delete();
+          } catch(e) {
+            console.warn('Storage delete ignored:', e);
+          }
+        } else if (item.downloadURL && item.downloadURL.startsWith('db::')) {
+          // Delete from Firestore cloud_files collection
+          try {
+            await fbDb.collection('cloud_files').doc(id).delete();
+          } catch (e) {
+            console.warn('Firestore cloud_files delete ignored:', e);
+          }
+        }
       }
 
       STATE.cloudItems = STATE.cloudItems.filter(x => x.id !== id);
@@ -15311,25 +15373,39 @@ ${socialsContext}
         return;
       }
 
-      // Download and decrypt file
       toast('<i class="ph-light ph-spinner ph-spin"></i> Скачивание и дешифрование...');
       try {
-        const res = await fetch(item.downloadURL);
-        const encryptedText = await res.text();
+        let encryptedText = '';
+
+        if (item.downloadURL && item.downloadURL.startsWith('db::')) {
+          // Load from Firestore fallback
+          const docId = item.downloadURL.replace('db::', '');
+          const doc = await fbDb.collection('cloud_files').doc(docId).get();
+          if (doc.exists) {
+            encryptedText = doc.data().encryptedPayload;
+          } else {
+            throw new Error('Файл не найден в базе данных.');
+          }
+        } else {
+          // Load from Firebase Storage URL
+          const res = await fetch(item.downloadURL);
+          encryptedText = await res.text();
+        }
+
+        // Decrypt
         const base64Data = CryptoEngine.decryptVault(encryptedText);
 
         if (!base64Data || !base64Data.startsWith('data:')) {
           throw new Error('Не удалось расшифровать файл. Проверьте сид-фразу.');
         }
 
-        // Show image/audio or trigger download
+        // Trigger local view/download
         if (item.fileType === 'image') {
-          // Open image modal
           const w = window.open();
-          w.document.write(`<img src="${base64Data}" style="max-width:100%; max-height:100vh; display:block; margin:auto;">`);
+          w.document.write(`<title>${item.name}</title><img src="${base64Data}" style="max-width:100%; max-height:100vh; display:block; margin:auto;">`);
         } else if (item.fileType === 'audio') {
           const w = window.open();
-          w.document.write(`<audio controls autoplay src="${base64Data}" style="display:block; margin:50px auto;"></audio>`);
+          w.document.write(`<title>${item.name}</title><audio controls autoplay src="${base64Data}" style="display:block; margin:50px auto;"></audio>`);
         } else {
           const link = document.createElement('a');
           link.href = base64Data;
@@ -15408,7 +15484,6 @@ ${socialsContext}
         `;
       }).join('');
     }
-
 
 
     // Register PWA Service Worker
