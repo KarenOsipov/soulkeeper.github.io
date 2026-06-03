@@ -7832,20 +7832,16 @@
                     </summary>
                     <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; cursor: default;">
                       <div class="field" style="margin-bottom: 0;">
-                        <label>Синтез речи (Движок)</label>
+                        <label>Технология синтеза</label>
                         <select id="twin-voice-engine" onchange="onVoiceEngineChange(); saveTwinSettings()">
-                          <option value="eleven">ElevenLabs (Премиум-нейро)</option>
-                          <option value="local">SpeechSynthesis (Системный робот)</option>
+                          <option value="eleven">Нейросетевая (Премиум)</option>
+                          <option value="local">Встроенная (Робот)</option>
                         </select>
                       </div>
 
                       <div id="twin-group-eleven" style="display: flex; flex-direction: column; gap: 0.8rem; background: rgba(201,168,76,0.03); border: 1px solid rgba(201,168,76,0.1); padding: 0.8rem; border-radius: 8px;">
                         <div class="field" style="margin-bottom: 0;">
-                          <label>Свой ElevenLabs API Key</label>
-                          <input type="password" id="twin-eleven-key" placeholder="Оставьте пустым для общего ключа" oninput="saveTwinSettings()">
-                        </div>
-                        <div class="field" style="margin-bottom: 0;">
-                          <label>Свой Voice ID</label>
+                          <label>Идентификатор слепка голоса (Voice ID)</label>
                           <input type="text" id="twin-eleven-voice-id" placeholder="Напр. 21m00Tcm4TlvDq8ikWAM" oninput="saveTwinSettings()">
                         </div>
                       </div>
@@ -12944,7 +12940,7 @@ ${secretsInfo}
       
       let cleanText = text.replace(/[*#>`_-]/g, ' ').trim();
 
-      if (STATE.twinSettings && STATE.twinSettings.elevenLabsKey && STATE.twinSettings.voiceId && !STATE.twinSettings.voiceId.startsWith('urn:')) {
+      if (STATE.twinSettings && STATE.twinSettings.voiceEngine === 'eleven') {
         speakElevenLabs(cleanText);
         return;
       }
@@ -13008,9 +13004,11 @@ ${secretsInfo}
     }
 
     async function speakElevenLabs(text) {
-      const key = STATE.twinSettings.elevenLabsKey;
-      const voiceId = STATE.twinSettings.voiceId;
-      if (!key || !voiceId) return;
+      const key = 'sk_7be0bec9da1c954f43c58fdafedad9a9e500e22d6459d287';
+      let voiceId = STATE.twinSettings.voiceId;
+      if (!voiceId || voiceId.startsWith('urn:')) {
+        voiceId = (STATE.twinSettings.gender === 'female') ? '21m00Tcm4TlvDq8ikWAM' : 'pNInz6obpgqjVWtJ45xs';
+      }
 
       orbState = 'speaking';
       // Update Call Mode UI
@@ -13132,8 +13130,6 @@ ${secretsInfo}
       const autoSpeakCheck = document.getElementById('twin-auto-speak');
       if (autoSpeakCheck) autoSpeakCheck.checked = !!s.autoSpeak;
 
-      const elevenKeyInp = document.getElementById('twin-eleven-key');
-      if (elevenKeyInp) elevenKeyInp.value = s.elevenLabsKey || '';
 
       const elevenVoiceInp = document.getElementById('twin-eleven-voice-id');
       if (elevenVoiceInp) elevenVoiceInp.value = s.voiceId || '';
@@ -13277,7 +13273,6 @@ ${secretsInfo}
       const pitchInp = document.getElementById('twin-voice-pitch');
       const rateInp = document.getElementById('twin-voice-rate');
       const autoSpeakCheck = document.getElementById('twin-auto-speak');
-      const elevenKeyInp = document.getElementById('twin-eleven-key');
       const elevenVoiceInp = document.getElementById('twin-eleven-voice-id');
       const socialsInp = document.getElementById('twin-socials');
       const selectVoice = document.getElementById('twin-voice-select');
@@ -13289,7 +13284,6 @@ ${secretsInfo}
       s.voicePitch = pitchInp ? parseFloat(pitchInp.value) : s.voicePitch || 1.0;
       s.voiceRate = rateInp ? parseFloat(rateInp.value) : s.voiceRate || 1.0;
       s.autoSpeak = autoSpeakCheck ? autoSpeakCheck.checked : !!s.autoSpeak;
-      s.elevenLabsKey = elevenKeyInp ? elevenKeyInp.value.trim() : s.elevenLabsKey || '';
       s.voiceId = (selectVoice && selectVoice.value) || (elevenVoiceInp ? elevenVoiceInp.value.trim() : s.voiceId || '');
       s.socials = socialsInp ? socialsInp.value.trim() : s.socials || '';
 
@@ -13397,7 +13391,7 @@ ${secretsInfo}
       toast('<i class="ph-light ph-microphone-stage" style="color:var(--gold);"></i> Клонирование голоса... Пожалуйста, подождите');
 
       try {
-        const key = STATE.twinSettings.elevenLabsKey || 'sk_df155e3f5b677a77a1975365667b25ddc309d8bf9e00d03f';
+        const key = 'sk_7be0bec9da1c954f43c58fdafedad9a9e500e22d6459d287';
         const formData = new FormData();
         formData.append('name', `SK-Cloned-${STATE.twinSettings.name || 'User'}`);
         formData.append('files', file);
@@ -13413,7 +13407,7 @@ ${secretsInfo}
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(errorText || 'Failed to clone voice on ElevenLabs');
+          throw new Error(errorText || 'Не удалось выполнить клонирование голоса');
         }
 
         const data = await response.json();
@@ -13432,7 +13426,7 @@ ${secretsInfo}
         updateTwinProgress();
         toast('<i class="ph-light ph-check" style="color:var(--gold);"></i> Голос успешно клонирован и установлен!');
       } catch (err) {
-        console.error('ElevenLabs Cloning Error:', err);
+        console.error('Voice Cloning Error:', err);
         toast('<i class="ph-light ph-warning" style="color:var(--red);"></i> Ошибка клонирования. Использован стандартный голос');
       }
       event.target.value = '';
