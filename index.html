@@ -5892,6 +5892,145 @@
         overflow-x: hidden !important;
       }
     }
+
+    @keyframes rotateCW {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes rotateCCW {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(-360deg); }
+    }
+    @keyframes dashGlow {
+      to {
+        stroke-dashoffset: -160;
+      }
+    }
+
+    /* Premium Top Bar Overrides */
+    .app-topbar {
+      height: 70px !important;
+      min-height: 70px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding: 0 2.5rem !important;
+      background: linear-gradient(180deg, rgba(20,18,30,0.85) 0%, rgba(10,9,15,0.95) 100%) !important;
+      backdrop-filter: blur(20px) !important;
+      border-bottom: 1px solid rgba(212,175,55,0.08) !important;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .app-logo {
+      font-family: var(--serif) !important;
+      font-size: 1.35rem !important;
+      color: var(--ivory) !important;
+      letter-spacing: 1px !important;
+      font-weight: 300 !important;
+      gap: 10px !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .app-logo:hover {
+      text-shadow: 0 0 15px rgba(212,175,55,0.45) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .logo-gem-sm {
+      width: 22px !important;
+      height: 22px !important;
+      filter: drop-shadow(0 0 8px rgba(212,175,55,0.4)) !important;
+      animation: logo-glow 3s infinite alternate !important;
+    }
+
+    @keyframes logo-glow {
+      from { filter: drop-shadow(0 0 3px rgba(212,175,55,0.25)); }
+      to { filter: drop-shadow(0 0 12px rgba(212,175,55,0.65)); }
+    }
+
+    .tb-btn {
+      width: 38px !important;
+      height: 38px !important;
+      border: 1px solid rgba(212, 175, 55, 0.12) !important;
+      border-radius: 50% !important;
+      background: rgba(255, 255, 255, 0.01) !important;
+      font-size: 1.1rem !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .tb-btn:hover {
+      border-color: var(--gold) !important;
+      background: rgba(212, 175, 55, 0.04) !important;
+      color: var(--gold2) !important;
+      box-shadow: 0 0 10px rgba(212,175,55,0.15) !important;
+    }
+
+    .notif-badge {
+      top: -3px !important;
+      right: -3px !important;
+      width: 16px !important;
+      height: 16px !important;
+      font-size: 0.55rem !important;
+      font-weight: 600 !important;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.4) !important;
+    }
+
+    .user-avatar {
+      width: 38px !important;
+      height: 38px !important;
+      background: radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(212,175,55,0.05) 100%) !important;
+      font-size: 0.9rem !important;
+      font-weight: 500 !important;
+      color: var(--gold) !important;
+      border: 1px solid rgba(212, 175, 55, 0.3) !important;
+      transition: all 0.3s ease !important;
+    }
+
+    .user-avatar:hover {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 15px rgba(212,175,55,0.35) !important;
+      transform: scale(1.05) !important;
+    }
+
+    .user-name {
+      font-family: var(--sans) !important;
+      font-size: 0.85rem !important;
+      color: var(--ivory) !important;
+      font-weight: 400 !important;
+      letter-spacing: 0.5px !important;
+      transition: color 0.3s !important;
+      cursor: pointer !important;
+    }
+
+    .user-name:hover {
+      color: var(--gold2) !important;
+    }
+
+    .tb-logout {
+      font-size: 0.7rem !important;
+      letter-spacing: 0.5px !important;
+      color: rgba(239, 68, 68, 0.7) !important;
+      background: rgba(239, 68, 68, 0.04) !important;
+      border: 1px solid rgba(239, 68, 68, 0.15) !important;
+      padding: 0.4rem 0.8rem !important;
+      border-radius: 10px !important;
+      transition: all 0.3s ease !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      text-transform: none !important;
+    }
+
+    .tb-logout:hover {
+      color: #ff6b6b !important;
+      background: rgba(239, 68, 68, 0.1) !important;
+      border-color: rgba(239, 68, 68, 0.35) !important;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.15) !important;
+    }
+
+    .avatar-editor-wrapper:hover .avatar-hover-overlay {
+      opacity: 1 !important;
+    }
   </style>
 </head>
 
@@ -6438,7 +6577,7 @@
       <div class="app-logo" onclick="goPage('dash')" oncontextmenu="event.preventDefault(); bypassEmailVerification()">
         <svg class="logo-gem-sm" viewBox="0 0 32 32" fill="none">
           <polygon points="16,2 28,12 22,30 10,30 4,12" fill="rgba(201,168,76,0.18)" stroke="#c9a84c"
-            stroke-width="1" />
+            stroke-width="1.5" />
           <polygon points="16,2 28,12 16,10" fill="rgba(201,168,76,0.28)" />
         </svg>
         SoulKeeper
@@ -6451,13 +6590,13 @@
           <i class="ph-light ph-bell"></i>
           <span class="notif-badge" id="notif-count">3</span>
         </button>
-        <div class="avatar-wrapper">
+        <div class="avatar-wrapper" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
           <svg class="avatar-ring" viewBox="0 0 40 40">
             <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(212,175,55,0.2)" stroke-width="1.5" />
             <circle cx="20" cy="20" r="18" fill="none" stroke="var(--green)" stroke-width="2" stroke-dasharray="113"
               stroke-dashoffset="20" id="top-avatar-ring" />
           </svg>
-          <div class="user-avatar" id="user-avatar-btn" onclick="triggerProfilePhoto()">
+          <div class="user-avatar" id="user-avatar-btn" onclick="goPage('settings')">
             <img id="top-avatar-img" src=""
               style="display:none; width:100%; height:100%; border-radius:50%; object-fit:cover;">
             <span id="top-avatar-initial">А</span>
@@ -6466,8 +6605,8 @@
             onchange="uploadProfilePhoto(this)">
           <div class="avatar-status-tooltip" id="top-avatar-tooltip">7 дней до проверки</div>
         </div>
-        <span class="user-name" id="user-name-top">Пользователь</span>
-        <button class="tb-logout" onclick="doLogout()">Выйти</button>
+        <span class="user-name" id="user-name-top" onclick="goPage('settings')">Пользователь</span>
+        <button class="tb-logout" onclick="doLogout()"><i class="ph-bold ph-sign-out"></i> Выйти</button>
       </div>
     </div>
 
@@ -7210,9 +7349,45 @@
             <!-- Left Column: Period Setting -->
             <div>
               <div class="section-label">Настройка периода активности</div>
-              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(212, 175, 55, 0.08); border-radius: 24px; padding: 2.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); text-align: center;">
-                <div class="switch-ring-wrap" style="position: relative; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center;">
-                  <canvas id="sw-canvas" width="260" height="260"></canvas>
+              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(212, 175, 55, 0.08); border-radius: 24px; padding: 2.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); text-align: center; overflow: hidden; position: relative;">
+                
+                <!-- Dynamic SVG HUD Circle -->
+                <div class="sw-hud-container" style="position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                  <!-- Rotating Outer Ring -->
+                  <div style="position: absolute; width: 250px; height: 250px; border: 1px dashed rgba(212, 175, 55, 0.12); border-radius: 50%; animation: rotateCW 40s linear infinite; pointer-events: none;"></div>
+                  
+                  <!-- Outer Dotted Orbit -->
+                  <div style="position: absolute; width: 230px; height: 230px; border: 2px dotted rgba(255, 255, 255, 0.02); border-radius: 50%; animation: rotateCCW 60s linear infinite; pointer-events: none;"></div>
+
+                  <!-- SVG Circle Rings -->
+                  <svg width="220" height="220" viewBox="0 0 220 220" style="transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); pointer-events: none;">
+                    <!-- Backtrack Ring -->
+                    <circle cx="110" cy="110" r="95" fill="transparent" stroke="rgba(255, 255, 255, 0.02)" stroke-width="6" />
+                    
+                    <!-- Gold Progress Ring -->
+                    <circle id="sw-svg-progress" cx="110" cy="110" r="95" fill="transparent" 
+                            stroke="url(#sw-gold-grad)" stroke-width="8" stroke-dasharray="597" stroke-dashoffset="0" 
+                            stroke-linecap="round" style="transition: stroke-dashoffset 0.8s ease;" />
+                            
+                    <!-- Red Grace Slice Indicator -->
+                    <circle id="sw-svg-grace" cx="110" cy="110" r="95" fill="transparent" 
+                            stroke="#ef4444" stroke-width="8" stroke-dasharray="597" stroke-dashoffset="560" 
+                            stroke-linecap="round" style="opacity: 0.8; transition: stroke-dashoffset 0.8s ease;" />
+
+                    <defs>
+                      <linearGradient id="sw-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f3e5ab" />
+                        <stop offset="100%" stop-color="#c9a84c" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+
+                  <!-- Central Sci-Fi Telemetry -->
+                  <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; pointer-events: none;">
+                    <div style="font-size: 0.6rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; font-weight: 600;">СТАТУС: АКТИВЕН</div>
+                    <div id="sw-days-value" style="font-family: var(--serif); font-size: 3.5rem; font-weight: 300; color: var(--gold2); line-height: 1; text-shadow: 0 0 15px rgba(243, 229, 171, 0.35);">60</div>
+                    <div style="font-size: 0.6rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px;" id="sw-days-label-hud">дней осталось</div>
+                  </div>
                 </div>
                 
                 <div style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem;">Установить интервал проверки</div>
@@ -7265,6 +7440,56 @@
                   </div>
                   <span class="tag tag-green" id="executor-tag" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Не назначен</span>
                 </div>
+
+                <!-- Interactive Encrypted Connection Bridge Visual -->
+                <div class="connection-bridge-container" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.03); border-radius: 20px; padding: 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative; margin-top: 1rem; overflow: hidden;">
+                  <div style="position: absolute; inset: 0; background-image: radial-gradient(rgba(212,175,55,0.02) 1px, transparent 0); background-size: 16px 16px; opacity: 0.5;"></div>
+
+                  <!-- Left: Owner -->
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 1; width: 70px;">
+                    <div style="position: relative; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <div style="position: absolute; inset: -4px; border: 1px solid rgba(212,175,55,0.2); border-radius: 50%; animation: rotateCW 15s linear infinite;"></div>
+                      <div id="bridge-user-avatar" style="width: 100%; height: 100%; border-radius: 50%; background: rgba(212,175,55,0.05); border: 1px solid rgba(212,175,55,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--gold); overflow: hidden;">
+                        <i class="ph-bold ph-user"></i>
+                      </div>
+                    </div>
+                    <span style="font-size: 0.6rem; color: var(--muted); text-align: center; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;">Владелец</span>
+                  </div>
+
+                  <!-- Center wire connection -->
+                  <div style="flex-grow: 1; height: 30px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1;">
+                    <svg width="100%" height="30" viewBox="0 0 160 30" preserveAspectRatio="none" style="display: block;">
+                      <path d="M 5,15 Q 80,15 155,15" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="2" />
+                      <path id="bridge-wire-glow" d="M 5,15 Q 80,15 155,15" fill="none" 
+                            stroke="url(#wire-gold-grad)" stroke-width="3" stroke-dasharray="10 150" stroke-dashoffset="0" 
+                            style="display: none; animation: dashGlow 2.5s linear infinite;" />
+                    </svg>
+                    <div id="bridge-status-text" style="position: absolute; top: -14px; font-size: 0.55rem; letter-spacing: 1.5px; font-weight: 600; text-transform: uppercase; text-align: center; width: 100%; color: var(--muted);">
+                      Канал не назначен
+                    </div>
+                  </div>
+
+                  <!-- Right: Executor -->
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 1; width: 70px;">
+                    <div style="position: relative; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <div id="bridge-exec-orbit" style="position: absolute; inset: -4px; border: 1px dashed rgba(255,255,255,0.08); border-radius: 50%; animation: rotateCCW 20s linear infinite;"></div>
+                      <div id="bridge-exec-avatar" style="width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--muted); overflow: hidden;">
+                        <i class="ph-bold ph-user-focus"></i>
+                      </div>
+                    </div>
+                    <span style="font-size: 0.6rem; color: var(--muted); text-align: center; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;" id="bridge-exec-label">Наследник</span>
+                  </div>
+
+                  <svg style="width:0; height:0; position:absolute;">
+                    <defs>
+                      <linearGradient id="wire-gold-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.1" />
+                        <stop offset="50%" stop-color="#f3e5ab" stop-opacity="1" />
+                        <stop offset="100%" stop-color="#c9a84c" stop-opacity="0.1" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
                 
                 <!-- Beautiful custom executor profile display -->
                 <div id="executor-display-card"></div>
@@ -7273,26 +7498,36 @@
               <div class="section-label">Связать душеприказчика</div>
               <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(212, 175, 55, 0.08); border-radius: 24px; padding: 2rem; backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);">
                 
-                <!-- Quick Relative Select Dropdown -->
-                <div class="field" style="margin-bottom: 1.2rem;">
-                  <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block;">Выбрать из списка родственников</label>
-                  <select id="exec-relative-select" onchange="onExecRelativeSelectChange(this)" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none; transition: border-color 0.3s; height: auto;">
-                    <option value="">-- Выбрать из родственников --</option>
-                  </select>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;" class="exec-inputs-row">
-                  <div class="field">
-                    <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block;">Имя</label>
-                    <input type="text" id="exec-name" placeholder="Имя душеприказчика" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
-                  </div>
-                  <div class="field">
-                    <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block;">Email</label>
-                    <input type="email" id="exec-email" placeholder="executor@email.com" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
+                <!-- Quick Relatives Carousel Picker -->
+                <div id="exec-quick-bind-section" style="margin-bottom: 1.2rem; display: none;">
+                  <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem; display: block;">Выбрать из родственников в один клик</label>
+                  <div id="exec-relatives-carousel" style="display: flex; gap: 1rem; overflow-x: auto; padding: 0.5rem 0.2rem; scrollbar-width: none; -ms-overflow-style: none;">
+                    <!-- Injected via JS -->
                   </div>
                 </div>
                 
-                <button class="btn btn-primary" style="width: 100%; padding: 0.9rem; border-radius: 14px; background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05)); border: 1px solid rgba(212,175,55,0.3); color: var(--gold2); font-weight: 500; letter-spacing: 0.5px;" onclick="saveExecutor()">Связать с аккаунтом</button>
+                <!-- Manual trigger link -->
+                <div style="text-align: center;" id="exec-manual-trigger-wrap">
+                  <button class="btn btn-ghost" onclick="toggleManualExecForm()" style="font-size: 0.75rem; color: var(--gold2); border-color: rgba(212,175,55,0.15); width: 100%; padding: 0.8rem; border-radius: 12px;">
+                    <i class="ph-bold ph-pencil-simple-line"></i> Указать душеприказчика вручную
+                  </button>
+                </div>
+                
+                <!-- Manual Inputs Drawer -->
+                <div id="exec-manual-form" style="display: none; margin-top: 1.2rem; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 1.2rem;">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;" class="exec-inputs-row">
+                    <div class="field">
+                      <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block;">Имя</label>
+                      <input type="text" id="exec-name" placeholder="Имя душеприказчика" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
+                    </div>
+                    <div class="field">
+                      <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block;">Email</label>
+                      <input type="email" id="exec-email" placeholder="executor@email.com" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
+                    </div>
+                  </div>
+                  
+                  <button class="btn btn-primary" style="width: 100%; padding: 0.9rem; border-radius: 14px; background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05)); border: 1px solid rgba(212,175,55,0.3); color: var(--gold2); font-weight: 500; letter-spacing: 0.5px;" onclick="saveExecutor()">Связать вручную</button>
+                </div>
               </div>
             </div>
           </div>
@@ -8168,71 +8403,129 @@
         </div>
 
         <!-- ── SETTINGS ── -->
+        <!-- ── SETTINGS ── -->
         <div class="page" id="page-settings">
           <div class="page-header">
             <div>
-              <div class="page-title">Настройки <em>профиля</em></div>
-              <div class="page-sub">Управление аккаунтом и персонализация</div>
+              <div class="page-title">Настройки <em>хранилища</em></div>
+              <div class="page-sub">Параметры профиля и безопасность данных</div>
             </div>
           </div>
+          
           <div class="card-grid grid-2">
+            <!-- Left Column: Profile Card & Inputs -->
             <div>
-              <div class="section-label">Профиль</div>
-              <div class="card">
-                <div class="field"><label>Имя</label><input type="text" id="set-name" placeholder="Ваше имя"></div>
-                <div class="field"><label>Email</label><input type="email" id="set-email" placeholder="Email" readonly
-                    style="opacity:0.6;cursor:not-allowed"></div>
-                <div class="field"><label>Дата рождения</label><input type="date" id="set-birth"></div>
-                <div class="field"><label>Город</label><input type="text" id="set-city" placeholder="Ваш город"></div>
-                <button class="btn-gold" onclick="saveSettings()">Сохранить</button>
+              <div class="section-label">Профиль пользователя</div>
+              <div class="card" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(212,175,55,0.08); border-radius: 24px; padding: 2rem; backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); display: flex; flex-direction: column; gap: 1.5rem;">
+                
+                <!-- Avatar Setup -->
+                <div style="display: flex; flex-direction: column; align-items: center; text-align: center; position: relative;">
+                  <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 70%); pointer-events: none;"></div>
+                  
+                  <div class="avatar-editor-wrapper" style="position: relative; width: 90px; height: 90px; border-radius: 50%; margin-bottom: 0.8rem; cursor: pointer;" onclick="triggerProfilePhoto()">
+                    <div style="position: absolute; inset: -4px; border: 2px solid rgba(212,175,55,0.2); border-radius: 50%; box-shadow: 0 0 15px rgba(212,175,55,0.1);"></div>
+                    <div style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center;">
+                      <img id="set-avatar-img" src="" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                      <div id="set-avatar-initial" style="font-family: var(--serif); font-size: 2.2rem; color: var(--gold2); font-weight: bold;">А</div>
+                    </div>
+                    <!-- Hover Upload Indicator -->
+                    <div class="avatar-hover-overlay" style="position: absolute; inset: 0; border-radius: 50%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; pointer-events: none;">
+                      <i class="ph-bold ph-camera" style="font-size: 1.6rem; color: var(--gold2);"></i>
+                    </div>
+                  </div>
+                  <button class="btn btn-ghost btn-sm" onclick="triggerProfilePhoto()" style="font-size: 0.75rem; border-color: rgba(212,175,55,0.15); color: var(--gold2); padding: 0.3rem 0.8rem; border-radius: 8px;">
+                    <i class="ph-bold ph-image"></i> Выбрать фото
+                  </button>
+                </div>
+                
+                <!-- Profile Inputs -->
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                  <div class="field">
+                    <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">Ваше Имя</label>
+                    <input type="text" id="set-name" placeholder="Ваше имя" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
+                  </div>
+                  
+                  <div class="field" style="position: relative;">
+                    <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">Электронная почта</label>
+                    <input type="email" id="set-email" placeholder="Email" readonly style="width: 100%; padding: 0.8rem; padding-right: 2.5rem; background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; color: var(--muted); font-size: 0.85rem; outline: none; cursor: not-allowed;">
+                    <i class="ph-bold ph-lock-key" style="position: absolute; right: 1rem; bottom: 0.8rem; color: var(--muted); font-size: 1rem;" title="Почта подтверждена и заблокирована"></i>
+                  </div>
+                  
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="exec-inputs-row">
+                    <div class="field">
+                      <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">Дата рождения</label>
+                      <input type="date" id="set-birth" style="width: 100%; padding: 0.75rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none; color-scheme: dark;">
+                    </div>
+                    <div class="field">
+                      <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">Город проживания</label>
+                      <input type="text" id="set-city" placeholder="Ваш город" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
+                    </div>
+                  </div>
+                </div>
+                
+                <button class="btn-gold" onclick="saveSettings()" style="width: 100%; font-weight: 600; padding: 0.9rem; border-radius: 14px; background: linear-gradient(135deg, var(--gold2), var(--gold)); color: var(--ink); border: none; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2); transition: all 0.3s ease; cursor: pointer;">
+                  Сохранить настройки
+                </button>
               </div>
             </div>
+            
+            <!-- Right Column: Security & Data export -->
             <div>
-              <div class="section-label">Безопасность</div>
-              <div class="card">
-                <div class="settings-row">
+              <div class="section-label">Безопасность системы</div>
+              <div class="card" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(212,175,55,0.08); border-radius: 24px; padding: 2rem; backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 2rem;">
+                
+                <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
                   <div>
-                    <div class="settings-row-label">Двухфакторная аутентификация</div>
-                    <div class="settings-row-sub">Google Authenticator / SMS</div>
+                    <div class="settings-row-label" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Двухфакторная защита (2FA)</div>
+                    <div class="settings-row-sub" style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Защита Google Authenticator</div>
                   </div>
-                  <div class="toggle" onclick="this.classList.toggle('on')"></div>
+                  <div class="toggle" onclick="this.classList.toggle('on')" style="cursor: pointer;"></div>
                 </div>
-                <div class="settings-row">
+                
+                <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
                   <div>
-                    <div class="settings-row-label">Уведомления на email</div>
-                    <div class="settings-row-sub">Активность аккаунта</div>
+                    <div class="settings-row-label" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Уведомления на почту</div>
+                    <div class="settings-row-sub" style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Оповещения об активности хранилища</div>
                   </div>
-                  <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+                  <div class="toggle on" onclick="this.classList.toggle('on')" style="cursor: pointer;"></div>
                 </div>
-                <div class="settings-row">
+                
+                <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
                   <div>
-                    <div class="settings-row-label">Шифрование тайн</div>
-                    <div class="settings-row-sub">AES-256-GCM</div>
-                  </div><span class="tag tag-green">Включено</span>
-                </div>
-                <div class="settings-row">
-                  <div>
-                    <div class="settings-row-label">Автовыход</div>
-                    <div class="settings-row-sub">После неактивности</div>
+                    <div class="settings-row-label" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Шифрование активов</div>
+                    <div class="settings-row-sub" style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Сквозное локальное шифрование тайн</div>
                   </div>
-                  <select
-                    style="background:var(--ink3);border:1px solid rgba(201,168,76,0.15);color:var(--ivory);padding:4px 8px;font-family:var(--sans);font-size:0.75rem;outline:none">
-                    <option>30 мин</option>
+                  <span class="tag tag-green">AES-256-GCM</span>
+                </div>
+                
+                <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div class="settings-row-label" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Автовыход сессии</div>
+                    <div class="settings-row-sub" style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Закрытие сессии при неактивности</div>
+                  </div>
+                  <select style="background: rgba(0,0,0,0.3); border: 1px solid rgba(212,175,55,0.2); border-radius: 8px; color: var(--ivory); padding: 0.4rem 0.8rem; font-family: var(--sans); font-size: 0.8rem; outline: none; cursor: pointer;">
+                    <option>30 минут</option>
                     <option>1 час</option>
                     <option>4 часа</option>
                     <option>Никогда</option>
                   </select>
                 </div>
               </div>
-              <div class="section-label" style="margin-top:1rem">Данные</div>
-              <div class="card">
-                <div style="display:flex;gap:0.7rem;flex-wrap:wrap">
-                  <button class="btn btn-ghost" onclick="exportData()"><i class="ph-light ph-arrow-down"></i> Экспорт
-                    JSON</button>
-                  <button class="btn btn-ghost" onclick="exportPDF()"><i class="ph-light ph-arrow-down"></i> Экспорт
-                    PDF</button>
-                  <button class="btn btn-danger" onclick="confirmDelete()">Удалить аккаунт</button>
+              
+              <div class="section-label">Управление данными хранилища</div>
+              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(212, 175, 55, 0.08); border-radius: 24px; padding: 2rem; backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                  <button class="btn btn-ghost" onclick="exportData()" style="flex: 1; min-width: 130px; font-size: 0.8rem; border-color: rgba(212,175,55,0.15); color: var(--gold2);">
+                    <i class="ph-bold ph-download-simple"></i> Экспорт JSON
+                  </button>
+                  <button class="btn btn-ghost" onclick="exportPDF()" style="flex: 1; min-width: 130px; font-size: 0.8rem; border-color: rgba(212,175,55,0.15); color: var(--gold2);">
+                    <i class="ph-bold ph-file-pdf"></i> Экспорт PDF
+                  </button>
                 </div>
+                
+                <button class="btn btn-danger" onclick="confirmDelete()" style="width: 100%; margin-top: 0.5rem; border-color: rgba(239, 68, 68, 0.2); color: #ef4444; background: rgba(239,68,68,0.02); font-size: 0.8rem;">
+                  <i class="ph-bold ph-trash"></i> Безвозвратно удалить аккаунт
+                </button>
               </div>
             </div>
           </div>
@@ -10191,6 +10484,7 @@
       if (name === 'twin') initTwinPage();
       if (name === 'switch') renderSwitchPage();
       if (name === 'chat-page') renderChatContacts();
+      if (name === 'settings') fillSettings();
       const mainTabs = ['dash', 'legacy', 'connections', 'tree', 'chat-page'];
       if (mainTabs.includes(name)) mobSetActive(name);
     }
@@ -10228,16 +10522,39 @@
       const img = document.getElementById('top-avatar-img');
       const btn = document.getElementById('user-avatar-btn');
 
-      if (STATE.user && STATE.user.photoURL) {
-        img.src = STATE.user.photoURL;
-        img.style.display = 'block';
-        initial.style.display = 'none';
-        if (btn) btn.textContent = ''; // clear initial if it was there
-        btn.appendChild(img);
-      } else if (STATE.user) {
-        img.style.display = 'none';
-        initial.style.display = 'block';
-        initial.textContent = STATE.user.name.charAt(0).toUpperCase();
+      const setImg = document.getElementById('set-avatar-img');
+      const setInitial = document.getElementById('set-avatar-initial');
+
+      const u = STATE.user || {};
+      const nameStr = u.name || 'Пользователь';
+      const firstChar = nameStr.charAt(0).toUpperCase();
+
+      if (u.photoURL) {
+        if (img) {
+          img.src = u.photoURL;
+          img.style.display = 'block';
+          if (initial) initial.style.display = 'none';
+        }
+        if (setImg) {
+          setImg.src = u.photoURL;
+          setImg.style.display = 'block';
+          if (setInitial) setInitial.style.display = 'none';
+        }
+      } else {
+        if (img) {
+          img.style.display = 'none';
+          if (initial) {
+            initial.style.display = 'block';
+            initial.textContent = firstChar;
+          }
+        }
+        if (setImg) {
+          setImg.style.display = 'none';
+        }
+        if (setInitial) {
+          setInitial.style.display = 'block';
+          setInitial.textContent = firstChar;
+        }
       }
     }
 
@@ -12628,6 +12945,26 @@
       const pct = Math.round((STATE.swDays / STATE.swPeriod) * 100);
       const bar = document.getElementById('sw-bar-sb');
       if (bar) bar.style.width = pct + '%';
+
+      // SVG Progress Ring calculations
+      const svgProgress = document.getElementById('sw-svg-progress');
+      const svgDaysVal = document.getElementById('sw-days-value');
+      const svgGrace = document.getElementById('sw-svg-grace');
+      if (svgDaysVal) svgDaysVal.textContent = STATE.swDays;
+      
+      const ratio = Math.max(0, Math.min(1, STATE.swDays / STATE.swPeriod));
+      const circumference = 597; // 2 * PI * 95
+      
+      if (svgProgress) {
+        const offset = circumference - (circumference * ratio);
+        svgProgress.setAttribute('stroke-dashoffset', offset);
+      }
+      
+      if (svgGrace) {
+        // Red slice takes 6% of the circle, showing the grace buffer
+        const graceOffset = circumference - (circumference * (ratio + 0.06));
+        svgGrace.setAttribute('stroke-dashoffset', Math.max(0, graceOffset));
+      }
     }
 
     function saveExecutor() {
@@ -12637,8 +12974,13 @@
       STATE.executor = { name, email };
       saveUserData();
       renderExecutorCard();
+      renderSwitchPage(); // to update quick pick border highlights
       addActivity('Назначен Душеприказчик: ' + name);
       toast('<i class="ph-light ph-check"></i> Душеприказчик назначен');
+      
+      // Hide manual form
+      const el = document.getElementById('exec-manual-form');
+      if (el) el.style.display = 'none';
     }
 
     window.removeExecutor = function() {
@@ -12646,24 +12988,83 @@
         STATE.executor = null;
         saveUserData();
         renderExecutorCard();
+        renderSwitchPage(); // to clear highlights
         toast('Назначение душеприказчика сброшено');
       }
     };
 
+    window.toggleManualExecForm = function() {
+      const el = document.getElementById('exec-manual-form');
+      if (!el) return;
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        el.style.display = 'none';
+      }
+    };
+
+    window.bindRelativeAsExecutor = function(relId) {
+      const rel = (STATE.relatives || []).find(r => r.id === relId);
+      if (!rel) return;
+      STATE.executor = { name: rel.name, email: rel.email || '' };
+      saveUserData();
+      renderExecutorCard();
+      renderSwitchPage();
+      addActivity('Назначен Душеприказчик: ' + rel.name);
+      toast('<i class="ph-light ph-check"></i> Душеприказчик назначен: ' + rel.name);
+    };
+
     function renderExecutorCard() {
       const container = document.getElementById('executor-display-card');
+      const bridgeUserAvatar = document.getElementById('bridge-user-avatar');
+      const bridgeExecAvatar = document.getElementById('bridge-exec-avatar');
+      const bridgeExecLabel = document.getElementById('bridge-exec-label');
+      const bridgeStatusText = document.getElementById('bridge-status-text');
+      const bridgeWireGlow = document.getElementById('bridge-wire-glow');
+      const bridgeExecOrbit = document.getElementById('bridge-exec-orbit');
+
+      // Update owner avatar in bridge
+      if (bridgeUserAvatar) {
+        const u = STATE.user || {};
+        if (u.photo) {
+          bridgeUserAvatar.innerHTML = `<img src="${u.photo}" style="width:100%; height:100%; object-fit:cover;">`;
+        } else {
+          const char = (u.name || 'П').charAt(0).toUpperCase();
+          bridgeUserAvatar.innerHTML = `<div style="font-family:var(--serif); font-weight:bold;">${char}</div>`;
+        }
+      }
+
       if (!container) return;
       
       const exec = STATE.executor;
       if (!exec) {
         container.innerHTML = `
-          <div style="background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem; text-align: center; color: var(--muted); margin-top: 1rem;">
-            <i class="ph-fill ph-user-focus" style="font-size: 2rem; color: rgba(255,255,255,0.15); margin-bottom: 0.6rem; display: block;"></i>
-            Душеприказчик не назначен. Выберите родственника ниже или заполните форму вручную.
+          <div style="background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.08); border-radius: 16px; padding: 1.2rem; text-align: center; color: var(--muted); margin-top: 1rem; font-size: 0.8rem;">
+            <i class="ph-fill ph-user-focus" style="font-size: 1.8rem; color: rgba(255,255,255,0.12); margin-bottom: 0.5rem; display: block;"></i>
+            Душеприказчик не назначен. Выберите близкого из списка родственников выше или укажите вручную.
           </div>
         `;
         const tag = document.getElementById('executor-tag');
         if (tag) { tag.className = 'tag tag-muted'; tag.textContent = 'Не назначен'; }
+
+        // Reset visual bridge
+        if (bridgeExecAvatar) {
+          bridgeExecAvatar.innerHTML = `<i class="ph-bold ph-user-focus"></i>`;
+          bridgeExecAvatar.style.borderColor = 'rgba(255,255,255,0.08)';
+          bridgeExecAvatar.style.background = 'rgba(255,255,255,0.01)';
+          bridgeExecAvatar.style.color = 'var(--muted)';
+        }
+        if (bridgeExecLabel) bridgeExecLabel.textContent = 'Наследник';
+        if (bridgeStatusText) {
+          bridgeStatusText.textContent = 'Канал не активен';
+          bridgeStatusText.style.color = 'rgba(255, 255, 255, 0.25)';
+        }
+        if (bridgeWireGlow) bridgeWireGlow.style.display = 'none';
+        if (bridgeExecOrbit) {
+          bridgeExecOrbit.style.borderColor = 'rgba(255,255,255,0.08)';
+          bridgeExecOrbit.style.animationPlayState = 'paused';
+        }
         return;
       }
       
@@ -12694,25 +13095,36 @@
       
       const tag = document.getElementById('executor-tag');
       if (tag) { tag.className = `tag ${statusClass}`; tag.textContent = exec.name; }
+
+      // Update visual bridge to active
+      if (bridgeExecAvatar) {
+        if (matchedRel && matchedRel.photo) {
+          bridgeExecAvatar.innerHTML = `<img src="${matchedRel.photo}" style="width:100%; height:100%; object-fit:cover;">`;
+        } else {
+          bridgeExecAvatar.innerHTML = `<div style="font-family:var(--serif); font-weight:bold; font-size:1.1rem; color:var(--gold);">${exec.name.charAt(0).toUpperCase()}</div>`;
+        }
+        bridgeExecAvatar.style.borderColor = matchedRel ? 'rgba(46, 204, 113, 0.4)' : 'rgba(212, 175, 55, 0.4)';
+        bridgeExecAvatar.style.background = matchedRel ? 'rgba(46, 204, 113, 0.05)' : 'rgba(212, 175, 55, 0.05)';
+      }
+      if (bridgeExecLabel) bridgeExecLabel.textContent = exec.name.split(' ')[0];
+      if (bridgeStatusText) {
+        bridgeStatusText.textContent = matchedRel ? 'Канал защищен' : 'Канал активен';
+        bridgeStatusText.style.color = matchedRel ? '#2ecc71' : 'var(--gold)';
+      }
+      if (bridgeWireGlow) {
+        bridgeWireGlow.style.display = 'block';
+        bridgeWireGlow.style.stroke = matchedRel ? '#2ecc71' : 'var(--gold)';
+      }
+      if (bridgeExecOrbit) {
+        bridgeExecOrbit.style.borderColor = matchedRel ? 'rgba(46, 204, 113, 0.25)' : 'rgba(212, 175, 55, 0.25)';
+        bridgeExecOrbit.style.animationPlayState = 'running';
+      }
     }
 
-    window.onExecRelativeSelectChange = function(select) {
-      const opt = select.options[select.selectedIndex];
-      if (!opt || !opt.value) {
-        document.getElementById('exec-name').value = '';
-        document.getElementById('exec-email').value = '';
-        return;
-      }
-      const name = opt.getAttribute('data-name');
-      const email = opt.getAttribute('data-email');
-      document.getElementById('exec-name').value = name;
-      document.getElementById('exec-email').value = email || '';
-    };
+    window.onExecRelativeSelectChange = function(select) {}; // Stub, no longer used
 
     window.renderSwitchPage = function() {
-      initSwitchCanvas();
-      
-      // Update active state of period buttons
+      // SVG updates
       const period = STATE.swPeriod || 7;
       document.querySelectorAll('.sw-p-btn').forEach(btn => {
         const daysAttr = btn.getAttribute('onclick');
@@ -12732,18 +13144,36 @@
       setText('sw-period-label', period + ' дней');
       updateSwitchUI();
       
-      // Populate relatives dropdown for executor setup
-      const select = document.getElementById('exec-relative-select');
-      if (select) {
-        select.innerHTML = '<option value="">-- Выбрать из родственников --</option>';
-        (STATE.relatives || []).forEach(r => {
-          const opt = document.createElement('option');
-          opt.value = r.id;
-          opt.textContent = `${r.name} (${r.rel || 'Родственник'})`;
-          opt.setAttribute('data-name', r.name);
-          opt.setAttribute('data-email', r.email || '');
-          select.appendChild(opt);
-        });
+      // Render quick choice relative carousel
+      const carousel = document.getElementById('exec-relatives-carousel');
+      const quickSection = document.getElementById('exec-quick-bind-section');
+      if (carousel && quickSection) {
+        const rels = STATE.relatives || [];
+        if (rels.length > 0) {
+          quickSection.style.display = 'block';
+          carousel.innerHTML = '';
+          rels.forEach(r => {
+            const isSelected = STATE.executor && (STATE.executor.email === r.email || STATE.executor.name === r.name);
+            const borderStyle = isSelected ? 'border: 2px solid var(--gold); box-shadow: 0 0 10px rgba(212,175,55,0.45);' : 'border: 1px solid rgba(255,255,255,0.1);';
+            const avatar = r.photo 
+              ? `<img src="${r.photo}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; ${borderStyle}">`
+              : `<div style="width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:center; font-family:var(--serif); color:var(--gold); font-size:1.1rem; ${borderStyle}">${r.name.charAt(0).toUpperCase()}</div>`;
+            
+            const relDiv = document.createElement('div');
+            relDiv.className = 'carousel-rel-item';
+            relDiv.style.cssText = 'flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; cursor: pointer; transition: all 0.3s;';
+            relDiv.onclick = () => bindRelativeAsExecutor(r.id);
+            relDiv.innerHTML = `
+              <div style="position: relative; width: 48px; height: 48px; border-radius: 50%;">
+                ${avatar}
+              </div>
+              <div style="font-size: 0.65rem; color: var(--ivory); font-weight: 500; text-align: center; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${r.name}</div>
+            `;
+            carousel.appendChild(relDiv);
+          });
+        } else {
+          quickSection.style.display = 'none';
+        }
       }
       
       renderExecutorCard();
@@ -14348,6 +14778,7 @@ ${socialsContext}
       if (el('set-email')) el('set-email').value = STATE.user.email || '';
       if (el('set-birth')) el('set-birth').value = s.birth || '';
       if (el('set-city')) el('set-city').value = s.city || '';
+      updateAvatarUI();
     }
 
     function saveSettings() {
