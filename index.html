@@ -6159,6 +6159,18 @@
       </div>
     </div>
   </div>
+  <script>
+    // Fail-safe preloader dismiss: hide it after 4 seconds even if CDN scripts crash or are blocked
+    setTimeout(() => {
+      const preloader = document.getElementById('app-splash-preloader');
+      if (preloader) {
+        console.warn('Fail-safe preloader dismiss triggered.');
+        preloader.style.opacity = '0';
+        preloader.style.visibility = 'hidden';
+        setTimeout(() => preloader.remove(), 600);
+      }
+    }, 4000);
+  </script>
   <style>
     @keyframes splash-glow-pulse {
       0% { transform: scale(0.95); opacity: 0.5; }
@@ -8556,6 +8568,12 @@
                     <input type="text" id="set-name" placeholder="Ваше имя" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
                   </div>
                   
+                  <div class="field">
+                    <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">API-ключ Google Gemini (ИИ Мудрец & Двойник)</label>
+                    <input type="password" id="set-gemini-key" placeholder="Вставьте ваш API-ключ AIzaSy..." style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
+                    <small style="font-size:0.7rem; color:var(--muted); margin-top:4px; display:block;">Вы можете получить бесплатный ключ в <a href="https://aistudio.google.com/" target="_blank" style="color:var(--gold2); text-decoration:none;">Google AI Studio</a></small>
+                  </div>
+                  
                   <div class="field" style="position: relative;">
                     <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">Электронная почта</label>
                     <input type="email" id="set-email" placeholder="Email" readonly style="width: 100%; padding: 0.8rem; padding-right: 2.5rem; background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; color: var(--muted); font-size: 0.85rem; outline: none; cursor: not-allowed;">
@@ -9355,14 +9373,48 @@
       measurementId: "G-KQHXJYLG24"
     };
     // ════════════════════════════════════════════════════════════
-    firebase.initializeApp(firebaseConfig);
-    const fbAuth = firebase.auth();
-    const fbDb = firebase.firestore();
+    let fbAuth = null;
+    let fbDb = null;
+
+    // Global fallback for firebase to prevent runtime ReferenceErrors
+    if (typeof firebase === 'undefined') {
+      window.firebase = {
+        firestore: {
+          FieldValue: {
+            serverTimestamp: () => new Date()
+          }
+        }
+      };
+    }
+
+    try {
+      if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+        firebase.initializeApp(firebaseConfig);
+        fbAuth = firebase.auth();
+        fbDb = firebase.firestore();
+      } else {
+        console.warn("Firebase script was not loaded. Using local offline mode.");
+      }
+    } catch (e) {
+      console.error("Firebase initialization failed:", e);
+    }
+    
     
     // ════════════════════════════════════════════════════════════
     // 💡 БЕСПЛАТНЫЙ КЛЮЧ GEMINI ИИ (Получите на https://aistudio.google.com/)
     // ════════════════════════════════════════════════════════════
-    const GEMINI_API_KEY = "AQ.Ab8RN6LtzdksgYxDi8KwwGFVK-HqaZKhdtKe18zKmUrQiORt8g";
+    const GEMINI_API_KEY = "AQ.Ab8RN6KfFbkOfU9tkUMY6PjVCXLCviVTBVXzLXKBK2CUcZnjWw";
+    
+    function getGeminiApiKey() {
+      const userKey = localStorage.getItem('user_gemini_api_key');
+      if (userKey && userKey.trim().length > 10) {
+        return userKey.trim();
+      }
+      if (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY && GEMINI_API_KEY.trim().length > 10) {
+        return GEMINI_API_KEY.trim();
+      }
+      return '';
+    }
     // Enable offline persistence for better UX
     // fbDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 
@@ -9451,7 +9503,7 @@
         saveUserData(); // для демо — только localStorage
         return;
       }
-      const uid = fbAuth.currentUser && fbAuth.currentUser.uid;
+      const uid = fbAuth && fbAuth.currentUser && fbAuth.currentUser.uid;
       if (!uid) { saveUserData(); return; }
       // сначала быстро сохраняем локально
       saveUserData();
@@ -10372,7 +10424,11 @@
     }
 
     // ── onAuthStateChanged — восстановление сессии и вход/выход ──────
-    fbAuth.onAuthStateChanged(async (fbUser) => {
+    let isDomReady = false;
+    let pendingFbUser = null;
+    let pendingFbUserSet = false;
+
+    async function handleAuthStateChange(fbUser) {
       // Сбрасываем спиннеры
       setAuthLoading('btn-login', false, 'Войти');
       setAuthLoading('btn-register', false, 'Создать аккаунт');
@@ -10439,7 +10495,23 @@
           }
         }
       }
-    });
+    }
+
+    if (fbAuth) {
+      fbAuth.onAuthStateChanged(async (fbUser) => {
+        if (!isDomReady) {
+          pendingFbUser = fbUser;
+          pendingFbUserSet = true;
+          console.log('Auth state changed before DOM ready, deferring...');
+          return;
+        }
+        try {
+          await handleAuthStateChange(fbUser);
+        } catch (e) {
+          console.error("Error in onAuthStateChanged handler:", e);
+        }
+      });
+    }
 
     function updateAiQuote() {
       const quotes = [
@@ -13378,7 +13450,7 @@ ${secretsInfo}
       const typing = document.createElement('div'); typing.className = 'typing'; typing.textContent = 'Мудрец думает...'; msgs.appendChild(typing);
       msgs.scrollTop = msgs.scrollHeight;
 
-      const key = (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY) ? GEMINI_API_KEY : ((typeof firebase !== 'undefined' && firebase.app && firebase.app().options && firebase.app().options.apiKey) || '');
+      const key = getGeminiApiKey();
       const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
 
       const system = buildAiSystemPrompt();
@@ -13397,11 +13469,19 @@ ${secretsInfo}
 
         for (let attempt = 0; attempt <= retries; attempt++) {
           try {
-            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+            const useBearer = key.startsWith('AQ.') || key.startsWith('ya29.');
+            const fetchUrl = useBearer 
+              ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
+              : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+            const reqHeaders = {
+              'Content-Type': 'application/json'
+            };
+            if (useBearer) {
+              reqHeaders['Authorization'] = `Bearer ${key}`;
+            }
+            response = await fetch(fetchUrl, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
+              headers: reqHeaders,
               body: JSON.stringify({
                 contents: contents,
                 systemInstruction: {
@@ -13417,6 +13497,9 @@ ${secretsInfo}
 
             const errData = await response.json().catch(() => ({}));
             errorMsg = errData.error?.message || `HTTP ${response.status}`;
+            if (response.status === 400 || response.status === 403 || errorMsg.toLowerCase().includes('credential') || errorMsg.toLowerCase().includes('key')) {
+              errorMsg = 'Недействительный API-ключ Gemini. Пожалуйста, зайдите в Настройки и укажите ваш личный бесплатный API-ключ от Google AI Studio (aistudio.google.com).';
+            }
             
             const isTemporary = errorMsg.toLowerCase().includes('high demand') || 
                                 errorMsg.toLowerCase().includes('limit') || 
@@ -14616,7 +14699,7 @@ ${socialsContext}
       msgs.appendChild(typing);
       msgs.scrollTop = msgs.scrollHeight;
 
-      const key = (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY) ? GEMINI_API_KEY : ((typeof firebase !== 'undefined' && firebase.app && firebase.app().options && firebase.app().options.apiKey) || '');
+      const key = getGeminiApiKey();
       const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
 
       const system = buildTwinSystemPrompt(text);
@@ -14635,11 +14718,19 @@ ${socialsContext}
 
         for (let attempt = 0; attempt <= retries; attempt++) {
           try {
-            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+            const useBearer = key.startsWith('AQ.') || key.startsWith('ya29.');
+            const fetchUrl = useBearer 
+              ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
+              : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+            const reqHeaders = {
+              'Content-Type': 'application/json'
+            };
+            if (useBearer) {
+              reqHeaders['Authorization'] = `Bearer ${key}`;
+            }
+            response = await fetch(fetchUrl, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
+              headers: reqHeaders,
               body: JSON.stringify({
                 contents: contents,
                 systemInstruction: {
@@ -14655,6 +14746,9 @@ ${socialsContext}
 
             const errData = await response.json().catch(() => ({}));
             errorMsg = errData.error?.message || `HTTP ${response.status}`;
+            if (response.status === 400 || response.status === 403 || errorMsg.toLowerCase().includes('credential') || errorMsg.toLowerCase().includes('key')) {
+              errorMsg = 'Недействительный API-ключ Gemini. Пожалуйста, зайдите в Настройки и укажите ваш личный бесплатный API-ключ от Google AI Studio (aistudio.google.com).';
+            }
             
             const isTemporary = errorMsg.toLowerCase().includes('high demand') || 
                                 errorMsg.toLowerCase().includes('limit') || 
@@ -14886,6 +14980,7 @@ ${socialsContext}
       const s = STATE.settings;
       const el = id => document.getElementById(id);
       if (el('set-name')) el('set-name').value = STATE.user.name || '';
+      if (el('set-gemini-key')) el('set-gemini-key').value = localStorage.getItem('user_gemini_api_key') || '';
       if (el('set-email')) el('set-email').value = STATE.user.email || '';
       if (el('set-birth')) el('set-birth').value = s.birth || '';
       if (el('set-city')) el('set-city').value = s.city || '';
@@ -14896,6 +14991,8 @@ ${socialsContext}
       const name = document.getElementById('set-name').value.trim();
       if (!name) { toast('Введите имя'); return; }
       STATE.user.name = name;
+      const geminiKey = document.getElementById('set-gemini-key') ? document.getElementById('set-gemini-key').value.trim() : '';
+      localStorage.setItem('user_gemini_api_key', geminiKey);
       STATE.settings.birth = document.getElementById('set-birth').value;
       STATE.settings.city = document.getElementById('set-city').value;
       const users = DB.load('users', []);
@@ -15245,42 +15342,53 @@ ${socialsContext}
     // INIT
     // ═══════════════════════════════════════════
     window.addEventListener('DOMContentLoaded', () => {
-      const isResetting = checkUrlParams(); // 1. Приоритет — сброс пароля
-
-      initHeroCanvas();
-      initLandingNav();
-      initReveal();
-      initTicker();
-
-      if (!isResetting) {
-        checkAutoLogin();
-        checkUrlForJoinCode();
-      }
-
-      // Dash date
-      const dd = document.getElementById('dash-date');
-      if (dd) dd.textContent = new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-      // Background Switch Countdown (Demo: 1 day = 24 hours)
-      setInterval(() => {
-        if (STATE.user && STATE.swDays > 0) {
-          STATE.swDays--;
-          updateSwitchUI();
-          if (STATE.swDays === 0) {
-            triggerReleaseSimulation();
-          }
-        }
-      }, 86400000); // 24 hours
+      isDomReady = true;
 
       // Premium preloader dismiss
-      setTimeout(() => {
-        const preloader = document.getElementById('app-splash-preloader');
-        if (preloader) {
+      const preloader = document.getElementById('app-splash-preloader');
+      if (preloader) {
+        setTimeout(() => {
           preloader.style.opacity = '0';
           preloader.style.visibility = 'hidden';
           setTimeout(() => preloader.remove(), 600);
+        }, 500);
+      }
+
+      try {
+        const isResetting = checkUrlParams(); // 1. Приоритет — сброс пароля
+
+        initHeroCanvas();
+        initLandingNav();
+        initReveal();
+        initTicker();
+
+        if (!isResetting) {
+          checkAutoLogin();
+          checkUrlForJoinCode();
         }
-      }, 500);
+
+        // Process pending Firebase Auth state change if it arrived early
+        if (pendingFbUserSet && fbAuth) {
+          handleAuthStateChange(pendingFbUser).catch(e => console.error("Deferred auth error:", e));
+        }
+
+        // Dash date
+        const dd = document.getElementById('dash-date');
+        if (dd) dd.textContent = new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Background Switch Countdown (Demo: 1 day = 24 hours)
+        setInterval(() => {
+          if (STATE.user && STATE.swDays > 0) {
+            STATE.swDays--;
+            updateSwitchUI();
+            if (STATE.swDays === 0) {
+              triggerReleaseSimulation();
+            }
+          }
+        }, 86400000); // 24 hours
+      } catch (err) {
+        console.error("Initialization error:", err);
+      }
     });
 
     function triggerReleaseSimulation() {
