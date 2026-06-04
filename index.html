@@ -6768,149 +6768,135 @@
       <main class="app-main">
 
         <!-- ── DASHBOARD ── -->
+        <!-- ── DASHBOARD ── -->
         <div class="page active" id="page-dash">
-          <div class="dash-grid">
-            <!-- Left: Main Content -->
-            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="dash-minimal-wrap" style="max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem; display: flex; flex-direction: column; gap: 3rem;">
+            
+            <!-- Welcome Header -->
+            <header style="text-align: center; margin-bottom: 0.5rem; position: relative;">
+              <div style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 250px; height: 100px; background: radial-gradient(circle, rgba(201, 168, 76, 0.05) 0%, transparent 70%); filter: blur(20px); pointer-events: none;"></div>
+              <h1 style="font-family: var(--serif); font-size: 2.5rem; font-weight: 300; color: var(--ivory); letter-spacing: -0.5px; margin-bottom: 0.4rem; position: relative; z-index: 2;">
+                Наследие рода <em id="dash-name" style="color: var(--gold); font-style: normal; font-weight: 400; text-shadow: 0 0 20px rgba(201, 168, 76, 0.2);">Пользователь</em>
+              </h1>
+              <p style="font-size: 0.78rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 400; display: inline-flex; align-items: center; gap: 8px; position: relative; z-index: 2;">
+                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 10px #2ecc71;"></span>
+                Шифрование AES-256 активно &middot; <span id="dash-date" style="color: var(--gold2);"></span>
+              </p>
+            </header>
 
-              <!-- Redesigned Welcome Widget -->
-              <div class="dash-welcome-card" style="background: linear-gradient(135deg, rgba(20,18,30,0.85) 0%, rgba(10,9,15,0.95) 100%); border: 1px solid rgba(212,175,55,0.1); box-shadow: 0 8px 30px rgba(0,0,0,0.4); padding: 1.5rem !important; min-height: auto !important; border-radius: 24px; position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%); pointer-events: none;"></div>
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; position: relative; z-index: 2;">
-                  <div>
-                    <div class="dash-welcome-title" style="font-family: var(--serif); font-size: 1.6rem; color: var(--ivory); font-weight: 300; letter-spacing: -0.5px;">Наследие рода <em id="dash-name" style="color: var(--gold); font-style: normal; font-weight: 500; text-shadow: 0 0 15px rgba(212,175,55,0.2);">Пользователь</em></div>
-                    <div class="dash-welcome-sub" style="font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; font-weight: 300; display: flex; align-items: center; gap: 0.4rem;">
-                      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71;"></span>
-                      Шифрование AES-256 активно. Сегодня <span id="dash-date" style="color: var(--gold2); font-weight: 400;"></span>.
-                    </div>
-                  </div>
-                  <div class="dash-avatar-badge" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(212,175,55,0.25); background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.02) 100%); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1.3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);"><i class="ph-fill ph-brain"></i></div>
-                </div>
-
-                <div class="dash-health-wrap" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 1rem 1.4rem; position: relative; z-index: 2;">
-                  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem;">
-                    <div class="dash-stat-lbl" style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Заполненность Архива Души</div>
-                    <div style="font-family: var(--sans); color: var(--gold2); font-size: 1rem; font-weight: 600;" id="dash-health-pct">45%</div>
-                  </div>
-                  <div class="dash-health-bar" style="height: 6px; background: rgba(255,255,255,0.03); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.01);">
-                    <div class="dash-health-fill" id="dash-health-fill" style="width: 45%; height: 100%; background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 100%); border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);"></div>
-                  </div>
+            <!-- Spacious Status Line -->
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2.5rem; padding: 1.2rem 2rem; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 20px; backdrop-filter: blur(15px); box-shadow: 0 4px 30px rgba(0,0,0,0.15);">
+              
+              <!-- BIP39 Shield -->
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="ph-light ph-shield-check" style="font-size: 1.3rem; color: var(--gold); filter: drop-shadow(0 0 5px rgba(201, 168, 76, 0.3));"></i>
+                <div style="font-size: 0.8rem; color: var(--muted); font-weight: 300;">
+                  Защита BIP39: <span style="color: var(--gold2); font-weight: 500;">Активна</span>
                 </div>
               </div>
 
-              <!-- Stat Widgets Grid -->
-              <div class="dash-stat-grid">
-                <div class="dash-stat-widget" onclick="goPage('secrets')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
-                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-lock-key"></i></div>
-                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
-                    <div class="dash-stat-val" id="d-secrets" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
-                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Сейф тайн</div>
-                  </div>
-                </div>
-                <div class="dash-stat-widget" onclick="goPage('messages')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
-                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-envelope-simple"></i></div>
-                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
-                    <div class="dash-stat-val" id="d-msgs" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
-                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Послания</div>
-                  </div>
-                </div>
-                <div class="dash-stat-widget" onclick="goPage('connections')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
-                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-users"></i></div>
-                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
-                    <div class="dash-stat-val" id="d-rels" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
-                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Члены рода</div>
-                  </div>
-                </div>
-                <div class="dash-stat-widget" onclick="goPage('bio')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
-                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-scroll"></i></div>
-                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
-                    <div class="dash-stat-val" id="d-bio" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
-                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Биография</div>
-                  </div>
+              <!-- Life Guard check-in status -->
+              <div style="display: flex; align-items: center; gap: 10px; cursor: pointer; transition: opacity 0.2s;" onclick="goPage('switch')" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+                <i class="ph-light ph-hourglass" style="font-size: 1.3rem; color: var(--red); filter: drop-shadow(0 0 5px rgba(231, 76, 60, 0.3));"></i>
+                <div style="font-size: 0.8rem; color: var(--muted); font-weight: 300;">
+                  Страж: <span id="sw-days-sb" style="color: var(--red); font-weight: 500;">7</span> <span id="sw-sub-sb" style="color: var(--red); font-weight: 500;">дней до проверки</span>
                 </div>
               </div>
 
-              <!-- Activity Feed -->
-              <div class="card dash-activity-card" style="margin-bottom: 0; background: rgba(20,18,30,0.4); border: 1px solid rgba(255,255,255,0.03); border-radius: 24px; padding: 1.8rem; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
-                <div class="section-label" style="margin-bottom: 1.2rem; color: var(--gold2); font-family: var(--serif); font-size: 1.05rem; letter-spacing: 0.5px;">Последняя активность</div>
-                <div id="dash-activity">
-                  <div class="empty" style="padding: 2rem 1rem;">
-                    <div class="empty-icon" style="font-size: 1.5rem; color: var(--muted); opacity: 0.6;"><i class="ph-light ph-clipboard"></i></div>
-                    <div class="empty-text" style="font-size: 0.9rem; color: var(--muted); font-weight: 300;">Нет активности</div>
-                  </div>
+              <!-- Soul Archive Fill % -->
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="ph-light ph-chart-pie" style="font-size: 1.3rem; color: var(--gold2);"></i>
+                <div style="font-size: 0.8rem; color: var(--muted); font-weight: 300;">
+                  Архив: <span id="dash-health-pct" style="color: var(--gold2); font-weight: 500;">45%</span>
                 </div>
+              </div>
+            </div>
+
+            <!-- Dashboard Grid (Spacious Glass Cards) -->
+            <div class="dash-stat-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1.5rem;">
+              
+              <!-- Secrets Vault -->
+              <div class="dash-stat-widget" onclick="goPage('secrets')" 
+                   style="background: rgba(255,255,255,0.015); border: 1px solid rgba(201,168,76,0.06); border-radius: 24px; padding: 1.6rem; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 145px; box-shadow: 0 4px 30px rgba(0,0,0,0.15);"
+                   onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(201,168,76,0.25)'; this.style.background='rgba(201,168,76,0.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
+                   onmouseout="this.style.transform='none'; this.style.borderColor='rgba(201,168,76,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='0 4px 30px rgba(0,0,0,0.15)';">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                  <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">Сейф тайн</span>
+                  <div style="background: rgba(201,168,76,0.05); color: var(--gold); border: 1px solid rgba(201,168,76,0.1); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="ph-light ph-lock-key"></i></div>
+                </div>
+                <div id="d-secrets" style="font-size: 2.2rem; font-weight: 300; color: var(--ivory); font-family: var(--serif); line-height: 1;">0</div>
+              </div>
+
+              <!-- Direct Messages -->
+              <div class="dash-stat-widget" onclick="goPage('messages')" 
+                   style="background: rgba(255,255,255,0.015); border: 1px solid rgba(201,168,76,0.06); border-radius: 24px; padding: 1.6rem; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 145px; box-shadow: 0 4px 30px rgba(0,0,0,0.15);"
+                   onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(201,168,76,0.25)'; this.style.background='rgba(201,168,76,0.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
+                   onmouseout="this.style.transform='none'; this.style.borderColor='rgba(201,168,76,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='0 4px 30px rgba(0,0,0,0.15)';">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                  <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">Послания</span>
+                  <div style="background: rgba(201,168,76,0.05); color: var(--gold); border: 1px solid rgba(201,168,76,0.1); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="ph-light ph-envelope-simple"></i></div>
+                </div>
+                <div id="d-msgs" style="font-size: 2.2rem; font-weight: 300; color: var(--ivory); font-family: var(--serif); line-height: 1;">0</div>
+              </div>
+
+              <!-- Family Circle -->
+              <div class="dash-stat-widget" onclick="goPage('connections')" 
+                   style="background: rgba(255,255,255,0.015); border: 1px solid rgba(201,168,76,0.06); border-radius: 24px; padding: 1.6rem; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 145px; box-shadow: 0 4px 30px rgba(0,0,0,0.15);"
+                   onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(201,168,76,0.25)'; this.style.background='rgba(201,168,76,0.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
+                   onmouseout="this.style.transform='none'; this.style.borderColor='rgba(201,168,76,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='0 4px 30px rgba(0,0,0,0.15)';">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                  <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">Члены рода</span>
+                  <div style="background: rgba(201,168,76,0.05); color: var(--gold); border: 1px solid rgba(201,168,76,0.1); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="ph-light ph-users"></i></div>
+                </div>
+                <div id="d-rels" style="font-size: 2.2rem; font-weight: 300; color: var(--ivory); font-family: var(--serif); line-height: 1;">0</div>
+              </div>
+
+              <!-- Biography Chapters -->
+              <div class="dash-stat-widget" onclick="goPage('bio')" 
+                   style="background: rgba(255,255,255,0.015); border: 1px solid rgba(201,168,76,0.06); border-radius: 24px; padding: 1.6rem; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 145px; box-shadow: 0 4px 30px rgba(0,0,0,0.15);"
+                   onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(201,168,76,0.25)'; this.style.background='rgba(201,168,76,0.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
+                   onmouseout="this.style.transform='none'; this.style.borderColor='rgba(201,168,76,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='0 4px 30px rgba(0,0,0,0.15)';">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                  <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">Биография</span>
+                  <div style="background: rgba(201,168,76,0.05); color: var(--gold); border: 1px solid rgba(201,168,76,0.1); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="ph-light ph-scroll"></i></div>
+                </div>
+                <div id="d-bio" style="font-size: 2.2rem; font-weight: 300; color: var(--ivory); font-family: var(--serif); line-height: 1;">0</div>
+              </div>
+
+              <!-- AI consciousness twin clone -->
+              <div class="dash-stat-widget" onclick="goPage('twin')" 
+                   style="background: rgba(255,255,255,0.015); border: 1px solid rgba(201,168,76,0.06); border-radius: 24px; padding: 1.6rem; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 145px; box-shadow: 0 4px 30px rgba(0,0,0,0.15);"
+                   onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(201,168,76,0.25)'; this.style.background='rgba(201,168,76,0.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
+                   onmouseout="this.style.transform='none'; this.style.borderColor='rgba(201,168,76,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='0 4px 30px rgba(0,0,0,0.15)';">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                  <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">Двойник</span>
+                  <div style="background: rgba(201,168,76,0.05); color: var(--gold); border: 1px solid rgba(201,168,76,0.1); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="ph-light ph-brain"></i></div>
+                </div>
+                <div style="font-size: 0.82rem; color: var(--gold2); font-weight: 500; letter-spacing: 0.5px; line-height: 2.2;">Интегрирован</div>
               </div>
 
             </div>
 
-            <!-- Right: Sidebar / Quick Actions -->
-            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-
-              <!-- Life Guard Widget -->
-              <div class="dash-stat-widget dash-guard-card"
-                style="background: linear-gradient(180deg, rgba(231, 76, 60, 0.05) 0%, var(--glass-bg) 100%); border-color: rgba(231, 76, 60, 0.2);"
-                onclick="goPage('switch')">
-                <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
-                  <div class="dash-stat-icon" style="background: rgba(231, 76, 60, 0.1); color: var(--red);"><i
-                      class="ph-light ph-hourglass"></i></div>
-                  <div class="dash-stat-lbl" style="color: var(--red);">Страж жизни</div>
-                </div>
-                <div style="font-size: 2rem; font-family: var(--serif);" id="sw-days-sb">7</div>
-                <div class="dash-stat-lbl" id="sw-sub-sb">дней до проверки</div>
-                <div class="progress-bar" style="height: 4px; background: rgba(231, 76, 60, 0.1);">
-                  <div class="progress-fill" id="sw-bar-sb" style="background: var(--red); width: 100%;"></div>
-                </div>
-                <button class="btn btn-ghost btn-sm"
-                  style="width: 100%; margin-top: 0.5rem; border-color: rgba(231, 76, 60, 0.3); color: var(--red);"
-                  onclick="event.stopPropagation(); doCheckin();">Я в порядке</button>
+            <!-- Minimalist Quotes & Actions Box -->
+            <div style="background: linear-gradient(135deg, rgba(20,18,30,0.25) 0%, rgba(10,9,15,0.45) 100%); border: 1px solid rgba(201,168,76,0.05); border-radius: 28px; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 1.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+              <div style="font-size: 1.1rem; color: var(--ivory); font-family: var(--serif); font-style: italic; font-weight: 300; line-height: 1.6; max-width: 650px;" id="dash-ai-quote">
+                «Память — это единственный рай, из которого нас не могут изгнать».
               </div>
-
-              <!-- Quick Actions -->
-              <div class="dash-actions-card">
-                <div class="section-label">Быстрые действия</div>
-                <div class="dash-quick-actions">
-                  <div class="quick-btn" onclick="openModal('modal-secret')">
-                    <i class="ph-light ph-plus-circle"></i>
-                    <div class="quick-btn-text">
-                      <div class="quick-btn-title">Добавить тайну</div>
-                      <div class="quick-btn-sub">Защитите пароль или файл</div>
-                    </div>
-                  </div>
-                  <div class="quick-btn" onclick="goPage('ai')">
-                    <i class="ph-light ph-robot"></i>
-                    <div class="quick-btn-text">
-                      <div class="quick-btn-title">Спросить Мудреца</div>
-                      <div class="quick-btn-sub">Помощь AI с биографией</div>
-                    </div>
-                  </div>
-                  <div class="quick-btn" onclick="openModal('modal-bio')">
-                    <i class="ph-light ph-book-open"></i>
-                    <div class="quick-btn-text">
-                      <div class="quick-btn-title">Новая глава</div>
-                      <div class="quick-btn-sub">Запишите воспоминание</div>
-                    </div>
-                  </div>
-                  <div class="quick-btn" onclick="openModal('modal-relative')">
-                    <i class="ph-light ph-user-plus"></i>
-                    <div class="quick-btn-text">
-                      <div class="quick-btn-title">Добавить в род</div>
-                      <div class="quick-btn-sub">Расширьте древо жизни</div>
-                    </div>
-                  </div>
-                </div>
+              <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center; margin-top: 0.2rem;">
+                <button class="btn btn-ghost btn-sm" onclick="openModal('modal-secret')" style="border-radius: 14px; border-color: rgba(201,168,76,0.15); color: var(--gold); font-size: 0.78rem; padding: 0.55rem 1.1rem; font-weight: 500;"><i class="ph-light ph-plus"></i> Добавить тайну</button>
+                <button class="btn btn-ghost btn-sm" onclick="goPage('ai')" style="border-radius: 14px; border-color: rgba(255,255,255,0.1); color: var(--ivory); font-size: 0.78rem; padding: 0.55rem 1.1rem; font-weight: 500;"><i class="ph-light ph-robot"></i> Спросить Мудреца</button>
+                <button class="btn btn-ghost btn-sm" onclick="openModal('modal-bio')" style="border-radius: 14px; border-color: rgba(255,255,255,0.1); color: var(--ivory); font-size: 0.78rem; padding: 0.55rem 1.1rem; font-weight: 500;"><i class="ph-light ph-book-open"></i> Запись в биографию</button>
+                <button class="btn btn-ghost btn-sm" onclick="openModal('modal-relative')" style="border-radius: 14px; border-color: rgba(255,255,255,0.1); color: var(--ivory); font-size: 0.78rem; padding: 0.55rem 1.1rem; font-weight: 500;"><i class="ph-light ph-user-plus"></i> Добавить родственника</button>
               </div>
-
-              <!-- AI Quote/Tip -->
-              <div class="card dash-quote-card" style="background: rgba(212, 175, 55, 0.03); border-style: dashed; padding: 1.2rem;">
-                <div style="color: var(--gold); font-size: 1.2rem; margin-bottom: 0.5rem;"><i
-                    class="ph-light ph-quotes"></i></div>
-                <div style="font-size: 0.8rem; color: var(--muted); font-style: italic; line-height: 1.5;"
-                  id="dash-ai-quote">
-                  «Память — это единственный рай, из которого нас не могут изгнать». Начните свою биографию сегодня.
-                </div>
-              </div>
-
             </div>
+
+            <!-- Hidden Legacy Elements to prevent JS Errors -->
+            <div style="display: none;">
+              <div id="dash-health-fill"></div>
+              <div id="sw-bar-sb"></div>
+              <div id="dash-activity"></div>
+            </div>
+
           </div>
         </div>
 
@@ -6996,7 +6982,7 @@
                           style="position: absolute; top: -10px; left: 12px; background: #0f0d16; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">CVV</label>
                         <input type="password" id="card-cvv-inline" placeholder="•••"
                           style="width: 100%; background: transparent; border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 14px; color: var(--ivory); font-size: 1rem; outline: none; text-align: center; letter-spacing: 5px;"
-                          maxlength="3">
+                          maxlength="3" onfocus="flipCard(true, '-inline')" onblur="flipCard(false, '-inline')">
                       </div>
                     </div>
 
@@ -7011,7 +6997,7 @@
 
                     <button class="btn-gold"
                       style="width: 100%; padding: 18px; font-size: 1rem; letter-spacing: 2px; font-weight: 700; border-radius: 16px;"
-                      onclick="processPaymentReal()">
+                      onclick="processPaymentReal('-inline')">
                       ПОДТВЕРДИТЬ ОПЛАТУ
                     </button>
                   </div>
@@ -9514,6 +9500,10 @@
           code: _connCode(STATE.user.email),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           zkVersion: 2, // zero-knowledge schema version
+          lat: STATE.user.lat || null,
+          lon: STATE.user.lon || null,
+          name: STATE.user.name || '',
+          photoURL: STATE.user.photoURL || '',
           // ↓ Всё ниже — зашифровано AES-256 на устройстве клиента
           secrets: CryptoEngine.encryptVault(STATE.secrets),
           bio: CryptoEngine.encrypt(STATE.bio),
@@ -9831,8 +9821,12 @@
           code: _connCode(STATE.user.email),
           zkVersion: 2,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lat: STATE.user.lat || null,
+          lon: STATE.user.lon || null,
+          name: STATE.user.name || '',
+          photoURL: STATE.user.photoURL || '',
           // ↓ Всё ниже зашифровано AES-256 на устройстве
-          secrets: CryptoEngine.encrypt(STATE.secrets),
+          secrets: CryptoEngine.encryptVault(STATE.secrets),
           bio: CryptoEngine.encrypt(STATE.bio),
           messages: CryptoEngine.encrypt(STATE.messages),
           relatives: CryptoEngine.encrypt(STATE.relatives),
@@ -12210,11 +12204,11 @@
       input.value = value.substring(0, 5);
     }
 
-    function validatePaymentForm() {
-      const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
-      const cardExpiry = document.getElementById('card-expiry').value;
-      const cardCVV = document.getElementById('card-cvv').value;
-      const cardName = document.getElementById('card-name').value.trim();
+    function validatePaymentForm(suffix = '') {
+      const cardNumber = document.getElementById('card-number' + suffix).value.replace(/\s/g, '');
+      const cardExpiry = document.getElementById('card-expiry' + suffix).value;
+      const cardCVV = document.getElementById('card-cvv' + suffix).value;
+      const cardName = document.getElementById('card-name' + suffix).value.trim();
 
       if (cardNumber.length < 16) { toast('<i class="ph-light ph-warning"></i> Введите корректный номер карты'); return false; }
       if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) { toast('<i class="ph-light ph-warning"></i> Введите срок действия (ММ/ГГ)'); return false; }
@@ -12232,14 +12226,19 @@
       return true;
     }
 
-    function processPaymentReal() {
-      if (!validatePaymentForm()) return;
+    function processPaymentReal(suffix = '') {
+      if (!validatePaymentForm(suffix)) return;
 
       // Получаем данные
       const plan = PLANS[currentPayPlan];
 
       // Анимация загрузки
-      const payBtn = document.getElementById('pay-button');
+      let payBtn = document.getElementById('pay-button');
+      if (suffix === '-inline') {
+        const inlineBtn = document.querySelector('#inline-payment-block button.btn-gold');
+        if (inlineBtn) payBtn = inlineBtn;
+      }
+      
       const originalText = payBtn.innerHTML;
       payBtn.innerHTML = '<span><i class="ph-light ph-hourglass"></i></span> АВТОРИЗАЦИЯ...';
       payBtn.disabled = true;
@@ -12252,6 +12251,11 @@
           if (success) {
             toast(`<i class="ph-light ph-check-circle"></i> Оплата прошла успешно!`);
             closeModal('modal-payment-real');
+            
+            // Hide inline payment block if active
+            const inlineBlock = document.getElementById('inline-payment-block');
+            if (inlineBlock) inlineBlock.style.display = 'none';
+            
             showConfetti();
 
             // Показываем финальное окно успеха через небольшую паузу
@@ -12276,11 +12280,11 @@
       }, 1000);
     }
 
-    function detectCardType(cardNumber) {
+    function detectCardType(cardNumber, suffix = '') {
       const cleanNumber = cardNumber.replace(/\s/g, '');
-      const cardIcon = document.getElementById('card-icon');
-      const cardVizType = document.getElementById('card-viz-type');
-      const cardViz = document.getElementById('card-viz');
+      const cardIcon = document.getElementById('card-icon' + suffix);
+      const cardVizType = document.getElementById('card-viz-type' + suffix);
+      const cardViz = document.getElementById('card-viz' + suffix);
 
       let type = 'Card';
       let icon = '<i class="ph-light ph-credit-card"></i>';
@@ -12312,23 +12316,28 @@
       if (cardViz) cardViz.style.background = color;
     }
 
-    function updateCardVizNum(input) {
+    function updateCardVizNum(input, suffix = '') {
       formatCardNumber(input);
       const val = input.value || '•••• •••• •••• ••••';
-      document.getElementById('card-viz-number').textContent = val;
-      detectCardType(val);
+      const el = document.getElementById('card-viz-number' + suffix);
+      if (el) el.textContent = val;
+      detectCardType(val, suffix);
     }
-    function updateCardVizExpiry(input) {
+    function updateCardVizExpiry(input, suffix = '') {
       formatExpiry(input);
-      document.getElementById('card-viz-expiry').textContent = input.value || 'MM/YY';
+      const el = document.getElementById('card-viz-expiry' + suffix);
+      if (el) el.textContent = input.value || 'MM/YY';
     }
-    function updateCardVizName(input) {
-      document.getElementById('card-viz-name').textContent = input.value.toUpperCase() || 'YOUR NAME';
+    function updateCardVizName(input, suffix = '') {
+      const el = document.getElementById('card-viz-name' + suffix);
+      if (el) el.textContent = input.value.toUpperCase() || 'YOUR NAME';
     }
-    function flipCard(back) {
-      const viz = document.getElementById('card-viz');
-      if (back) viz.style.transform = 'rotateY(10deg) scale(1.02)';
-      else viz.style.transform = 'rotateY(0deg) scale(1)';
+    function flipCard(back, suffix = '') {
+      const viz = document.getElementById('card-viz' + suffix);
+      if (viz) {
+        if (back) viz.style.transform = 'rotateY(10deg) scale(1.02)';
+        else viz.style.transform = 'rotateY(0deg) scale(1)';
+      }
     }
 
     // Эффект конфетти при успешной оплате
@@ -12462,6 +12471,36 @@
             location.reload();
           }
         } else {
+          // If inside page-subscription, toggle the inline payment block
+          const inlineBlock = document.getElementById('inline-payment-block');
+          const subPage = document.getElementById('page-subscription');
+          if (inlineBlock && subPage && subPage.classList.contains('active')) {
+            currentPayPlan = planId;
+            const plan = PLANS[planId];
+            currentPrice = planId === 'keeper' ? 2490 : 5990;
+            currentMonths = 1;
+
+            // Fill inline payment details
+            document.getElementById('pay-amount-inline').innerHTML = `₸${currentPrice.toLocaleString()}`;
+            document.getElementById('pay-period-inline').innerHTML = 'за 1 месяц доступа';
+
+            // Show and scroll to inline payment block
+            inlineBlock.style.display = 'block';
+            inlineBlock.scrollIntoView({ behavior: 'smooth' });
+
+            // Clear inputs
+            document.getElementById('card-number-inline').value = '';
+            document.getElementById('card-expiry-inline').value = '';
+            document.getElementById('card-cvv-inline').value = '';
+            document.getElementById('card-name-inline').value = '';
+
+            // Format card viz
+            updateCardVizNum(document.getElementById('card-number-inline'), '-inline');
+            updateCardVizExpiry(document.getElementById('card-expiry-inline'), '-inline');
+            updateCardVizName(document.getElementById('card-name-inline'), '-inline');
+            return;
+          }
+
           const isYearly = document.getElementById('pricing-checkbox')?.checked;
           openPaymentModalReal(planId);
           if (isYearly) {
@@ -15571,6 +15610,7 @@ ${socialsContext}
 
             renderConnections();
             renderChatContacts();
+            syncConnectedProfiles();
           }, err => {
             console.error("Connections sync error:", err);
             toast('Ошибка получения запросов: ' + err.message);
@@ -15615,12 +15655,14 @@ ${socialsContext}
 
             renderConnections();
             renderChatContacts();
+            syncConnectedProfiles();
           }, err => {
             console.error("Connections outgoing sync error:", err);
           });
       } else {
         renderConnections();
       }
+      syncConnectedProfiles();
     }
 
     function renderConnections() {
@@ -16405,7 +16447,8 @@ ${socialsContext}
           reader.readAsDataURL(blob);
           reader.onloadend = async () => {
             const base64data = reader.result;
-            await sendDirectMessage(null, base64data);
+            toast('<i class="ph-light ph-paper-plane-right"></i> Голосовое сообщение отправляется...');
+            sendDirectMessage(null, base64data);
           };
         };
 
@@ -16667,6 +16710,7 @@ ${socialsContext}
         .orderBy('createdAt', 'asc')
         .onSnapshot(snapshot => {
           let html = '';
+          const postRenderTasks = [];
           snapshot.forEach(doc => {
             const m = doc.data();
             const isMe = m.senderUid === myUid;
@@ -16747,6 +16791,17 @@ ${socialsContext}
               } catch (e) { console.error("Image decryption error:", e); }
             }
 
+            // Check if there are separate/asynchronous media files to load
+            if (m.image && !decryptedImage) {
+              postRenderTasks.push({ mediaUrl: m.image, type: 'image', targetId: 'media-img-' + doc.id });
+            }
+            if (m.video && !decryptedVideo) {
+              postRenderTasks.push({ mediaUrl: m.video, type: 'video', targetId: 'media-vid-' + doc.id });
+            }
+            if (m.voice && !decryptedVoice) {
+              postRenderTasks.push({ mediaUrl: m.voice, type: 'voice', targetId: 'media-vox-' + doc.id });
+            }
+
             // Определяем имя отправителя
             let senderName = '';
             if (!isMe && m.senderMeta) {
@@ -16791,15 +16846,15 @@ ${socialsContext}
               <div class="message-bubble" style="align-self:${align}; max-width:80%; display:flex; flex-direction:column; gap:0.15rem; position:relative;">
                 ${!isMe && senderName ? `<div style="font-size:0.65rem; color:var(--gold); padding-left:0.5rem; opacity:0.8;">${esc(senderName)}</div>` : ''}
                 <div style="background:${bg}; border:${border}; padding:0.65rem 1rem; border-radius:${isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px'}; display:flex; flex-direction:column; gap:0.2rem; box-shadow:0 4px 15px rgba(0,0,0,0.15);">
-                  ${decryptedImage ? `<img src="${decryptedImage}" style="max-width:260px; width:100%; border-radius:8px; margin-bottom:0.3rem; display:block; cursor:pointer;" onclick="openFullImageModal('${decryptedImage}')">` : imagePlaceholderHtml}
+                  ${m.image ? (decryptedImage ? `<img src="${decryptedImage}" style="max-width:260px; width:100%; border-radius:8px; margin-bottom:0.3rem; display:block; cursor:pointer;" onclick="openFullImageModal('${decryptedImage}')">` : `<div id="media-img-${doc.id}" style="max-width:260px; width:100%; min-height:100px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05); border-radius:8px; margin-bottom:0.3rem;"><i class="ph-light ph-spinner ph-spin" style="font-size:1.2rem; color:var(--gold);"></i></div>`) : ''}
                   
-                  ${decryptedVideo ? `
+                  ${m.video ? (decryptedVideo ? `
                     <div style="width:160px; height:160px; overflow:hidden; border-radius:50%; border:2px solid var(--gold); margin-bottom:0.3rem; background:#000; position:relative; box-shadow:0 0 15px rgba(212,175,55,0.2);">
                       <video src="${decryptedVideo}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="this.muted = !this.muted; toast(this.muted ? 'Звук выключен' : 'Звук включен')"></video>
                     </div>
-                  ` : ''}
+                  ` : `<div id="media-vid-${doc.id}" style="width:160px; height:160px; border-radius:50%; border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; background:#000; margin-bottom:0.3rem; box-shadow:0 0 15px rgba(212,175,55,0.2);"><i class="ph-light ph-spinner ph-spin" style="font-size:1.2rem; color:var(--gold);"></i></div>`) : ''}
 
-                  ${decryptedVoice ? `
+                  ${m.voice ? (decryptedVoice ? `
                     <div class="voice-player" style="display:flex; align-items:center; gap:0.6rem; min-width:190px; padding:0.3rem 0;">
                       <button class="btn btn-ghost" onclick="togglePlayVoice(this, '${decryptedVoice}')" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(212,175,55,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold); padding:0; flex-shrink:0; background:rgba(212,175,55,0.05); outline:none;">
                         <i class="ph-fill ph-play" style="font-size:1rem; margin-left:2px;"></i>
@@ -16819,7 +16874,7 @@ ${socialsContext}
                         <div style="font-size:0.7rem; color:var(--muted); margin-top:2px;" class="voice-timer">Голосовое сообщение</div>
                       </div>
                     </div>
-                  ` : ''}
+                  ` : `<div id="media-vox-${doc.id}" style="min-width:190px; min-height:40px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.02); border-radius:8px; padding:0.3rem;"><i class="ph-light ph-spinner ph-spin" style="font-size:1.2rem; color:var(--gold);"></i></div>`) : ''}
 
                   ${displayText ? `<div style="font-size:0.85rem; color:var(--ivory); word-break:break-word; white-space:pre-wrap;">${esc(displayText)}</div>` : ''}
                   <div style="font-size:0.6rem; color:var(--muted); align-self:flex-end; display:flex; align-items:center; gap:0.1rem; width:100%; justify-content:flex-end;">
@@ -16840,6 +16895,10 @@ ${socialsContext}
 
           feed.innerHTML = html;
           feed.scrollTop = feed.scrollHeight;
+
+          postRenderTasks.forEach(task => {
+            loadAndDecryptChatMedia(task.mediaUrl, chatKey, task.targetId, task.type);
+          });
         }, err => {
           console.error("Messages load error:", err);
           feed.innerHTML = '<div style="text-align:center; padding:2rem; font-size:0.78rem; color:var(--red);">Ошибка загрузки сообщений</div>';
@@ -16885,13 +16944,24 @@ ${socialsContext}
         toast('Недоступно в демо-режиме');
         return;
       }
-      if (!confirm('Удалить это сообщение?')) return;
+      
+      // Optimistic UI: Find the message bubble and fade it out instantly
+      const elements = document.querySelectorAll(`[onclick*="deleteChatMessage('${msgId}')"]`);
+      elements.forEach(el => {
+        const bubble = el.closest('.message-bubble');
+        if (bubble) {
+          bubble.style.transition = 'all 0.2s ease-out';
+          bubble.style.opacity = '0';
+          bubble.style.transform = 'scale(0.9)';
+          setTimeout(() => bubble.remove(), 200);
+        }
+      });
+
       const activeUid = fbAuth.currentUser ? fbAuth.currentUser.uid : null;
       if (!activeUid || !activeChatContact) return;
       const chatId = [activeUid, activeChatContact.uid].sort().join('_');
       try {
         await fbDb.collection('chats').doc(chatId).collection('messages').doc(msgId).delete();
-        toast('Сообщение удалено');
       } catch (err) {
         console.error("Delete message error:", err);
         toast('Ошибка удаления сообщения');
@@ -16975,8 +17045,9 @@ ${socialsContext}
           reader.readAsDataURL(blob);
           reader.onloadend = async () => {
             const base64data = reader.result;
-            await sendDirectMessage(null, null, base64data);
             closeVideoNoteModal();
+            toast('<i class="ph-light ph-paper-plane-right"></i> Видео-кружок отправляется...');
+            sendDirectMessage(null, null, base64data);
           };
         };
 
@@ -17059,11 +17130,15 @@ ${socialsContext}
         if (videoBase64) {
           const videoIv = CryptoJS.lib.WordArray.random(16);
           const encryptedV = CryptoJS.AES.encrypt(videoBase64, chatKey, { iv: videoIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-          encryptedVideo = 'ZK_CHAT::' + videoIv.toString() + ':' + encryptedV.toString();
+          const rawEncryptedVideo = 'ZK_CHAT::' + videoIv.toString() + ':' + encryptedV.toString();
+          const mediaMsgId = CryptoJS.lib.WordArray.random(16).toString();
+          encryptedVideo = await uploadChatPayload(rawEncryptedVideo, chatId, mediaMsgId);
         } else if (voiceBase64) {
           const voiceIv = CryptoJS.lib.WordArray.random(16);
           const encryptedV = CryptoJS.AES.encrypt(voiceBase64, chatKey, { iv: voiceIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-          encryptedVoice = 'ZK_CHAT::' + voiceIv.toString() + ':' + encryptedV.toString();
+          const rawEncryptedVoice = 'ZK_CHAT::' + voiceIv.toString() + ':' + encryptedV.toString();
+          const mediaMsgId = CryptoJS.lib.WordArray.random(16).toString();
+          encryptedVoice = await uploadChatPayload(rawEncryptedVoice, chatId, mediaMsgId);
         } else {
           const iv = CryptoJS.lib.WordArray.random(16);
           const encrypted = CryptoJS.AES.encrypt(text, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
@@ -17191,7 +17266,10 @@ ${socialsContext}
           try {
             const iv = CryptoJS.lib.WordArray.random(16);
             const encrypted = CryptoJS.AES.encrypt(base64Data, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-            const encryptedImageStr = 'ZK_CHAT::' + iv.toString() + ':' + encrypted.toString();
+            const rawEncryptedImage = 'ZK_CHAT::' + iv.toString() + ':' + encrypted.toString();
+            
+            const mediaMsgId = CryptoJS.lib.WordArray.random(16).toString();
+            const encryptedImageStr = await uploadChatPayload(rawEncryptedImage, chatId, mediaMsgId);
 
             const senderMetaRaw = JSON.stringify({ email: STATE.user?.email || '', name: STATE.user?.name || 'Пользователь' });
             const metaIv = CryptoJS.lib.WordArray.random(16);
