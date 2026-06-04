@@ -12651,7 +12651,7 @@ ${secretsInfo}
         const errDiv = document.createElement('div'); 
         errDiv.className = 'msg ai'; 
         errDiv.style.borderColor = 'var(--red)';
-        errDiv.innerHTML = `⚠️ <strong>Ошибка ИИ:</strong> ${esc(err.message)}`;
+        errDiv.innerHTML = `⚠️ <strong>Ошибка ИИ:</strong> ${esc(err.message)} <span style="font-size:0.75rem;opacity:0.6;">(Ключ: ${esc(key ? (key.substring(0,10) + '...' + key.substring(key.length - 4)) : 'нет')})</span>`;
         msgs.appendChild(errDiv);
         msgs.scrollTop = msgs.scrollHeight;
       }
@@ -13918,13 +13918,13 @@ ${socialsContext}
           const callSubtitle = document.getElementById('twin-subtitle-text');
           if (callStatusText) callStatusText.textContent = "Ошибка связи";
           if (callDot) callDot.className = "status-dot";
-          if (callSubtitle) callSubtitle.innerHTML = `<div class="subtitle-ai" style="color: var(--red);">⚠️ Ошибка оцифровки: ${esc(err.message)}</div>`;
+          if (callSubtitle) callSubtitle.innerHTML = `<div class="subtitle-ai" style="color: var(--red);">⚠️ Ошибка оцифровки: ${esc(err.message)} <span style="font-size:0.75rem;opacity:0.6;">(Ключ: ${esc(key ? (key.substring(0,10) + '...' + key.substring(key.length - 4)) : 'нет')})</span></div>`;
         }
 
         const errDiv = document.createElement('div');
         errDiv.className = 'msg ai';
         errDiv.style.borderColor = 'var(--red)';
-        errDiv.innerHTML = `⚠️ <strong>Ошибка оцифровки:</strong> ${esc(err.message)}`;
+        errDiv.innerHTML = `⚠️ <strong>Ошибка оцифровки:</strong> ${esc(err.message)} <span style="font-size:0.75rem;opacity:0.6;">(Ключ: ${esc(key ? (key.substring(0,10) + '...' + key.substring(key.length - 4)) : 'нет')})</span>`;
         msgs.appendChild(errDiv);
         msgs.scrollTop = msgs.scrollHeight;
       }
