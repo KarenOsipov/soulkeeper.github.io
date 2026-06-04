@@ -5831,6 +5831,13 @@
       #generated-seed-box {
         grid-template-columns: 1fr !important;
       }
+      .l-how-steps {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+      }
+      .l-step::after {
+        display: none !important;
+      }
       /* Prevent horizontal viewport overflow on all pages */
       html, body {
         overflow-x: hidden !important;
@@ -7733,8 +7740,7 @@
                 transform: translateY(100%);
               }
               .twin-drawer.open {
-                transform: translateY(0);
-                transform: translateX(0);
+                transform: translateY(0) translateX(0) !important;
               }
               #soul-orb-canvas {
                 width: 200px;
@@ -11185,7 +11191,11 @@
 
       renderLines(allNodes, positions, svgLayer);
       if (treePanX===0&&treePanY===0) treeReset();
-      selectTreeNode('you');
+      if (window.innerWidth > 768) {
+        selectTreeNode('you');
+      } else {
+        closeSidePanel();
+      }
     }
 
     function renderLines(nodes, positions, svg) {
