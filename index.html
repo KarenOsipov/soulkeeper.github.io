@@ -4520,7 +4520,7 @@
 
     .dash-stat-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 1rem;
     }
 
@@ -5754,6 +5754,94 @@
         height: 200px !important;
       }
     }
+
+    /* ════════════════════════════════════════════
+       GLOBAL MOBILE & RESPONSIVE ADAPTATION OVERRIDES
+    ════════════════════════════════════════════ */
+    #generated-seed-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+    .relatives-connect-box {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding: 1.2rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(212,175,55,0.1);
+      border-radius: 16px;
+    }
+    .relatives-connect-left {
+      border-right: 1px solid rgba(255,255,255,0.06);
+      padding-right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .relatives-connect-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .payment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .payment-form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .dash-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .dash-stat-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+      .relatives-connect-box {
+        grid-template-columns: 1fr !important;
+        gap: 1.2rem !important;
+      }
+      .relatives-connect-left {
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+        padding-right: 0 !important;
+        padding-bottom: 1.2rem !important;
+      }
+      #generated-seed-box {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+      .payment-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .dash-stat-grid {
+        grid-template-columns: 1fr !important;
+      }
+      #generated-seed-box {
+        grid-template-columns: 1fr !important;
+      }
+      /* Prevent horizontal viewport overflow on all pages */
+      html, body {
+        overflow-x: hidden !important;
+        position: relative;
+        width: 100% !important;
+      }
+      .page {
+        width: 100% !important;
+        overflow-x: hidden !important;
+      }
+    }
   </style>
 </head>
 
@@ -6405,7 +6493,7 @@
               </div>
 
               <!-- Stat Widgets Grid -->
-              <div class="dash-stat-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+              <div class="dash-stat-grid">
                 <div class="dash-stat-widget" onclick="goPage('secrets')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
                   <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-lock-key"></i></div>
                   <div class="dash-stat-info" style="margin-top: 0.6rem;">
@@ -6544,7 +6632,7 @@
             <div class="section-label">Оформление подписки</div>
             <div class="card"
               style="background: rgba(20, 20, 25, 0.6); border: 1px solid rgba(201,168,76,0.15); border-radius: 24px; padding: 2.5rem;">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+              <div class="payment-grid">
 
                 <!-- Left: 3D Card Preview -->
                 <div>
@@ -6589,7 +6677,7 @@
                         maxlength="19" oninput="updateCardVizNum(this, '-inline')">
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="payment-form-row">
                       <div style="position: relative;">
                         <label
                           style="position: absolute; top: -10px; left: 12px; background: #0f0d16; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">СРОК</label>
@@ -6921,9 +7009,9 @@
           </div>
 
           <!-- Блок подключения (Connection Widget) -->
-          <div class="relatives-connect-box" style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; margin-bottom: 1.5rem; padding: 1.2rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.1); border-radius: 16px;">
+          <div class="relatives-connect-box">
             <!-- Левая колонка: Ваш код -->
-            <div style="border-right: 1px solid rgba(255,255,255,0.06); padding-right: 1.5rem; display: flex; flex-direction: column; justify-content: center;">
+            <div class="relatives-connect-left">
               <div style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem;">Ваш код подключения</div>
               <div style="display: flex; align-items: center; gap: 0.8rem;">
                 <div class="conn-code-badge" id="relatives-my-code" style="font-family: monospace; font-size: 1.2rem; color: var(--gold); font-weight: bold; background: rgba(212,175,55,0.05); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px dashed rgba(212,175,55,0.25);">SK-••••••</div>
@@ -6933,7 +7021,7 @@
               </div>
             </div>
             <!-- Правая колонка: Отправить запрос родственнику -->
-            <div style="display: flex; flex-direction: column; justify-content: center;">
+            <div class="relatives-connect-right">
               <div style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">Подключить родственника (по его коду)</div>
               <div style="display: flex; gap: 0.6rem;">
                 <input type="text" id="relatives-connect-input" placeholder="Введите код (например, SK-A1B2C3)" style="flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.5rem 0.8rem; color: var(--ivory); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">
@@ -16624,7 +16712,7 @@ ${socialsContext}
           onclick="closeModal('modal-upgrade')">✕</button>
       </div>
       <div class="modal-body">
-        <div class="l-pricing-grid" style="grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:0">
+        <div class="l-pricing-grid" style="margin-top:0">
           <!-- Бесплатный -->
           <div class="l-plan" style="padding:1.5rem">
             <div class="l-plan-name">Страж</div>
@@ -16676,7 +16764,7 @@ ${socialsContext}
         <h4 style="font-family:var(--serif); color:var(--ivory); font-size:1.1rem; margin-bottom:0.5rem;">Сгенерирована секретная фраза</h4>
         <p style="font-size:0.75rem; color:var(--muted); line-height:1.4; margin-bottom:1.5rem; padding:0 0.5rem;">Запишите эти 12 слов на бумаге и храните в надежном месте. Они нужны для шифрования Сейфа и Облака. Если вы их потеряете, восстановить данные будет <strong>невозможно</strong>.</p>
         
-        <div id="generated-seed-box" style="background:rgba(212,175,55,0.04); border:1px dashed rgba(212,175,55,0.25); border-radius:12px; padding:1rem; font-family:monospace; font-size:0.95rem; color:var(--gold2); display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin-bottom:1.5rem; text-align:left;"></div>
+        <div id="generated-seed-box" style="background:rgba(212,175,55,0.04); border:1px dashed rgba(212,175,55,0.25); border-radius:12px; padding:1rem; font-family:monospace; font-size:0.95rem; color:var(--gold2); margin-bottom:1.5rem; text-align:left;"></div>
 
         <button class="btn btn-primary" onclick="confirmSeedSaved()" style="width:100%; padding:0.8rem;">Я записал фразу</button>
       </div>
