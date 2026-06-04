@@ -5907,18 +5907,123 @@
       }
     }
 
-    /* Premium Top Bar Overrides */
+    /* Premium Floating Capsule Top Bar Overrides */
     .app-topbar {
-      height: 70px !important;
-      min-height: 70px !important;
+      height: 72px !important;
+      min-height: 72px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
       padding: 0 2.5rem !important;
-      background: linear-gradient(180deg, rgba(20,18,30,0.85) 0%, rgba(10,9,15,0.95) 100%) !important;
-      backdrop-filter: blur(20px) !important;
-      border-bottom: 1px solid rgba(212,175,55,0.08) !important;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+      background: linear-gradient(135deg, rgba(25,22,38,0.75) 0%, rgba(15,13,22,0.9) 100%) !important;
+      backdrop-filter: blur(24px) !important;
+      border: 1px solid rgba(212,175,55,0.12) !important;
+      border-radius: 24px !important;
+      margin: 1.2rem 2rem 0.6rem 2rem !important;
+      width: calc(100% - 4rem) !important;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+      transition: all 0.3s ease !important;
+      z-index: 1000 !important;
+    }
+
+    @media (max-width: 900px) {
+      .app-topbar {
+        margin: 1rem 1.2rem 0.5rem 1.2rem !important;
+        width: calc(100% - 2.4rem) !important;
+        border-radius: 20px !important;
+        padding: 0 1.5rem !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-topbar {
+        margin: 0.8rem 0.8rem 0.4rem 0.8rem !important;
+        width: calc(100% - 1.6rem) !important;
+        border-radius: 16px !important;
+        height: 64px !important;
+        min-height: 64px !important;
+        padding: 0 1rem !important;
+      }
+    }
+
+    /* Modal Overlay Highest Z-Index Override */
+    .modal-overlay {
+      z-index: 99999 !important;
+    }
+
+    /* AI Sage Premium Styling */
+    .page-ai-prompts .list-item {
+      display: flex !important;
+      align-items: center !important;
+      padding: 1.2rem 1.4rem !important;
+      background: rgba(255, 255, 255, 0.01) !important;
+      border: 1px solid rgba(212, 175, 55, 0.08) !important;
+      border-radius: 16px !important;
+      gap: 1.2rem !important;
+      cursor: pointer !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .page-ai-prompts .list-item:hover {
+      background: rgba(212, 175, 55, 0.03) !important;
+      border-color: rgba(212, 175, 55, 0.3) !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+    }
+    
+    .page-ai-prompts .list-icon {
+      width: 44px !important;
+      height: 44px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 12px !important;
+      background: rgba(212, 175, 55, 0.06) !important;
+      border: 1px solid rgba(212, 175, 55, 0.15) !important;
+      color: var(--gold2) !important;
+      font-size: 1.25rem !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .page-ai-prompts .list-item:hover .list-icon {
+      background: var(--gold) !important;
+      color: var(--ink) !important;
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.4) !important;
+    }
+    
+    .page-ai-prompts .list-title {
+      font-family: var(--serif) !important;
+      font-size: 0.95rem !important;
+      color: var(--ivory) !important;
+      font-weight: 500 !important;
+      transition: color 0.3s !important;
+    }
+    
+    .page-ai-prompts .list-sub {
+      font-size: 0.75rem !important;
+      color: var(--muted) !important;
+      margin-top: 3px !important;
+    }
+
+    /* Mobile FAB Premium Style */
+    .mob-fab {
+      background: radial-gradient(circle, rgba(212,175,55,0.95) 0%, rgba(180,140,40,0.95) 100%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.35) !important;
+      color: var(--ink) !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      width: 52px !important;
+      height: 52px !important;
+      border-radius: 50% !important;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000 !important;
+    }
+    
+    .mob-fab:active {
+      transform: scale(0.9) rotate(90deg) !important;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2) !important;
     }
 
     .app-logo {
@@ -7567,28 +7672,35 @@
           </div>
           <div class="card-grid grid-2">
             <div>
-              <div class="chat-wrap">
-                <div class="chat-head">
-                  <div class="ai-av">◆</div>
+              <div class="chat-wrap" style="border: 1px solid rgba(212,175,55,0.08) !important; background: rgba(15,13,22,0.45) !important; border-radius: 24px !important; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;">
+                <div class="chat-head" style="border-bottom: 1px solid rgba(255, 255, 255, 0.04); padding: 1.2rem 1.6rem;">
+                  <div class="ai-av" style="background: linear-gradient(135deg, var(--gold2), var(--gold)); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);">
+                    <i class="ph-fill ph-sparkles" style="font-size: 1.1rem; color: var(--ink);"></i>
+                  </div>
                   <div>
-                    <div class="ai-nm">Мудрец</div>
-                    <div class="ai-st">● онлайн</div>
+                    <div class="ai-nm" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Мудрец</div>
+                    <div class="ai-status-badge" style="display: inline-flex; align-items: center; gap: 5px; font-size: 0.62rem; color: var(--green); background: rgba(90, 219, 138, 0.06); border: 1px solid rgba(90, 219, 138, 0.2); padding: 1px 7px; border-radius: 10px; font-weight: 500; margin-top: 3px; letter-spacing: 0.5px; text-transform: uppercase;">
+                      <span class="ai-status-dot" style="width: 5px; height: 5px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); display: inline-block;"></span>
+                      онлайн
+                    </div>
                   </div>
                 </div>
-                <div class="chat-msgs" id="chat-msgs">
-                  <div class="msg ai">Добро пожаловать. Я здесь, чтобы помочь вам сохранить самое
-                    ценное. С чего начнём?</div>
+                <div class="chat-msgs" id="chat-msgs" style="padding: 1.5rem; gap: 1.2rem;">
+                  <div class="msg ai" style="border-left: 3px solid var(--gold) !important; padding: 1rem 1.25rem; font-size: 0.85rem; background: rgba(255, 255, 255, 0.02) !important; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px 16px 16px 16px; color: var(--ivory2); max-width: 85%;">
+                    Добро пожаловать. Я здесь, чтобы помочь вам сохранить самое ценное. С чего начнём?
+                  </div>
                 </div>
-                <div class="chat-input-wrap">
-                  <input class="chat-inp" id="chat-inp" placeholder="Спросите Мудреца..."
-                    onkeydown="if(event.key==='Enter')sendChat()">
-                  <button class="chat-send" onclick="sendChat()">Отправить</button>
+                <div class="chat-input-wrap" style="padding: 1rem 1.4rem; background: rgba(0, 0, 0, 0.2) !important; border-top: 1px solid rgba(255, 255, 255, 0.04); gap: 0.8rem;">
+                  <input class="chat-inp" id="chat-inp" placeholder="Спросите Мудреца..." onkeydown="if(event.key==='Enter')sendChat()" style="border-radius: 14px; padding: 0.8rem 1.2rem; background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.06); color: var(--ivory); font-size: 0.85rem; transition: all 0.3s ease;">
+                  <button class="chat-send" onclick="sendChat()" style="border-radius: 12px; padding: 0.8rem 1.6rem; background: linear-gradient(135deg, var(--gold2), var(--gold)) !important; color: var(--ink) !important; font-weight: 600; font-size: 0.8rem; letter-spacing: 0.5px; border: none; cursor: pointer; transition: all 0.3s ease;">
+                    Отправить
+                  </button>
                 </div>
               </div>
             </div>
             <div>
               <div class="section-label">Быстрые подсказки</div>
-              <div style="display:flex;flex-direction:column;gap:0.5rem">
+              <div class="page-ai-prompts" style="display:flex; flex-direction:column; gap:0.8rem">
                 <div class="list-item" onclick="askAi('Помоги написать биографию — с чего начать?')">
                   <div class="list-icon"><i class="ph-light ph-pencil-simple"></i></div>
                   <div class="list-meta">
@@ -7632,8 +7744,7 @@
                   </div>
                 </div>
               </div>
-
-                          </div>
+            </div>
           </div>
         </div>
 
@@ -8802,7 +8913,7 @@
     </div>
 
     <!-- ════ MOBILE FAB ════ -->
-    <button class="mob-fab" id="mob-fab" onclick="mobFabAction()">＋</button>
+    <button class="mob-fab" id="mob-fab" onclick="mobFabAction()"><i class="ph-bold ph-plus" style="font-size: 1.3rem;"></i></button>
 
   </div><!-- /screen-app -->
 
