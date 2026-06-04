@@ -9968,8 +9968,13 @@
         return;
       }
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById('screen-' + id).classList.add('active');
-      if (id === 'landing') window.scrollTo(0, 0);
+      const el = document.getElementById('screen-' + id);
+      if (el) el.classList.add('active');
+      try {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      } catch (e) {
+        window.scrollTo(0, 0);
+      }
     }
     function showLanding() { showScreen('landing'); }
     function showAuth(tab = 'login') {
