@@ -5826,7 +5826,46 @@
 
     @media (max-width: 640px) {
       .dash-stat-grid {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.8rem !important;
+      }
+      .dash-activity-card,
+      .dash-actions-card,
+      .dash-quote-card {
+        display: none !important;
+      }
+      .dash-welcome-card {
+        padding: 1.2rem !important;
+        border-radius: 20px !important;
+      }
+      .dash-welcome-title {
+        font-size: 1.3rem !important;
+      }
+      .dash-stat-widget {
+        padding: 1rem !important;
+        min-height: 100px !important;
+      }
+      .dash-stat-val {
+        font-size: 1.3rem !important;
+      }
+      .dash-stat-lbl {
+        font-size: 0.6rem !important;
+      }
+      .dash-guard-card {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.08) 0%, rgba(20,18,30,0.6) 100%) !important;
+        border-color: rgba(231, 76, 60, 0.25) !important;
+        padding: 1.2rem !important;
+        border-radius: 20px !important;
+        min-height: auto !important;
+      }
+      .dash-guard-card button {
+        background: rgba(231, 76, 60, 0.15) !important;
+        border-color: rgba(231, 76, 60, 0.4) !important;
+        color: #ff6b6b !important;
+        font-weight: 500 !important;
+      }
+      .dash-guard-card #sw-days-sb {
+        font-size: 1.6rem !important;
       }
       #generated-seed-box {
         grid-template-columns: 1fr !important;
@@ -5837,6 +5876,10 @@
       }
       .l-step::after {
         display: none !important;
+      }
+      .exec-inputs-row {
+        grid-template-columns: 1fr !important;
+        gap: 0.8rem !important;
       }
       /* Prevent horizontal viewport overflow on all pages */
       html, body {
@@ -6532,7 +6575,7 @@
               </div>
 
               <!-- Activity Feed -->
-              <div class="card" style="margin-bottom: 0; background: rgba(20,18,30,0.4); border: 1px solid rgba(255,255,255,0.03); border-radius: 24px; padding: 1.8rem; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+              <div class="card dash-activity-card" style="margin-bottom: 0; background: rgba(20,18,30,0.4); border: 1px solid rgba(255,255,255,0.03); border-radius: 24px; padding: 1.8rem; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
                 <div class="section-label" style="margin-bottom: 1.2rem; color: var(--gold2); font-family: var(--serif); font-size: 1.05rem; letter-spacing: 0.5px;">Последняя активность</div>
                 <div id="dash-activity">
                   <div class="empty" style="padding: 2rem 1rem;">
@@ -6548,7 +6591,7 @@
             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
               <!-- Life Guard Widget -->
-              <div class="dash-stat-widget"
+              <div class="dash-stat-widget dash-guard-card"
                 style="background: linear-gradient(180deg, rgba(231, 76, 60, 0.05) 0%, var(--glass-bg) 100%); border-color: rgba(231, 76, 60, 0.2);"
                 onclick="goPage('switch')">
                 <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
@@ -6567,7 +6610,7 @@
               </div>
 
               <!-- Quick Actions -->
-              <div>
+              <div class="dash-actions-card">
                 <div class="section-label">Быстрые действия</div>
                 <div class="dash-quick-actions">
                   <div class="quick-btn" onclick="openModal('modal-secret')">
@@ -6602,7 +6645,7 @@
               </div>
 
               <!-- AI Quote/Tip -->
-              <div class="card" style="background: rgba(212, 175, 55, 0.03); border-style: dashed; padding: 1.2rem;">
+              <div class="card dash-quote-card" style="background: rgba(212, 175, 55, 0.03); border-style: dashed; padding: 1.2rem;">
                 <div style="color: var(--gold); font-size: 1.2rem; margin-bottom: 0.5rem;"><i
                     class="ph-light ph-quotes"></i></div>
                 <div style="font-size: 0.8rem; color: var(--muted); font-style: italic; line-height: 1.5;"
@@ -7162,90 +7205,118 @@
               <div class="page-sub">Автоматическая передача наследства при неактивности</div>
             </div>
           </div>
+          
           <div class="card-grid grid-2">
+            <!-- Left Column: Period Setting -->
             <div>
-              <div class="section-label">Настройка периода</div>
-              <div class="card">
-                <div class="switch-ring-wrap"><canvas id="sw-canvas" width="260" height="260"></canvas>
+              <div class="section-label">Настройка периода активности</div>
+              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(212, 175, 55, 0.08); border-radius: 24px; padding: 2.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); text-align: center;">
+                <div class="switch-ring-wrap" style="position: relative; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center;">
+                  <canvas id="sw-canvas" width="260" height="260"></canvas>
                 </div>
-                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;margin-bottom:1rem">
-                  <button class="btn btn-ghost btn-sm sw-p-btn active" onclick="setSwPeriod(this,7)">7
-                    дн</button>
-                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,14)">14
-                    дн</button>
-                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,30)">30
-                    дн</button>
-                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,60)">60
-                    дн</button>
-                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,90)">90
-                    дн</button>
+                
+                <div style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem;">Установить интервал проверки</div>
+                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; background: rgba(0, 0, 0, 0.2); padding: 0.4rem; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.03);">
+                  <button class="btn btn-ghost btn-sm sw-p-btn active" onclick="setSwPeriod(this,7)" style="min-width: 50px; border: none !important; border-radius: 10px;">7 дн</button>
+                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,14)" style="min-width: 50px; border: none !important; border-radius: 10px;">14 дн</button>
+                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,30)" style="min-width: 50px; border: none !important; border-radius: 10px;">30 дн</button>
+                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,60)" style="min-width: 50px; border: none !important; border-radius: 10px;">60 дн</button>
+                  <button class="btn btn-ghost btn-sm sw-p-btn" onclick="setSwPeriod(this,90)" style="min-width: 50px; border: none !important; border-radius: 10px;">90 дн</button>
                 </div>
-                <button class="btn-gold" onclick="doCheckin()"><i class="ph-light ph-check"></i> Подтвердить
-                  жизнь</button>
+                
+                <button class="btn-gold" onclick="doCheckin()" style="width: 100%; max-width: 320px; font-weight: 600; padding: 1rem 2rem; border-radius: 16px; background: linear-gradient(135deg, var(--gold2), var(--gold)); color: var(--ink); border: none; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease; cursor: pointer;">
+                  <i class="ph-bold ph-heartbeat" style="font-size: 1.2rem;"></i> Подтвердить жизнь
+                </button>
               </div>
             </div>
+            
+            <!-- Right Column: Settings & Assignment -->
             <div>
-              <div class="section-label">Параметры передачи</div>
-              <div class="card">
-                <div class="settings-row">
+              <div class="section-label">Параметры передачи наследия</div>
+              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(212, 175, 55, 0.08); border-radius: 24px; padding: 2rem; backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 2rem;">
+                <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
                   <div>
-                    <div class="settings-row-label">Период неактивности</div>
-                    <div class="settings-row-sub">После этого срока — предупреждение</div>
-                  </div><span class="tag tag-gold" id="sw-period-label">7 дней</span>
-                </div>
-                <div class="settings-row">
-                  <div>
-                    <div class="settings-row-label">Грейс-период</div>
-                    <div class="settings-row-sub">Время на ответ после предупреждения</div>
-                  </div><span class="tag tag-gold">72 часа</span>
-                </div>
-                <div class="settings-row">
-                  <div>
-                    <div class="settings-row-label">Уведомления</div>
-                    <div class="settings-row-sub">Push + Email + SMS</div>
+                    <div class="settings-row-label" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Период неактивности</div>
+                    <div class="settings-row-sub" style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">После этого срока — предупреждение</div>
                   </div>
-                  <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+                  <span class="tag tag-gold" id="sw-period-label" style="font-family: monospace;">7 дней</span>
                 </div>
-                <div class="settings-row">
+                
+                <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
                   <div>
-                    <div class="settings-row-label">Душеприказчик</div>
-                    <div class="settings-row-sub">Лицо, запускающее передачу</div>
-                  </div><span class="tag tag-green" id="executor-tag">Не назначен</span>
+                    <div class="settings-row-label" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Грейс-период</div>
+                    <div class="settings-row-sub" style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Время на ответ после предупреждения</div>
+                  </div>
+                  <span class="tag tag-gold" style="font-family: monospace;">72 часа</span>
                 </div>
+                
+                <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+                  <div>
+                    <div class="settings-row-label" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Способ уведомления</div>
+                    <div class="settings-row-sub" style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Push + Email + SMS оповещения</div>
+                  </div>
+                  <div class="toggle on" onclick="this.classList.toggle('on')" style="cursor: pointer;"></div>
+                </div>
+                
+                <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div class="settings-row-label" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Душеприказчик</div>
+                    <div class="settings-row-sub" style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Лицо, запускающее передачу ключей</div>
+                  </div>
+                  <span class="tag tag-green" id="executor-tag" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Не назначен</span>
+                </div>
+                
+                <!-- Beautiful custom executor profile display -->
+                <div id="executor-display-card"></div>
               </div>
-              <div class="section-label" style="margin-top:1.2rem">Назначить Душеприказчика</div>
-              <div class="card">
-                <div class="field"><label>Имя</label><input type="text" id="exec-name" placeholder="Доверенное лицо">
+              
+              <div class="section-label">Связать душеприказчика</div>
+              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(212, 175, 55, 0.08); border-radius: 24px; padding: 2rem; backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);">
+                
+                <!-- Quick Relative Select Dropdown -->
+                <div class="field" style="margin-bottom: 1.2rem;">
+                  <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block;">Выбрать из списка родственников</label>
+                  <select id="exec-relative-select" onchange="onExecRelativeSelectChange(this)" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none; transition: border-color 0.3s; height: auto;">
+                    <option value="">-- Выбрать из родственников --</option>
+                  </select>
                 </div>
-                <div class="field"><label>Email</label><input type="email" id="exec-email"
-                    placeholder="executor@email.com"></div>
-                <button class="btn btn-primary-sm" style="width:100%" onclick="saveExecutor()">Назначить</button>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;" class="exec-inputs-row">
+                  <div class="field">
+                    <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block;">Имя</label>
+                    <input type="text" id="exec-name" placeholder="Имя душеприказчика" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
+                  </div>
+                  <div class="field">
+                    <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; display: block;">Email</label>
+                    <input type="email" id="exec-email" placeholder="executor@email.com" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
+                  </div>
+                </div>
+                
+                <button class="btn btn-primary" style="width: 100%; padding: 0.9rem; border-radius: 14px; background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05)); border: 1px solid rgba(212,175,55,0.3); color: var(--gold2); font-weight: 500; letter-spacing: 0.5px;" onclick="saveExecutor()">Связать с аккаунтом</button>
               </div>
             </div>
           </div>
-          <div style="margin-top:1.5rem">
-            <div class="section-label">Как работает</div>
+          
+          <div style="margin-top: 2.5rem;">
+            <div class="section-label">Как работает система безопасности</div>
             <div class="card-grid grid-3">
-              <div class="card">
-                <div style="font-size:1.5rem;margin-bottom:0.7rem"><i class="ph-light ph-check-circle"></i></div>
-                <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">
-                  Активен</div>
-                <div style="font-size:0.8rem;color:var(--muted)">Вы заходите в приложение в пределах
-                  выбранного периода.</div>
+              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; padding: 2rem; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
+                <div style="position: absolute; right: -5px; bottom: -5px; font-size: 5rem; color: rgba(255,255,255,0.015);"><i class="ph-light ph-check-circle"></i></div>
+                <div style="font-size: 2rem; color: var(--green); margin-bottom: 1rem;"><i class="ph-light ph-check-circle"></i></div>
+                <div style="font-family: var(--serif); font-size: 1.1rem; color: var(--ivory); margin-bottom: 0.5rem;">1. Мониторинг</div>
+                <div style="font-size: 0.8rem; color: var(--muted); line-height: 1.5;">Вы просто заходите в приложение или подтверждаете активность кнопкой. Таймер сбрасывается.</div>
               </div>
-              <div class="card">
-                <div style="font-size:1.5rem;margin-bottom:0.7rem"><i class="ph-light ph-warning"></i></div>
-                <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">
-                  Предупреждение</div>
-                <div style="font-size:0.8rem;color:var(--muted)">Период истёк. Система отправляет Push +
-                  Email + SMS.</div>
+              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; padding: 2rem; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
+                <div style="position: absolute; right: -5px; bottom: -5px; font-size: 5rem; color: rgba(255,255,255,0.015);"><i class="ph-light ph-warning"></i></div>
+                <div style="font-size: 2rem; color: var(--gold); margin-bottom: 1rem;"><i class="ph-light ph-warning"></i></div>
+                <div style="font-family: var(--serif); font-size: 1.1rem; color: var(--ivory); margin-bottom: 0.5rem;">2. Предупреждение</div>
+                <div style="font-size: 0.8rem; color: var(--muted); line-height: 1.5;">Если период истёк, система отправляет вам повторные Push, Email и SMS уведомления.</div>
               </div>
-              <div class="card">
-                <div style="font-size:1.5rem;margin-bottom:0.7rem"><i class="ph-light ph-lock-open"></i></div>
-                <div style="font-family:var(--serif);font-size:1rem;color:var(--ivory);margin-bottom:0.4rem">
-                  Передача</div>
-                <div style="font-size:0.8rem;color:var(--muted)">72 часа без ответа → Душеприказчик
-                  открывает доступ наследникам.</div>
+              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; padding: 2rem; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
+                <div style="position: absolute; right: -5px; bottom: -5px; font-size: 5rem; color: rgba(255,255,255,0.015);"><i class="ph-light ph-lock-open"></i></div>
+                <div style="font-size: 2rem; color: #ef4444; margin-bottom: 1rem;"><i class="ph-light ph-lock-open"></i></div>
+                <div style="font-family: var(--serif); font-size: 1.1rem; color: var(--ivory); margin-bottom: 0.5rem;">3. Делегация ключей</div>
+                <div style="font-size: 0.8rem; color: var(--muted); line-height: 1.5;">Спустя 72 часа грейс-периода душеприказчик получает право передать ключи вашим наследникам.</div>
               </div>
             </div>
           </div>
@@ -10023,7 +10094,7 @@
       updateSwitchUI();
       renderNotifs();
       updateDbStats();
-      initSwitchCanvas();
+      renderSwitchPage();
       updateAiQuote();
       goPage('dash');
       setTimeout(() => initGlobe(), 2000); // Глобус в самом конце, чтобы не тормозить вход
@@ -10102,8 +10173,15 @@
       if (nav) nav.classList.add('active');
       if (name === 'globe') {
         listenRelativesLocations();
-        if (!globeInit) { setTimeout(() => { initGlobe(); }, 120); }
-        else { renderGlobeList(); updateGlobeMarkers(); }
+        if (!globeInit) {
+          setTimeout(() => { initGlobe(); }, 120);
+        } else {
+          renderGlobeList();
+          updateGlobeMarkers();
+          if (leafletMap) {
+            setTimeout(() => { leafletMap.invalidateSize(); }, 150);
+          }
+        }
       }
       if (name === 'db') { updateDbStats(); renderDbLog(); }
       if (name === 'subscription') renderSubscriptionPage();
@@ -10111,7 +10189,7 @@
       if (name === 'tree') renderTree();
       if (name === 'ai') initAiPage();
       if (name === 'twin') initTwinPage();
-      if (name === 'switch') initSwitchCanvas();
+      if (name === 'switch') renderSwitchPage();
       if (name === 'chat-page') renderChatContacts();
       const mainTabs = ['dash', 'legacy', 'connections', 'tree', 'chat-page'];
       if (mainTabs.includes(name)) mobSetActive(name);
@@ -11923,10 +12001,10 @@
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 20,
         subdomains: 'abcd',
-        updateWhenIdle: false,
+        updateWhenIdle: true,
         updateWhenZooming: true,
-        keepBuffer: 6,
-        preload: 3
+        keepBuffer: 2,
+        preload: 0
       }).addTo(leafletMap);
 
       // Add map click listener to add relative at location
@@ -11947,6 +12025,7 @@
       globeInit = true;
       updateGlobeMarkers();
       renderGlobeList();
+      setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 200);
     }
 
     window.openAddRelativeAtLocation = function(lat, lon) {
@@ -12557,12 +12636,118 @@
       if (!name || !email) { toast('Введите имя и email'); return; }
       STATE.executor = { name, email };
       saveUserData();
-      setText('executor-tag', name);
-      const tag = document.getElementById('executor-tag');
-      if (tag) { tag.className = 'tag tag-green'; tag.textContent = name; }
+      renderExecutorCard();
       addActivity('Назначен Душеприказчик: ' + name);
       toast('<i class="ph-light ph-check"></i> Душеприказчик назначен');
     }
+
+    window.removeExecutor = function() {
+      if (confirm('Вы уверены, что хотите сбросить назначение душеприказчика?')) {
+        STATE.executor = null;
+        saveUserData();
+        renderExecutorCard();
+        toast('Назначение душеприказчика сброшено');
+      }
+    };
+
+    function renderExecutorCard() {
+      const container = document.getElementById('executor-display-card');
+      if (!container) return;
+      
+      const exec = STATE.executor;
+      if (!exec) {
+        container.innerHTML = `
+          <div style="background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem; text-align: center; color: var(--muted); margin-top: 1rem;">
+            <i class="ph-fill ph-user-focus" style="font-size: 2rem; color: rgba(255,255,255,0.15); margin-bottom: 0.6rem; display: block;"></i>
+            Душеприказчик не назначен. Выберите родственника ниже или заполните форму вручную.
+          </div>
+        `;
+        const tag = document.getElementById('executor-tag');
+        if (tag) { tag.className = 'tag tag-muted'; tag.textContent = 'Не назначен'; }
+        return;
+      }
+      
+      const matchedRel = (STATE.relatives || []).find(r => (r.email && r.email.toLowerCase() === exec.email.toLowerCase()) || r.name.toLowerCase() === exec.name.toLowerCase());
+      const avatarHTML = matchedRel && matchedRel.photo
+        ? `<img src="${matchedRel.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border: 1px solid rgba(212,175,55,0.3);">`
+        : `<div style="width:40px; height:40px; border-radius:50%; background:rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.25); color:var(--gold); display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-weight:bold; font-size:1.1rem;">${exec.name.charAt(0).toUpperCase()}</div>`;
+        
+      const statusLabel = matchedRel ? 'Связан' : 'В режиме ожидания';
+      const statusClass = matchedRel ? 'tag-green' : 'tag-gold';
+      
+      container.innerHTML = `
+        <div style="background: rgba(212,175,55,0.02); border: 1px solid rgba(212,175,55,0.15); border-radius: 16px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: relative; overflow: hidden; backdrop-filter: blur(10px); margin-top: 1rem;">
+          <div style="position: absolute; right: -10px; top: -10px; font-size: 5rem; color: rgba(212,175,55,0.02); pointer-events: none;"><i class="ph-fill ph-user-focus"></i></div>
+          <div style="display: flex; align-items: center; gap: 0.8rem; z-index: 1;">
+            ${avatarHTML}
+            <div style="text-align: left;">
+              <div style="font-family: var(--serif); color: var(--ivory); font-size: 0.95rem; font-weight: 500;">${exec.name}</div>
+              <div style="color: var(--muted); font-size: 0.75rem; margin-top: 2px;">${exec.email}</div>
+            </div>
+          </div>
+          <div style="text-align: right; z-index: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem;">
+            <span class="tag ${statusClass}" style="font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 6px;">${statusLabel}</span>
+            <button class="btn btn-ghost btn-sm" onclick="removeExecutor()" style="padding: 0.25rem 0.5rem; min-height: auto; font-size: 0.65rem; border-color: rgba(239,68,68,0.2); color: #ef4444; border-radius: 8px;">Сбросить</button>
+          </div>
+        </div>
+      `;
+      
+      const tag = document.getElementById('executor-tag');
+      if (tag) { tag.className = `tag ${statusClass}`; tag.textContent = exec.name; }
+    }
+
+    window.onExecRelativeSelectChange = function(select) {
+      const opt = select.options[select.selectedIndex];
+      if (!opt || !opt.value) {
+        document.getElementById('exec-name').value = '';
+        document.getElementById('exec-email').value = '';
+        return;
+      }
+      const name = opt.getAttribute('data-name');
+      const email = opt.getAttribute('data-email');
+      document.getElementById('exec-name').value = name;
+      document.getElementById('exec-email').value = email || '';
+    };
+
+    window.renderSwitchPage = function() {
+      initSwitchCanvas();
+      
+      // Update active state of period buttons
+      const period = STATE.swPeriod || 7;
+      document.querySelectorAll('.sw-p-btn').forEach(btn => {
+        const daysAttr = btn.getAttribute('onclick');
+        if (daysAttr) {
+          const m = daysAttr.match(/\d+/);
+          if (m) {
+            const days = parseInt(m[0]);
+            if (days === period) {
+              btn.classList.add('active');
+            } else {
+              btn.classList.remove('active');
+            }
+          }
+        }
+      });
+      
+      setText('sw-period-label', period + ' дней');
+      updateSwitchUI();
+      
+      // Populate relatives dropdown for executor setup
+      const select = document.getElementById('exec-relative-select');
+      if (select) {
+        select.innerHTML = '<option value="">-- Выбрать из родственников --</option>';
+        (STATE.relatives || []).forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.id;
+          opt.textContent = `${r.name} (${r.rel || 'Родственник'})`;
+          opt.setAttribute('data-name', r.name);
+          opt.setAttribute('data-email', r.email || '');
+          select.appendChild(opt);
+        });
+      }
+      
+      renderExecutorCard();
+    };
 
     // ═══════════════════════════════════════════
     // ═══════════════════════════════════════════
