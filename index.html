@@ -17364,15 +17364,18 @@ ${socialsContext}
       window.crypto.getRandomValues(entropy);
       
       let binaryStr = '';
+      let hexStr = '';
       for (let i = 0; i < entropy.length; i++) {
         binaryStr += entropy[i].toString(2).padStart(8, '0');
+        hexStr += entropy[i].toString(16).padStart(2, '0');
       }
       
-      const entropyWords = CryptoJS.lib.WordArray.create(entropy);
+      const entropyWords = CryptoJS.enc.Hex.parse(hexStr);
       const hash = CryptoJS.SHA256(entropyWords);
-      const firstWord = hash.words[0];
-      const firstByte = (firstWord >>> 24) & 0xff;
-      const checksumBits = firstByte.toString(2).padStart(8, '0').substring(0, 4);
+      const hashHex = hash.toString(CryptoJS.enc.Hex);
+      
+      const firstHexChar = hashHex.charAt(0);
+      const checksumBits = parseInt(firstHexChar, 16).toString(2).padStart(4, '0');
       
       const totalBits = binaryStr + checksumBits;
       
@@ -17400,17 +17403,19 @@ ${socialsContext}
       const entropyBits = binaryStr.substring(0, 128);
       const checksumBits = binaryStr.substring(128);
       
-      const entropyBytes = new Uint8Array(16);
+      let hexStr = '';
       for (let i = 0; i < 16; i++) {
         const byteStr = entropyBits.substring(i * 8, (i + 1) * 8);
-        entropyBytes[i] = parseInt(byteStr, 2);
+        const byteVal = parseInt(byteStr, 2);
+        hexStr += byteVal.toString(16).padStart(2, '0');
       }
       
-      const entropyWords = CryptoJS.lib.WordArray.create(entropyBytes);
+      const entropyWords = CryptoJS.enc.Hex.parse(hexStr);
       const hash = CryptoJS.SHA256(entropyWords);
-      const firstWord = hash.words[0];
-      const firstByte = (firstWord >>> 24) & 0xff;
-      const expectedChecksumBits = firstByte.toString(2).padStart(8, '0').substring(0, 4);
+      const hashHex = hash.toString(CryptoJS.enc.Hex);
+      
+      const firstHexChar = hashHex.charAt(0);
+      const expectedChecksumBits = parseInt(firstHexChar, 16).toString(2).padStart(4, '0');
       
       return checksumBits === expectedChecksumBits;
     }
