@@ -10690,11 +10690,15 @@
     // MODALS
     // ═══════════════════════════════════════════
     function openModal(id) {
-      document.getElementById(id).classList.add('open');
+      const el = document.getElementById(id);
+      if (el) el.classList.add('open');
     }
     function closeModal(id) {
-      document.getElementById(id).classList.remove('open');
-      clearInputs(id);
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('open');
+        clearInputs(id);
+      }
     }
     function clearInputs(modalId) {
       document.querySelectorAll('#' + modalId + ' input:not([readonly]),#' + modalId + ' textarea').forEach(el => el.value = '');
@@ -17376,7 +17380,20 @@ ${socialsContext}
     // Generate 12 random words seed phrase
     function generateSeedPhrase() {
       const entropy = new Uint8Array(16);
-      window.crypto.getRandomValues(entropy);
+      try {
+        if (window.crypto && window.crypto.getRandomValues) {
+          window.crypto.getRandomValues(entropy);
+        } else if (window.msCrypto && window.msCrypto.getRandomValues) {
+          window.msCrypto.getRandomValues(entropy);
+        } else {
+          throw new Error('No crypto API');
+        }
+      } catch (e) {
+        console.warn('Fallback to pseudo-random entropy:', e);
+        for (let i = 0; i < 16; i++) {
+          entropy[i] = Math.floor(Math.random() * 256);
+        }
+      }
       
       let binaryStr = '';
       let hexStr = '';
