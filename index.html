@@ -7272,7 +7272,7 @@
                 <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
                 <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
                 <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Для защиты Сейфа и Облака сгенерируйте секретную 12-значную сид-фразу по стандарту BIP39.</p>
-                <button class="btn btn-primary" id="vault-generate-btn" onclick="window.initVaultSeedSetup()" style="padding:0.75rem 1.5rem; position:relative; z-index:9999; pointer-events:auto !important;">Сгенерировать сид-фразу</button>
+                <button class="btn btn-primary" id="vault-generate-btn" onclick="alert('INLINE: button clicked!'); window.initVaultSeedSetup()" style="padding:0.75rem 1.5rem; position:relative; z-index:9999; pointer-events:auto !important;">Сгенерировать сид-фразу</button>
               </div>
             </div>
 
@@ -17897,6 +17897,7 @@ ${socialsContext}
 
     // Global click handler to guarantee that the generate button is captured
     document.addEventListener('click', function(e) {
+      alert('CLICKED: ' + e.target.tagName + ' | ID: ' + e.target.id + ' | CLASS: ' + e.target.className);
       const btn = e.target.closest('#vault-generate-btn');
       if (btn) {
         console.log("Generate button clicked globally.");
