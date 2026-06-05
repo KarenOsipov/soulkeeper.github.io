@@ -7240,20 +7240,34 @@
               <button class="btn btn-primary-sm" id="secrets-add-btn" onclick="openModal('modal-secret')" style="font-size:0.8rem; padding:0.5rem 1rem;">+ Добавить тайну</button>
             </div>
             <!-- Lock Overlay for Secrets -->
-            <div id="vault-lock-overlay" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:3rem 1.5rem; background:rgba(15,13,22,0.65); border:1px dashed rgba(212,175,55,0.2); border-radius:16px; backdrop-filter:blur(15px); margin-top:1rem; margin-bottom:1.5rem;">
-              <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
-              <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Сейф заблокирован</h3>
-              <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Чтобы расшифровать ваши личные данные, введите секретную сид-фразу из 12 слов.</p>
-              
-              <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:0.8rem;">
-                <textarea id="vault-seed-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:70px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.25); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none;"></textarea>
-                <div style="display:flex; gap:0.5rem;">
-                  <button class="btn btn-primary" onclick="window.unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
-                  <button class="btn btn-ghost" onclick="window.initVaultSeedSetup()" id="vault-init-setup-btn" style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
+            <div id="vault-lock-overlay" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:3rem 1.5rem; background:rgba(15,13,22,0.65); border:1px solid rgba(212,175,55,0.15); border-radius:16px; backdrop-filter:blur(15px); margin-top:1rem; margin-bottom:1.5rem;">
+              <!-- UNLOCK VIEW (shown when isProtected is true, but not unlocked) -->
+              <div id="vault-unlock-view" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+                <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
+                <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Сейф заблокирован</h3>
+                <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Чтобы расшифровать ваши личные данные, введите секретную сид-фразу из 12 слов.</p>
+                
+                <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:0.8rem; position:relative;">
+                  <textarea id="vault-seed-input" oninput="window.showSeedSuggestions(this)" placeholder="Введите 12 слов через пробел..." style="width:100%; height:70px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.25); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none;"></textarea>
+                  
+                  <!-- BIP39 Autocomplete Suggestions Bar -->
+                  <div id="seed-suggestions-bar" class="seed-suggestions-bar"></div>
+                  
+                  <div style="display:flex; gap:0.5rem;">
+                    <button class="btn btn-primary" onclick="window.unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
+                  </div>
+                  <div style="margin-top: 0.5rem; font-size: 0.72rem; color: var(--muted); text-align: center;">
+                    Забыли сид-фразу? <a href="#" onclick="event.preventDefault(); window.resetVaultSeed();" style="color: var(--red); text-decoration: underline;">Сбросить сейф и создать новую</a>
+                  </div>
                 </div>
-                <div style="margin-top: 0.5rem; font-size: 0.72rem; color: var(--muted); text-align: center;">
-                  Забыли сид-фразу? <a href="#" onclick="event.preventDefault(); window.resetVaultSeed();" style="color: var(--red); text-decoration: underline;">Сбросить сейф и создать новую</a>
-                </div>
+              </div>
+
+              <!-- SETUP VIEW (shown when isProtected is false) -->
+              <div id="vault-setup-view" style="width:100%; display:none; flex-direction:column; align-items:center;">
+                <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
+                <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
+                <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Для защиты Сейфа и Облака сгенерируйте секретную 12-значную сид-фразу по стандарту BIP39.</p>
+                <button class="btn btn-primary" onclick="window.initVaultSeedSetup()" style="padding:0.75rem 1.5rem; position:relative; z-index:9999; pointer-events:auto !important;">Сгенерировать сид-фразу</button>
               </div>
             </div>
 
@@ -17411,6 +17425,8 @@ ${socialsContext}
 
     let currentCloudPath = '/';
     let generatedMnemonic = '';
+    let selectedConfirmWords = []; // Array of selected words for verification
+    let shuffledConfirmWords = []; // Shuffled word pool
 
     // Generate 12 random words seed phrase
     function generateSeedPhrase() {
@@ -17495,11 +17511,23 @@ ${socialsContext}
         const box = document.getElementById('generated-seed-box');
         if (box) {
           box.innerHTML = generatedMnemonic.split(' ').map((w, i) => `
-            <div style="font-size:0.75rem; color:var(--muted);"><span style="color:var(--gold); font-size:0.65rem; margin-right:4px;">${i+1}.</span>${w}</div>
+            <div class="seed-word-card">
+              <span class="seed-word-num">${String(i+1).padStart(2, '0')}</span>
+              <span class="seed-word-val">${w}</span>
+            </div>
           `).join('');
         } else {
           console.warn("Element 'generated-seed-box' not found in DOM");
         }
+        
+        // Reset copy button state
+        const copyIcon = document.getElementById('copy-seed-icon');
+        const copyText = document.getElementById('copy-seed-text');
+        if (copyIcon && copyText) {
+          copyIcon.className = "ph-bold ph-copy";
+          copyText.textContent = "Копировать";
+        }
+
         closeModal('modal-upgrade');
         openModal('modal-vault-setup');
       } catch (err) {
@@ -17509,23 +17537,161 @@ ${socialsContext}
     }
     window.initVaultSeedSetup = initVaultSeedSetup;
 
+    // Premium Clipboard Copy Action
+    function copyGeneratedSeed() {
+      if (!generatedMnemonic) return;
+      navigator.clipboard.writeText(generatedMnemonic).then(() => {
+        const copyIcon = document.getElementById('copy-seed-icon');
+        const copyText = document.getElementById('copy-seed-text');
+        if (copyIcon && copyText) {
+          copyIcon.className = "ph-bold ph-check-circle";
+          copyIcon.style.color = "var(--green)";
+          copyText.textContent = "Скопировано!";
+          toast('<i class="ph-light ph-check-circle"></i> Сид-фраза скопирована в буфер обмена');
+          setTimeout(() => {
+            copyIcon.className = "ph-bold ph-copy";
+            copyIcon.style.color = "";
+            copyText.textContent = "Копировать";
+          }, 2000);
+        }
+      }).catch(err => {
+        console.error("Copy failed:", err);
+        toast("Не удалось скопировать");
+      });
+    }
+    window.copyGeneratedSeed = copyGeneratedSeed;
+
+    // Premium Download File Action
+    function downloadGeneratedSeed() {
+      if (!generatedMnemonic) return;
+      const text = `SOULKEEPER DIGITAL VAULT SEED PHRASE\n` +
+                   `====================================\n` +
+                   `Keep this file safe and offline! Never share it with anyone.\n\n` +
+                   `Your 12-word recovery mnemonic phrase:\n\n` +
+                   `[ ${generatedMnemonic} ]\n\n` +
+                   `Created on: ${new Date().toLocaleString()}\n` +
+                   `Website: soulkeeper.github.io\n`;
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `soulkeeper-recovery-seed.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast('<i class="ph-light ph-download-simple"></i> Резервный файл скачан');
+    }
+    window.downloadGeneratedSeed = downloadGeneratedSeed;
+
+    // Interactive Seed Confirmation Modal Setup (shuffling and slots layout)
     function confirmSeedSaved() {
       closeModal('modal-vault-setup');
-      document.getElementById('vault-confirm-input').value = '';
+      selectedConfirmWords = [];
+      
+      // Shuffle generated words (Fisher-Yates)
+      const words = generatedMnemonic.split(' ');
+      shuffledConfirmWords = words.map((w, idx) => ({ word: w, originalIndex: idx, selected: false }));
+      
+      // Perform shuffle
+      for (let i = shuffledConfirmWords.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledConfirmWords[i], shuffledConfirmWords[j]] = [shuffledConfirmWords[j], shuffledConfirmWords[i]];
+      }
+      
+      renderConfirmSlotsAndChips();
       openModal('modal-vault-confirm');
     }
     window.confirmSeedSaved = confirmSeedSaved;
 
+    // Clear confirmation selection state
+    function clearConfirmation() {
+      selectedConfirmWords = [];
+      shuffledConfirmWords.forEach(w => w.selected = false);
+      renderConfirmSlotsAndChips();
+    }
+    window.clearConfirmation = clearConfirmation;
+
+    // Render Slots and Chips for interactive seed puzzle
+    function renderConfirmSlotsAndChips() {
+      const slotsContainer = document.getElementById('confirm-seed-slots');
+      const chipsContainer = document.getElementById('confirm-seed-chips');
+      const activateBtn = document.getElementById('activate-vault-btn');
+      
+      if (!slotsContainer || !chipsContainer) return;
+      
+      // Render slots
+      let slotsHtml = '';
+      for (let i = 0; i < 12; i++) {
+        if (i < selectedConfirmWords.length) {
+          const item = selectedConfirmWords[i];
+          slotsHtml += `
+            <div class="confirm-slot filled" onclick="window.removeWordFromConfirmation(${i})">
+              <span class="seed-word-num">${String(i+1).padStart(2, '0')}</span>
+              <span class="seed-word-val">${item.word}</span>
+            </div>
+          `;
+        } else {
+          slotsHtml += `
+            <div class="confirm-slot">
+              <span class="seed-word-num">${String(i+1).padStart(2, '0')}</span>
+            </div>
+          `;
+        }
+      }
+      slotsContainer.innerHTML = slotsHtml;
+      
+      // Render chips
+      chipsContainer.innerHTML = shuffledConfirmWords.map((item, idx) => {
+        const selectedClass = item.selected ? 'selected' : '';
+        return `
+          <button class="seed-chip-btn ${selectedClass}" onclick="window.selectWordFromChip(${idx})">${item.word}</button>
+        `;
+      }).join('');
+      
+      // Validate configuration
+      const selectedString = selectedConfirmWords.map(w => w.word).join(' ');
+      if (selectedConfirmWords.length === 12 && selectedString === generatedMnemonic) {
+        if (activateBtn) activateBtn.classList.add('ready-to-activate');
+      } else {
+        if (activateBtn) activateBtn.classList.remove('ready-to-activate');
+      }
+    }
+
+    // Click on a word chip to add it to slots
+    window.selectWordFromChip = function(idx) {
+      if (idx < 0 || idx >= shuffledConfirmWords.length) return;
+      const item = shuffledConfirmWords[idx];
+      if (item.selected) return;
+      
+      item.selected = true;
+      selectedConfirmWords.push({ word: item.word, chipIndex: idx });
+      renderConfirmSlotsAndChips();
+    };
+
+    // Click on a filled slot to remove it back to chips
+    window.removeWordFromConfirmation = function(slotIdx) {
+      if (slotIdx < 0 || slotIdx >= selectedConfirmWords.length) return;
+      const removed = selectedConfirmWords.splice(slotIdx, 1)[0];
+      
+      // Restore chip selection state
+      if (shuffledConfirmWords[removed.chipIndex]) {
+        shuffledConfirmWords[removed.chipIndex].selected = false;
+      }
+      renderConfirmSlotsAndChips();
+    };
+
     function submitVaultSeedSetup() {
-      const input = document.getElementById('vault-confirm-input').value.trim().toLowerCase().replace(/\s+/g, ' ');
-      if (input !== generatedMnemonic) {
+      const selectedString = selectedConfirmWords.map(w => w.word).join(' ');
+      if (selectedConfirmWords.length !== 12 || selectedString !== generatedMnemonic) {
         toast('Ошибка: Введенная сид-фраза не совпадает с сгенерированной.');
         return;
       }
 
       // Hash seed phrase to verify later
       const seedHash = CryptoJS.SHA256(generatedMnemonic).toString();
-      if (!STATE.user) return;
+      if (!STATE.user) {
+        toast('Ошибка: Пользователь не авторизован.');
+        return;
+      }
       
       STATE.user.vaultSeedHash = seedHash;
       
@@ -17593,7 +17759,61 @@ ${socialsContext}
     }
     window.unlockVaultBySeed = unlockVaultBySeed;
 
+    // BIP39 Autocomplete Suggestions Function
+    function showSeedSuggestions(textarea) {
+      const bar = document.getElementById('seed-suggestions-bar');
+      if (!bar) return;
+      
+      const text = textarea.value;
+      const words = text.split(/\s+/);
+      const lastWord = words[words.length - 1].trim().toLowerCase();
+      
+      if (!lastWord || lastWord.length < 2) {
+        bar.style.display = 'none';
+        bar.innerHTML = '';
+        return;
+      }
+      
+      // Filter matching BIP39 words
+      const matches = SEED_WORDLIST.filter(w => w.startsWith(lastWord)).slice(0, 4);
+      
+      if (matches.length === 0) {
+        bar.style.display = 'none';
+        bar.innerHTML = '';
+        return;
+      }
+      
+      bar.style.display = 'flex';
+      bar.innerHTML = matches.map(w => `
+        <span class="suggestion-pill" onclick="window.applySeedSuggestion('${w}')">${w}</span>
+      `).join('');
+    }
+    window.showSeedSuggestions = showSeedSuggestions;
 
+    // Apply suggestion by clicking on it
+    function applySeedSuggestion(word) {
+      const textarea = document.getElementById('vault-seed-input');
+      if (!textarea) return;
+      
+      const text = textarea.value;
+      const lastSpaceIndex = text.lastIndexOf(' ');
+      
+      if (lastSpaceIndex === -1) {
+        textarea.value = word + ' ';
+      } else {
+        textarea.value = text.substring(0, lastSpaceIndex + 1) + word + ' ';
+      }
+      
+      textarea.focus();
+      
+      // Hide bar
+      const bar = document.getElementById('seed-suggestions-bar');
+      if (bar) {
+        bar.style.display = 'none';
+        bar.innerHTML = '';
+      }
+    }
+    window.applySeedSuggestion = applySeedSuggestion;
 
     function checkVaultLockState() {
       const lockOverlay = document.getElementById('vault-lock-overlay');
@@ -17625,12 +17845,18 @@ ${socialsContext}
           renderCloudGrid();
         } else {
           // Lock Secrets
-          if (lockOverlay) lockOverlay.style.display = 'flex';
+          if (lockOverlay) {
+            lockOverlay.style.display = 'flex';
+            const unlockView = document.getElementById('vault-unlock-view');
+            const setupView = document.getElementById('vault-setup-view');
+            if (unlockView) unlockView.style.display = 'flex';
+            if (setupView) setupView.style.display = 'none';
+          }
           if (secretsWrap) secretsWrap.style.display = 'none';
           
           // Lock Cloud
-          if (cloudOverlay) cloudOverlay.style.display = 'flex';
           if (cloudOverlay) {
+            cloudOverlay.style.display = 'flex';
             cloudOverlay.innerHTML = `
               <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
               <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Хранилище заблокировано</h3>
@@ -17639,21 +17865,15 @@ ${socialsContext}
             `;
           }
           if (cloudWrap) cloudWrap.style.display = 'none';
-          
-          // Show Create Seed option if hash not setup yet (fallback safety)
-          const setupBtn = document.getElementById('vault-init-setup-btn');
-          if (setupBtn) setupBtn.style.display = 'none';
         }
       } else {
         // Not protected yet -> Prompt setup
-        if (lockOverlay) lockOverlay.style.display = 'flex';
         if (lockOverlay) {
-          lockOverlay.innerHTML = `
-            <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
-            <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
-            <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Для защиты Сейфа и Облака сгенерируйте секретную 12-значную сид-фразу по стандарту BIP39.</p>
-            <button class="btn btn-primary" onclick="window.initVaultSeedSetup()" style="padding:0.75rem 1.5rem; position:relative; z-index:9999; pointer-events:auto !important;">Сгенерировать сид-фразу</button>
-          `;
+          lockOverlay.style.display = 'flex';
+          const unlockView = document.getElementById('vault-unlock-view');
+          const setupView = document.getElementById('vault-setup-view');
+          if (unlockView) unlockView.style.display = 'none';
+          if (setupView) setupView.style.display = 'flex';
         }
         if (secretsWrap) secretsWrap.style.display = 'none';
 
@@ -17669,8 +17889,7 @@ ${socialsContext}
         if (cloudWrap) cloudWrap.style.display = 'none';
       }
     }
-
-    function resetVaultSeed() {
+function resetVaultSeed() {
       if (!confirm("Внимание: Сброс сейфа приведет к безвозвратному удалению всех текущих зашифрованных тайн (Secrets) и файлов в Облаке. Вы не сможете восстановить их без старой сид-фразы. Продолжить сброс?")) {
         return;
       }
@@ -18013,38 +18232,64 @@ ${socialsContext}
   </div>
   <!-- MODAL VAULT SETUP -->
   <div class="modal-overlay" id="modal-vault-setup">
-    <div class="modal" style="max-width:500px">
+    <div class="modal" style="max-width:520px">
       <div class="modal-head">
         <div class="modal-title">Сид-фраза <em>сверхзащиты</em></div><button class="modal-close" onclick="window.closeModal('modal-vault-setup')">✕</button>
       </div>
       <div class="modal-body" style="text-align:center;">
-        <i class="ph-fill ph-shield-checkered" style="font-size:2.8rem; color:var(--gold); margin-bottom:1rem;"></i>
+        <i class="ph-fill ph-shield-checkered" style="font-size:2.8rem; color:var(--gold); margin-bottom:0.8rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.25));"></i>
         <h4 style="font-family:var(--serif); color:var(--ivory); font-size:1.1rem; margin-bottom:0.5rem;">Сгенерирована секретная фраза</h4>
-        <p style="font-size:0.75rem; color:var(--muted); line-height:1.4; margin-bottom:1.5rem; padding:0 0.5rem;">Запишите эти 12 слов на бумаге и храните в надежном месте. Они нужны для шифрования Сейфа и Облака. Если вы их потеряете, восстановить данные будет <strong>невозможно</strong>.</p>
+        <p style="font-size:0.75rem; color:var(--muted); line-height:1.4; margin-bottom:1.2rem; padding:0 0.5rem;">Запишите эти 12 слов на бумаге в точном порядке. Они станут вашим криптографическим ключом шифрования.</p>
         
-        <div id="generated-seed-box" style="background:rgba(212,175,55,0.04); border:1px dashed rgba(212,175,55,0.25); border-radius:12px; padding:1rem; font-family:monospace; font-size:0.95rem; color:var(--gold2); margin-bottom:1.5rem; text-align:left;"></div>
+        <!-- Grid layout for the generated words -->
+        <div id="generated-seed-box" class="seed-phrase-grid"></div>
 
-        <button class="btn btn-primary" onclick="window.confirmSeedSaved()" style="width:100%; padding:0.8rem;">Я записал фразу</button>
+        <!-- Copy and Download Actions -->
+        <div style="display:flex; gap:0.5rem; margin-bottom:1.2rem;">
+          <button class="btn btn-ghost" onclick="window.copyGeneratedSeed()" style="flex:1; padding:0.65rem; font-size:0.75rem; display:flex; align-items:center; justify-content:center; gap:0.4rem; border:1px solid rgba(201,168,76,0.18); border-radius:10px; color:var(--gold2);">
+            <i class="ph-bold ph-copy" id="copy-seed-icon"></i> <span id="copy-seed-text">Копировать</span>
+          </button>
+          <button class="btn btn-ghost" onclick="window.downloadGeneratedSeed()" style="flex:1; padding:0.65rem; font-size:0.75rem; display:flex; align-items:center; justify-content:center; gap:0.4rem; border:1px solid rgba(201,168,76,0.18); border-radius:10px; color:var(--gold2);">
+            <i class="ph-bold ph-download"></i> Скачать .txt
+          </button>
+        </div>
+
+        <!-- Warning Alert -->
+        <div style="background:rgba(231,76,60,0.06); border:1px solid rgba(231,76,60,0.2); border-radius:12px; padding:0.75rem; text-align:left; margin-bottom:1.5rem; display:flex; gap:0.6rem; align-items:flex-start;">
+          <i class="ph-fill ph-warning-octagon" style="color:var(--red); font-size:1.2rem; margin-top:0.1rem; flex-shrink:0;"></i>
+          <div style="font-size:0.72rem; color:var(--muted); line-height:1.4;">
+            <strong style="color:var(--ivory);">Внимание:</strong> Никогда не передавайте эту фразу. Потеря фразы приведет к безвозвратной потере доступа ко всем вашим тайнам и файлам.
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="window.confirmSeedSaved()" style="width:100%; padding:0.8rem; border-radius:12px;">Я записал фразу</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL VAULT CONFIRM -->
   <div class="modal-overlay" id="modal-vault-confirm">
-    <div class="modal" style="max-width:500px">
+    <div class="modal" style="max-width:520px">
       <div class="modal-head">
         <div class="modal-title">Подтверждение <em>фразы</em></div><button class="modal-close" onclick="window.closeModal('modal-vault-confirm')">✕</button>
       </div>
       <div class="modal-body">
-        <p style="font-size:0.78rem; color:var(--muted); text-align:center; margin-bottom:1.2rem;">Чтобы убедиться, что вы сохранили фразу, введите её ниже в правильном порядке.</p>
+        <p style="font-size:0.78rem; color:var(--muted); text-align:center; margin-bottom:1.2rem;">Выберите слова в правильном порядке, чтобы подтвердить сохранение:</p>
         
-        <textarea id="vault-confirm-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:80px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.2); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none; margin-bottom:1.2rem;"></textarea>
+        <!-- Slot boxes for the ordered words -->
+        <div id="confirm-seed-slots" class="seed-phrase-slots"></div>
 
-        <button class="btn btn-primary" onclick="window.submitVaultSeedSetup()" style="width:100%; padding:0.8rem;">Активировать сверхзащиту сейфа</button>
+        <!-- Randomized chips to click on -->
+        <div id="confirm-seed-chips" class="seed-chips-pool"></div>
+
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-ghost" onclick="window.clearConfirmation()" style="padding:0.8rem; width:85px; font-size:0.8rem; border:1px solid rgba(253,252,251,0.15); border-radius:12px;">Сброс</button>
+          <button id="activate-vault-btn" class="btn btn-primary" onclick="window.submitVaultSeedSetup()" style="flex:1; padding:0.8rem; opacity:0.5; pointer-events:none; border-radius:12px; transition: all 0.3s ease;">Активировать сверхзащиту сейфа</button>
+        </div>
       </div>
     </div>
   </div>
-
+  
   <!-- Modal Payment -->
   <div class="modal-overlay" id="modal-payment">
     <div class="modal" style="max-width:480px">
@@ -18232,6 +18477,154 @@ ${socialsContext}
     .period-btn:hover:not(.active) {
       border-color: var(--gold);
       background: var(--gold-d);
+    }
+
+    /* Seed phrase premium styles */
+    .seed-phrase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    @media (max-width: 480px) {
+      .seed-phrase-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .seed-word-card {
+      background: rgba(24, 21, 36, 0.7);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 10px;
+      padding: 0.6rem 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+    .seed-word-card:hover {
+      border-color: rgba(212, 175, 55, 0.4);
+      background: rgba(212, 175, 55, 0.03);
+      transform: translateY(-2px);
+    }
+    .seed-word-num {
+      font-size: 0.7rem;
+      color: var(--gold);
+      font-family: var(--sans);
+      font-weight: 600;
+      opacity: 0.8;
+    }
+    .seed-word-val {
+      font-size: 0.85rem;
+      color: var(--ivory);
+      font-family: var(--sans);
+      font-weight: 500;
+    }
+    .seed-phrase-slots {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+      background: rgba(5, 5, 8, 0.4);
+      border: 1px solid rgba(201, 168, 76, 0.15);
+      border-radius: 12px;
+      padding: 0.8rem;
+      min-height: 140px;
+      margin-bottom: 1.2rem;
+    }
+    @media (max-width: 480px) {
+      .seed-phrase-slots {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .confirm-slot {
+      border: 1px dashed rgba(253, 252, 251, 0.15);
+      border-radius: 8px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      padding: 0 0.5rem;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .confirm-slot.filled {
+      border-style: solid;
+      border-color: rgba(212, 175, 55, 0.25);
+      background: rgba(212, 175, 55, 0.03);
+    }
+    .confirm-slot.filled:hover {
+      background: rgba(231, 76, 60, 0.05);
+      border-color: rgba(231, 76, 60, 0.3);
+    }
+    .seed-chips-pool {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      background: rgba(24, 21, 36, 0.4);
+      border-radius: 12px;
+      padding: 0.8rem;
+      margin-bottom: 1.5rem;
+      min-height: 80px;
+    }
+    .seed-chip-btn {
+      background: var(--ink3);
+      border: 1px solid rgba(253, 252, 251, 0.12);
+      border-radius: 20px;
+      padding: 0.4rem 0.8rem;
+      color: var(--ivory2);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .seed-chip-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold2);
+      transform: translateY(-1px);
+    }
+    .seed-chip-btn.selected {
+      opacity: 0.25;
+      pointer-events: none;
+      background: transparent;
+      border-style: dashed;
+    }
+    .seed-suggestions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.3rem;
+      margin-bottom: 0.6rem;
+      min-height: 28px;
+    }
+    .suggestion-pill {
+      background: var(--ink4);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 12px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.72rem;
+      color: var(--gold2);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .suggestion-pill:hover {
+      background: var(--gold-d);
+      border-color: var(--gold);
+    }
+    .ready-to-activate {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      animation: pulseGold 2s infinite;
+      background: linear-gradient(135deg, var(--gold), var(--amber)) !important;
+      color: var(--ink) !important;
+      font-weight: 600 !important;
+      border-color: transparent !important;
+    }
+    @keyframes pulseGold {
+      0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5); }
+      70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
     }
   </style>
   <!-- Vault Password Prompt Modal -->
