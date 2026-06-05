@@ -2,11 +2,6 @@
 <html lang="ru">
 
 <head>
-  <script>
-    window.addEventListener('error', function(e) {
-      alert('JS Crash Detected:\nMessage: ' + e.message + '\nSource: ' + e.filename + '\nLine: ' + e.lineno);
-    });
-  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="googlea74d2bfe770f75a9" />
@@ -2100,19 +2095,6 @@
     }
 
     .btn-primary-sm:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
-      opacity: 0.95;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--gold), var(--amber));
-      color: var(--ink);
-      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-      border-radius: 30px;
-    }
-
-    .btn-primary:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
       opacity: 0.95;
@@ -6177,18 +6159,6 @@
       </div>
     </div>
   </div>
-  <script>
-    // Fail-safe preloader dismiss: hide it after 4 seconds even if CDN scripts crash or are blocked
-    setTimeout(() => {
-      const preloader = document.getElementById('app-splash-preloader');
-      if (preloader) {
-        console.warn('Fail-safe preloader dismiss triggered.');
-        preloader.style.opacity = '0';
-        preloader.style.visibility = 'hidden';
-        setTimeout(() => preloader.remove(), 600);
-      }
-    }, 4000);
-  </script>
   <style>
     @keyframes splash-glow-pulse {
       0% { transform: scale(0.95); opacity: 0.5; }
@@ -6786,135 +6756,149 @@
       <main class="app-main">
 
         <!-- ── DASHBOARD ── -->
-        <!-- ── DASHBOARD ── -->
         <div class="page active" id="page-dash">
-          <div class="dash-minimal-wrap" style="max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem; display: flex; flex-direction: column; gap: 3rem;">
-            
-            <!-- Welcome Header -->
-            <header style="text-align: center; margin-bottom: 0.5rem; position: relative;">
-              <div style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 250px; height: 100px; background: radial-gradient(circle, rgba(201, 168, 76, 0.05) 0%, transparent 70%); filter: blur(20px); pointer-events: none;"></div>
-              <h1 style="font-family: var(--serif); font-size: 2.5rem; font-weight: 300; color: var(--ivory); letter-spacing: -0.5px; margin-bottom: 0.4rem; position: relative; z-index: 2;">
-                Наследие рода <em id="dash-name" style="color: var(--gold); font-style: normal; font-weight: 400; text-shadow: 0 0 20px rgba(201, 168, 76, 0.2);">Пользователь</em>
-              </h1>
-              <p style="font-size: 0.78rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 400; display: inline-flex; align-items: center; gap: 8px; position: relative; z-index: 2;">
-                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 10px #2ecc71;"></span>
-                Шифрование AES-256 активно &middot; <span id="dash-date" style="color: var(--gold2);"></span>
-              </p>
-            </header>
+          <div class="dash-grid">
+            <!-- Left: Main Content -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
-            <!-- Spacious Status Line -->
-            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2.5rem; padding: 1.2rem 2rem; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 20px; backdrop-filter: blur(15px); box-shadow: 0 4px 30px rgba(0,0,0,0.15);">
-              
-              <!-- BIP39 Shield -->
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="ph-light ph-shield-check" style="font-size: 1.3rem; color: var(--gold); filter: drop-shadow(0 0 5px rgba(201, 168, 76, 0.3));"></i>
-                <div style="font-size: 0.8rem; color: var(--muted); font-weight: 300;">
-                  Защита BIP39: <span id="dash-bip39-status" style="font-weight: 500;">Активна</span>
+              <!-- Redesigned Welcome Widget -->
+              <div class="dash-welcome-card" style="background: linear-gradient(135deg, rgba(20,18,30,0.85) 0%, rgba(10,9,15,0.95) 100%); border: 1px solid rgba(212,175,55,0.1); box-shadow: 0 8px 30px rgba(0,0,0,0.4); padding: 1.5rem !important; min-height: auto !important; border-radius: 24px; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%); pointer-events: none;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; position: relative; z-index: 2;">
+                  <div>
+                    <div class="dash-welcome-title" style="font-family: var(--serif); font-size: 1.6rem; color: var(--ivory); font-weight: 300; letter-spacing: -0.5px;">Наследие рода <em id="dash-name" style="color: var(--gold); font-style: normal; font-weight: 500; text-shadow: 0 0 15px rgba(212,175,55,0.2);">Пользователь</em></div>
+                    <div class="dash-welcome-sub" style="font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; font-weight: 300; display: flex; align-items: center; gap: 0.4rem;">
+                      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71;"></span>
+                      Шифрование AES-256 активно. Сегодня <span id="dash-date" style="color: var(--gold2); font-weight: 400;"></span>.
+                    </div>
+                  </div>
+                  <div class="dash-avatar-badge" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(212,175,55,0.25); background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.02) 100%); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1.3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);"><i class="ph-fill ph-brain"></i></div>
+                </div>
+
+                <div class="dash-health-wrap" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 1rem 1.4rem; position: relative; z-index: 2;">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem;">
+                    <div class="dash-stat-lbl" style="font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 500;">Заполненность Архива Души</div>
+                    <div style="font-family: var(--sans); color: var(--gold2); font-size: 1rem; font-weight: 600;" id="dash-health-pct">45%</div>
+                  </div>
+                  <div class="dash-health-bar" style="height: 6px; background: rgba(255,255,255,0.03); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.01);">
+                    <div class="dash-health-fill" id="dash-health-fill" style="width: 45%; height: 100%; background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 100%); border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                  </div>
                 </div>
               </div>
 
-              <!-- Life Guard check-in status -->
-              <div style="display: flex; align-items: center; gap: 10px; cursor: pointer; transition: opacity 0.2s;" onclick="goPage('switch')" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
-                <i class="ph-light ph-hourglass" style="font-size: 1.3rem; color: var(--red); filter: drop-shadow(0 0 5px rgba(231, 76, 60, 0.3));"></i>
-                <div style="font-size: 0.8rem; color: var(--muted); font-weight: 300;">
-                  Страж: <span id="sw-days-sb" style="color: var(--red); font-weight: 500;">7</span> <span id="sw-sub-sb" style="color: var(--red); font-weight: 500;">дней до проверки</span>
+              <!-- Stat Widgets Grid -->
+              <div class="dash-stat-grid">
+                <div class="dash-stat-widget" onclick="goPage('secrets')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
+                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-lock-key"></i></div>
+                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
+                    <div class="dash-stat-val" id="d-secrets" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
+                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Сейф тайн</div>
+                  </div>
+                </div>
+                <div class="dash-stat-widget" onclick="goPage('messages')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
+                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-envelope-simple"></i></div>
+                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
+                    <div class="dash-stat-val" id="d-msgs" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
+                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Послания</div>
+                  </div>
+                </div>
+                <div class="dash-stat-widget" onclick="goPage('connections')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
+                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-users"></i></div>
+                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
+                    <div class="dash-stat-val" id="d-rels" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
+                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Члены рода</div>
+                  </div>
+                </div>
+                <div class="dash-stat-widget" onclick="goPage('bio')" style="background: rgba(255,255,255,0.015); border: 1px solid rgba(212,175,55,0.06); border-radius: 20px; padding: 1.2rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='rgba(212,175,55,0.25)'; this.style.background='rgba(212,175,55,0.03)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='none'; this.style.borderColor='rgba(212,175,55,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='none';">
+                  <div class="dash-stat-icon" style="background: rgba(212,175,55,0.04); color: var(--gold); border: 1px solid rgba(212,175,55,0.12); width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;"><i class="ph-light ph-scroll"></i></div>
+                  <div class="dash-stat-info" style="margin-top: 0.6rem;">
+                    <div class="dash-stat-val" id="d-bio" style="font-size: 1.5rem; font-weight: 500; color: var(--ivory); font-family: var(--sans);">0</div>
+                    <div class="dash-stat-lbl" style="font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-weight: 400;">Биография</div>
+                  </div>
                 </div>
               </div>
 
-              <!-- Soul Archive Fill % -->
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <i class="ph-light ph-chart-pie" style="font-size: 1.3rem; color: var(--gold2);"></i>
-                <div style="font-size: 0.8rem; color: var(--muted); font-weight: 300;">
-                  Архив: <span id="dash-health-pct" style="color: var(--gold2); font-weight: 500;">45%</span>
+              <!-- Activity Feed -->
+              <div class="card dash-activity-card" style="margin-bottom: 0; background: rgba(20,18,30,0.4); border: 1px solid rgba(255,255,255,0.03); border-radius: 24px; padding: 1.8rem; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+                <div class="section-label" style="margin-bottom: 1.2rem; color: var(--gold2); font-family: var(--serif); font-size: 1.05rem; letter-spacing: 0.5px;">Последняя активность</div>
+                <div id="dash-activity">
+                  <div class="empty" style="padding: 2rem 1rem;">
+                    <div class="empty-icon" style="font-size: 1.5rem; color: var(--muted); opacity: 0.6;"><i class="ph-light ph-clipboard"></i></div>
+                    <div class="empty-text" style="font-size: 0.9rem; color: var(--muted); font-weight: 300;">Нет активности</div>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            <!-- Dashboard Grid (Spacious Glass Cards) -->
-            <div class="dash-stat-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1.5rem;">
-              
-              <!-- Secrets Vault -->
-              <div class="dash-stat-widget" onclick="goPage('secrets')" 
-                   style="background: rgba(255,255,255,0.015); border: 1px solid rgba(201,168,76,0.06); border-radius: 24px; padding: 1.6rem; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 145px; box-shadow: 0 4px 30px rgba(0,0,0,0.15);"
-                   onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(201,168,76,0.25)'; this.style.background='rgba(201,168,76,0.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
-                   onmouseout="this.style.transform='none'; this.style.borderColor='rgba(201,168,76,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='0 4px 30px rgba(0,0,0,0.15)';">
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                  <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">Сейф тайн</span>
-                  <div style="background: rgba(201,168,76,0.05); color: var(--gold); border: 1px solid rgba(201,168,76,0.1); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="ph-light ph-lock-key"></i></div>
-                </div>
-                <div id="d-secrets" style="font-size: 2.2rem; font-weight: 300; color: var(--ivory); font-family: var(--serif); line-height: 1;">0</div>
-              </div>
-
-              <!-- Direct Messages -->
-              <div class="dash-stat-widget" onclick="goPage('messages')" 
-                   style="background: rgba(255,255,255,0.015); border: 1px solid rgba(201,168,76,0.06); border-radius: 24px; padding: 1.6rem; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 145px; box-shadow: 0 4px 30px rgba(0,0,0,0.15);"
-                   onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(201,168,76,0.25)'; this.style.background='rgba(201,168,76,0.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
-                   onmouseout="this.style.transform='none'; this.style.borderColor='rgba(201,168,76,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='0 4px 30px rgba(0,0,0,0.15)';">
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                  <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">Послания</span>
-                  <div style="background: rgba(201,168,76,0.05); color: var(--gold); border: 1px solid rgba(201,168,76,0.1); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="ph-light ph-envelope-simple"></i></div>
-                </div>
-                <div id="d-msgs" style="font-size: 2.2rem; font-weight: 300; color: var(--ivory); font-family: var(--serif); line-height: 1;">0</div>
-              </div>
-
-              <!-- Family Circle -->
-              <div class="dash-stat-widget" onclick="goPage('connections')" 
-                   style="background: rgba(255,255,255,0.015); border: 1px solid rgba(201,168,76,0.06); border-radius: 24px; padding: 1.6rem; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 145px; box-shadow: 0 4px 30px rgba(0,0,0,0.15);"
-                   onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(201,168,76,0.25)'; this.style.background='rgba(201,168,76,0.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
-                   onmouseout="this.style.transform='none'; this.style.borderColor='rgba(201,168,76,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='0 4px 30px rgba(0,0,0,0.15)';">
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                  <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">Члены рода</span>
-                  <div style="background: rgba(201,168,76,0.05); color: var(--gold); border: 1px solid rgba(201,168,76,0.1); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="ph-light ph-users"></i></div>
-                </div>
-                <div id="d-rels" style="font-size: 2.2rem; font-weight: 300; color: var(--ivory); font-family: var(--serif); line-height: 1;">0</div>
-              </div>
-
-              <!-- Biography Chapters -->
-              <div class="dash-stat-widget" onclick="goPage('bio')" 
-                   style="background: rgba(255,255,255,0.015); border: 1px solid rgba(201,168,76,0.06); border-radius: 24px; padding: 1.6rem; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 145px; box-shadow: 0 4px 30px rgba(0,0,0,0.15);"
-                   onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(201,168,76,0.25)'; this.style.background='rgba(201,168,76,0.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
-                   onmouseout="this.style.transform='none'; this.style.borderColor='rgba(201,168,76,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='0 4px 30px rgba(0,0,0,0.15)';">
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                  <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">Биография</span>
-                  <div style="background: rgba(201,168,76,0.05); color: var(--gold); border: 1px solid rgba(201,168,76,0.1); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="ph-light ph-scroll"></i></div>
-                </div>
-                <div id="d-bio" style="font-size: 2.2rem; font-weight: 300; color: var(--ivory); font-family: var(--serif); line-height: 1;">0</div>
-              </div>
-
-              <!-- AI consciousness twin clone -->
-              <div class="dash-stat-widget" onclick="goPage('twin')" 
-                   style="background: rgba(255,255,255,0.015); border: 1px solid rgba(201,168,76,0.06); border-radius: 24px; padding: 1.6rem; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; justify-content: space-between; min-height: 145px; box-shadow: 0 4px 30px rgba(0,0,0,0.15);"
-                   onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(201,168,76,0.25)'; this.style.background='rgba(201,168,76,0.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
-                   onmouseout="this.style.transform='none'; this.style.borderColor='rgba(201,168,76,0.06)'; this.style.background='rgba(255,255,255,0.015)'; this.style.boxShadow='0 4px 30px rgba(0,0,0,0.15)';">
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                  <span style="font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">Двойник</span>
-                  <div style="background: rgba(201,168,76,0.05); color: var(--gold); border: 1px solid rgba(201,168,76,0.1); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class="ph-light ph-brain"></i></div>
-                </div>
-                <div style="font-size: 0.82rem; color: var(--gold2); font-weight: 500; letter-spacing: 0.5px; line-height: 2.2;">Интегрирован</div>
               </div>
 
             </div>
 
-            <!-- Minimalist Quotes & Actions Box -->
-            <div style="background: linear-gradient(135deg, rgba(20,18,30,0.25) 0%, rgba(10,9,15,0.45) 100%); border: 1px solid rgba(201,168,76,0.05); border-radius: 28px; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 1.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-              <div style="font-size: 1.1rem; color: var(--ivory); font-family: var(--serif); font-style: italic; font-weight: 300; line-height: 1.6; max-width: 650px;" id="dash-ai-quote">
-                «Память — это единственный рай, из которого нас не могут изгнать».
-              </div>
-              <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center; margin-top: 0.2rem;">
-                <button class="btn btn-ghost btn-sm" onclick="openModal('modal-secret')" style="border-radius: 14px; border-color: rgba(201,168,76,0.15); color: var(--gold); font-size: 0.78rem; padding: 0.55rem 1.1rem; font-weight: 500;"><i class="ph-light ph-plus"></i> Добавить тайну</button>
-                <button class="btn btn-ghost btn-sm" onclick="goPage('ai')" style="border-radius: 14px; border-color: rgba(255,255,255,0.1); color: var(--ivory); font-size: 0.78rem; padding: 0.55rem 1.1rem; font-weight: 500;"><i class="ph-light ph-robot"></i> Спросить Мудреца</button>
-                <button class="btn btn-ghost btn-sm" onclick="openModal('modal-bio')" style="border-radius: 14px; border-color: rgba(255,255,255,0.1); color: var(--ivory); font-size: 0.78rem; padding: 0.55rem 1.1rem; font-weight: 500;"><i class="ph-light ph-book-open"></i> Запись в биографию</button>
-                <button class="btn btn-ghost btn-sm" onclick="openModal('modal-relative')" style="border-radius: 14px; border-color: rgba(255,255,255,0.1); color: var(--ivory); font-size: 0.78rem; padding: 0.55rem 1.1rem; font-weight: 500;"><i class="ph-light ph-user-plus"></i> Добавить родственника</button>
-              </div>
-            </div>
+            <!-- Right: Sidebar / Quick Actions -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
-            <!-- Hidden Legacy Elements to prevent JS Errors -->
-            <div style="display: none;">
-              <div id="dash-health-fill"></div>
-              <div id="sw-bar-sb"></div>
-              <div id="dash-activity"></div>
-            </div>
+              <!-- Life Guard Widget -->
+              <div class="dash-stat-widget dash-guard-card"
+                style="background: linear-gradient(180deg, rgba(231, 76, 60, 0.05) 0%, var(--glass-bg) 100%); border-color: rgba(231, 76, 60, 0.2);"
+                onclick="goPage('switch')">
+                <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
+                  <div class="dash-stat-icon" style="background: rgba(231, 76, 60, 0.1); color: var(--red);"><i
+                      class="ph-light ph-hourglass"></i></div>
+                  <div class="dash-stat-lbl" style="color: var(--red);">Страж жизни</div>
+                </div>
+                <div style="font-size: 2rem; font-family: var(--serif);" id="sw-days-sb">7</div>
+                <div class="dash-stat-lbl" id="sw-sub-sb">дней до проверки</div>
+                <div class="progress-bar" style="height: 4px; background: rgba(231, 76, 60, 0.1);">
+                  <div class="progress-fill" id="sw-bar-sb" style="background: var(--red); width: 100%;"></div>
+                </div>
+                <button class="btn btn-ghost btn-sm"
+                  style="width: 100%; margin-top: 0.5rem; border-color: rgba(231, 76, 60, 0.3); color: var(--red);"
+                  onclick="event.stopPropagation(); doCheckin();">Я в порядке</button>
+              </div>
 
+              <!-- Quick Actions -->
+              <div class="dash-actions-card">
+                <div class="section-label">Быстрые действия</div>
+                <div class="dash-quick-actions">
+                  <div class="quick-btn" onclick="openModal('modal-secret')">
+                    <i class="ph-light ph-plus-circle"></i>
+                    <div class="quick-btn-text">
+                      <div class="quick-btn-title">Добавить тайну</div>
+                      <div class="quick-btn-sub">Защитите пароль или файл</div>
+                    </div>
+                  </div>
+                  <div class="quick-btn" onclick="goPage('ai')">
+                    <i class="ph-light ph-robot"></i>
+                    <div class="quick-btn-text">
+                      <div class="quick-btn-title">Спросить Мудреца</div>
+                      <div class="quick-btn-sub">Помощь AI с биографией</div>
+                    </div>
+                  </div>
+                  <div class="quick-btn" onclick="openModal('modal-bio')">
+                    <i class="ph-light ph-book-open"></i>
+                    <div class="quick-btn-text">
+                      <div class="quick-btn-title">Новая глава</div>
+                      <div class="quick-btn-sub">Запишите воспоминание</div>
+                    </div>
+                  </div>
+                  <div class="quick-btn" onclick="openModal('modal-relative')">
+                    <i class="ph-light ph-user-plus"></i>
+                    <div class="quick-btn-text">
+                      <div class="quick-btn-title">Добавить в род</div>
+                      <div class="quick-btn-sub">Расширьте древо жизни</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- AI Quote/Tip -->
+              <div class="card dash-quote-card" style="background: rgba(212, 175, 55, 0.03); border-style: dashed; padding: 1.2rem;">
+                <div style="color: var(--gold); font-size: 1.2rem; margin-bottom: 0.5rem;"><i
+                    class="ph-light ph-quotes"></i></div>
+                <div style="font-size: 0.8rem; color: var(--muted); font-style: italic; line-height: 1.5;"
+                  id="dash-ai-quote">
+                  «Память — это единственный рай, из которого нас не могут изгнать». Начните свою биографию сегодня.
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
 
@@ -7000,7 +6984,7 @@
                           style="position: absolute; top: -10px; left: 12px; background: #0f0d16; padding: 0 6px; font-size: 0.6rem; color: var(--gold); letter-spacing: 1px;">CVV</label>
                         <input type="password" id="card-cvv-inline" placeholder="•••"
                           style="width: 100%; background: transparent; border: 1px solid rgba(201,168,76,0.2); border-radius: 12px; padding: 14px; color: var(--ivory); font-size: 1rem; outline: none; text-align: center; letter-spacing: 5px;"
-                          maxlength="3" onfocus="flipCard(true, '-inline')" onblur="flipCard(false, '-inline')">
+                          maxlength="3">
                       </div>
                     </div>
 
@@ -7015,7 +6999,7 @@
 
                     <button class="btn-gold"
                       style="width: 100%; padding: 18px; font-size: 1rem; letter-spacing: 2px; font-weight: 700; border-radius: 16px;"
-                      onclick="processPaymentReal('-inline')">
+                      onclick="processPaymentReal()">
                       ПОДТВЕРДИТЬ ОПЛАТУ
                     </button>
                   </div>
@@ -7200,18 +7184,18 @@
 
           <!-- Tab Bar -->
           <div class="legacy-tabs">
-            <button class="legacy-tab-btn active" id="tab-legacy-bio-btn" onclick="window.setLegacyTab('bio')">
+            <button class="legacy-tab-btn active" id="tab-legacy-bio-btn" onclick="setLegacyTab('bio')">
               <i class="ph-light ph-book-open"></i> Книга жизни
             </button>
-            <button class="legacy-tab-btn" id="tab-legacy-messages-btn" onclick="window.setLegacyTab('messages')">
+            <button class="legacy-tab-btn" id="tab-legacy-messages-btn" onclick="setLegacyTab('messages')">
               <i class="ph-light ph-envelope-simple"></i> Послания близким
               <span class="dock-badge" id="badge-legacy-msgs" style="position:static; transform:none; margin-left:0.4rem; display:none;">0</span>
             </button>
-            <button class="legacy-tab-btn" id="tab-legacy-secrets-btn" onclick="window.setLegacyTab('secrets')">
+            <button class="legacy-tab-btn" id="tab-legacy-secrets-btn" onclick="setLegacyTab('secrets')">
               <i class="ph-light ph-lock-key"></i> Цифровой сейф
               <span class="dock-badge" id="badge-legacy-secrets" style="position:static; transform:none; margin-left:0.4rem; display:none;">0</span>
             </button>
-            <button class="legacy-tab-btn" id="tab-legacy-cloud-btn" onclick="window.setLegacyTab('cloud')">
+            <button class="legacy-tab-btn" id="tab-legacy-cloud-btn" onclick="setLegacyTab('cloud')">
               <i class="ph-light ph-cloud"></i> Облако воспоминаний
             </button>
           </div>
@@ -7245,34 +7229,17 @@
               <button class="btn btn-primary-sm" id="secrets-add-btn" onclick="openModal('modal-secret')" style="font-size:0.8rem; padding:0.5rem 1rem;">+ Добавить тайну</button>
             </div>
             <!-- Lock Overlay for Secrets -->
-            <div id="vault-lock-overlay" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:3rem 1.5rem; background:rgba(15,13,22,0.65); border:1px solid rgba(212,175,55,0.15); border-radius:16px; backdrop-filter:blur(15px); margin-top:1rem; margin-bottom:1.5rem;">
-              <!-- UNLOCK VIEW (shown when isProtected is true, but not unlocked) -->
-              <div id="vault-unlock-view" style="width:100%; display:flex; flex-direction:column; align-items:center;">
-                <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
-                <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Сейф заблокирован</h3>
-                <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Чтобы расшифровать ваши личные данные, введите секретную сид-фразу из 12 слов.</p>
-                
-                <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:0.8rem; position:relative;">
-                  <textarea id="vault-seed-input" oninput="window.showSeedSuggestions(this)" placeholder="Введите 12 слов через пробел..." style="width:100%; height:70px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.25); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none;"></textarea>
-                  
-                  <!-- BIP39 Autocomplete Suggestions Bar -->
-                  <div id="seed-suggestions-bar" class="seed-suggestions-bar"></div>
-                  
-                  <div style="display:flex; gap:0.5rem;">
-                    <button class="btn btn-primary" onclick="window.unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
-                  </div>
-                  <div style="margin-top: 0.5rem; font-size: 0.72rem; color: var(--muted); text-align: center;">
-                    Забыли сид-фразу? <a href="#" onclick="event.preventDefault(); window.resetVaultSeed();" style="color: var(--red); text-decoration: underline;">Сбросить сейф и создать новую</a>
-                  </div>
+            <div id="vault-lock-overlay" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:3rem 1.5rem; background:rgba(15,13,22,0.65); border:1px dashed rgba(212,175,55,0.2); border-radius:16px; backdrop-filter:blur(15px); margin-top:1rem; margin-bottom:1.5rem;">
+              <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
+              <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Сейф заблокирован</h3>
+              <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Чтобы расшифровать ваши личные данные, введите секретную сид-фразу из 12 слов.</p>
+              
+              <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:0.8rem;">
+                <textarea id="vault-seed-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:70px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.25); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none;"></textarea>
+                <div style="display:flex; gap:0.5rem;">
+                  <button class="btn btn-primary" onclick="unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
+                  <button class="btn btn-ghost" onclick="initVaultSeedSetup()" id="vault-init-setup-btn" style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
                 </div>
-              </div>
-
-              <!-- SETUP VIEW (shown when isProtected is false) -->
-              <div id="vault-setup-view" style="width:100%; display:none; flex-direction:column; align-items:center;">
-                <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
-                <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
-                <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Для защиты Сейфа и Облака сгенерируйте секретную 12-значную сид-фразу по стандарту BIP39.</p>
-                <button class="btn btn-primary" id="vault-generate-btn" onclick="alert('INLINE: button clicked!'); window.initVaultSeedSetup()" style="padding:0.75rem 1.5rem; position:relative; z-index:9999; pointer-events:auto !important;">Сгенерировать сид-фразу</button>
               </div>
             </div>
 
@@ -7298,7 +7265,7 @@
               <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
               <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Хранилище заблокировано</h3>
               <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Чтобы открыть ваше медиа-облако, разблокируйте Цифровой Сейф.</p>
-              <button class="btn btn-primary" onclick="window.setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к разблокировке</button>
+              <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к разблокировке</button>
             </div>
 
             <div id="cloud-container-wrap">
@@ -9298,8 +9265,6 @@
           <button class="btn btn-ghost" onclick="closeModal('modal-join-tree')">Отмена</button>
           <button class="btn btn-primary-sm" onclick="joinByCodeModal()">Отправить запрос</button>
         </div>
-      </div>
-    </div>
   </div>
 
   <!-- Modal: Пригласить на карту / Связать контакты -->
@@ -9396,32 +9361,9 @@
       measurementId: "G-KQHXJYLG24"
     };
     // ════════════════════════════════════════════════════════════
-    let fbAuth = null;
-    let fbDb = null;
-
-    // Global fallback for firebase to prevent runtime ReferenceErrors
-    if (typeof firebase === 'undefined') {
-      window.firebase = {
-        firestore: {
-          FieldValue: {
-            serverTimestamp: () => new Date()
-          }
-        }
-      };
-    }
-
-    try {
-      if (typeof firebase !== 'undefined' && firebase.initializeApp) {
-        firebase.initializeApp(firebaseConfig);
-        fbAuth = firebase.auth();
-        fbDb = firebase.firestore();
-      } else {
-        console.warn("Firebase script was not loaded. Using local offline mode.");
-      }
-    } catch (e) {
-      console.error("Firebase initialization failed:", e);
-    }
-    
+    firebase.initializeApp(firebaseConfig);
+    const fbAuth = firebase.auth();
+    const fbDb = firebase.firestore();
     
     // ════════════════════════════════════════════════════════════
     // 💡 БЕСПЛАТНЫЙ КЛЮЧ GEMINI ИИ (Получите на https://aistudio.google.com/)
@@ -9466,9 +9408,6 @@
         const userDoc = await fbDb.collection('users').doc(uid).get();
         if (userDoc.exists) {
           const data = userDoc.data();
-          if (data.vaultSeedHash && STATE.user) {
-            STATE.user.vaultSeedHash = data.vaultSeedHash;
-          }
 
           // Проверяем, зашифрованы ли данные и есть ли ключ шифрования
           const isZk = data.secrets && typeof data.secrets === 'string' && data.secrets.startsWith(ZK_PREFIX);
@@ -9529,7 +9468,7 @@
         saveUserData(); // для демо — только localStorage
         return;
       }
-      const uid = fbAuth && fbAuth.currentUser && fbAuth.currentUser.uid;
+      const uid = fbAuth.currentUser && fbAuth.currentUser.uid;
       if (!uid) { saveUserData(); return; }
       // сначала быстро сохраняем локально
       saveUserData();
@@ -9540,11 +9479,6 @@
           code: _connCode(STATE.user.email),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           zkVersion: 2, // zero-knowledge schema version
-          lat: STATE.user.lat || null,
-          lon: STATE.user.lon || null,
-          name: STATE.user.name || '',
-          photoURL: STATE.user.photoURL || '',
-          vaultSeedHash: STATE.user.vaultSeedHash || '',
           // ↓ Всё ниже — зашифровано AES-256 на устройстве клиента
           secrets: CryptoEngine.encryptVault(STATE.secrets),
           bio: CryptoEngine.encrypt(STATE.bio),
@@ -9843,7 +9777,6 @@
       DB.save('settings_' + e, STATE.settings);
       DB.save('twin_history_' + e, STATE.twinChatHistory || []);
       DB.save('twin_settings_' + e, STATE.twinSettings || {});
-      DB.save('vaultSeedHash_' + e, STATE.user.vaultSeedHash || '');
       updateDbStats();
     }
 
@@ -9863,13 +9796,8 @@
           code: _connCode(STATE.user.email),
           zkVersion: 2,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          lat: STATE.user.lat || null,
-          lon: STATE.user.lon || null,
-          name: STATE.user.name || '',
-          photoURL: STATE.user.photoURL || '',
-          vaultSeedHash: STATE.user.vaultSeedHash || '',
           // ↓ Всё ниже зашифровано AES-256 на устройстве
-          secrets: CryptoEngine.encryptVault(STATE.secrets),
+          secrets: CryptoEngine.encrypt(STATE.secrets),
           bio: CryptoEngine.encrypt(STATE.bio),
           messages: CryptoEngine.encrypt(STATE.messages),
           relatives: CryptoEngine.encrypt(STATE.relatives),
@@ -9905,9 +9833,6 @@
       STATE.settings = DB.load('settings_' + e, {});
       STATE.planId = DB.load('planId_' + e, 'free');
       STATE.planExpiry = DB.load('planExp_' + e, 0);
-      if (!STATE.user.vaultSeedHash) {
-        STATE.user.vaultSeedHash = DB.load('vaultSeedHash_' + e, '');
-      }
       STATE.twinChatHistory = DB.load('twin_history_' + e, []);
       STATE.twinSettings = DB.load('twin_settings_' + e, {
         consent: true,
@@ -10008,13 +9933,8 @@
         return;
       }
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      const el = document.getElementById('screen-' + id);
-      if (el) el.classList.add('active');
-      try {
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-      } catch (e) {
-        window.scrollTo(0, 0);
-      }
+      document.getElementById('screen-' + id).classList.add('active');
+      if (id === 'landing') window.scrollTo(0, 0);
     }
     function showLanding() { showScreen('landing'); }
     function showAuth(tab = 'login') {
@@ -10371,12 +10291,6 @@
       if (chatMessagesUnsubscribe) { chatMessagesUnsubscribe(); chatMessagesUnsubscribe = null; }
       activeChatContact = null;
 
-      // Clear crypto session and credentials
-      CryptoEngine._vaultKey = null;
-      CryptoEngine._key = null;
-      sessionStorage.clear();
-      localStorage.removeItem('sk_vault_key_remember');
-
       if (STATE.user && STATE.user.isDemo) {
         DB.remove('user');
         STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
@@ -10475,11 +10389,7 @@
     }
 
     // ── onAuthStateChanged — восстановление сессии и вход/выход ──────
-    let isDomReady = false;
-    let pendingFbUser = null;
-    let pendingFbUserSet = false;
-
-    async function handleAuthStateChange(fbUser) {
+    fbAuth.onAuthStateChanged(async (fbUser) => {
       // Сбрасываем спиннеры
       setAuthLoading('btn-login', false, 'Войти');
       setAuthLoading('btn-register', false, 'Создать аккаунт');
@@ -10546,23 +10456,7 @@
           }
         }
       }
-    }
-
-    if (fbAuth) {
-      fbAuth.onAuthStateChanged(async (fbUser) => {
-        if (!isDomReady) {
-          pendingFbUser = fbUser;
-          pendingFbUserSet = true;
-          console.log('Auth state changed before DOM ready, deferring...');
-          return;
-        }
-        try {
-          await handleAuthStateChange(fbUser);
-        } catch (e) {
-          console.error("Error in onAuthStateChanged handler:", e);
-        }
-      });
-    }
+    });
 
     function updateAiQuote() {
       const quotes = [
@@ -10684,7 +10578,6 @@
         }
       }
     }
-    window.setLegacyTab = setLegacyTab;
 
     function goPage(name) {
       if (name === 'secrets' || name === 'bio' || name === 'messages') {
@@ -10728,19 +10621,12 @@
     // MODALS
     // ═══════════════════════════════════════════
     function openModal(id) {
-      const el = document.getElementById(id);
-      if (el) el.classList.add('open');
+      document.getElementById(id).classList.add('open');
     }
-    window.openModal = openModal;
-
     function closeModal(id) {
-      const el = document.getElementById(id);
-      if (el) {
-        el.classList.remove('open');
-        clearInputs(id);
-      }
+      document.getElementById(id).classList.remove('open');
+      clearInputs(id);
     }
-    window.closeModal = closeModal;
     function clearInputs(modalId) {
       document.querySelectorAll('#' + modalId + ' input:not([readonly]),#' + modalId + ' textarea').forEach(el => el.value = '');
     }
@@ -12264,11 +12150,11 @@
       input.value = value.substring(0, 5);
     }
 
-    function validatePaymentForm(suffix = '') {
-      const cardNumber = document.getElementById('card-number' + suffix).value.replace(/\s/g, '');
-      const cardExpiry = document.getElementById('card-expiry' + suffix).value;
-      const cardCVV = document.getElementById('card-cvv' + suffix).value;
-      const cardName = document.getElementById('card-name' + suffix).value.trim();
+    function validatePaymentForm() {
+      const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+      const cardExpiry = document.getElementById('card-expiry').value;
+      const cardCVV = document.getElementById('card-cvv').value;
+      const cardName = document.getElementById('card-name').value.trim();
 
       if (cardNumber.length < 16) { toast('<i class="ph-light ph-warning"></i> Введите корректный номер карты'); return false; }
       if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) { toast('<i class="ph-light ph-warning"></i> Введите срок действия (ММ/ГГ)'); return false; }
@@ -12286,19 +12172,14 @@
       return true;
     }
 
-    function processPaymentReal(suffix = '') {
-      if (!validatePaymentForm(suffix)) return;
+    function processPaymentReal() {
+      if (!validatePaymentForm()) return;
 
       // Получаем данные
       const plan = PLANS[currentPayPlan];
 
       // Анимация загрузки
-      let payBtn = document.getElementById('pay-button');
-      if (suffix === '-inline') {
-        const inlineBtn = document.querySelector('#inline-payment-block button.btn-gold');
-        if (inlineBtn) payBtn = inlineBtn;
-      }
-      
+      const payBtn = document.getElementById('pay-button');
       const originalText = payBtn.innerHTML;
       payBtn.innerHTML = '<span><i class="ph-light ph-hourglass"></i></span> АВТОРИЗАЦИЯ...';
       payBtn.disabled = true;
@@ -12311,11 +12192,6 @@
           if (success) {
             toast(`<i class="ph-light ph-check-circle"></i> Оплата прошла успешно!`);
             closeModal('modal-payment-real');
-            
-            // Hide inline payment block if active
-            const inlineBlock = document.getElementById('inline-payment-block');
-            if (inlineBlock) inlineBlock.style.display = 'none';
-            
             showConfetti();
 
             // Показываем финальное окно успеха через небольшую паузу
@@ -12340,11 +12216,11 @@
       }, 1000);
     }
 
-    function detectCardType(cardNumber, suffix = '') {
+    function detectCardType(cardNumber) {
       const cleanNumber = cardNumber.replace(/\s/g, '');
-      const cardIcon = document.getElementById('card-icon' + suffix);
-      const cardVizType = document.getElementById('card-viz-type' + suffix);
-      const cardViz = document.getElementById('card-viz' + suffix);
+      const cardIcon = document.getElementById('card-icon');
+      const cardVizType = document.getElementById('card-viz-type');
+      const cardViz = document.getElementById('card-viz');
 
       let type = 'Card';
       let icon = '<i class="ph-light ph-credit-card"></i>';
@@ -12376,28 +12252,23 @@
       if (cardViz) cardViz.style.background = color;
     }
 
-    function updateCardVizNum(input, suffix = '') {
+    function updateCardVizNum(input) {
       formatCardNumber(input);
       const val = input.value || '•••• •••• •••• ••••';
-      const el = document.getElementById('card-viz-number' + suffix);
-      if (el) el.textContent = val;
-      detectCardType(val, suffix);
+      document.getElementById('card-viz-number').textContent = val;
+      detectCardType(val);
     }
-    function updateCardVizExpiry(input, suffix = '') {
+    function updateCardVizExpiry(input) {
       formatExpiry(input);
-      const el = document.getElementById('card-viz-expiry' + suffix);
-      if (el) el.textContent = input.value || 'MM/YY';
+      document.getElementById('card-viz-expiry').textContent = input.value || 'MM/YY';
     }
-    function updateCardVizName(input, suffix = '') {
-      const el = document.getElementById('card-viz-name' + suffix);
-      if (el) el.textContent = input.value.toUpperCase() || 'YOUR NAME';
+    function updateCardVizName(input) {
+      document.getElementById('card-viz-name').textContent = input.value.toUpperCase() || 'YOUR NAME';
     }
-    function flipCard(back, suffix = '') {
-      const viz = document.getElementById('card-viz' + suffix);
-      if (viz) {
-        if (back) viz.style.transform = 'rotateY(10deg) scale(1.02)';
-        else viz.style.transform = 'rotateY(0deg) scale(1)';
-      }
+    function flipCard(back) {
+      const viz = document.getElementById('card-viz');
+      if (back) viz.style.transform = 'rotateY(10deg) scale(1.02)';
+      else viz.style.transform = 'rotateY(0deg) scale(1)';
     }
 
     // Эффект конфетти при успешной оплате
@@ -12531,36 +12402,6 @@
             location.reload();
           }
         } else {
-          // If inside page-subscription, toggle the inline payment block
-          const inlineBlock = document.getElementById('inline-payment-block');
-          const subPage = document.getElementById('page-subscription');
-          if (inlineBlock && subPage && subPage.classList.contains('active')) {
-            currentPayPlan = planId;
-            const plan = PLANS[planId];
-            currentPrice = planId === 'keeper' ? 2490 : 5990;
-            currentMonths = 1;
-
-            // Fill inline payment details
-            document.getElementById('pay-amount-inline').innerHTML = `₸${currentPrice.toLocaleString()}`;
-            document.getElementById('pay-period-inline').innerHTML = 'за 1 месяц доступа';
-
-            // Show and scroll to inline payment block
-            inlineBlock.style.display = 'block';
-            inlineBlock.scrollIntoView({ behavior: 'smooth' });
-
-            // Clear inputs
-            document.getElementById('card-number-inline').value = '';
-            document.getElementById('card-expiry-inline').value = '';
-            document.getElementById('card-cvv-inline').value = '';
-            document.getElementById('card-name-inline').value = '';
-
-            // Format card viz
-            updateCardVizNum(document.getElementById('card-number-inline'), '-inline');
-            updateCardVizExpiry(document.getElementById('card-expiry-inline'), '-inline');
-            updateCardVizName(document.getElementById('card-name-inline'), '-inline');
-            return;
-          }
-
           const isYearly = document.getElementById('pricing-checkbox')?.checked;
           openPaymentModalReal(planId);
           if (isYearly) {
@@ -13555,7 +13396,7 @@ ${secretsInfo}
       msgs.scrollTop = msgs.scrollHeight;
 
       const key = getGeminiApiKey();
-      const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+      const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
 
       const system = buildAiSystemPrompt();
       const contents = chatHistory.map(h => ({
@@ -14804,7 +14645,7 @@ ${socialsContext}
       msgs.scrollTop = msgs.scrollHeight;
 
       const key = getGeminiApiKey();
-      const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+      const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
 
       const system = buildTwinSystemPrompt(text);
       const contents = STATE.twinChatHistory.map(h => ({
@@ -15246,21 +15087,6 @@ ${socialsContext}
       setText('d-rels', STATE.relatives.length);
       setText('d-bio', STATE.bio.length);
 
-      // Update BIP39 Status
-      const bip39El = document.getElementById('dash-bip39-status');
-      if (bip39El) {
-        const hasSeed = STATE.user && STATE.user.vaultSeedHash;
-        if (hasSeed) {
-          bip39El.innerHTML = '<span style="color: var(--gold2);">Активна</span>';
-          bip39El.onclick = null;
-          bip39El.style.cursor = 'default';
-        } else {
-          bip39El.innerHTML = '<span style="color: var(--red); border-bottom: 1px dashed var(--red);">Не настроена</span>';
-          bip39El.onclick = () => goPage('secrets');
-          bip39El.style.cursor = 'pointer';
-        }
-      }
-
       // Calculate Legacy Completion
       let completion = 0;
       if (STATE.secrets.length > 0) completion += 25;
@@ -15461,53 +15287,42 @@ ${socialsContext}
     // INIT
     // ═══════════════════════════════════════════
     window.addEventListener('DOMContentLoaded', () => {
-      isDomReady = true;
+      const isResetting = checkUrlParams(); // 1. Приоритет — сброс пароля
+
+      initHeroCanvas();
+      initLandingNav();
+      initReveal();
+      initTicker();
+
+      if (!isResetting) {
+        checkAutoLogin();
+        checkUrlForJoinCode();
+      }
+
+      // Dash date
+      const dd = document.getElementById('dash-date');
+      if (dd) dd.textContent = new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+      // Background Switch Countdown (Demo: 1 day = 24 hours)
+      setInterval(() => {
+        if (STATE.user && STATE.swDays > 0) {
+          STATE.swDays--;
+          updateSwitchUI();
+          if (STATE.swDays === 0) {
+            triggerReleaseSimulation();
+          }
+        }
+      }, 86400000); // 24 hours
 
       // Premium preloader dismiss
-      const preloader = document.getElementById('app-splash-preloader');
-      if (preloader) {
-        setTimeout(() => {
+      setTimeout(() => {
+        const preloader = document.getElementById('app-splash-preloader');
+        if (preloader) {
           preloader.style.opacity = '0';
           preloader.style.visibility = 'hidden';
           setTimeout(() => preloader.remove(), 600);
-        }, 500);
-      }
-
-      try {
-        const isResetting = checkUrlParams(); // 1. Приоритет — сброс пароля
-
-        initHeroCanvas();
-        initLandingNav();
-        initReveal();
-        initTicker();
-
-        if (!isResetting) {
-          checkAutoLogin();
-          checkUrlForJoinCode();
         }
-
-        // Process pending Firebase Auth state change if it arrived early
-        if (pendingFbUserSet && fbAuth) {
-          handleAuthStateChange(pendingFbUser).catch(e => console.error("Deferred auth error:", e));
-        }
-
-        // Dash date
-        const dd = document.getElementById('dash-date');
-        if (dd) dd.textContent = new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-        // Background Switch Countdown (Demo: 1 day = 24 hours)
-        setInterval(() => {
-          if (STATE.user && STATE.swDays > 0) {
-            STATE.swDays--;
-            updateSwitchUI();
-            if (STATE.swDays === 0) {
-              triggerReleaseSimulation();
-            }
-          }
-        }, 86400000); // 24 hours
-      } catch (err) {
-        console.error("Initialization error:", err);
-      }
+      }, 500);
     });
 
     function triggerReleaseSimulation() {
@@ -15565,89 +15380,6 @@ ${socialsContext}
     function _connEmail() { return STATE.user ? STATE.user.email : ''; }
     function _connKey(k) { return k + '_' + _connEmail(); }
 
-    let connectedProfilesListeners = {};
-    
-    function syncConnectedProfiles() {
-      if (STATE.user && STATE.user.isDemo) return;
-      const email = _connEmail();
-      if (!email) return;
-
-      const addedMe = DB.load(_connKey('conn_added_me'), []);
-      const relatives = STATE.relatives || [];
-      const connectedUids = new Set();
-      
-      addedMe.forEach(c => {
-        if (c.fromUid) connectedUids.add(c.fromUid);
-      });
-
-      relatives.forEach(r => {
-        if (r.id && r.id !== 'you' && r.id !== (fbAuth.currentUser ? fbAuth.currentUser.uid : '')) {
-          connectedUids.add(r.id);
-        }
-      });
-
-      // Unsubscribe from profiles no longer connected
-      Object.keys(connectedProfilesListeners).forEach(uid => {
-        if (!connectedUids.has(uid)) {
-          if (typeof connectedProfilesListeners[uid] === 'function') {
-            connectedProfilesListeners[uid]();
-          }
-          delete connectedProfilesListeners[uid];
-          if (STATE.connectedUserProfiles) {
-            delete STATE.connectedUserProfiles[uid];
-          }
-        }
-      });
-
-      // Subscribe to connected profiles
-      connectedUids.forEach(uid => {
-        if (!connectedProfilesListeners[uid]) {
-          console.log("Subscribing to connected user profile:", uid);
-          try {
-            connectedProfilesListeners[uid] = fbDb.collection('users').doc(uid).onSnapshot(doc => {
-              if (doc.exists) {
-                const data = doc.data();
-                STATE.connectedUserProfiles = STATE.connectedUserProfiles || {};
-                STATE.connectedUserProfiles[uid] = {
-                  id: doc.id,
-                  name: data.name || data.email || 'Родственник',
-                  email: data.email || '',
-                  lat: data.lat || null,
-                  lon: data.lon || null,
-                  city: data.city || data.settings?.city || 'В сети',
-                  photo: data.photoURL || '',
-                  isOnline: data.isOnline || false,
-                  lastSeen: data.lastSeen || null
-                };
-
-                let updatedLocal = false;
-                const r = STATE.relatives.find(x => x.id === uid || (x.email && data.email && x.email.toLowerCase() === data.email.toLowerCase()));
-                if (r) {
-                  if (data.lat && data.lat !== r.lat) { r.lat = data.lat; updatedLocal = true; }
-                  if (data.lon && data.lon !== r.lon) { r.lon = data.lon; updatedLocal = true; }
-                  if (data.photoURL && data.photoURL !== r.photo) { r.photo = data.photoURL; updatedLocal = true; }
-                  const cityStr = data.city || data.settings?.city || 'В сети';
-                  if (cityStr && cityStr !== r.city) { r.city = cityStr; updatedLocal = true; }
-                }
-
-                if (updatedLocal) {
-                  renderRelatives();
-                  renderTree();
-                }
-
-                updateGlobeMarkers();
-                renderGlobeList();
-              }
-            }, err => {
-              console.error("Profile listen error for " + uid, err);
-            });
-          } catch(e) {
-            console.error("Failed to setup profile listener", e);
-          }
-        }
-      });
-    }
-
     function initConnections() {
       const email = _connEmail();
       if (!email) return;
@@ -15685,7 +15417,6 @@ ${socialsContext}
 
             renderConnections();
             renderChatContacts();
-            syncConnectedProfiles();
           }, err => {
             console.error("Connections sync error:", err);
             toast('Ошибка получения запросов: ' + err.message);
@@ -15730,14 +15461,12 @@ ${socialsContext}
 
             renderConnections();
             renderChatContacts();
-            syncConnectedProfiles();
           }, err => {
             console.error("Connections outgoing sync error:", err);
           });
       } else {
         renderConnections();
       }
-      syncConnectedProfiles();
     }
 
     function renderConnections() {
@@ -16522,8 +16251,7 @@ ${socialsContext}
           reader.readAsDataURL(blob);
           reader.onloadend = async () => {
             const base64data = reader.result;
-            toast('<i class="ph-light ph-paper-plane-right"></i> Голосовое сообщение отправляется...');
-            sendDirectMessage(null, base64data);
+            await sendDirectMessage(null, base64data);
           };
         };
 
@@ -16633,110 +16361,6 @@ ${socialsContext}
       }
     }
 
-    const CHAT_MEDIA_CACHE = {};
-
-    async function uploadChatPayload(encryptedPayload, chatId, msgId) {
-      let downloadURL = '';
-      
-      // Try to upload to Firebase Storage
-      if (window.firebase && firebase.storage) {
-        try {
-          const storageRef = firebase.storage().ref();
-          const fileRef = storageRef.child(`chats/${chatId}/${msgId}`);
-          const blob = new Blob([encryptedPayload], { type: 'text/plain' });
-          await fileRef.put(blob);
-          downloadURL = await fileRef.getDownloadURL();
-        } catch (storageErr) {
-          console.warn("Chat storage upload failed, falling back to Firestore database:", storageErr);
-        }
-      }
-
-      // Fallback: Save directly inside Firestore 'chat_payloads' collection
-      if (!downloadURL) {
-        await fbDb.collection('chat_payloads').doc(msgId).set({
-          chatId: chatId,
-          payload: encryptedPayload,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        downloadURL = 'db::' + msgId;
-      }
-      
-      return downloadURL;
-    }
-
-    async function loadAndDecryptChatMedia(mediaUrl, chatKey, targetElementId, type) {
-      if (CHAT_MEDIA_CACHE[mediaUrl]) {
-        const decryptedBase64 = CHAT_MEDIA_CACHE[mediaUrl];
-        const el = document.getElementById(targetElementId);
-        if (el) {
-          if (type === 'image') {
-            el.innerHTML = `<img src="${decryptedBase64}" style="max-width:260px; width:100%; border-radius:8px; margin-bottom:0.3rem; display:block; cursor:pointer;" onclick="openFullImageModal('${decryptedBase64}')">`;
-          } else if (type === 'video') {
-            el.innerHTML = `
-              <div style="width:160px; height:160px; overflow:hidden; border-radius:50%; border:2px solid var(--gold); margin-bottom:0.3rem; background:#000; position:relative; box-shadow:0 0 15px rgba(212,175,55,0.2);">
-                <video src="${decryptedBase64}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="this.muted = !this.muted; toast(this.muted ? 'Звук выключен' : 'Звук включен')"></video>
-              </div>`;
-          } else if (type === 'voice') {
-            el.innerHTML = `
-              <div class="voice-player" style="display:flex; align-items:center; gap:0.6rem; min-width:190px; padding:0.3rem 0;">
-                <button class="btn btn-ghost" onclick="togglePlayVoice(this, '${decryptedBase64}')" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(212,175,55,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold); padding:0; flex-shrink:0; background:rgba(212,175,55,0.05); outline:none;">
-                  <i class="ph-fill ph-play" style="font-size:1rem; margin-left:2px;"></i>
-                </button>
-                <div style="flex:1;">
-                  <div class="voice-wave-container" style="height:20px; display:flex; align-items:center; gap:2px; overflow:hidden;">
-                    <span style="height:4px; width:2px; background:var(--gold); border-radius:1px; opacity:0.4;"></span>
-                    <span style="height:10px; width:2px; background:var(--gold); border-radius:1px; opacity:0.6;"></span>
-                    <span style="height:6px; width:2px; background:var(--gold); border-radius:1px; opacity:0.5;"></span>
-                    <span style="height:14px; width:2px; background:var(--gold); border-radius:1px; opacity:0.7;"></span>
-                    <span style="height:8px; width:2px; background:var(--gold); border-radius:1px; opacity:0.5;"></span>
-                    <span style="height:16px; width:2px; background:var(--gold); border-radius:1px; opacity:0.8;"></span>
-                  </div>
-                  <div style="font-size:0.7rem; color:var(--muted); margin-top:2px;" class="voice-timer">Голосовое сообщение</div>
-                </div>
-              </div>`;
-          }
-        }
-        return;
-      }
-
-      try {
-        let encryptedData = '';
-        if (mediaUrl.startsWith('db::')) {
-          const docId = mediaUrl.replace('db::', '');
-          const doc = await fbDb.collection('chat_payloads').doc(docId).get();
-          if (doc.exists) {
-            encryptedData = doc.data().payload;
-          } else {
-            throw new Error('Payload not found in DB');
-          }
-        } else {
-          const res = await fetch(mediaUrl);
-          encryptedData = await res.text();
-        }
-
-        if (encryptedData.startsWith('ZK_CHAT::')) {
-          const payload = encryptedData.slice('ZK_CHAT::'.length);
-          const colonIdx = payload.indexOf(':');
-          if (colonIdx !== -1) {
-            const ivHex = payload.slice(0, colonIdx);
-            const cryptText = payload.slice(colonIdx + 1);
-            const iv = CryptoJS.enc.Hex.parse(ivHex);
-            const decrypted = CryptoJS.AES.decrypt(cryptText, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-            const decryptedBase64 = decrypted.toString(CryptoJS.enc.Utf8);
-
-            CHAT_MEDIA_CACHE[mediaUrl] = decryptedBase64;
-            await loadAndDecryptChatMedia(mediaUrl, chatKey, targetElementId, type);
-          }
-        }
-      } catch (err) {
-        console.error("Async load/decrypt error:", err);
-        const el = document.getElementById(targetElementId);
-        if (el) {
-          el.innerHTML = `<span style="color:var(--red); font-size:0.75rem;"><i class="ph-light ph-warning"></i> Ошибка дешифрования</span>`;
-        }
-      }
-    }
-
     function selectChatContact(uid, name, email) {
       activeChatContact = { uid, name, email };
       renderChatContacts();
@@ -16785,7 +16409,6 @@ ${socialsContext}
         .orderBy('createdAt', 'asc')
         .onSnapshot(snapshot => {
           let html = '';
-          const postRenderTasks = [];
           snapshot.forEach(doc => {
             const m = doc.data();
             const isMe = m.senderUid === myUid;
@@ -16866,17 +16489,6 @@ ${socialsContext}
               } catch (e) { console.error("Image decryption error:", e); }
             }
 
-            // Check if there are separate/asynchronous media files to load
-            if (m.image && !decryptedImage) {
-              postRenderTasks.push({ mediaUrl: m.image, type: 'image', targetId: 'media-img-' + doc.id });
-            }
-            if (m.video && !decryptedVideo) {
-              postRenderTasks.push({ mediaUrl: m.video, type: 'video', targetId: 'media-vid-' + doc.id });
-            }
-            if (m.voice && !decryptedVoice) {
-              postRenderTasks.push({ mediaUrl: m.voice, type: 'voice', targetId: 'media-vox-' + doc.id });
-            }
-
             // Определяем имя отправителя
             let senderName = '';
             if (!isMe && m.senderMeta) {
@@ -16921,15 +16533,15 @@ ${socialsContext}
               <div class="message-bubble" style="align-self:${align}; max-width:80%; display:flex; flex-direction:column; gap:0.15rem; position:relative;">
                 ${!isMe && senderName ? `<div style="font-size:0.65rem; color:var(--gold); padding-left:0.5rem; opacity:0.8;">${esc(senderName)}</div>` : ''}
                 <div style="background:${bg}; border:${border}; padding:0.65rem 1rem; border-radius:${isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px'}; display:flex; flex-direction:column; gap:0.2rem; box-shadow:0 4px 15px rgba(0,0,0,0.15);">
-                  ${m.image ? (decryptedImage ? `<img src="${decryptedImage}" style="max-width:260px; width:100%; border-radius:8px; margin-bottom:0.3rem; display:block; cursor:pointer;" onclick="openFullImageModal('${decryptedImage}')">` : `<div id="media-img-${doc.id}" style="max-width:260px; width:100%; min-height:100px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05); border-radius:8px; margin-bottom:0.3rem;"><i class="ph-light ph-spinner ph-spin" style="font-size:1.2rem; color:var(--gold);"></i></div>`) : ''}
+                  ${decryptedImage ? `<img src="${decryptedImage}" style="max-width:260px; width:100%; border-radius:8px; margin-bottom:0.3rem; display:block; cursor:pointer;" onclick="openFullImageModal('${decryptedImage}')">` : ''}
                   
-                  ${m.video ? (decryptedVideo ? `
+                  ${decryptedVideo ? `
                     <div style="width:160px; height:160px; overflow:hidden; border-radius:50%; border:2px solid var(--gold); margin-bottom:0.3rem; background:#000; position:relative; box-shadow:0 0 15px rgba(212,175,55,0.2);">
                       <video src="${decryptedVideo}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="this.muted = !this.muted; toast(this.muted ? 'Звук выключен' : 'Звук включен')"></video>
                     </div>
-                  ` : `<div id="media-vid-${doc.id}" style="width:160px; height:160px; border-radius:50%; border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; background:#000; margin-bottom:0.3rem; box-shadow:0 0 15px rgba(212,175,55,0.2);"><i class="ph-light ph-spinner ph-spin" style="font-size:1.2rem; color:var(--gold);"></i></div>`) : ''}
+                  ` : ''}
 
-                  ${m.voice ? (decryptedVoice ? `
+                  ${decryptedVoice ? `
                     <div class="voice-player" style="display:flex; align-items:center; gap:0.6rem; min-width:190px; padding:0.3rem 0;">
                       <button class="btn btn-ghost" onclick="togglePlayVoice(this, '${decryptedVoice}')" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(212,175,55,0.3); display:flex; align-items:center; justify-content:center; color:var(--gold); padding:0; flex-shrink:0; background:rgba(212,175,55,0.05); outline:none;">
                         <i class="ph-fill ph-play" style="font-size:1rem; margin-left:2px;"></i>
@@ -16949,7 +16561,7 @@ ${socialsContext}
                         <div style="font-size:0.7rem; color:var(--muted); margin-top:2px;" class="voice-timer">Голосовое сообщение</div>
                       </div>
                     </div>
-                  ` : `<div id="media-vox-${doc.id}" style="min-width:190px; min-height:40px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.02); border-radius:8px; padding:0.3rem;"><i class="ph-light ph-spinner ph-spin" style="font-size:1.2rem; color:var(--gold);"></i></div>`) : ''}
+                  ` : ''}
 
                   ${displayText ? `<div style="font-size:0.85rem; color:var(--ivory); word-break:break-word; white-space:pre-wrap;">${esc(displayText)}</div>` : ''}
                   <div style="font-size:0.6rem; color:var(--muted); align-self:flex-end; display:flex; align-items:center; gap:0.1rem; width:100%; justify-content:flex-end;">
@@ -16970,10 +16582,6 @@ ${socialsContext}
 
           feed.innerHTML = html;
           feed.scrollTop = feed.scrollHeight;
-
-          postRenderTasks.forEach(task => {
-            loadAndDecryptChatMedia(task.mediaUrl, chatKey, task.targetId, task.type);
-          });
         }, err => {
           console.error("Messages load error:", err);
           feed.innerHTML = '<div style="text-align:center; padding:2rem; font-size:0.78rem; color:var(--red);">Ошибка загрузки сообщений</div>';
@@ -17019,24 +16627,13 @@ ${socialsContext}
         toast('Недоступно в демо-режиме');
         return;
       }
-      
-      // Optimistic UI: Find the message bubble and fade it out instantly
-      const elements = document.querySelectorAll(`[onclick*="deleteChatMessage('${msgId}')"]`);
-      elements.forEach(el => {
-        const bubble = el.closest('.message-bubble');
-        if (bubble) {
-          bubble.style.transition = 'all 0.2s ease-out';
-          bubble.style.opacity = '0';
-          bubble.style.transform = 'scale(0.9)';
-          setTimeout(() => bubble.remove(), 200);
-        }
-      });
-
+      if (!confirm('Удалить это сообщение?')) return;
       const activeUid = fbAuth.currentUser ? fbAuth.currentUser.uid : null;
       if (!activeUid || !activeChatContact) return;
       const chatId = [activeUid, activeChatContact.uid].sort().join('_');
       try {
         await fbDb.collection('chats').doc(chatId).collection('messages').doc(msgId).delete();
+        toast('Сообщение удалено');
       } catch (err) {
         console.error("Delete message error:", err);
         toast('Ошибка удаления сообщения');
@@ -17120,9 +16717,8 @@ ${socialsContext}
           reader.readAsDataURL(blob);
           reader.onloadend = async () => {
             const base64data = reader.result;
+            await sendDirectMessage(null, null, base64data);
             closeVideoNoteModal();
-            toast('<i class="ph-light ph-paper-plane-right"></i> Видео-кружок отправляется...');
-            sendDirectMessage(null, null, base64data);
           };
         };
 
@@ -17205,15 +16801,11 @@ ${socialsContext}
         if (videoBase64) {
           const videoIv = CryptoJS.lib.WordArray.random(16);
           const encryptedV = CryptoJS.AES.encrypt(videoBase64, chatKey, { iv: videoIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-          const rawEncryptedVideo = 'ZK_CHAT::' + videoIv.toString() + ':' + encryptedV.toString();
-          const mediaMsgId = CryptoJS.lib.WordArray.random(16).toString();
-          encryptedVideo = await uploadChatPayload(rawEncryptedVideo, chatId, mediaMsgId);
+          encryptedVideo = 'ZK_CHAT::' + videoIv.toString() + ':' + encryptedV.toString();
         } else if (voiceBase64) {
           const voiceIv = CryptoJS.lib.WordArray.random(16);
           const encryptedV = CryptoJS.AES.encrypt(voiceBase64, chatKey, { iv: voiceIv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-          const rawEncryptedVoice = 'ZK_CHAT::' + voiceIv.toString() + ':' + encryptedV.toString();
-          const mediaMsgId = CryptoJS.lib.WordArray.random(16).toString();
-          encryptedVoice = await uploadChatPayload(rawEncryptedVoice, chatId, mediaMsgId);
+          encryptedVoice = 'ZK_CHAT::' + voiceIv.toString() + ':' + encryptedV.toString();
         } else {
           const iv = CryptoJS.lib.WordArray.random(16);
           const encrypted = CryptoJS.AES.encrypt(text, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
@@ -17341,10 +16933,7 @@ ${socialsContext}
           try {
             const iv = CryptoJS.lib.WordArray.random(16);
             const encrypted = CryptoJS.AES.encrypt(base64Data, chatKey, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
-            const rawEncryptedImage = 'ZK_CHAT::' + iv.toString() + ':' + encrypted.toString();
-            
-            const mediaMsgId = CryptoJS.lib.WordArray.random(16).toString();
-            const encryptedImageStr = await uploadChatPayload(rawEncryptedImage, chatId, mediaMsgId);
+            const encryptedImageStr = 'ZK_CHAT::' + iv.toString() + ':' + encrypted.toString();
 
             const senderMetaRaw = JSON.stringify({ email: STATE.user?.email || '', name: STATE.user?.name || 'Пользователь' });
             const metaIv = CryptoJS.lib.WordArray.random(16);
@@ -17428,277 +17017,72 @@ ${socialsContext}
     // ═══════════════════════════════════════════
     // MNEMONIC VAULT AND CLOUD SYSTEM (Zero-Knowledge)
     // ═══════════════════════════════════════════
-    const SEED_WORDLIST = "abandon ability able about above absent absorb abstract absurd abuse access accident account accuse achieve acid acoustic acquire across act action actor actress actual adapt add addict address adjust admit adult advance advice aerobic affair afford afraid again age agent agree ahead aim air airport aisle alarm album alcohol alert alien all alley allow almost alone alpha already also alter always amateur amazing among amount amused analyst anchor ancient anger angle angry animal ankle announce annual another answer antenna antique anxiety any apart apology appear apple approve april arch arctic area arena argue arm armed armor army around arrange arrest arrive arrow art artefact artist artwork ask aspect assault asset assist assume asthma athlete atom attack attend attitude attract auction audit august aunt author auto autumn average avocado avoid awake aware away awesome awful awkward axis baby bachelor bacon badge bag balance balcony ball bamboo banana banner bar barely bargain barrel base basic basket battle beach bean beauty because become beef before begin behave behind believe below belt bench benefit best betray better between beyond bicycle bid bike bind biology bird birth bitter black blade blame blanket blast bleak bless blind blood blossom blouse blue blur blush board boat body boil bomb bone bonus book boost border boring borrow boss bottom bounce box boy bracket brain brand brass brave bread breeze brick bridge brief bright bring brisk broccoli broken bronze broom brother brown brush bubble buddy budget buffalo build bulb bulk bullet bundle bunker burden burger burst bus business busy butter buyer buzz cabbage cabin cable cactus cage cake call calm camera camp can canal cancel candy cannon canoe canvas canyon capable capital captain car carbon card cargo carpet carry cart case cash casino castle casual cat catalog catch category cattle caught cause caution cave ceiling celery cement census century cereal certain chair chalk champion change chaos chapter charge chase chat cheap check cheese chef cherry chest chicken chief child chimney choice choose chronic chuckle chunk churn cigar cinnamon circle citizen city civil claim clap clarify claw clay clean clerk clever click client cliff climb clinic clip clock clog close cloth cloud clown club clump cluster clutch coach coast coconut code coffee coil coin collect color column combine come comfort comic common company concert conduct confirm congress connect consider control convince cook cool copper copy coral core corn correct cost cotton couch country couple course cousin cover coyote crack cradle craft cram crane crash crater crawl crazy cream credit creek crew cricket crime crisp critic crop cross crouch crowd crucial cruel cruise crumble crunch crush cry crystal cube culture cup cupboard curious current curtain curve cushion custom cute cycle dad damage damp dance danger daring dash daughter dawn day deal debate debris decade december decide decline decorate decrease deer defense define defy degree delay deliver demand demise denial dentist deny depart depend deposit depth deputy derive describe desert design desk despair destroy detail detect develop device devote diagram dial diamond diary dice diesel diet differ digital dignity dilemma dinner dinosaur direct dirt disagree discover disease dish dismiss disorder display distance divert divide divorce dizzy doctor document dog doll dolphin domain donate donkey donor door dose double dove draft dragon drama drastic draw dream dress drift drill drink drip drive drop drum dry duck dumb dune during dust dutch duty dwarf dynamic eager eagle early earn earth easily east easy echo ecology economy edge edit educate effort egg eight either elbow elder electric elegant element elephant elevator elite else embark embody embrace emerge emotion employ empower empty enable enact end endless endorse enemy energy enforce engage engine enhance enjoy enlist enough enrich enroll ensure enter entire entry envelope episode equal equip era erase erode erosion error erupt escape essay essence estate eternal ethics evidence evil evoke evolve exact example excess exchange excite exclude excuse execute exercise exhaust exhibit exile exist exit exotic expand expect expire explain expose express extend extra eye eyebrow fabric face faculty fade faint faith fall false fame family famous fan fancy fantasy farm fashion fat fatal father fatigue fault favorite feature february federal fee feed feel female fence festival fetch fever few fiber fiction field figure file film filter final find fine finger finish fire firm first fiscal fish fit fitness fix flag flame flash flat flavor flee flight flip float flock floor flower fluid flush fly foam focus fog foil fold follow food foot force forest forget fork fortune forum forward fossil foster found fox fragile frame frequent fresh friend fringe frog front frost frown frozen fruit fuel fun funny furnace fury future gadget gain galaxy gallery game gap garage garbage garden garlic garment gas gasp gate gather gauge gaze general genius genre gentle genuine gesture ghost giant gift giggle ginger giraffe girl give glad glance glare glass glide glimpse globe gloom glory glove glow glue goat goddess gold good goose gorilla gospel gossip govern gown grab grace grain grant grape grass gravity great green grid grief grit grocery group grow grunt guard guess guide guilt guitar gun gym habit hair half hammer hamster hand happy harbor hard harsh harvest hat have hawk hazard head health heart heavy hedgehog height hello helmet help hen hero hidden high hill hint hip hire history hobby hockey hold hole holiday hollow home honey hood hope horn horror horse hospital host hotel hour hover hub huge human humble humor hundred hungry hunt hurdle hurry hurt husband hybrid ice icon idea identify idle ignore ill illegal illness image imitate immense immune impact impose improve impulse inch include income increase index indicate indoor industry infant inflict inform inhale inherit initial inject injury inmate inner innocent input inquiry insane insect inside inspire install intact interest into invest invite involve iron island isolate issue item ivory jacket jaguar jar jazz jealous jeans jelly jewel job join joke journey joy judge juice jump jungle junior junk just kangaroo keen keep ketchup key kick kid kidney kind kingdom kiss kit kitchen kite kitten kiwi knee knife knock know lab label labor ladder lady lake lamp language laptop large later latin laugh laundry lava law lawn lawsuit layer lazy leader leaf learn leave lecture left leg legal legend leisure lemon lend length lens leopard lesson letter level liar liberty library license life lift light like limb limit link lion liquid list little live lizard load loan lobster local lock logic lonely long loop lottery loud lounge love loyal lucky luggage lumber lunar lunch luxury lyrics machine mad magic magnet maid mail main major make mammal man manage mandate mango mansion manual maple marble march margin marine market marriage mask mass master match material math matrix matter maximum maze meadow mean measure meat mechanic medal media melody melt member memory mention menu mercy merge merit merry mesh message metal method middle midnight milk million mimic mind minimum minor minute miracle mirror misery miss mistake mix mixed mixture mobile model modify mom moment monitor monkey monster month moon moral more morning mosquito mother motion motor mountain mouse move movie much muffin mule multiply muscle museum mushroom music must mutual myself mystery myth naive name napkin narrow nasty nation nature near neck need negative neglect neither nephew nerve nest net network neutral never news next nice night noble noise nominee noodle normal north nose notable note nothing notice novel now nuclear number nurse nut oak obey object oblige obscure observe obtain obvious occur ocean october odor off offer office often oil okay old olive olympic omit once one onion online only open opera opinion oppose option orange orbit orchard order ordinary organ orient original orphan ostrich other outdoor outer output outside oval oven over own owner oxygen oyster ozone pact paddle page pair palace palm panda panel panic panther paper parade parent park parrot party pass patch path patient patrol pattern pause pave payment peace peanut pear peasant pelican pen penalty pencil people pepper perfect permit person pet phone photo phrase physical piano picnic picture piece pig pigeon pill pilot pink pioneer pipe pistol pitch pizza place planet plastic plate play please pledge pluck plug plunge poem poet point polar pole police pond pony pool popular portion position possible post potato pottery poverty powder power practice praise predict prefer prepare present pretty prevent price pride primary print priority prison private prize problem process produce profit program project promote proof property prosper protect proud provide public pudding pull pulp pulse pumpkin punch pupil puppy purchase purity purpose purse push put puzzle pyramid quality quantum quarter question quick quit quiz quote rabbit raccoon race rack radar radio rail rain raise rally ramp ranch random range rapid rare rate rather raven raw razor ready real reason rebel rebuild recall receive recipe record recycle reduce reflect reform refuse region regret regular reject relax release relief rely remain remember remind remove render renew rent reopen repair repeat replace report require rescue resemble resist resource response result retire retreat return reunion reveal review reward rhythm rib ribbon rice rich ride ridge rifle right rigid ring riot ripple risk ritual rival river road roast robot robust rocket romance roof rookie room rose rotate rough round route royal rubber rude rug rule run runway rural sad saddle sadness safe sail salad salmon salon salt salute same sample sand satisfy satoshi sauce sausage save say scale scan scare scatter scene scheme school science scissors scorpion scout scrap screen script scrub sea search season seat second secret section security seed seek segment select sell seminar senior sense sentence series service session settle setup seven shadow shaft shallow share shed shell sheriff shield shift shine ship shiver shock shoe shoot shop short shoulder shove shrimp shrug shuffle shy sibling sick side siege sight sign silent silk silly silver similar simple since sing siren sister situate six size skate sketch ski skill skin skirt skull slab slam sleep slender slice slide slight slim slogan slot slow slush small smart smile smoke smooth snack snake snap sniff snow soap soccer social sock soda soft solar soldier solid solution solve someone song soon sorry sort soul sound soup source south space spare spatial spawn speak special speed spell spend sphere spice spider spike spin spirit split spoil sponsor spoon sport spot spray spread spring spy square squeeze squirrel stable stadium staff stage stairs stamp stand start state stay steak steel stem step stereo stick still sting stock stomach stone stool story stove strategy street strike strong struggle student stuff stumble style subject submit subway success such sudden suffer sugar suggest suit summer sun sunny sunset super supply supreme sure surface surge surprise surround survey suspect sustain swallow swamp swap swarm swear sweet swift swim swing switch sword symbol symptom syrup system table tackle tag tail talent talk tank tape target task taste tattoo taxi teach team tell ten tenant tennis tent term test text thank that theme then theory there they thing this thought three thrive throw thumb thunder ticket tide tiger tilt timber time tiny tip tired tissue title toast tobacco today toddler toe together toilet token tomato tomorrow tone tongue tonight tool tooth top topic topple torch tornado tortoise toss total tourist toward tower town toy track trade traffic tragic train transfer trap trash travel tray treat tree trend trial tribe trick trigger trim trip trophy trouble truck true truly trumpet trust truth try tube tuition tumble tuna tunnel turkey turn turtle twelve twenty twice twin twist two type typical ugly umbrella unable unaware uncle uncover under undo unfair unfold unhappy uniform unique unit universe unknown unlock until unusual unveil update upgrade uphold upon upper upset urban urge usage use used useful useless usual utility vacant vacuum vague valid valley valve van vanish vapor various vast vault vehicle velvet vendor venture venue verb verify version very vessel veteran viable vibrant vicious victory video view village vintage violin virtual virus visa visit visual vital vivid vocal voice void volcano volume vote voyage wage wagon wait walk wall walnut want warfare warm warrior wash wasp waste water wave way wealth weapon wear weasel weather web wedding weekend weird welcome west wet whale what wheat wheel when where whip whisper wide width wife wild will win window wine wing wink winner winter wire wisdom wise wish witness wolf woman wonder wood wool word work world worry worth wrap wreck wrestle wrist write wrong yard year yellow you young youth zebra zero zone zoo".split(" ");
+    const SEED_WORDLIST = [
+      "alpha", "anchor", "artist", "aspect", "autumn", "avatar", "beacon", "beauty", 
+      "beyond", "binary", "wisdom", "border", "brave", "bright", "bronze", "bubble", 
+      "cactus", "canvas", "canyon", "castle", "carbon", "change", "charge", "cipher", 
+      "citrus", "cobalt", "cosmos", "cradle", "cruise", "crystal", "danger", "dawn", 
+      "desert", "detail", "device", "doctor", "domain", "dragon", "dream", "dynamic", 
+      "eagle", "earth", "echo", "elixir", "empire", "energy", "engine", "enigma", 
+      "escape", "exile", "exotic", "factor", "falcon", "forest", "fossil", "fusion", 
+      "galaxy", "garden", "genius", "gentle", "glacier", "globe", "glory", "golden", 
+      "gravity", "harbor", "haven", "hazard", "hybrid", "impact", "indigo", "island", 
+      "jungle", "karma", "layout", "legacy", "legend", "lemon", "leopard", "liquid", 
+      "lunar", "luxury", "magnet", "matrix", "melody", "meteor", "miracle", "module", 
+      "nature", "nebula", "nectar", "neural", "neutron", "nexus", "nomad", "nucleus", 
+      "oasis", "ocean", "octave", "olympic", "orbit", "oxygen", "ozone", "palace", 
+      "patriot", "pearl", "phantom", "phoenix", "planet", "plasma", "portal", "quartz", 
+      "radar", "rainbow", "rebel", "ritual", "safari", "sapphire", "shadow", "shield", 
+      "signal", "silicon", "silver", "solar", "sphere", "spiral", "spirit", "summit", 
+      "synergy", "temple", "theory", "titan", "topaz", "tornado", "tracker", "trophy", 
+      "tunnel", "unique", "vacuum", "valley", "vector", "velvet", "vessel", "vintage", 
+      "vision", "vortex", "warmth", "wizard", "wonder", "zenith", "zodiac"
+    ];
 
     let currentCloudPath = '/';
     let generatedMnemonic = '';
-    let selectedConfirmWords = []; // Array of selected words for verification
-    let shuffledConfirmWords = []; // Shuffled word pool
 
     // Generate 12 random words seed phrase
     function generateSeedPhrase() {
-      const entropy = new Uint8Array(16);
-      try {
-        if (window.crypto && window.crypto.getRandomValues) {
-          window.crypto.getRandomValues(entropy);
-        } else if (window.msCrypto && window.msCrypto.getRandomValues) {
-          window.msCrypto.getRandomValues(entropy);
-        } else {
-          throw new Error('No crypto API');
-        }
-      } catch (e) {
-        console.warn('Fallback to pseudo-random entropy:', e);
-        for (let i = 0; i < 16; i++) {
-          entropy[i] = Math.floor(Math.random() * 256);
-        }
-      }
-      
-      let binaryStr = '';
-      let hexStr = '';
-      for (let i = 0; i < entropy.length; i++) {
-        binaryStr += entropy[i].toString(2).padStart(8, '0');
-        hexStr += entropy[i].toString(16).padStart(2, '0');
-      }
-      
-      const entropyWords = CryptoJS.enc.Hex.parse(hexStr);
-      const hash = CryptoJS.SHA256(entropyWords);
-      const hashHex = hash.toString(CryptoJS.enc.Hex);
-      
-      const firstHexChar = hashHex.charAt(0);
-      const checksumBits = parseInt(firstHexChar, 16).toString(2).padStart(4, '0');
-      
-      const totalBits = binaryStr + checksumBits;
-      
       const words = [];
+      const cryptoObj = window.crypto || window.msCrypto;
+      const array = new Uint32Array(12);
+      cryptoObj.getRandomValues(array);
       for (let i = 0; i < 12; i++) {
-        const chunk = totalBits.substring(i * 11, (i + 1) * 11);
-        const index = parseInt(chunk, 2);
+        const index = array[i] % SEED_WORDLIST.length;
         words.push(SEED_WORDLIST[index]);
       }
       return words.join(' ');
     }
 
-    function validateBip39SeedPhrase(phrase) {
-      if (!phrase) return false;
-      const words = phrase.trim().toLowerCase().split(/\s+/);
-      if (words.length !== 12) return false;
-      
-      let binaryStr = '';
-      for (let i = 0; i < 12; i++) {
-        const idx = SEED_WORDLIST.indexOf(words[i]);
-        if (idx === -1) return false;
-        binaryStr += idx.toString(2).padStart(11, '0');
+    window.initVaultSeedSetup = function() {
+      generatedMnemonic = generateSeedPhrase();
+      const box = document.getElementById('generated-seed-box');
+      if (box) {
+        box.innerHTML = generatedMnemonic.split(' ').map((w, i) => `
+          <div style="font-size:0.75rem; color:var(--muted);"><span style="color:var(--gold); font-size:0.65rem; margin-right:4px;">${i+1}.</span>${w}</div>
+        `).join('');
       }
-      
-      const entropyBits = binaryStr.substring(0, 128);
-      const checksumBits = binaryStr.substring(128);
-      
-      let hexStr = '';
-      for (let i = 0; i < 16; i++) {
-        const byteStr = entropyBits.substring(i * 8, (i + 1) * 8);
-        const byteVal = parseInt(byteStr, 2);
-        hexStr += byteVal.toString(16).padStart(2, '0');
-      }
-      
-      const entropyWords = CryptoJS.enc.Hex.parse(hexStr);
-      const hash = CryptoJS.SHA256(entropyWords);
-      const hashHex = hash.toString(CryptoJS.enc.Hex);
-      
-      const firstHexChar = hashHex.charAt(0);
-      const expectedChecksumBits = parseInt(firstHexChar, 16).toString(2).padStart(4, '0');
-      
-      return checksumBits === expectedChecksumBits;
-    }
+      closeModal('modal-upgrade');
+      openModal('modal-vault-setup');
+    };
 
-    function initVaultSeedSetup() {
-      try {
-        console.log("initVaultSeedSetup starting...");
-        generatedMnemonic = generateSeedPhrase();
-        console.log("Generated Mnemonic:", generatedMnemonic);
-        const box = document.getElementById('generated-seed-box');
-        if (box) {
-          box.innerHTML = generatedMnemonic.split(' ').map((w, i) => `
-            <div class="seed-word-card">
-              <span class="seed-word-num">${String(i+1).padStart(2, '0')}</span>
-              <span class="seed-word-val">${w}</span>
-            </div>
-          `).join('');
-        } else {
-          console.warn("Element 'generated-seed-box' not found in DOM");
-        }
-        
-        // Reset copy button state
-        const copyIcon = document.getElementById('copy-seed-icon');
-        const copyText = document.getElementById('copy-seed-text');
-        if (copyIcon && copyText) {
-          copyIcon.className = "ph-bold ph-copy";
-          copyText.textContent = "Копировать";
-        }
-
-        closeModal('modal-upgrade');
-        openModal('modal-vault-setup');
-      } catch (err) {
-        console.error("initVaultSeedSetup failed:", err);
-        alert("Ошибка инициализации сверхзащиты:\n" + err.message + "\n" + err.stack);
-      }
-    }
-    window.initVaultSeedSetup = initVaultSeedSetup;
-
-    // Premium Clipboard Copy Action
-    function copyGeneratedSeed() {
-      if (!generatedMnemonic) return;
-      navigator.clipboard.writeText(generatedMnemonic).then(() => {
-        const copyIcon = document.getElementById('copy-seed-icon');
-        const copyText = document.getElementById('copy-seed-text');
-        if (copyIcon && copyText) {
-          copyIcon.className = "ph-bold ph-check-circle";
-          copyIcon.style.color = "var(--green)";
-          copyText.textContent = "Скопировано!";
-          toast('<i class="ph-light ph-check-circle"></i> Сид-фраза скопирована в буфер обмена');
-          setTimeout(() => {
-            copyIcon.className = "ph-bold ph-copy";
-            copyIcon.style.color = "";
-            copyText.textContent = "Копировать";
-          }, 2000);
-        }
-      }).catch(err => {
-        console.error("Copy failed:", err);
-        toast("Не удалось скопировать");
-      });
-    }
-    window.copyGeneratedSeed = copyGeneratedSeed;
-
-    // Premium Download File Action
-    function downloadGeneratedSeed() {
-      if (!generatedMnemonic) return;
-      const text = `SOULKEEPER DIGITAL VAULT SEED PHRASE\n` +
-                   `====================================\n` +
-                   `Keep this file safe and offline! Never share it with anyone.\n\n` +
-                   `Your 12-word recovery mnemonic phrase:\n\n` +
-                   `[ ${generatedMnemonic} ]\n\n` +
-                   `Created on: ${new Date().toLocaleString()}\n` +
-                   `Website: soulkeeper.github.io\n`;
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `soulkeeper-recovery-seed.txt`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast('<i class="ph-light ph-download-simple"></i> Резервный файл скачан');
-    }
-    window.downloadGeneratedSeed = downloadGeneratedSeed;
-
-    // Interactive Seed Confirmation Modal Setup (shuffling and slots layout)
-    function confirmSeedSaved() {
+    window.confirmSeedSaved = function() {
       closeModal('modal-vault-setup');
-      selectedConfirmWords = [];
-      
-      // Shuffle generated words (Fisher-Yates)
-      const words = generatedMnemonic.split(' ');
-      shuffledConfirmWords = words.map((w, idx) => ({ word: w, originalIndex: idx, selected: false }));
-      
-      // Perform shuffle
-      for (let i = shuffledConfirmWords.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffledConfirmWords[i], shuffledConfirmWords[j]] = [shuffledConfirmWords[j], shuffledConfirmWords[i]];
-      }
-      
-      renderConfirmSlotsAndChips();
+      document.getElementById('vault-confirm-input').value = '';
       openModal('modal-vault-confirm');
-    }
-    window.confirmSeedSaved = confirmSeedSaved;
-
-    // Clear confirmation selection state
-    function clearConfirmation() {
-      selectedConfirmWords = [];
-      shuffledConfirmWords.forEach(w => w.selected = false);
-      renderConfirmSlotsAndChips();
-    }
-    window.clearConfirmation = clearConfirmation;
-
-    // Render Slots and Chips for interactive seed puzzle
-    function renderConfirmSlotsAndChips() {
-      const slotsContainer = document.getElementById('confirm-seed-slots');
-      const chipsContainer = document.getElementById('confirm-seed-chips');
-      const activateBtn = document.getElementById('activate-vault-btn');
-      
-      if (!slotsContainer || !chipsContainer) return;
-      
-      // Render slots
-      let slotsHtml = '';
-      for (let i = 0; i < 12; i++) {
-        if (i < selectedConfirmWords.length) {
-          const item = selectedConfirmWords[i];
-          slotsHtml += `
-            <div class="confirm-slot filled" onclick="window.removeWordFromConfirmation(${i})">
-              <span class="seed-word-num">${String(i+1).padStart(2, '0')}</span>
-              <span class="seed-word-val">${item.word}</span>
-            </div>
-          `;
-        } else {
-          slotsHtml += `
-            <div class="confirm-slot">
-              <span class="seed-word-num">${String(i+1).padStart(2, '0')}</span>
-            </div>
-          `;
-        }
-      }
-      slotsContainer.innerHTML = slotsHtml;
-      
-      // Render chips
-      chipsContainer.innerHTML = shuffledConfirmWords.map((item, idx) => {
-        const selectedClass = item.selected ? 'selected' : '';
-        return `
-          <button class="seed-chip-btn ${selectedClass}" onclick="window.selectWordFromChip(${idx})">${item.word}</button>
-        `;
-      }).join('');
-      
-      // Validate configuration
-      const selectedString = selectedConfirmWords.map(w => w.word).join(' ');
-      if (selectedConfirmWords.length === 12 && selectedString === generatedMnemonic) {
-        if (activateBtn) activateBtn.classList.add('ready-to-activate');
-      } else {
-        if (activateBtn) activateBtn.classList.remove('ready-to-activate');
-      }
-    }
-
-    // Click on a word chip to add it to slots
-    window.selectWordFromChip = function(idx) {
-      if (idx < 0 || idx >= shuffledConfirmWords.length) return;
-      const item = shuffledConfirmWords[idx];
-      if (item.selected) return;
-      
-      item.selected = true;
-      selectedConfirmWords.push({ word: item.word, chipIndex: idx });
-      renderConfirmSlotsAndChips();
     };
 
-    // Click on a filled slot to remove it back to chips
-    window.removeWordFromConfirmation = function(slotIdx) {
-      if (slotIdx < 0 || slotIdx >= selectedConfirmWords.length) return;
-      const removed = selectedConfirmWords.splice(slotIdx, 1)[0];
-      
-      // Restore chip selection state
-      if (shuffledConfirmWords[removed.chipIndex]) {
-        shuffledConfirmWords[removed.chipIndex].selected = false;
-      }
-      renderConfirmSlotsAndChips();
-    };
-
-    function submitVaultSeedSetup() {
-      const selectedString = selectedConfirmWords.map(w => w.word).join(' ');
-      if (selectedConfirmWords.length !== 12 || selectedString !== generatedMnemonic) {
+    window.submitVaultSeedSetup = function() {
+      const input = document.getElementById('vault-confirm-input').value.trim().toLowerCase().replace(/\s+/g, ' ');
+      if (input !== generatedMnemonic) {
         toast('Ошибка: Введенная сид-фраза не совпадает с сгенерированной.');
         return;
       }
 
       // Hash seed phrase to verify later
       const seedHash = CryptoJS.SHA256(generatedMnemonic).toString();
-      if (!STATE.user) {
-        toast('Ошибка: Пользователь не авторизован.');
-        return;
-      }
+      if (!STATE.user) return;
       
       STATE.user.vaultSeedHash = seedHash;
       
@@ -17719,16 +17103,9 @@ ${socialsContext}
       toast('<i class="ph-light ph-shield-check"></i> Сверхзащита активирована!');
       
       checkVaultLockState();
-    }
-    window.submitVaultSeedSetup = submitVaultSeedSetup;
+    };
 
-    function unlockVaultBySeed() {
-      const inputCheck = document.getElementById('vault-seed-input').value.trim().toLowerCase().replace(/\s+/g, ' ');
-      if (inputCheck && !validateBip39SeedPhrase(inputCheck)) {
-        toast('Введенная сид-фраза не соответствует стандарту BIP39 (ошибка контрольной суммы или словаря).');
-        return;
-      }
-
+    window.unlockVaultBySeed = function() {
       const input = document.getElementById('vault-seed-input').value.trim().toLowerCase().replace(/\s+/g, ' ');
       if (!input) {
         toast('Введите вашу сид-фразу.');
@@ -17763,64 +17140,9 @@ ${socialsContext}
 
       checkVaultLockState();
       renderSecrets();
-    }
-    window.unlockVaultBySeed = unlockVaultBySeed;
+    };
 
-    // BIP39 Autocomplete Suggestions Function
-    function showSeedSuggestions(textarea) {
-      const bar = document.getElementById('seed-suggestions-bar');
-      if (!bar) return;
-      
-      const text = textarea.value;
-      const words = text.split(/\s+/);
-      const lastWord = words[words.length - 1].trim().toLowerCase();
-      
-      if (!lastWord || lastWord.length < 2) {
-        bar.style.display = 'none';
-        bar.innerHTML = '';
-        return;
-      }
-      
-      // Filter matching BIP39 words
-      const matches = SEED_WORDLIST.filter(w => w.startsWith(lastWord)).slice(0, 4);
-      
-      if (matches.length === 0) {
-        bar.style.display = 'none';
-        bar.innerHTML = '';
-        return;
-      }
-      
-      bar.style.display = 'flex';
-      bar.innerHTML = matches.map(w => `
-        <span class="suggestion-pill" onclick="window.applySeedSuggestion('${w}')">${w}</span>
-      `).join('');
-    }
-    window.showSeedSuggestions = showSeedSuggestions;
 
-    // Apply suggestion by clicking on it
-    function applySeedSuggestion(word) {
-      const textarea = document.getElementById('vault-seed-input');
-      if (!textarea) return;
-      
-      const text = textarea.value;
-      const lastSpaceIndex = text.lastIndexOf(' ');
-      
-      if (lastSpaceIndex === -1) {
-        textarea.value = word + ' ';
-      } else {
-        textarea.value = text.substring(0, lastSpaceIndex + 1) + word + ' ';
-      }
-      
-      textarea.focus();
-      
-      // Hide bar
-      const bar = document.getElementById('seed-suggestions-bar');
-      if (bar) {
-        bar.style.display = 'none';
-        bar.innerHTML = '';
-      }
-    }
-    window.applySeedSuggestion = applySeedSuggestion;
 
     function checkVaultLockState() {
       const lockOverlay = document.getElementById('vault-lock-overlay');
@@ -17852,18 +17174,12 @@ ${socialsContext}
           renderCloudGrid();
         } else {
           // Lock Secrets
-          if (lockOverlay) {
-            lockOverlay.style.display = 'flex';
-            const unlockView = document.getElementById('vault-unlock-view');
-            const setupView = document.getElementById('vault-setup-view');
-            if (unlockView) unlockView.style.display = 'flex';
-            if (setupView) setupView.style.display = 'none';
-          }
+          if (lockOverlay) lockOverlay.style.display = 'flex';
           if (secretsWrap) secretsWrap.style.display = 'none';
           
           // Lock Cloud
+          if (cloudOverlay) cloudOverlay.style.display = 'flex';
           if (cloudOverlay) {
-            cloudOverlay.style.display = 'flex';
             cloudOverlay.innerHTML = `
               <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
               <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Хранилище заблокировано</h3>
@@ -17872,15 +17188,21 @@ ${socialsContext}
             `;
           }
           if (cloudWrap) cloudWrap.style.display = 'none';
+          
+          // Show Create Seed option if hash not setup yet (fallback safety)
+          const setupBtn = document.getElementById('vault-init-setup-btn');
+          if (setupBtn) setupBtn.style.display = 'none';
         }
       } else {
         // Not protected yet -> Prompt setup
+        if (lockOverlay) lockOverlay.style.display = 'flex';
         if (lockOverlay) {
-          lockOverlay.style.display = 'flex';
-          const unlockView = document.getElementById('vault-unlock-view');
-          const setupView = document.getElementById('vault-setup-view');
-          if (unlockView) unlockView.style.display = 'none';
-          if (setupView) setupView.style.display = 'flex';
+          lockOverlay.innerHTML = `
+            <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
+            <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
+            <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Для защиты Сейфа и Облака сгенерируйте секретную 12-значную сид-фразу по стандарту BIP39.</p>
+            <button class="btn btn-primary" onclick="initVaultSeedSetup()" style="padding:0.75rem 1.5rem;">Сгенерировать сид-фразу</button>
+          `;
         }
         if (secretsWrap) secretsWrap.style.display = 'none';
 
@@ -17890,55 +17212,12 @@ ${socialsContext}
             <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
             <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
             <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Сгенерируйте сид-фразу во вкладке "Цифровой Сейф" для начала работы с зашифрованным Облаком.</p>
-            <button class="btn btn-primary" onclick="window.setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к настройке</button>
+            <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к настройке</button>
           `;
         }
         if (cloudWrap) cloudWrap.style.display = 'none';
       }
     }
-
-    // Global click handler to guarantee that the generate button is captured
-    document.addEventListener('click', function(e) {
-      alert('CLICKED: ' + e.target.tagName + ' | ID: ' + e.target.id + ' | CLASS: ' + e.target.className);
-      const btn = e.target.closest('#vault-generate-btn');
-      if (btn) {
-        console.log("Generate button clicked globally.");
-        if (typeof window.initVaultSeedSetup === 'function') {
-          try {
-            window.initVaultSeedSetup();
-          } catch(err) {
-            alert("Ошибка при вызове initVaultSeedSetup: " + err.message);
-          }
-        } else {
-          alert("Ошибка: window.initVaultSeedSetup не определен как функция!");
-        }
-      }
-    });
-
-function resetVaultSeed() {
-      if (!confirm("Внимание: Сброс сейфа приведет к безвозвратному удалению всех текущих зашифрованных тайн (Secrets) и файлов в Облаке. Вы не сможете восстановить их без старой сид-фразы. Продолжить сброс?")) {
-        return;
-      }
-      try {
-        if (STATE.user) {
-          STATE.user.vaultSeedHash = '';
-        }
-        CryptoEngine._vaultKey = null;
-        localStorage.removeItem('sk_vault_key_remember');
-        sessionStorage.removeItem('sk_vault_key');
-        STATE.secrets = [];
-        STATE.cloudItems = [];
-        
-        saveUserDataToFirestore();
-        toast('Сейф сброшен. Теперь вы можете создать новую сид-фразу.');
-        checkVaultLockState();
-        renderSecrets();
-      } catch (err) {
-        console.error("Failed to reset vault:", err);
-        toast('Ошибка сброса: ' + err.message);
-      }
-    }
-    window.resetVaultSeed = resetVaultSeed;
 
     // Lock Vault manually option (for premium settings or header)
     window.lockVaultManually = function() {
@@ -18197,9 +17476,6 @@ function resetVaultSeed() {
 
     // Register PWA Service Worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.location.reload();
-      });
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
           .then(reg => console.log('Service Worker registered successfully:', reg.scope))
@@ -18258,64 +17534,38 @@ function resetVaultSeed() {
   </div>
   <!-- MODAL VAULT SETUP -->
   <div class="modal-overlay" id="modal-vault-setup">
-    <div class="modal" style="max-width:520px">
+    <div class="modal" style="max-width:500px">
       <div class="modal-head">
-        <div class="modal-title">Сид-фраза <em>сверхзащиты</em></div><button class="modal-close" onclick="window.closeModal('modal-vault-setup')">✕</button>
+        <div class="modal-title">Сид-фраза <em>сверхзащиты</em></div><button class="modal-close" onclick="closeModal('modal-vault-setup')">✕</button>
       </div>
       <div class="modal-body" style="text-align:center;">
-        <i class="ph-fill ph-shield-checkered" style="font-size:2.8rem; color:var(--gold); margin-bottom:0.8rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.25));"></i>
+        <i class="ph-fill ph-shield-checkered" style="font-size:2.8rem; color:var(--gold); margin-bottom:1rem;"></i>
         <h4 style="font-family:var(--serif); color:var(--ivory); font-size:1.1rem; margin-bottom:0.5rem;">Сгенерирована секретная фраза</h4>
-        <p style="font-size:0.75rem; color:var(--muted); line-height:1.4; margin-bottom:1.2rem; padding:0 0.5rem;">Запишите эти 12 слов на бумаге в точном порядке. Они станут вашим криптографическим ключом шифрования.</p>
+        <p style="font-size:0.75rem; color:var(--muted); line-height:1.4; margin-bottom:1.5rem; padding:0 0.5rem;">Запишите эти 12 слов на бумаге и храните в надежном месте. Они нужны для шифрования Сейфа и Облака. Если вы их потеряете, восстановить данные будет <strong>невозможно</strong>.</p>
         
-        <!-- Grid layout for the generated words -->
-        <div id="generated-seed-box" class="seed-phrase-grid"></div>
+        <div id="generated-seed-box" style="background:rgba(212,175,55,0.04); border:1px dashed rgba(212,175,55,0.25); border-radius:12px; padding:1rem; font-family:monospace; font-size:0.95rem; color:var(--gold2); margin-bottom:1.5rem; text-align:left;"></div>
 
-        <!-- Copy and Download Actions -->
-        <div style="display:flex; gap:0.5rem; margin-bottom:1.2rem;">
-          <button class="btn btn-ghost" onclick="window.copyGeneratedSeed()" style="flex:1; padding:0.65rem; font-size:0.75rem; display:flex; align-items:center; justify-content:center; gap:0.4rem; border:1px solid rgba(201,168,76,0.18); border-radius:10px; color:var(--gold2);">
-            <i class="ph-bold ph-copy" id="copy-seed-icon"></i> <span id="copy-seed-text">Копировать</span>
-          </button>
-          <button class="btn btn-ghost" onclick="window.downloadGeneratedSeed()" style="flex:1; padding:0.65rem; font-size:0.75rem; display:flex; align-items:center; justify-content:center; gap:0.4rem; border:1px solid rgba(201,168,76,0.18); border-radius:10px; color:var(--gold2);">
-            <i class="ph-bold ph-download"></i> Скачать .txt
-          </button>
-        </div>
-
-        <!-- Warning Alert -->
-        <div style="background:rgba(231,76,60,0.06); border:1px solid rgba(231,76,60,0.2); border-radius:12px; padding:0.75rem; text-align:left; margin-bottom:1.5rem; display:flex; gap:0.6rem; align-items:flex-start;">
-          <i class="ph-fill ph-warning-octagon" style="color:var(--red); font-size:1.2rem; margin-top:0.1rem; flex-shrink:0;"></i>
-          <div style="font-size:0.72rem; color:var(--muted); line-height:1.4;">
-            <strong style="color:var(--ivory);">Внимание:</strong> Никогда не передавайте эту фразу. Потеря фразы приведет к безвозвратной потере доступа ко всем вашим тайнам и файлам.
-          </div>
-        </div>
-
-        <button class="btn btn-primary" onclick="window.confirmSeedSaved()" style="width:100%; padding:0.8rem; border-radius:12px;">Я записал фразу</button>
+        <button class="btn btn-primary" onclick="confirmSeedSaved()" style="width:100%; padding:0.8rem;">Я записал фразу</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL VAULT CONFIRM -->
   <div class="modal-overlay" id="modal-vault-confirm">
-    <div class="modal" style="max-width:520px">
+    <div class="modal" style="max-width:500px">
       <div class="modal-head">
-        <div class="modal-title">Подтверждение <em>фразы</em></div><button class="modal-close" onclick="window.closeModal('modal-vault-confirm')">✕</button>
+        <div class="modal-title">Подтверждение <em>фразы</em></div><button class="modal-close" onclick="closeModal('modal-vault-confirm')">✕</button>
       </div>
       <div class="modal-body">
-        <p style="font-size:0.78rem; color:var(--muted); text-align:center; margin-bottom:1.2rem;">Выберите слова в правильном порядке, чтобы подтвердить сохранение:</p>
+        <p style="font-size:0.78rem; color:var(--muted); text-align:center; margin-bottom:1.2rem;">Чтобы убедиться, что вы сохранили фразу, введите её ниже в правильном порядке.</p>
         
-        <!-- Slot boxes for the ordered words -->
-        <div id="confirm-seed-slots" class="seed-phrase-slots"></div>
+        <textarea id="vault-confirm-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:80px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.2); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none; margin-bottom:1.2rem;"></textarea>
 
-        <!-- Randomized chips to click on -->
-        <div id="confirm-seed-chips" class="seed-chips-pool"></div>
-
-        <div style="display:flex; gap:0.5rem;">
-          <button class="btn btn-ghost" onclick="window.clearConfirmation()" style="padding:0.8rem; width:85px; font-size:0.8rem; border:1px solid rgba(253,252,251,0.15); border-radius:12px;">Сброс</button>
-          <button id="activate-vault-btn" class="btn btn-primary" onclick="window.submitVaultSeedSetup()" style="flex:1; padding:0.8rem; opacity:0.5; pointer-events:none; border-radius:12px; transition: all 0.3s ease;">Активировать сверхзащиту сейфа</button>
-        </div>
+        <button class="btn btn-primary" onclick="submitVaultSeedSetup()" style="width:100%; padding:0.8rem;">Активировать сверхзащиту сейфа</button>
       </div>
     </div>
   </div>
-  
+
   <!-- Modal Payment -->
   <div class="modal-overlay" id="modal-payment">
     <div class="modal" style="max-width:480px">
@@ -18503,154 +17753,6 @@ function resetVaultSeed() {
     .period-btn:hover:not(.active) {
       border-color: var(--gold);
       background: var(--gold-d);
-    }
-
-    /* Seed phrase premium styles */
-    .seed-phrase-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-      text-align: left;
-    }
-    @media (max-width: 480px) {
-      .seed-phrase-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    .seed-word-card {
-      background: rgba(24, 21, 36, 0.7);
-      border: 1px solid rgba(212, 175, 55, 0.15);
-      border-radius: 10px;
-      padding: 0.6rem 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s ease;
-    }
-    .seed-word-card:hover {
-      border-color: rgba(212, 175, 55, 0.4);
-      background: rgba(212, 175, 55, 0.03);
-      transform: translateY(-2px);
-    }
-    .seed-word-num {
-      font-size: 0.7rem;
-      color: var(--gold);
-      font-family: var(--sans);
-      font-weight: 600;
-      opacity: 0.8;
-    }
-    .seed-word-val {
-      font-size: 0.85rem;
-      color: var(--ivory);
-      font-family: var(--sans);
-      font-weight: 500;
-    }
-    .seed-phrase-slots {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.6rem;
-      background: rgba(5, 5, 8, 0.4);
-      border: 1px solid rgba(201, 168, 76, 0.15);
-      border-radius: 12px;
-      padding: 0.8rem;
-      min-height: 140px;
-      margin-bottom: 1.2rem;
-    }
-    @media (max-width: 480px) {
-      .seed-phrase-slots {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    .confirm-slot {
-      border: 1px dashed rgba(253, 252, 251, 0.15);
-      border-radius: 8px;
-      height: 34px;
-      display: flex;
-      align-items: center;
-      padding: 0 0.5rem;
-      gap: 0.4rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-    .confirm-slot.filled {
-      border-style: solid;
-      border-color: rgba(212, 175, 55, 0.25);
-      background: rgba(212, 175, 55, 0.03);
-    }
-    .confirm-slot.filled:hover {
-      background: rgba(231, 76, 60, 0.05);
-      border-color: rgba(231, 76, 60, 0.3);
-    }
-    .seed-chips-pool {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: center;
-      background: rgba(24, 21, 36, 0.4);
-      border-radius: 12px;
-      padding: 0.8rem;
-      margin-bottom: 1.5rem;
-      min-height: 80px;
-    }
-    .seed-chip-btn {
-      background: var(--ink3);
-      border: 1px solid rgba(253, 252, 251, 0.12);
-      border-radius: 20px;
-      padding: 0.4rem 0.8rem;
-      color: var(--ivory2);
-      font-size: 0.78rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-    .seed-chip-btn:hover {
-      border-color: var(--gold);
-      color: var(--gold2);
-      transform: translateY(-1px);
-    }
-    .seed-chip-btn.selected {
-      opacity: 0.25;
-      pointer-events: none;
-      background: transparent;
-      border-style: dashed;
-    }
-    .seed-suggestions-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-top: 0.3rem;
-      margin-bottom: 0.6rem;
-      min-height: 28px;
-    }
-    .suggestion-pill {
-      background: var(--ink4);
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      border-radius: 12px;
-      padding: 0.2rem 0.6rem;
-      font-size: 0.72rem;
-      color: var(--gold2);
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .suggestion-pill:hover {
-      background: var(--gold-d);
-      border-color: var(--gold);
-    }
-    .ready-to-activate {
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      animation: pulseGold 2s infinite;
-      background: linear-gradient(135deg, var(--gold), var(--amber)) !important;
-      color: var(--ink) !important;
-      font-weight: 600 !important;
-      border-color: transparent !important;
-    }
-    @keyframes pulseGold {
-      0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5); }
-      70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
     }
   </style>
   <!-- Vault Password Prompt Modal -->
