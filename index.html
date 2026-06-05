@@ -7195,18 +7195,18 @@
 
           <!-- Tab Bar -->
           <div class="legacy-tabs">
-            <button class="legacy-tab-btn active" id="tab-legacy-bio-btn" onclick="setLegacyTab('bio')">
+            <button class="legacy-tab-btn active" id="tab-legacy-bio-btn" onclick="window.setLegacyTab('bio')">
               <i class="ph-light ph-book-open"></i> Книга жизни
             </button>
-            <button class="legacy-tab-btn" id="tab-legacy-messages-btn" onclick="setLegacyTab('messages')">
+            <button class="legacy-tab-btn" id="tab-legacy-messages-btn" onclick="window.setLegacyTab('messages')">
               <i class="ph-light ph-envelope-simple"></i> Послания близким
               <span class="dock-badge" id="badge-legacy-msgs" style="position:static; transform:none; margin-left:0.4rem; display:none;">0</span>
             </button>
-            <button class="legacy-tab-btn" id="tab-legacy-secrets-btn" onclick="setLegacyTab('secrets')">
+            <button class="legacy-tab-btn" id="tab-legacy-secrets-btn" onclick="window.setLegacyTab('secrets')">
               <i class="ph-light ph-lock-key"></i> Цифровой сейф
               <span class="dock-badge" id="badge-legacy-secrets" style="position:static; transform:none; margin-left:0.4rem; display:none;">0</span>
             </button>
-            <button class="legacy-tab-btn" id="tab-legacy-cloud-btn" onclick="setLegacyTab('cloud')">
+            <button class="legacy-tab-btn" id="tab-legacy-cloud-btn" onclick="window.setLegacyTab('cloud')">
               <i class="ph-light ph-cloud"></i> Облако воспоминаний
             </button>
           </div>
@@ -7251,6 +7251,9 @@
                   <button class="btn btn-primary" onclick="window.unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
                   <button class="btn btn-ghost" onclick="window.initVaultSeedSetup()" id="vault-init-setup-btn" style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
                 </div>
+                <div style="margin-top: 0.5rem; font-size: 0.72rem; color: var(--muted); text-align: center;">
+                  Забыли сид-фразу? <a href="#" onclick="event.preventDefault(); window.resetVaultSeed();" style="color: var(--red); text-decoration: underline;">Сбросить сейф и создать новую</a>
+                </div>
               </div>
             </div>
 
@@ -7276,7 +7279,7 @@
               <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
               <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Хранилище заблокировано</h3>
               <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Чтобы открыть ваше медиа-облако, разблокируйте Цифровой Сейф.</p>
-              <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к разблокировке</button>
+              <button class="btn btn-primary" onclick="window.setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к разблокировке</button>
             </div>
 
             <div id="cloud-container-wrap">
@@ -10660,6 +10663,7 @@
         }
       }
     }
+    window.setLegacyTab = setLegacyTab;
 
     function goPage(name) {
       if (name === 'secrets' || name === 'bio' || name === 'messages') {
@@ -17659,12 +17663,37 @@ ${socialsContext}
             <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
             <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
             <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Сгенерируйте сид-фразу во вкладке "Цифровой Сейф" для начала работы с зашифрованным Облаком.</p>
-            <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к настройке</button>
+            <button class="btn btn-primary" onclick="window.setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к настройке</button>
           `;
         }
         if (cloudWrap) cloudWrap.style.display = 'none';
       }
     }
+
+    function resetVaultSeed() {
+      if (!confirm("Внимание: Сброс сейфа приведет к безвозвратному удалению всех текущих зашифрованных тайн (Secrets) и файлов в Облаке. Вы не сможете восстановить их без старой сид-фразы. Продолжить сброс?")) {
+        return;
+      }
+      try {
+        if (STATE.user) {
+          STATE.user.vaultSeedHash = '';
+        }
+        CryptoEngine._vaultKey = null;
+        localStorage.removeItem('sk_vault_key_remember');
+        sessionStorage.removeItem('sk_vault_key');
+        STATE.secrets = [];
+        STATE.cloudItems = [];
+        
+        saveUserDataToFirestore();
+        toast('Сейф сброшен. Теперь вы можете создать новую сид-фразу.');
+        checkVaultLockState();
+        renderSecrets();
+      } catch (err) {
+        console.error("Failed to reset vault:", err);
+        toast('Ошибка сброса: ' + err.message);
+      }
+    }
+    window.resetVaultSeed = resetVaultSeed;
 
     // Lock Vault manually option (for premium settings or header)
     window.lockVaultManually = function() {
@@ -17923,6 +17952,9 @@ ${socialsContext}
 
     // Register PWA Service Worker
     if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
           .then(reg => console.log('Service Worker registered successfully:', reg.scope))
