@@ -7238,8 +7238,8 @@
               <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:0.8rem;">
                 <textarea id="vault-seed-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:70px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.25); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none;"></textarea>
                 <div style="display:flex; gap:0.5rem;">
-                  <button class="btn btn-primary" onclick="unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
-                  <button class="btn btn-ghost" onclick="initVaultSeedSetup()" id="vault-init-setup-btn" style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
+                  <button class="btn btn-primary" onclick="window.unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
+                  <button class="btn btn-ghost" onclick="window.initVaultSeedSetup()" id="vault-init-setup-btn" style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
                 </div>
               </div>
             </div>
@@ -17503,8 +17503,29 @@ ${socialsContext}
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+          .then(reg => {
+            console.log('Service Worker registered successfully:', reg.scope);
+            reg.onupdatefound = () => {
+              const installingWorker = reg.installing;
+              if (installingWorker) {
+                installingWorker.onstatechange = () => {
+                  if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    toast('Доступно обновление. Страница обновляется...');
+                    setTimeout(() => location.reload(), 1000);
+                  }
+                };
+              }
+            };
+          })
           .catch(err => console.error('Service Worker registration failed:', err));
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
     }
   </script>
