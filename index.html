@@ -9429,6 +9429,9 @@
         const userDoc = await fbDb.collection('users').doc(uid).get();
         if (userDoc.exists) {
           const data = userDoc.data();
+          if (data.vaultSeedHash && STATE.user) {
+            STATE.user.vaultSeedHash = data.vaultSeedHash;
+          }
 
           // Проверяем, зашифрованы ли данные и есть ли ключ шифрования
           const isZk = data.secrets && typeof data.secrets === 'string' && data.secrets.startsWith(ZK_PREFIX);
@@ -9504,6 +9507,7 @@
           lon: STATE.user.lon || null,
           name: STATE.user.name || '',
           photoURL: STATE.user.photoURL || '',
+          vaultSeedHash: STATE.user.vaultSeedHash || '',
           // ↓ Всё ниже — зашифровано AES-256 на устройстве клиента
           secrets: CryptoEngine.encryptVault(STATE.secrets),
           bio: CryptoEngine.encrypt(STATE.bio),
@@ -9802,6 +9806,7 @@
       DB.save('settings_' + e, STATE.settings);
       DB.save('twin_history_' + e, STATE.twinChatHistory || []);
       DB.save('twin_settings_' + e, STATE.twinSettings || {});
+      DB.save('vaultSeedHash_' + e, STATE.user.vaultSeedHash || '');
       updateDbStats();
     }
 
@@ -9825,6 +9830,7 @@
           lon: STATE.user.lon || null,
           name: STATE.user.name || '',
           photoURL: STATE.user.photoURL || '',
+          vaultSeedHash: STATE.user.vaultSeedHash || '',
           // ↓ Всё ниже зашифровано AES-256 на устройстве
           secrets: CryptoEngine.encryptVault(STATE.secrets),
           bio: CryptoEngine.encrypt(STATE.bio),
@@ -9862,6 +9868,9 @@
       STATE.settings = DB.load('settings_' + e, {});
       STATE.planId = DB.load('planId_' + e, 'free');
       STATE.planExpiry = DB.load('planExp_' + e, 0);
+      if (!STATE.user.vaultSeedHash) {
+        STATE.user.vaultSeedHash = DB.load('vaultSeedHash_' + e, '');
+      }
       STATE.twinChatHistory = DB.load('twin_history_' + e, []);
       STATE.twinSettings = DB.load('twin_settings_' + e, {
         consent: true,
@@ -10324,6 +10333,12 @@
       if (connectionsUnsubscribe) { connectionsUnsubscribe(); connectionsUnsubscribe = null; }
       if (chatMessagesUnsubscribe) { chatMessagesUnsubscribe(); chatMessagesUnsubscribe = null; }
       activeChatContact = null;
+
+      // Clear crypto session and credentials
+      CryptoEngine._vaultKey = null;
+      CryptoEngine._key = null;
+      sessionStorage.clear();
+      localStorage.removeItem('sk_vault_key_remember');
 
       if (STATE.user && STATE.user.isDemo) {
         DB.remove('user');
