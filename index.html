@@ -6767,9 +6767,10 @@
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; position: relative; z-index: 2;">
                   <div>
                     <div class="dash-welcome-title" style="font-family: var(--serif); font-size: 1.6rem; color: var(--ivory); font-weight: 300; letter-spacing: -0.5px;">Наследие рода <em id="dash-name" style="color: var(--gold); font-style: normal; font-weight: 500; text-shadow: 0 0 15px rgba(212,175,55,0.2);">Пользователь</em></div>
-                    <div class="dash-welcome-sub" style="font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; font-weight: 300; display: flex; align-items: center; gap: 0.4rem;">
+                    <div class="dash-welcome-sub" style="font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; font-weight: 300; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
                       <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71;"></span>
                       Шифрование AES-256 активно. Сегодня <span id="dash-date" style="color: var(--gold2); font-weight: 400;"></span>.
+                      <a id="dash-bip39-badge" href="#" onclick="window.setLegacyTab('secrets'); return false;" style="margin-left: 0.5rem; text-decoration: none;"></a>
                     </div>
                   </div>
                   <div class="dash-avatar-badge" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(212,175,55,0.25); background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.02) 100%); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1.3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);"><i class="ph-fill ph-brain"></i></div>
@@ -15098,6 +15099,16 @@ ${socialsContext}
       const fillEl = document.getElementById('dash-health-fill');
       if (pctEl) pctEl.textContent = completion + '%';
       if (fillEl) fillEl.style.width = completion + '%';
+
+      const badgeEl = document.getElementById('dash-bip39-badge');
+      if (badgeEl) {
+        const hasSeed = STATE.user && STATE.user.vaultSeedHash;
+        if (hasSeed) {
+          badgeEl.innerHTML = `<span class="badge badge-gold" style="background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.4); color: var(--gold); padding: 0.2rem 0.5rem; border-radius: 8px; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 500;"><span style="width: 5px; height: 5px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 6px var(--gold);"></span>Защита BIP39: Запущена</span>`;
+        } else {
+          badgeEl.innerHTML = `<span class="badge badge-red" style="background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.4); color: #e74c3c; padding: 0.2rem 0.5rem; border-radius: 8px; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 500;"><span style="width: 5px; height: 5px; border-radius: 50%; background: #e74c3c; box-shadow: 0 0 6px #e74c3c;"></span>Защита BIP39: Не настроена</span>`;
+        }
+      }
     }
     function updateBadges() {
       const secretsCount = STATE.secrets.length;
@@ -17060,7 +17071,10 @@ ${socialsContext}
       const box = document.getElementById('generated-seed-box');
       if (box) {
         box.innerHTML = generatedMnemonic.split(' ').map((w, i) => `
-          <div style="font-size:0.75rem; color:var(--muted);"><span style="color:var(--gold); font-size:0.65rem; margin-right:4px;">${i+1}.</span>${w}</div>
+          <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(212,175,55,0.12); border-radius:8px; padding:0.5rem 0.75rem; display:flex; align-items:center; justify-content:space-between; font-size:0.85rem; font-family:monospace; color:var(--ivory); box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);">
+            <span style="color:var(--gold); font-size:0.7rem; font-weight:600; text-shadow:0 0 5px rgba(212,175,55,0.2); margin-right:8px;">#${String(i+1).padStart(2, '0')}</span>
+            <span style="font-weight:500; letter-spacing:0.5px;">${w}</span>
+          </div>
         `).join('');
       }
       closeModal('modal-upgrade');
@@ -17174,34 +17188,45 @@ ${socialsContext}
           renderCloudGrid();
         } else {
           // Lock Secrets
-          if (lockOverlay) lockOverlay.style.display = 'flex';
+          if (lockOverlay) {
+            lockOverlay.style.display = 'flex';
+            lockOverlay.innerHTML = `
+              <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
+              <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Сейф заблокирован</h3>
+              <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Чтобы расшифровать ваши личные данные, введите секретную сид-фразу из 12 слов.</p>
+              
+              <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:0.8rem;">
+                <textarea id="vault-seed-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:70px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.25); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none;"></textarea>
+                <div style="display:flex; gap:0.5rem;">
+                  <button class="btn btn-primary" onclick="window.unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
+                </div>
+                <a href="#" onclick="window.resetVaultSeed(event)" style="font-size:0.75rem; color:var(--red); text-decoration:underline; margin-top:0.4rem; text-align:center; display:block;">Забыли сид-фразу? Сбросить сейф</a>
+              </div>
+            `;
+          }
           if (secretsWrap) secretsWrap.style.display = 'none';
           
           // Lock Cloud
-          if (cloudOverlay) cloudOverlay.style.display = 'flex';
           if (cloudOverlay) {
+            cloudOverlay.style.display = 'flex';
             cloudOverlay.innerHTML = `
               <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
               <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Хранилище заблокировано</h3>
               <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Введите секретную сид-фразу из 12 слов во вкладке "Цифровой Сейф" для разблокировки всего Наследия.</p>
-              <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к разблокировке</button>
+              <button class="btn btn-primary" onclick="window.setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к разблокировке</button>
             `;
           }
           if (cloudWrap) cloudWrap.style.display = 'none';
-          
-          // Show Create Seed option if hash not setup yet (fallback safety)
-          const setupBtn = document.getElementById('vault-init-setup-btn');
-          if (setupBtn) setupBtn.style.display = 'none';
         }
       } else {
         // Not protected yet -> Prompt setup
-        if (lockOverlay) lockOverlay.style.display = 'flex';
         if (lockOverlay) {
+          lockOverlay.style.display = 'flex';
           lockOverlay.innerHTML = `
             <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
             <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
             <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Для защиты Сейфа и Облака сгенерируйте секретную 12-значную сид-фразу по стандарту BIP39.</p>
-            <button class="btn btn-primary" onclick="initVaultSeedSetup()" style="padding:0.75rem 1.5rem;">Сгенерировать сид-фразу</button>
+            <button class="btn btn-primary" onclick="window.initVaultSeedSetup()" style="padding:0.75rem 1.5rem;">Сгенерировать сид-фразу</button>
           `;
         }
         if (secretsWrap) secretsWrap.style.display = 'none';
@@ -17212,7 +17237,7 @@ ${socialsContext}
             <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
             <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
             <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Сгенерируйте сид-фразу во вкладке "Цифровой Сейф" для начала работы с зашифрованным Облаком.</p>
-            <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к настройке</button>
+            <button class="btn btn-primary" onclick="window.setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к настройке</button>
           `;
         }
         if (cloudWrap) cloudWrap.style.display = 'none';
@@ -17543,7 +17568,7 @@ ${socialsContext}
         <h4 style="font-family:var(--serif); color:var(--ivory); font-size:1.1rem; margin-bottom:0.5rem;">Сгенерирована секретная фраза</h4>
         <p style="font-size:0.75rem; color:var(--muted); line-height:1.4; margin-bottom:1.5rem; padding:0 0.5rem;">Запишите эти 12 слов на бумаге и храните в надежном месте. Они нужны для шифрования Сейфа и Облака. Если вы их потеряете, восстановить данные будет <strong>невозможно</strong>.</p>
         
-        <div id="generated-seed-box" style="background:rgba(212,175,55,0.04); border:1px dashed rgba(212,175,55,0.25); border-radius:12px; padding:1rem; font-family:monospace; font-size:0.95rem; color:var(--gold2); margin-bottom:1.5rem; text-align:left;"></div>
+        <div id="generated-seed-box" style="background: rgba(10, 9, 15, 0.5); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 16px; padding: 1.2rem; margin-bottom: 1.5rem;"></div>
 
         <button class="btn btn-primary" onclick="confirmSeedSaved()" style="width:100%; padding:0.8rem;">Я записал фразу</button>
       </div>
