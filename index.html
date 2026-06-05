@@ -2100,6 +2100,19 @@
       opacity: 0.95;
     }
 
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), var(--amber));
+      color: var(--ink);
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+      border-radius: 30px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+      opacity: 0.95;
+    }
+
     .btn-ghost {
       background: var(--glass-bg);
       backdrop-filter: var(--glass-blur);
@@ -17453,15 +17466,24 @@ ${socialsContext}
     }
 
     window.initVaultSeedSetup = function() {
-      generatedMnemonic = generateSeedPhrase();
-      const box = document.getElementById('generated-seed-box');
-      if (box) {
-        box.innerHTML = generatedMnemonic.split(' ').map((w, i) => `
-          <div style="font-size:0.75rem; color:var(--muted);"><span style="color:var(--gold); font-size:0.65rem; margin-right:4px;">${i+1}.</span>${w}</div>
-        `).join('');
+      try {
+        console.log("initVaultSeedSetup starting...");
+        generatedMnemonic = generateSeedPhrase();
+        console.log("Generated Mnemonic:", generatedMnemonic);
+        const box = document.getElementById('generated-seed-box');
+        if (box) {
+          box.innerHTML = generatedMnemonic.split(' ').map((w, i) => `
+            <div style="font-size:0.75rem; color:var(--muted);"><span style="color:var(--gold); font-size:0.65rem; margin-right:4px;">${i+1}.</span>${w}</div>
+          `).join('');
+        } else {
+          console.warn("Element 'generated-seed-box' not found in DOM");
+        }
+        closeModal('modal-upgrade');
+        openModal('modal-vault-setup');
+      } catch (err) {
+        console.error("initVaultSeedSetup failed:", err);
+        alert("Ошибка инициализации сверхзащиты:\n" + err.message + "\n" + err.stack);
       }
-      closeModal('modal-upgrade');
-      openModal('modal-vault-setup');
     };
 
     window.confirmSeedSaved = function() {
