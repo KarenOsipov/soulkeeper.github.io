@@ -7248,8 +7248,8 @@
               <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:0.8rem;">
                 <textarea id="vault-seed-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:70px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.25); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none;"></textarea>
                 <div style="display:flex; gap:0.5rem;">
-                  <button class="btn btn-primary" onclick="unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
-                  <button class="btn btn-ghost" onclick="initVaultSeedSetup()" id="vault-init-setup-btn" style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
+                  <button class="btn btn-primary" onclick="window.unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
+                  <button class="btn btn-ghost" onclick="window.initVaultSeedSetup()" id="vault-init-setup-btn" style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
                 </div>
               </div>
             </div>
@@ -10706,6 +10706,8 @@
       const el = document.getElementById(id);
       if (el) el.classList.add('open');
     }
+    window.openModal = openModal;
+
     function closeModal(id) {
       const el = document.getElementById(id);
       if (el) {
@@ -10713,6 +10715,7 @@
         clearInputs(id);
       }
     }
+    window.closeModal = closeModal;
     function clearInputs(modalId) {
       document.querySelectorAll('#' + modalId + ' input:not([readonly]),#' + modalId + ' textarea').forEach(el => el.value = '');
     }
@@ -17465,7 +17468,7 @@ ${socialsContext}
       return checksumBits === expectedChecksumBits;
     }
 
-    window.initVaultSeedSetup = function() {
+    function initVaultSeedSetup() {
       try {
         console.log("initVaultSeedSetup starting...");
         generatedMnemonic = generateSeedPhrase();
@@ -17484,15 +17487,17 @@ ${socialsContext}
         console.error("initVaultSeedSetup failed:", err);
         alert("Ошибка инициализации сверхзащиты:\n" + err.message + "\n" + err.stack);
       }
-    };
+    }
+    window.initVaultSeedSetup = initVaultSeedSetup;
 
-    window.confirmSeedSaved = function() {
+    function confirmSeedSaved() {
       closeModal('modal-vault-setup');
       document.getElementById('vault-confirm-input').value = '';
       openModal('modal-vault-confirm');
-    };
+    }
+    window.confirmSeedSaved = confirmSeedSaved;
 
-    window.submitVaultSeedSetup = function() {
+    function submitVaultSeedSetup() {
       const input = document.getElementById('vault-confirm-input').value.trim().toLowerCase().replace(/\s+/g, ' ');
       if (input !== generatedMnemonic) {
         toast('Ошибка: Введенная сид-фраза не совпадает с сгенерированной.');
@@ -17522,9 +17527,10 @@ ${socialsContext}
       toast('<i class="ph-light ph-shield-check"></i> Сверхзащита активирована!');
       
       checkVaultLockState();
-    };
+    }
+    window.submitVaultSeedSetup = submitVaultSeedSetup;
 
-    window.unlockVaultBySeed = function() {
+    function unlockVaultBySeed() {
       const inputCheck = document.getElementById('vault-seed-input').value.trim().toLowerCase().replace(/\s+/g, ' ');
       if (inputCheck && !validateBip39SeedPhrase(inputCheck)) {
         toast('Введенная сид-фраза не соответствует стандарту BIP39 (ошибка контрольной суммы или словаря).');
@@ -17565,7 +17571,8 @@ ${socialsContext}
 
       checkVaultLockState();
       renderSecrets();
-    };
+    }
+    window.unlockVaultBySeed = unlockVaultBySeed;
 
 
 
@@ -17626,7 +17633,7 @@ ${socialsContext}
             <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
             <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
             <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Для защиты Сейфа и Облака сгенерируйте секретную 12-значную сид-фразу по стандарту BIP39.</p>
-            <button class="btn btn-primary" onclick="initVaultSeedSetup()" style="padding:0.75rem 1.5rem;">Сгенерировать сид-фразу</button>
+            <button class="btn btn-primary" onclick="window.initVaultSeedSetup()" style="padding:0.75rem 1.5rem; position:relative; z-index:9999; pointer-events:auto !important;">Сгенерировать сид-фразу</button>
           `;
         }
         if (secretsWrap) secretsWrap.style.display = 'none';
@@ -17961,7 +17968,7 @@ ${socialsContext}
   <div class="modal-overlay" id="modal-vault-setup">
     <div class="modal" style="max-width:500px">
       <div class="modal-head">
-        <div class="modal-title">Сид-фраза <em>сверхзащиты</em></div><button class="modal-close" onclick="closeModal('modal-vault-setup')">✕</button>
+        <div class="modal-title">Сид-фраза <em>сверхзащиты</em></div><button class="modal-close" onclick="window.closeModal('modal-vault-setup')">✕</button>
       </div>
       <div class="modal-body" style="text-align:center;">
         <i class="ph-fill ph-shield-checkered" style="font-size:2.8rem; color:var(--gold); margin-bottom:1rem;"></i>
@@ -17970,7 +17977,7 @@ ${socialsContext}
         
         <div id="generated-seed-box" style="background:rgba(212,175,55,0.04); border:1px dashed rgba(212,175,55,0.25); border-radius:12px; padding:1rem; font-family:monospace; font-size:0.95rem; color:var(--gold2); margin-bottom:1.5rem; text-align:left;"></div>
 
-        <button class="btn btn-primary" onclick="confirmSeedSaved()" style="width:100%; padding:0.8rem;">Я записал фразу</button>
+        <button class="btn btn-primary" onclick="window.confirmSeedSaved()" style="width:100%; padding:0.8rem;">Я записал фразу</button>
       </div>
     </div>
   </div>
@@ -17979,14 +17986,14 @@ ${socialsContext}
   <div class="modal-overlay" id="modal-vault-confirm">
     <div class="modal" style="max-width:500px">
       <div class="modal-head">
-        <div class="modal-title">Подтверждение <em>фразы</em></div><button class="modal-close" onclick="closeModal('modal-vault-confirm')">✕</button>
+        <div class="modal-title">Подтверждение <em>фразы</em></div><button class="modal-close" onclick="window.closeModal('modal-vault-confirm')">✕</button>
       </div>
       <div class="modal-body">
         <p style="font-size:0.78rem; color:var(--muted); text-align:center; margin-bottom:1.2rem;">Чтобы убедиться, что вы сохранили фразу, введите её ниже в правильном порядке.</p>
         
         <textarea id="vault-confirm-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:80px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.2); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none; margin-bottom:1.2rem;"></textarea>
 
-        <button class="btn btn-primary" onclick="submitVaultSeedSetup()" style="width:100%; padding:0.8rem;">Активировать сверхзащиту сейфа</button>
+        <button class="btn btn-primary" onclick="window.submitVaultSeedSetup()" style="width:100%; padding:0.8rem;">Активировать сверхзащиту сейфа</button>
       </div>
     </div>
   </div>
