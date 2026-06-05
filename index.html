@@ -6804,7 +6804,7 @@
               <div style="display: flex; align-items: center; gap: 10px;">
                 <i class="ph-light ph-shield-check" style="font-size: 1.3rem; color: var(--gold); filter: drop-shadow(0 0 5px rgba(201, 168, 76, 0.3));"></i>
                 <div style="font-size: 0.8rem; color: var(--muted); font-weight: 300;">
-                  Защита BIP39: <span style="color: var(--gold2); font-weight: 500;">Активна</span>
+                  Защита BIP39: <span id="dash-bip39-status" style="font-weight: 500;">Активна</span>
                 </div>
               </div>
 
@@ -15220,6 +15220,21 @@ ${socialsContext}
       setText('d-msgs', STATE.messages.length);
       setText('d-rels', STATE.relatives.length);
       setText('d-bio', STATE.bio.length);
+
+      // Update BIP39 Status
+      const bip39El = document.getElementById('dash-bip39-status');
+      if (bip39El) {
+        const hasSeed = STATE.user && STATE.user.vaultSeedHash;
+        if (hasSeed) {
+          bip39El.innerHTML = '<span style="color: var(--gold2);">Активна</span>';
+          bip39El.onclick = null;
+          bip39El.style.cursor = 'default';
+        } else {
+          bip39El.innerHTML = '<span style="color: var(--red); border-bottom: 1px dashed var(--red);">Не настроена</span>';
+          bip39El.onclick = () => goPage('secrets');
+          bip39El.style.cursor = 'pointer';
+        }
+      }
 
       // Calculate Legacy Completion
       let completion = 0;
