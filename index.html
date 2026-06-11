@@ -6497,37 +6497,36 @@ input, textarea, select {
 }
 
 
-/* 10. HIDE APP ELEMENTS ON NON-APP SCREENS */
+/* 10. HIDE APP ELEMENTS GLOBALLY BY DEFAULT */
 #mob-bottom-nav, #mob-fab, .mob-drawer {
   display: none !important;
 }
 
+/* MOBILE ONLY OVERRIDES */
+@media (max-width: 768px) {
+  #screen-app.active ~ #mob-bottom-nav {
+    display: block !important; /* MUST BE BLOCK so inner flex row takes 100% width! */
+  }
+  #screen-app.active ~ #mob-fab {
+    display: flex !important;
+  }
+  #screen-app.active ~ .mob-drawer.active {
+    display: flex !important;
+  }
 
-#screen-app.active ~ #mob-bottom-nav {
-  display: block !important; /* MUST BE BLOCK so inner flex row takes 100% width! */
-}
-#screen-app.active ~ #mob-fab {
-  display: flex !important;
-}
-
-
-#screen-app.active ~ .mob-drawer.active {
-  display: flex !important;
-}
-
-
-/* 11. HIDE SCROLLBAR ARTIFACT & INCREASE BOTTOM PADDING FOR FAB */
-::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  background: transparent !important;
-}
-* {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
-.app-main {
-  padding-bottom: 120px !important; /* Extra space so FAB doesn't cover content */
+  /* 11. HIDE SCROLLBAR ARTIFACT & INCREASE BOTTOM PADDING FOR FAB ON MOBILE */
+  ::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    background: transparent !important;
+  }
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  .app-main {
+    padding-bottom: 120px !important; /* Extra space so FAB doesn't cover content */
+  }
 }
 
 </style>
@@ -11402,7 +11401,7 @@ input, textarea, select {
         const firstImg = mediaArr.find(m => m.type === 'image' || (m.data && (m.data.includes('data:image') || m.data.includes('base64'))));
 
         return `
-    <div class="bio-plank-wow" style="position:relative; margin-bottom: 2.5rem; animation: fadeUp ${0.3 + i * 0.1}s forwards; width:100%;">
+    <div class="bio-plank-wow" style="position:relative; margin-bottom: 2.5rem; animation: fadeUp 0.4s ease forwards; opacity: 0; animation-delay: ${Math.min(i * 0.05, 0.5)}s; width:100%;">
       
       <!-- Точка времени -->
       <div style="position:absolute; left:-34px; top:50%; transform:translateY(-50%); width:12px; height:12px; background:var(--gold); border-radius:50%; box-shadow: 0 0 15px var(--gold); z-index:5; border:2px solid var(--ink);"></div>
