@@ -6767,10 +6767,12 @@
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; position: relative; z-index: 2;">
                   <div>
                     <div class="dash-welcome-title" style="font-family: var(--serif); font-size: 1.6rem; color: var(--ivory); font-weight: 300; letter-spacing: -0.5px;">Наследие рода <em id="dash-name" style="color: var(--gold); font-style: normal; font-weight: 500; text-shadow: 0 0 15px rgba(212,175,55,0.2);">Пользователь</em></div>
-                    <div class="dash-welcome-sub" style="font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; font-weight: 300; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71;"></span>
-                      Шифрование AES-256 активно. Сегодня <span id="dash-date" style="color: var(--gold2); font-weight: 400;"></span>.
-                      <a id="dash-bip39-badge" href="#" onclick="window.setLegacyTab('secrets'); return false;" style="margin-left: 0.5rem; text-decoration: none;"></a>
+                    <div class="dash-welcome-sub" style="font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; font-weight: 300; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                      <div style="display: flex; align-items: center; gap: 0.4rem;">
+                        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71;"></span>
+                        Шифрование AES-256 активно. Сегодня <span id="dash-date" style="color: var(--gold2); font-weight: 400;"></span>.
+                      </div>
+                      <span id="dash-vault-status-badge"></span>
                     </div>
                   </div>
                   <div class="dash-avatar-badge" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(212,175,55,0.25); background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.02) 100%); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1.3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);"><i class="ph-fill ph-brain"></i></div>
@@ -7238,8 +7240,8 @@
               <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:0.8rem;">
                 <textarea id="vault-seed-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:70px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.25); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none;"></textarea>
                 <div style="display:flex; gap:0.5rem;">
-                  <button class="btn btn-primary" onclick="window.unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
-                  <button class="btn btn-ghost" onclick="window.initVaultSeedSetup()" id="vault-init-setup-btn" style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
+                  <button class="btn btn-primary" onclick="unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
+                  <button class="btn btn-ghost" onclick="initVaultSeedSetup()" id="vault-init-setup-btn" style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
                 </div>
               </div>
             </div>
@@ -8569,6 +8571,15 @@
                     <i class="ph-bold ph-lock-key" style="position: absolute; right: 1rem; bottom: 0.8rem; color: var(--muted); font-size: 1rem;" title="Почта подтверждена и заблокирована"></i>
                   </div>
                   
+                  <div class="field">
+                    <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">Язык интерфейса / Interface Language</label>
+                    <select id="set-lang" onchange="window.changeLanguage(this.value)" style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none; cursor: pointer;">
+                      <option value="ru">Русский</option>
+                      <option value="en">English</option>
+                      <option value="kk">Қазақша</option>
+                    </select>
+                  </div>
+                  
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" class="exec-inputs-row">
                     <div class="field">
                       <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">Дата рождения</label>
@@ -9411,7 +9422,9 @@
           const data = userDoc.data();
 
           // Проверяем, зашифрованы ли данные и есть ли ключ шифрования
-          const isZk = data.secrets && typeof data.secrets === 'string' && data.secrets.startsWith(ZK_PREFIX);
+          const isZk = (data.secrets && typeof data.secrets === 'string' && (data.secrets.startsWith(ZK_PREFIX) || data.secrets.startsWith('VAULT::'))) ||
+                       (data.bio && typeof data.bio === 'string' && data.bio.startsWith(ZK_PREFIX)) ||
+                       (data.messages && typeof data.messages === 'string' && data.messages.startsWith(ZK_PREFIX));
           if (isZk && !CryptoEngine.hasKey()) {
             // Ключа в сессии нет, сохраняем зашифрованные данные во временную переменную и показываем форму разблокировки
             tempLockedData = data;
@@ -9442,12 +9455,21 @@
           STATE.planExpiry = data.planExpiry || 0;
           // Load cloud items list
           STATE.cloudItems = data.cloudItems || [];
+          if (STATE.user) {
+            STATE.user.vaultSeedHash = data.vaultSeedHash || null;
+            STATE.user.vaultPasswordHash = data.vaultPasswordHash || null;
+            if (data.lat !== undefined) STATE.user.lat = data.lat;
+            if (data.lon !== undefined) STATE.user.lon = data.lon;
+          }
           if (typeof data.secrets === 'string' && data.secrets.startsWith('VAULT::')) {
             tempLockedData = { secrets: data.secrets };
           }
           setTimeout(() => checkVaultLockState(), 500);
 
           _saveLocalOnly(); // Mirror to local
+          if (data.settings && data.settings.lang) {
+            setTimeout(() => applyLanguage(data.settings.lang), 100);
+          }
           if (STATE.settings && STATE.settings.zenlyActive) {
             setTimeout(() => { startZenlyTracking(); }, 1200);
           }
@@ -9492,7 +9514,11 @@
           swDays: STATE.swDays,
           planId: STATE.planId,
           planExpiry: STATE.planExpiry,
-          cloudItems: STATE.cloudItems || []
+          cloudItems: STATE.cloudItems || [],
+          vaultSeedHash: (STATE.user && STATE.user.vaultSeedHash) ? STATE.user.vaultSeedHash : null,
+          vaultPasswordHash: (STATE.user && STATE.user.vaultPasswordHash) ? STATE.user.vaultPasswordHash : null,
+          lat: (STATE.user && STATE.user.lat !== undefined) ? STATE.user.lat : firebase.firestore.FieldValue.delete(),
+          lon: (STATE.user && STATE.user.lon !== undefined) ? STATE.user.lon : firebase.firestore.FieldValue.delete()
         }, { merge: true });
         DB._addLog('OK', '🔒 Данные зашифрованы и синхронизированы (Zero-Knowledge)');
       } catch (err) {
@@ -9535,18 +9561,20 @@
         if (saved) {
           this._key = CryptoJS.enc.Hex.parse(saved);
         }
-        const vaultSaved = sessionStorage.getItem('sk_vault_key');
+        const vaultSaved = localStorage.getItem('sk_vaultkey_saved');
         if (vaultSaved) {
-          this._vaultKey = CryptoJS.enc.Hex.parse(vaultSaved);
+          try { this._vaultKey = CryptoJS.enc.Hex.parse(vaultSaved); } catch(e) {}
         }
         return !!this._key;
       },
 
       initVaultFromSession() {
-        const vaultSaved = sessionStorage.getItem('sk_vault_key');
+        const vaultSaved = localStorage.getItem('sk_vaultkey_saved');
         if (vaultSaved) {
-          this._vaultKey = CryptoJS.enc.Hex.parse(vaultSaved);
-          return true;
+          try {
+            this._vaultKey = CryptoJS.enc.Hex.parse(vaultSaved);
+            return true;
+          } catch(e) {}
         }
         return false;
       },
@@ -9644,7 +9672,12 @@
               padding: CryptoJS.pad.Pkcs7
             });
             const str = decrypted.toString(CryptoJS.enc.Utf8);
-            return JSON.parse(str);
+            if (!str) return ciphertext;
+            try {
+              return JSON.parse(str);
+            } catch (e) {
+              return str;
+            }
           } catch (e) {
             console.error('Vault decryption error:', e);
             return ciphertext;
@@ -9682,7 +9715,7 @@
           const v = localStorage.getItem(this._prefix + key);
           if (!v) return def;
           let val = JSON.parse(v);
-          if (decrypt && CryptoEngine._key && typeof val === 'string' && val.startsWith('<i class="ph-light ph-lock"></i>')) {
+          if (decrypt && CryptoEngine._key && typeof val === 'string' && (val.startsWith('<i class="ph-light ph-lock"></i>') || val.startsWith('ZK::'))) {
             val = CryptoEngine.decrypt(val);
             this._addLog('INFO', `<i class="ph-light ph-lock-open"></i> Данные [${key}] расшифрованы`);
           }
@@ -9724,6 +9757,866 @@
       const el = document.getElementById('db-log');
       if (!el) return;
       el.innerHTML = DB._log.map(l => `<div class="log-${l.type.toLowerCase() === 'ok' ? 'ok' : l.type.toLowerCase() === 'err' ? 'err' : 'info'}">[${l.type}] ${esc(l.msg)} <span style="opacity:0.4">${l.ts}</span></div>`).join('');
+    }
+
+    // ═══════════════════════════════════════════
+    // LOCALIZATION SYSTEM (EN / RU)
+    // ═══════════════════════════════════════════
+    const TRANSLATIONS = {
+      en: {
+        // Auth & Landing
+        "Вход в систему": "System Login",
+        "Войти": "Sign In",
+        "Регистрация": "Register",
+        "Пароль": "Password",
+        "или": "or",
+        "Войти через Google": "Sign In with Google",
+        "Демо-вход (без регистрации)": "Demo Access (No Signup)",
+        "Забыл пароль?": "Forgot password?",
+        "Имя": "Name",
+        "Ваше имя": "Your name",
+        "Создать аккаунт": "Create Account",
+        "Минимум 6 символов": "Minimum 6 characters",
+        "Повторите пароль": "Repeat Password",
+        "Придумайте пароль (мин. 6 символов)": "Create password (min. 6 chars)",
+        "Вечное хранилище": "Eternal Archive",
+
+        // Dock Tooltips & Mobile Nav
+        "Второй мозг (Главная)": "Second Brain (Home)",
+        "Цифровое Наследие": "Digital Legacy",
+        "Семья и связи": "Family & Connections",
+        "Сообщения (Чат)": "Messages (Chat)",
+        "Древо жизни": "Tree of Life",
+        "Карта близких": "Family Map",
+        "Страж Жизни": "Life Guardian",
+        "AI Ассистент": "AI Sage",
+        "Цифровой Двойник": "Digital Twin",
+        "Мои подписки": "My Subscriptions",
+        "Настройки": "Settings",
+        "Главная": "Home",
+        "Наследие": "Legacy",
+        "Связи": "Connections",
+        "Древо": "Tree",
+        "Ещё": "More",
+        "Семья": "Family",
+        "Чат": "Chat",
+        "Карта": "Map",
+        "Страж": "Guardian",
+        "Мудрец": "Sage",
+        "Двойник": "Twin",
+        "Я жив": "I am alive",
+
+        // Dashboard
+        "Наследие рода": "Family Legacy of",
+        "Шифрование AES-256 активно. Сегодня": "AES-256 Encryption Active. Today is",
+        "Заполненность Архива Души": "Soul Archive Completion",
+        "Сейф тайн": "Secrets Vault",
+        "Послания": "Legacy Messages",
+        "Родственники": "Relatives",
+        "Биография": "Biographies",
+        "Сейф защищен": "Safe Protected",
+        "Сейф не защищен (Настроить)": "Safe Unprotected (Configure)",
+
+        // Vault
+        "Цифровой Сейф": "Digital Vault",
+        "Сейф заблокирован": "Vault Locked",
+        "Введите пароль для доступа к зашифрованным данным.": "Enter password to access encrypted data.",
+        "Забыли пароль? Сбросить сейф": "Forgot password? Reset Safe",
+        "Разблокировать": "Unlock",
+        "Забыли пароль? Сбросить сейф": "Forgot password? Reset Vault",
+        "Защитите ваш Сейф": "Protect your Vault",
+        "Установите пароль для шифрования секретов.": "Set a password to encrypt your secrets.",
+        "Без пароля никто не прочитает ваши тайны.": "Without a password, no one can read your secrets.",
+        "Установить пароль": "Set Password",
+        "Сейф пуст": "Vault is empty",
+        "Добавьте первую тайну": "Add your first secret",
+        "Добавить тайну": "Add Secret",
+        "Категория": "Category",
+        "Название": "Title",
+        "Текст": "Text",
+        "Уровень доступа": "Access Level",
+        "После смерти (Наследие)": "After death (Legacy)",
+        "При жизни (Семья)": "During life (Family)",
+        "Личное (Только мне)": "Private (Only me)",
+        "Сохранить": "Save",
+        "Отмена": "Cancel",
+        
+        // Cloud
+        "Облако воспоминаний": "Memory Cloud",
+        "Облако воспоминаний заблокировано": "Memory Cloud Locked",
+        "Введите пароль в разделе «Цифровой Сейф» для разблокировки всего Наследия.": "Enter password in the \"Digital Vault\" section to unlock all Legacy data.",
+        "Перейти к разблокировке": "Go to unlock",
+        "Загрузить файл": "Upload File",
+        "Создать папку": "Create Folder",
+        "Назад": "Back",
+        "Папка пуста": "Folder is empty",
+        "Загрузите файлы или создайте подпапки": "Upload files or create subfolders",
+        "Корневая папка": "Root folder",
+        
+        // Settings
+        "Мой профиль": "My Profile",
+        "Выбрать фото": "Choose photo",
+        "Ваше Имя": "Your Name",
+        "API-ключ Google Gemini (ИИ Мудрец & Двойник)": "Google Gemini API Key (AI Sage & Twin)",
+        "Электронная почта": "Email Address",
+        "Дата рождения": "Date of Birth",
+        "Город проживания": "City of Residence",
+        "Сохранить настройки": "Save Settings",
+        "Безопасность системы": "System Security",
+        "Экспорт & Резервная копия": "Export & Backup",
+        "Экспорт JSON": "Export JSON",
+        "Скачать резервную копию всех ваших данных в формате JSON": "Download a backup of all your data in JSON format",
+        "Удалить аккаунт": "Delete Account",
+        "Язык интерфейса / Interface Language": "Interface Language",
+        
+        // Switch (Life switch)
+        "Страж жизни": "Life Guardian",
+        "Период проверки": "Check-in Period",
+        "Дней тишины": "Days of Silence",
+        "Душеприказчик": "Executor",
+        "Имя душеприказчика": "Executor Name",
+        "Email душеприказчика": "Executor Email",
+        "Статус Стража": "Guardian Status",
+        "Активен": "Active",
+        "Не настроен": "Not configured",
+        "Я жив": "I am alive",
+        "Период неактивности": "Inactivity Period",
+        "Назначить душеприказчика": "Assign Executor",
+        "Душеприказчик получит доступ к сейфу": "Executor will get access to vault",
+        "Сохранить настройки стража": "Save Guardian settings",
+        "Доступно на тарифах «Хранитель» и «Наследие»": "Available on \"Keeper\" and \"Legacy\" plans",
+        "Автоматическая передача наследства при неактивности": "Automatic legacy transfer upon inactivity",
+        "Улучшить тариф": "Upgrade Plan",
+        
+        // AI Sage
+        "Мудрец рода": "AI Sage of the Family",
+        "Спросите Мудреца...": "Ask the Sage...",
+        "ИИ-советник на основе вашей базы знаний и воспоминаний": "AI Advisor based on your knowledge base and memories",
+        
+        // Digital Twin
+        "Цифровой двойник": "Digital Twin",
+        "Голос двойника": "Twin Voice",
+        "Тон общения": "Communication Tone",
+        "Настройка поведения": "Behavior Settings",
+        "Введите ElevenLabs Voice ID": "Enter ElevenLabs Voice ID",
+        "Сохранить настройки двойника": "Save Twin settings",
+
+        // Connections & Family tab
+        "Связи и родство": "Connections & Family",
+        "Мой уникальный код:": "My Unique Code:",
+        "Ввести код близкого": "Enter Relative's Code",
+        "Присоединиться": "Join Family",
+        "Добавили меня": "Added Me",
+        "Никто ещё не добавил вас": "No one has added you yet",
+        "Поделитесь кодом выше — родственники пришлют запрос": "Share your code above so relatives can send requests",
+        "Я добавил": "I Added",
+        "Вы ещё никого не добавили": "You haven't added anyone yet",
+        "Добавляйте родственников через раздел «Родственники»": "Add relatives via the \"Relatives\" tab",
+        "Входящие запросы": "Incoming Requests",
+        "Нет входящих запросов": "No incoming requests",
+        "Когда кто-то введёт ваш код — запрос появится здесь": "Incoming requests will appear here",
+        "Удаленные родственники": "Deleted Relatives",
+        "Удаленные родственники появятся здесь и их можно будет восстановить": "Deleted relatives will appear here and can be restored",
+
+        // Tree
+        "Древо рода": "Family Tree",
+        "Поиск родственников...": "Search relatives...",
+        "Добавить близкого": "Add Relative",
+        "Экспорт древа": "Export Tree",
+        "Импорт древа": "Import Tree",
+        "Древо пока пусто": "Tree is empty for now",
+
+        // Map
+        "Поиск близких на карте...": "Search family on map...",
+        "Нет отметок на карте": "No markers on map",
+        "Добавьте родственников — координаты определятся по городу автоматически": "Add relatives — coordinates will be determined by city automatically",
+        
+        // Popups & Toast
+        "Настройки сохранены": "Settings saved",
+        "Введите имя": "Please enter name",
+        "Сейф успешно заблокирован.": "Vault locked successfully.",
+        "Сейф разблокирован!": "Vault unlocked!",
+        "Неверный пароль. Попробуйте снова.": "Incorrect password. Try again.",
+        "Сейф сброшен. Установите новый пароль.": "Vault reset. Set a new password.",
+        "Файл успешно зашифрован и сохранен!": "File encrypted and saved successfully!",
+        "Вы действительно хотите удалить": "Are you sure you want to delete",
+
+        // Dynamic Confirmations & dialogs
+        "Вы уверены, что хотите удалить эту тайну?": "Are you sure you want to delete this secret?",
+        "Вы уверены, что хотите удалить это воспоминание?": "Are you sure you want to delete this memory?",
+        "Вы уверены, что хотите удалить это послание?": "Are you sure you want to delete this message?",
+        "Удалить этого человека из древа? Все связи с ним будут разорваны.": "Delete this person from the tree? All connections with them will be broken.",
+        "Сбросить все ручные перемещения и вернуть дерево к стандартному виду?": "Reset all manual movements and return the tree to the standard view?",
+        "Переключиться на бесплатный тариф?": "Switch to the free plan?",
+        "Вы уверены, что хотите сбросить назначение душеприказчика?": "Are you sure you want to reset the executor assignment?",
+        "Вы уверены, что хотите очистить всю историю диалогов с вашим двойником?": "Are you sure you want to clear the entire dialog history with your twin?",
+        "Удалить аккаунт? Это действие необратимо.": "Delete account? This action is irreversible.",
+        "Навсегда удалить родственника из архива?": "Permanently delete relative from the archive?",
+        "Вы уверены, что хотите удалить эту связь?": "Are you sure you want to delete this connection?",
+        "Удалить это сообщение?": "Delete this message?",
+        "⚠️ Сброс пароля УДАЛИТ ВСЕ зашифрованные данные сейфа и облака навсегда. Продолжить?": "⚠️ Resetting the password will DELETE ALL encrypted vault and cloud data forever. Continue?",
+        "Это действие НЕОБРАТИМО. Данные восстановить будет невозможно. Вы уверены?": "This action is IRREVERSIBLE. Data recovery will be impossible. Are you sure?",
+
+        // Landing page localization
+        "Цифровое наследие нового поколения": "Digital legacy of the next generation",
+        "Сохрани всё, что": "Save everything that",
+        "важно тебе": "is important to you",
+        "SoulKeeper — хранилище твоей жизни. Тайны, биография, послания близким, древо жизни и автоматическая передача наследства. Всё под защитой военного шифрования.": "SoulKeeper is the archive of your life. Secrets, biography, messages to loved ones, family tree and automatic transfer of inheritance. All protected by military-grade encryption.",
+        "Создать Хранилище": "Create Archive",
+        "Узнать больше": "Learn more",
+        "Листать": "Scroll",
+        "Хранителей": "Keepers",
+        "Сохранённых тайн": "Saved secrets",
+        "Шифрование": "Encryption",
+        "Серверы": "Servers",
+        "Архитектура": "Architecture",
+        "Всё, что нужно для": "Everything you need for",
+        "цифрового бессмертия": "digital immortality",
+        "Шесть ключевых инструментов для сохранения вашей жизни, памяти и наследия для будущих поколений.": "Six key tools for preserving your life, memory and legacy for future generations.",
+        "Цифровой сейф": "Digital vault",
+        "Храните пароли, документы, завещания и самые сокровенные тайны под защитой AES‑256. Доступ только у вас — даже мы не можем прочесть.": "Store passwords, documents, wills and most sacred secrets under AES-256 protection. Only you have access — even we cannot read them.",
+        "Биография жизни": "Life Biography",
+        "Записывайте историю своей жизни по главам. AI‑Мудрец помогает находить слова и структурировать воспоминания в литературный нарратив.": "Record your life story by chapters. AI Sage helps find words and structure memories into a literary narrative.",
+        "Послания близким": "Messages to loved ones",
+        "Создавайте письма, которые откроются в нужный момент — на свадьбу, юбилей, после вашего ухода. Персональный капсулы времени.": "Create letters that open at the right moment — for a wedding, anniversary, or after you leave. Personal time capsules.",
+        "Древо жизни": "Tree of life",
+        "Интерактивное генеалогическое дерево с разграничением прав доступа. Наследники, наблюдатели, доверенные лица — каждый видит своё.": "Interactive family tree with access control. Heirs, observers, trusted persons — everyone sees their own.",
+        "Dead man's switch — умная система мониторинга активности. При неактивности автоматически передаёт наследство Душеприказчику.": "Dead man's switch — smart activity monitoring system. Transmits inheritance to the Executor automatically upon inactivity.",
+        "AI Мудрец": "AI Sage",
+        "Персональный AI‑наставник помогает формулировать мысли, анализирует тональность текстов и задаёт вопросы для биографии.": "Personal AI mentor helps formulate thoughts, analyzes text tone and asks questions for the biography.",
+        "Как это работает": "How it works",
+        "Четыре шага до": "Four steps to",
+        "вечной памяти": "eternal memory",
+        "Создайте аккаунт за 30 секунд. Только вы знаете свой мастер-пароль — мы его не храним.": "Create an account in 30 seconds. Only you know your master password — we don't store it.",
+        "Наполнитель сейфа": "Fill the vault",
+        "Добавьте тайны, биографию, послания. AI поможет найти слова для самого важного.": "Add secrets, biography, messages. AI will help find words for the most important.",
+        "Настройте наследие": "Configure legacy",
+        "Добавьте родственников, назначьте Душеприказчика и настройте права доступа для каждого.": "Add relatives, assign an Executor and set access permissions for each.",
+        "Живите спокойно": "Live peacefully",
+        "Страж жизни следит за вашей активностью и в нужный момент передаст всё кому надо.": "Life Guardian monitors your activity and will pass everything to the right person when needed.",
+        "Безопасность": "Security",
+        "Военный уровень": "Military level of",
+        "защиты данных": "data protection",
+        "Ваши данные зашифрованы ещё на вашем устройстве. Мы не можем прочитать ничего — это не маркетинговый приём, это архитектура zero-knowledge.": "Your data is encrypted right on your device. We can read nothing — this is not a marketing trick, it is a zero-knowledge architecture.",
+        "Серверы в трёх юрисдикциях. GDPR‑совместимость. Открытый исходный код криптографического ядра.": "Servers in three jurisdictions. GDPR-compliant. Open source cryptographic core.",
+        "Военный стандарт шифрования. Ключ создаётся из вашего пароля и никогда не покидает устройство.": "Military standard of encryption. Key is created from your password and never leaves your device.",
+        "Мы не видим ваши данные. Физически. Даже при взломе наших серверов — данные бесполезны без вашего ключа.": "We do not see your data. Physically. Even if our servers are hacked, the data is useless without your key.",
+        "3 дата-центра на разных континентах. Encrypted backups каждые 6 часов. SLA 99.9%.": "3 data centers on different continents. Encrypted backups every 6 hours. SLA 99.9%.",
+        "Полное соответствие GDPR. Криптографическое ядро — открытый код на GitHub. Независимый аудит ежегодно.": "Full GDPR compliance. Cryptographic core is open source on GitHub. Independent annual audit.",
+        "Истории": "Stories",
+        "Они уже": "They have already",
+        "сохранили": "preserved",
+        "своё": "their own",
+        "«После болезни отца я понял, что ничего не знаю о его жизни. SoulKeeper помог мне оставить детям то, что я сам не получил — историю семьи.»": "“After my father's illness, I realized I knew nothing about his life. SoulKeeper helped me leave my children what I didn't receive myself — family history.”",
+        "Предприниматель, 52 года · Москва": "Entrepreneur, 52 years old · Moscow",
+        "«Страж жизни — это то, о чём я думала годами, но не знала как реализовать. Теперь мои дочери получат всё важное в нужный момент, неважно что случится.»": "“Life Guardian is something I've thought about for years but didn't know how to implement. Now my daughters will get everything important at the right moment, no matter what happens.”",
+        "Врач, 48 лет · Санкт-Петербург": "Doctor, 48 years old · St. Petersburg",
+        "«AI-Мудрец помог мне написать письмо сыну, с которым мы не разговаривали 8 лет. Я не знал с чего начать — он задал нужные вопросы.»": "“AI Sage helped me write a letter to my son, with whom we hadn't spoken for 8 years. I didn't know where to start — it asked the right questions.”",
+        "Инженер, 61 год · Алматы": "Engineer, 61 years old · Almaty",
+        "Справедливая цена за": "Fair price for",
+        "вечное наследие": "eternal legacy",
+        "Ежемесячно": "Monthly",
+        "Ежегодно": "Annually",
+        "навсегда бесплатно": "forever free",
+        "До 5 тайн в сейфе": "Up to 5 secrets in vault",
+        "Биография (3 главы)": "Biography (3 chapters)",
+        "До 5 родственников": "Up to 5 relatives",
+        "AI‑Мудрец (10 сообщ/мес)": "AI Sage (10 msg/month)",
+        "Экспорт данных": "Data export",
+        "Начать бесплатно": "Start for free",
+        "Хранитель": "Keeper",
+        "при ежемесячной оплате": "with monthly billing",
+        "Неограниченный сейф": "Unlimited vault",
+        "Биография без ограничений": "Unlimited biography",
+        "До 50 родственников": "Up to 50 relatives",
+        "AI‑Мудрец без ограничений": "Unlimited AI Sage",
+        "Экспорт PDF + JSON": "PDF + JSON Export",
+        "Всё из Хранителя": "Everything from Keeper",
+        "До 5 аккаунтов семьи": "Up to 5 family accounts",
+        "Видео-послания": "Video messages",
+        "Печатная книга жизни": "Printed book of life",
+        "Личный менеджер": "Personal manager",
+        "Приоритетная поддержка": "Priority support",
+        "Начать сегодня": "Start today",
+        "Ваша жизнь заслуживает": "Your life deserves",
+        "быть сохранённой": "to be preserved",
+        "Каждый день уходят истории, которые могли бы остаться. Начните прямо сейчас — это займёт три минуты.": "Every day stories are lost that could have remained. Start right now — it takes three minutes.",
+        "Хранитель твоей жизни. Сохраняем воспоминания, тайны и наследие для будущих поколений.": "Guardian of your life. Preserving memories, secrets, and legacy for future generations.",
+        "Продукт": "Product",
+        "Дорожная карта": "Roadmap",
+        "Компания": "Company",
+        "О нас": "About us",
+        "Блог": "Blog",
+        "Карьера": "Careers",
+        "Пресса": "Press",
+        "Поддержка": "Support",
+        "Документация": "Documentation",
+        "Статус": "Status",
+        "Контакты": "Contacts",
+        "© 2026 SoulKeeper. Все права защищены.": "© 2026 SoulKeeper. All rights reserved.",
+        "«Память живёт, пока её хранят»": "“Memory lives while it is kept”",
+
+        // Extra UI Header and Landing Links
+        "Возможности": "Features",
+        "Защита": "Security",
+        "Тарифы": "Pricing",
+        "О проекте": "About",
+        "Начать": "Get Started",
+        "Запомнить меня": "Remember me",
+        "Войти по коду": "Enter code",
+        "Мой код": "My Code",
+        "Ваш персональный код приглашения": "Your personal invitation code",
+        "Копировать": "Copy",
+        "Поделиться": "Share",
+        "Запросов": "Requests",
+        "Обновить": "Refresh",
+        "Добавить вручную": "Add manually",
+        "Мои связи": "My Connections",
+        "Кто добавил вас в своё древо жизни": "Who added you to their family tree",
+
+        // Security Page Details
+        "Двухфакторная защита (2FA)": "Two-Factor Protection (2FA)",
+        "Защита Google Authenticator": "Google Authenticator protection",
+        "Уведомления на почту": "Email Notifications",
+        "Оповещения об активности хранилища": "Storage activity alerts",
+        "Шифрование активов": "Asset Encryption",
+        "Сквозное локальное шифрование тайн": "End-to-end local encryption of secrets",
+        "Автовыход сессии": "Session Auto-logout",
+        "Закрытие сессии при неактивности": "Close session on inactivity",
+        "30 минут": "30 minutes",
+        "1 час": "1 hour",
+        "4 часа": "4 hours",
+        "Никогда": "Never",
+        "Управление данными хранилища": "Vault Data Management",
+        "Безвозвратно удалить аккаунт": "Permanently delete account",
+        "Экспорт PDF": "Export PDF"
+      },
+      kk: {
+        // Auth & Landing
+        "Вход в систему": "Жүйеге кіру",
+        "Войти": "Кіру",
+        "Регистрация": "Тіркелу",
+        "Пароль": "Құпия сөз",
+        "или": "немесе",
+        "Войти через Google": "Google арқылы кіру",
+        "Демо-вход (без регистрации)": "Демо-кіру (тіркелусіз)",
+        "Забыл пароль?": "Құпия сөзді ұмыттыңыз ба?",
+        "Имя": "Аты",
+        "Ваше имя": "Сіздің атыңыз",
+        "Создать аккаунт": "Аккаунт жасау",
+        "Минимум 6 символов": "Кемінде 6 таңба",
+        "Повторите пароль": "Құпия сөзді қайталаңыз",
+        "Придумайте пароль (мин. 6 символов)": "Құпия сөз ойлап табыңыз (кемінде 6 таңба)",
+        "Вечное хранилище": "Мәңгілік қойма",
+
+        // Dock Tooltips & Mobile Nav
+        "Второй мозг (Главная)": "Екінші ми (Басты бет)",
+        "Цифровое Наследие": "Сандық мұра",
+        "Семья и связи": "Отбасы және байланыстар",
+        "Сообщения (Чат)": "Хабарламалар (Чат)",
+        "Древо жизни": "Өмір ағашы",
+        "Карта близких": "Жақындар картасы",
+        "Страж Жизни": "Өмір сақшысы",
+        "AI Ассистент": "AI ассистенті",
+        "Цифровой Двойник": "Сандық егіз",
+        "Мои подписки": "Жазылымдарым",
+        "Настройки": "Баптаулар",
+        "Главная": "Басты бет",
+        "Наследие": "Мұра",
+        "Связи": "Байланыстар",
+        "Древо": "Ағаш",
+        "Ещё": "Тағы да",
+        "Семья": "Отбасы",
+        "Чат": "Чат",
+        "Карта": "Карта",
+        "Страж": "Сақшы",
+        "Мудрец": "Данышпан",
+        "Двойник": "Егіз",
+        "Я жив": "Мен тірімін",
+
+        // Dashboard
+        "Наследие рода": "Әулет мұрасы",
+        "Шифрование AES-256 активно. Сегодня": "AES-256 шифрлауы белсенді. Бүгін",
+        "Заполненность Архива Души": "Жан мұрағатының толуы",
+        "Сейф тайн": "Құпиялар сейфі",
+        "Послания": "Жолдаулар",
+        "Родственники": "Туыстар",
+        "Биография": "Өмірбаян",
+        "Сейф защищен": "Сейф қорғалған",
+        "Сейф не защищен (Настроить)": "Сейф қорғалмаған (Баптау)",
+
+        // Vault
+        "Цифровой Сейф": "Сандық сейф",
+        "Сейф заблокирован": "Сейф бұғатталған",
+        "Введите пароль для доступа к зашифрованным данным.": "Шифрланған деректерге қол жеткізу үшін құпия сөзді енгізіңіз.",
+        "Разблокировать": "Бұғаттан шығару",
+        "Забыли пароль? Сбросить сейф": "Құпия сөзді ұмыттыңыз ба? Сейфті қайта орнату",
+        "Защитите ваш Сейф": "Сейфіңізді қорғаңыз",
+        "Установите пароль для шифрования секретов.": "Құпияларды шифрлау үшін құпия сөзді орнатыңыз.",
+        "Без пароля никто не прочитает ваши тайны.": "Құпия сөзсіз ешкім сіздің құпияларыңызды оқи алмайды.",
+        "Установить пароль": "Құпия сөзді орнату",
+        "Сейф пуст": "Сейф бос",
+        "Добавьте первую тайну": "Алғашқы құпияңызды қосыңыз",
+        "Добавить тайну": "Құпияны қосу",
+        "Категория": "Санат",
+        "Название": "Атауы",
+        "Текст": "Мәтін",
+        "Уровень доступа": "Қол жеткізу деңгейі",
+        "После смерти (Наследие)": "Қайтыс болғаннан кейін (Мұра)",
+        "При жизни (Семья)": "Тірі кезде (Отбасы)",
+        "Личное (Только мне)": "Жеке (Тек өзіме)",
+        "Сохранить": "Сақтау",
+        "Отмена": "Бас тарту",
+        
+        // Cloud
+        "Облако воспоминаний": "Естеліктер бұлты",
+        "Облако воспоминаний заблокировано": "Естеліктер бұлты бұғатталған",
+        "Введите пароль в разделе «Цифровой Сейф» для разблокировки всего Наследия.": "Мұраны бұғаттан шығару үшін «Сандық сейф» бөліміне құпия сөзді енгізіңіз.",
+        "Перейти к разблокировке": "Бұғаттан шығаруға өту",
+        "Загрузить файл": "Файлды жүктеу",
+        "Создать папку": "Бума жасау",
+        "Назад": "Артқа",
+        "Папка пуста": "Бума бос",
+        "Загрузите файлы или создайте подпапки": "Файлдарды жүктеңіз немесе ішкі бумаларды жасаңыз",
+        "Корневая папка": "Негізгі бума",
+        
+        // Settings
+        "Мой профиль": "Менің профилім",
+        "Выбрать фото": "Суретті таңдау",
+        "Ваше Имя": "Сіздің атыңыз",
+        "API-ключ Google Gemini (ИИ Мудрец & Двойник)": "Google Gemini API кілті (AI Данышпан және Егіз)",
+        "Электронная почта": "Электрондық пошта",
+        "Дата рождения": "Туған күні",
+        "Город проживания": "Тұратын қаласы",
+        "Сохранить настройки": "Баптауларды сақтау",
+        "Безопасность системы": "Жүйе қауіпсіздігі",
+        "Экспорт & Резервная копия": "Экспорт және резервтік көшірме",
+        "Экспорт JSON": "JSON экспорты",
+        "Скачать резервную копию всех ваших данных в формате JSON": "Барлық деректеріңіздің резервтік көшірмесін JSON форматында жүктеп алу",
+        "Удалить аккаунт": "Аккаунтты өшіру",
+        "Язык интерфейса / Interface Language": "Интерфейс тілі",
+        
+        // Switch (Life switch)
+        "Страж жизни": "Өмір сақшысы",
+        "Период проверки": "Тексеру кезеңі",
+        "Дней тишины": "Үнсіздік күндері",
+        "Душеприказчик": "Өсиет орындаушы",
+        "Имя душеприказчика": "Өсиет орындаушының аты",
+        "Email душеприказчика": "Өсиет орындаушының Email-ы",
+        "Статус Стража": "Сақшы мәртебесі",
+        "Активен": "Белсенді",
+        "Не настроен": "Бапталмаған",
+        "Я жив": "Мен тірімін",
+        "Период неактивности": "Әрекетсіздік кезеңі",
+        "Назначить душеприказчика": "Өсиет орындаушыны тағайындау",
+        "Душеприказчик получит доступ к сейфу": "Өсиет орындаушы сейфке қол жеткізе алады",
+        "Сохранить настройки стража": "Сақшы баптауларын сақтау",
+        "Доступно на тарифах «Хранитель» и «Наследие»": "«Хранитель» және «Наследие» тарифтерінде қолжетімді",
+        "Автоматическая передача наследства при неактивности": "Әрекетсіздік кезінде мұраны автоматты түрде беру",
+        "Улучшить тариф": "Тарифті жақсарту",
+        
+        // AI Sage
+        "Мудрец рода": "Әулет данышпаны",
+        "Спросите Мудреца...": "Данышпаннан сұраңыз...",
+        "ИИ-советник на основе вашей базы знаний и воспоминаний": "Сіздің білім базаңыз бен естеліктеріңізге негізделген AI-кеңесші",
+        
+        // Digital Twin
+        "Цифровой двойник": "Сандық егіз",
+        "Голос двойника": "Егіздің дауысы",
+        "Тон общения": "Қарым-қатынас үні",
+        "Настройка поведения": "Мінез-құлықты баптау",
+        "Введите ElevenLabs Voice ID": "ElevenLabs Voice ID енгізіңіз",
+        "Сохранить настройки двойника": "Егіз баптауларын сақтау",
+
+        // Connections & Family tab
+        "Связи и родство": "Байланыстар және туыстық",
+        "Мой уникальный код:": "Менің бірегей кодым:",
+        "Ввести код близкого": "Жақынның кодын енгізу",
+        "Присоединиться": "Қосылу",
+        "Добавили меня": "Мені қосқандар",
+        "Никто ещё не добавил вас": "Сізді әлі ешкім қосқан жоқ",
+        "Поделитесь кодом выше — родственники пришлют запрос": "Жоғарыдағы кодпен бөлісіңіз — туыстарыңыз сұрау жібереді",
+        "Я добавил": "Мен қосқандар",
+        "Вы ещё никого не добавили": "Сіз әлі ешкімді қосқан жоқсыз",
+        "Добавляйте родственников через раздел «Родственники»": "Туыстарды «Туыстар» бөлімі арқылы қосыңыз",
+        "Входящие запросы": "Кіріс сұраулар",
+        "Нет входящих запросов": "Кіріс сұраулар жоқ",
+        "Когда кто-то введёт ваш код — запрос появится здесь": "Біреу сіздің кодыңызды енгізгенде — сұрау осында пайда болады",
+        "Удаленные родственники": "Өшірілген туыстар",
+        "Удаленные родственники появятся здесь и их можно будет восстановить": "Өшірілген туыстар осында пайда болады және оларды қалпына келтіруге болады",
+
+        // Tree
+        "Древо рода": "Әулет ағашы",
+        "Поиск родственников...": "Туыстарды іздеу...",
+        "Добавить близкого": "Жақынды қосу",
+        "Экспорт древа": "Ағашты экспорттау",
+        "Импорт древа": "Ағашты импорттау",
+        "Древо пока пусто": "Ағаш әзірге бос",
+
+        // Map
+        "Поиск близких на карте...": "Жақындарды картадан іздеу...",
+        "Нет отметок на карте": "Картада белгілер жоқ",
+        "Добавьте родственников — координаты определятся по городу автоматически": "Туыстарды қосыңыз — координаттар қала бойынша автоматты түрде анықталады",
+        
+        // Popups & Toast
+        "Настройки сохранены": "Баптаулар сақталды",
+        "Введите имя": "Атыңызды енгізіңіз",
+        "Сейф успешно заблокирован.": "Сейф сәтті бұғатталды.",
+        "Сейф разблокирован!": "Сейф бұғаттан шығарылды!",
+        "Неверный пароль. Попробуйте снова.": "Құпия сөз қате. Қайта байқап көріңіз.",
+        "Сейф сброшен. Установите новый пароль.": "Сейф қайта орнатылды. Жаңа құпия сөзді орнатыңыз.",
+        "Файл успешно зашифрован и сохранен!": "Файл сәтті шифрланды және сақталды!",
+        "Вы действительно хотите удалить": "Шынымен өшіргіңіз келе ме",
+
+        // Dynamic Confirmations & dialogs
+        "Вы уверены, что хотите удалить эту тайну?": "Бұл құпияны өшіргіңіз келетініне сенімдісіз бе?",
+        "Вы уверены, что хотите удалить это воспоминание?": "Бұл естелікті өшіргіңіз келетініне сенімдісіз бе?",
+        "Вы уверены, что хотите удалить это послание?": "Бұл жолдауды өшіргіңіз келетініне сенімдісіз бе?",
+        "Удалить этого человека из древа? Все связи с ним будут разорваны.": "Бұл адамды ағаштан өшіру керек пе? Онымен барлық байланыстар үзіледі.",
+        "Сбросить все ручные перемещения и вернуть дерево к стандартному виду?": "Барлық қолмен жылжытуларды тастап, ағашты стандартты түрге қайтару керек пе?",
+        "Переключиться на бесплатный тариф?": "Тегін тарифке ауысу керек пе?",
+        "Вы уверены, что хотите сбросить назначение душеприказчика?": "Өсиет орындаушыны тағайындауды тастағыңыз келетіныне сенімдісіз бе?",
+        "Вы уверены, что хотите очистить всю историю диалогов с вашим двойником?": "Егізіңізбен барлық сұхбат тарихын тазартқыңыз келетініне сенімдісіз бе?",
+        "Удалить аккаунт? Это действие необратимо.": "Аккаунтты өшіру керек пе? Бұл әрекет қайтарылмайды.",
+        "Навсегда удалить родственника из архива?": "Туысты мұрағаттан біржола өшіру керек пе?",
+        "Вы уверены, что хотите удалить эту связь?": "Бұл байланысты өшіргіңіз келетініне сенімдісіз бе?",
+        "Удалить это сообщение?": "Бұл хабарламаны өшіру керек пе?",
+        "⚠️ Сброс пароля УДАЛИТ ВСЕ зашифрованные данные сейфа и облака навсегда. Продолжить?": "⚠️ Құпия сөзді қайта орнату сейф пен бұлттағы БАРЛЫҚ шифрланған деректерді біржола ӨШІРЕДІ. Жалғастыру керек пе?",
+        "Это действие НЕОБРАТИМО. Данные восстановить будет невозможно. Вы уверены?": "Бұл әрекет ҚАЙТАРЫЛМАЙДЫ. Деректерді қалпына келтіру мүмкін емес. Сенімдісіз бе?",
+
+        // Landing page localization
+        "Цифровое наследие нового поколения": "Жаңа буынның сандық мұрасы",
+        "Сохрани всё, что": "Маңызды нәрсенің",
+        "важно тебе": "бәрін сақта",
+        "SoulKeeper — хранилище твоей жизни. Тайны, биография, послания близким, древо жизни и автоматическая передача наследства. Всё под защитой военного шифрования.": "SoulKeeper — өміріңіздің қоймасы. Құпиялар, өмірбаян, жақындарға жолдаулар, өмір ағашы және мұраны автоматты түрде беру. Бәрі әскери шифрлаумен қорғалған.",
+        "Создать Хранилище": "Қойма жасау",
+        "Узнать больше": "Көбірек білу",
+        "Листать": "Парақтан қарау",
+        "Хранителей": "Қорғаушылар",
+        "Сохранённых тайн": "Сақталған құпиялар",
+        "Шифрование": "Шифрлау",
+        "Серверы": "Серверлер",
+        "Архитектура": "Архитектура",
+        "Всё, что нужно для": "Сандық мәңгілікке",
+        "цифрового бессмертия": "қажеттінің бәрі",
+        "Шесть ключевых инструментов для сохранения вашей жизни, памяти и наследия для будущих поколений.": "Өміріңізді, естелігіңізді және мұраңызды болашақ ұрпақ үшін сақтауға арналған алты негізгі құрал.",
+        "Цифровой сейф": "Сандық сейф",
+        "Храните пароли, документы, завещания и самые сокровенные тайны под защитой AES‑256. Доступ только у вас — даже мы не можем прочесть.": "Парольдерді, құжаттарды, өсиеттерді және ең жасырын құпияларды AES-256 қорғауында сақтаңыз. Қол жеткізу тек сізде — тіпті біз де оқи алмаймыз.",
+        "Биография жизни": "Өмір тарихы",
+        "Записывайте историю своей жизни по главам. AI‑Мудрец помогает находить слова и структурировать воспоминания в литературный нарратив.": "Өмірбаяныңызды тараулар бойынша жазыңыз. AI-Данышпан естеліктерді әдеби баяндауға жүйелеуге көмектеседі.",
+        "Послания близким": "Жақындарға жолдаулар",
+        "Создавайте письма, которые откроются в нужный момент — на свадьбу, юбилей, после вашего ухода. Персональный капсулы времени.": "Керекті сәтте — үйлену тойында, мерейтойда немесе сіз кеткеннен кейін ашылатын хаттар жасаңыз. Жеке уақыт капсулалары.",
+        "Древо жизни": "Өмір ағашы",
+        "Интерактивное генеалогическое дерево с разграничением прав доступа. Наследники, наблюдатели, доверенные лица — каждый видит своё.": "Қол жеткізу құқықтары шектелген интерактивті шежіре ағашы. Мұрагерлер, бақылаушылар, сенімді тұлғалар — әркім өздігін көреді.",
+        "Dead man's switch — умная система мониторинга активности. При неактивности автоматически передаёт наследство Душеприказчику.": "Dead man's switch — әрекетті бақылаудың ақылды жүйесі. Әрекетсіздік кезінде мұраны автоматты түрде Өсиет орындаушыға береді.",
+        "AI Мудрец": "AI Данышпан",
+        "Персональный AI‑наставник помогает формулировать мысли, анализирует тональность текстов и задаёт вопросы для биографии.": "Жеке AI-тәлімгер ойларды тұжырымдауға көмектеседі, мәтіндердің үнін талдайды және өмірбаян үшін сұрақтар қояды.",
+        "Как это работает": "Бұл қалай жұмыс істейді",
+        "Четыре шага до": "Мәңгілік естелікке",
+        "вечной памяти": "төрт қадам",
+        "Создайте аккаунт за 30 секунд. Только вы знаете свой мастер-пароль — мы его не храним.": "30 секундта аккаунт жасаңыз. Мастер-құпия сөзіңізді тек сіз білесіз — біз оны сақтамаймыз.",
+        "Наполнитель сейфа": "Сейфті толтыру",
+        "Добавьте тайны, биографию, послания. AI поможет найти слова для самого важного.": "Құпияларды, өмірбаянды, жолдауларды қосыңыз. AI ең маңызды сәттерге сөз табуға көмектеседі.",
+        "Настройте наследие": "Мұраны баптау",
+        "Добавьте родственников, назначьте Душеприказчика и настройте права доступа для каждого.": "Туыстарды қосыңыз, Өсиет орындаушыны тағайындаңыз және әрқайсысы үшін қол жеткізу құқықтарын баптаңыз.",
+        "Живите спокойно": "Бейқұт өмір сүріңіз",
+        "Страж жизни следит за вашей активностью и в нужный момент передаст всё кому надо.": "Өмір сақшысы сіздің белсенділігіңізді бақылайды және қажетті сәтте бәрін тиісті адамға береді.",
+        "Безопасность": "Қауіпсіздік",
+        "Военный уровень": "Деректерді қорғаудың",
+        "защиты данных": "әскери деңгейі",
+        "Ваши данные зашифрованы ещё на вашем устройстве. Мы не можем прочитать ничего — это не маркетинговый приём, это архитектура zero-knowledge.": "Деректеріңіз құрылғыңызда шифрланған. Біз ештеңе оқи алмаймыз — бұл маркетингтік айла емес, бұл zero-knowledge архитектурасы.",
+        "Серверы в трёх юрисдикциях. GDPR‑совместимость. Открытый исходный код криптографического ядра.": "Үш юрисдикциядағы серверлер. GDPR сәйкестігі. Криптографиялық ядроның ашық бастапқы коды.",
+        "Военный стандарт шифрования. Ключ создаётся из вашего пароля и никогда не покидает устройство.": "Әрекетті шифрлау стандарты. Кілт құпия сөзіңізден жасалады және құрылғыңыздан ешқашан шықпайды.",
+        "Мы не видим ваши данные. Физически. Даже при взломе наших серверов — данные бесполезны без вашего ключа.": "Біз деректеріңізді көрмейміз. Физикалық түрде. Серверлеріміз бұзылған күннің өзінде — деректер сіздің кілтіңізсіз пайдасыз.",
+        "3 дата-центра на разных континентах. Encrypted backups каждые 6 часов. SLA 99.9%.": "Әртүрлі континенттердегі 3 деректер орталығы. Әр 6 сағат сайын шифрланған резервтік көшірме жасау. SLA 99.9%.",
+        "Полное соответствие GDPR. Криптографическое ядро — открытый код на GitHub. Независимый аудит ежегодно.": "GDPR-ге толық сәйкестік. Криптографиялық ядро — GitHub-тағы ашық код. Жыл сайынғы тәуелсіз аудит.",
+        "Истории": "Оқиғалар",
+        "Они уже": "Олар өз мұраларын",
+        "сохранили": "сақтап",
+        "своё": "қалдырды",
+        "«После болезни отца я понял, что ничего не знаю о его жизни. SoulKeeper помог мне оставить детям то, что я сам не получил — историю семьи.»": "«Әкем ауырғаннан кейін оның өмірі туралы ештеңе білмейтінімді түсіндім. SoulKeeper маған өзім ала алмаған нәрсені — отбасы тарихын балаларыма қалдыруға көмектесті.»",
+        "Предприниматель, 52 года · Москва": "Кәсіпкер, 52 жаста · Мәскеу",
+        "«Страж жизни — это то, о чём я думала годами, но не знала как реализовать. Теперь мои дочери получат всё важное в нужный момент, неважно что случится.»": "«Өмір сақшысы — бұл мен жылдар бойы ойлаған, бірақ қалай жүзеге асыруды білмеген нәрсе еді. Енді қыздарым не болса да, барлық маңызды нәрсені қажетті сәтте алады.»",
+        "Врач, 48 лет · Санкт-Петербург": "Дәрігер, 48 жаста · Санкт-Петербург",
+        "«AI-Мудрец помог мне написать письмо сыну, с которым мы не разговаривали 8 лет. Я не знал с чего начать — он задал нужные вопросы.»": "«AI-Данышпан маған 8 жыл бойы сөйлеспеген ұлыма хат жазуға көмектесті. Неден бастарымды білмеп едім — ол қажетті сұрақтар қойды.»",
+        "Инженер, 61 год · Алматы": "Инженер, 61 жаста · Алматы",
+        "Справедливая цена за": "Мәңгілік мұра үшін",
+        "вечное наследие": "әділ баға",
+        "Ежемесячно": "Ай сайын",
+        "Ежегодно": "Жыл сайын",
+        "навсегда бесплатно": "мәңгілікке тегін",
+        "До 5 тайн в сейфе": "Сейфте 5 құпияға дейін",
+        "Биография (3 главы)": "Өмірбаян (3 тарау)",
+        "До 5 родственников": "5 туысқа дейін",
+        "AI‑Мудрец (10 сообщ/мес)": "AI-Данышпан (айына 10 хабарлама)",
+        "Экспорт данных": "Деректерді экспорттау",
+        "Начать бесплатно": "Тегін бастау",
+        "Хранитель": "Хранитель",
+        "при ежемесячной оплате": "ай сайынғы төлеммен",
+        "Неограниченный сейф": "Шектеусіз сейф",
+        "Биография без ограничений": "Шектеусіз өмірбаян",
+        "До 50 родственников": "50 туысқа дейін",
+        "AI‑Мудрец без ограничений": "Шектеусіз AI-Данышпан",
+        "Экспорт PDF + JSON": "PDF + JSON экспорты",
+        "Всё из Хранителя": "Хранитель тарифіндегінің бәрі",
+        "До 5 аккаунтов семьи": "5 отбасылық аккаунтқа дейін",
+        "Видео-послания": "Бейне-жолдаулар",
+        "Печатная книга жизни": "Басып шығарылған өмір кітабы",
+        "Личный менеджер": "Жеке менеджер",
+        "Приоритетная поддержка": "Басымдықты қолдау",
+        "Начать сегодня": "Бүгін бастау",
+        "Ваша жизнь заслуживает": "Сіздің өміріңіз",
+        "быть сохранённой": "сақталуға лайық",
+        "Каждый день уходят истории, которые могли бы остаться. Начните прямо сейчас — это займёт три минуты.": "Күн сайын сақталып қалуы мүмкін оқиғалар жоғалады. Қазірден бастаңыз — бұл үш минут уақытыңызды алады.",
+        "Хранитель твоей жизни. Сохраняем воспоминания, тайны и наследие для будущих поколений.": "Өміріңіздің қорғаушысы. Естеліктерді, құпияларды және мұраңызды болашақ ұрпақ үшін сақтаймыз.",
+        "Продукт": "Өнім",
+        "Дорожная карта": "Жол картасы",
+        "Компания": "Компания",
+        "О нас": "Біз туралы",
+        "Блог": "Блог",
+        "Карьера": "Мансап",
+        "Пресса": "Баспасөз",
+        "Поддержка": "Қолдау",
+        "Документация": "Құжаттама",
+        "Статус": "Мәртебе",
+        "Контакты": "Байланыстар",
+        "© 2026 SoulKeeper. Все права защищены.": "© 2026 SoulKeeper. Барлық құқықтар қорғалған.",
+        "«Память живёт, пока её хранят»": "«Естелік оны сақтаған кезде ғана өмір сүреді»",
+
+        // Extra UI Header and Landing Links
+        "Возможности": "Мүмкіндіктер",
+        "Защита": "Қорғаныс",
+        "Тарифы": "Тарифтер",
+        "О проекте": "Жоба туралы",
+        "Начать": "Бастау",
+        "Запомнить меня": "Мені есте сақта",
+        "Войти по коду": "Код арқылы кіру",
+        "Мой код": "Менің кодым",
+        "Ваш персональный код приглашения": "Сіздің жеке шақыру кодыңыз",
+        "Копировать": "Көшіру",
+        "Поделиться": "Бөлісу",
+        "Запросов": "Сұраулар",
+        "Обновить": "Жаңарту",
+        "Добавить вручную": "Қолмен қосу",
+        "Мои связи": "Менің байланыстарым",
+        "Кто добавил вас в своё древо жизни": "Сізді кім өз өмір ағашына қосты",
+
+        // Security Page Details
+        "Двухфакторная защита (2FA)": "Екі факторлы қорғаныс (2FA)",
+        "Защита Google Authenticator": "Google Authenticator қорғанысы",
+        "Уведомления на почту": "Поштаға хабарламалар",
+        "Оповещения об активности хранилища": "Қойма белсенділігі туралы ескертулер",
+        "Шифрование активов": "Активтерді шифрлау",
+        "Сквозное локальное шифрование тайн": "Құпияларды аяғына дейін жергікті шифрлау",
+        "Автовыход сессии": "Сессиядан автоматты түрде шығу",
+        "Закрытие сессии при неактивности": "Әрекетсіздік кезінде сессияны жабу",
+        "30 минут": "30 минут",
+        "1 час": "1 сағат",
+        "4 часа": "4 сағат",
+        "Никогда": "Ешқашан",
+        "Управление данными хранилища": "Қойма деректерін басқару",
+        "Безвозвратно удалить аккаунт": "Аккаунтты біржола өшіру",
+        "Экспорт PDF": "PDF экспорты"
+      },
+      ru: {}
+    };
+
+    // Auto-generate RU dictionary by inverting the EN and KK maps
+    for (let key in TRANSLATIONS.en) {
+      TRANSLATIONS.ru[TRANSLATIONS.en[key]] = key;
+    }
+    for (let key in TRANSLATIONS.kk) {
+      TRANSLATIONS.ru[TRANSLATIONS.kk[key]] = key;
+    }
+
+    function t(text, defaultVal) {
+      const lang = (STATE.settings && STATE.settings.lang) || 'ru';
+      const dict = TRANSLATIONS[lang];
+      return (dict && dict[text]) || defaultVal || text;
+    }
+
+    function getLocale() {
+      return (STATE.settings && STATE.settings.lang) || 'ru';
+    }
+
+    // Dynamic DOM localization helper
+    function translateDOM(lang, root = document.body) {
+      const dict = TRANSLATIONS[lang];
+      if (!dict) return;
+
+      function walk(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const trimmed = node.nodeValue.trim();
+          if (dict[trimmed]) {
+            const leading = node.nodeValue.match(/^\s*/)[0];
+            const trailing = node.nodeValue.match(/\s*$/)[0];
+            node.nodeValue = leading + dict[trimmed] + trailing;
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          if (node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE') {
+            if (node.hasAttribute('placeholder')) {
+              const ph = node.getAttribute('placeholder').trim();
+              if (dict[ph]) {
+                node.setAttribute('placeholder', dict[ph]);
+              }
+            }
+            if (node.hasAttribute('data-tooltip')) {
+              const tt = node.getAttribute('data-tooltip').trim();
+              if (dict[tt]) {
+                node.setAttribute('data-tooltip', dict[tt]);
+              }
+            }
+            node.childNodes.forEach(walk);
+          }
+        }
+      }
+      walk(root);
+    }
+
+    // Intercept window.confirm for localized messages
+    const originalConfirm = window.confirm;
+    window.confirm = function(msg) {
+      let tr = t(msg);
+      if (tr === msg && (STATE.settings && STATE.settings.lang) === 'en') {
+        // Apply regex mappings for dynamic templates
+        if (/^Сделать (.+) потомком (.+)\?$/.test(msg)) {
+          tr = msg.replace(/^Сделать (.+) потомком (.+)\?$/, 'Make $1 a descendant of $2?');
+        } else if (/^Оплатить (.+) за месяц\? \(Демо-режим: нажмите ОК для активации\)$/.test(msg)) {
+          tr = msg.replace(/^Оплатить (.+) за месяц\? \(Демо-режим: нажмите ОК для активации\)$/, 'Pay $1 per month? (Demo mode: click OK to activate)');
+        } else if (/^Хотите ли вы делиться своей геопозицией на карте с пользователем (.+)\?$/.test(msg)) {
+          tr = msg.replace(/^Хотите ли вы делиться своей геопозицией на карте с пользователем (.+)\?$/, 'Do you want to share your location on the map with user $1?');
+        } else if (/^Вы действительно хотите удалить "(.+)"\?$/.test(msg)) {
+          tr = msg.replace(/^Вы действительно хотите удалить "(.+)"\?$/, 'Are you sure you want to delete "$1"?');
+        } else if (msg.includes('Удалить аккаунт?')) {
+          tr = 'Delete account? This action is irreversible.';
+        } else if (msg.includes('Сброс пароля УДАЛИТ ВСЕ')) {
+          tr = '⚠️ Resetting the password will DELETE ALL encrypted vault and cloud data forever. Continue?';
+        } else if (msg.includes('Это действие НЕОБРАТИМО.')) {
+          tr = 'This action is IRREVERSIBLE. Data recovery will be impossible. Are you sure?';
+        }
+      } else if (tr === msg && (STATE.settings && STATE.settings.lang) === 'kk') {
+        // Kazakh dynamic patterns
+        if (/^Сделать (.+) потомком (.+)\?$/.test(msg)) {
+          tr = msg.replace(/^Сделать (.+) потомком (.+)\?$/, '$1-ны $2-ның ұрпағы ету керек пе?');
+        } else if (/^Оплатить (.+) за месяц\? \(Демо-режим: нажмите ОК для активации\)$/.test(msg)) {
+          tr = msg.replace(/^Оплатить (.+) за месяц\? \(Демо-режим: нажмите ОК для активации\)$/, 'Айына $1 төлеу керек пе? (Демо-режим: белсендіру үшін ОК түймесін басыңыз)');
+        } else if (/^Хотите ли вы делиться своей геопозицией на карте с пользователем (.+)\?$/.test(msg)) {
+          tr = msg.replace(/^Хотите ли вы делиться своей геопозицией на карте с пользователем (.+)\?$/, 'Картадағы геопозицияңызды $1 пайдаланушысымен бөліскіңіз келе ме?');
+        } else if (/^Вы действительно хотите удалить "(.+)"\?$/.test(msg)) {
+          tr = msg.replace(/^Вы действительно хотите удалить "(.+)"\?$/, 'Шынымен "$1" өшіргіңіз келе ме?');
+        } else if (msg.includes('Удалить аккаунт?')) {
+          tr = 'Аккаунтты өшіру керек пе? Бұл әрекет қайтарылмайды.';
+        } else if (msg.includes('Сброс пароля УДАЛИТ ВСЕ')) {
+          tr = '⚠️ Құпия сөзді қайта орнату сейф пен бұлттағы БАРЛЫҚ шифрланған деректерді біржола ӨШІРЕДІ. Жалғастыру керек пе?';
+        } else if (msg.includes('Это действие НЕОБРАТИМО.')) {
+          tr = 'Бұл әрекет ҚАЙТАРЫЛМАЙДЫ. Деректерді қалпына келтіру мүмкін емес. Сенімдісіз бе?';
+        }
+      }
+      return originalConfirm(tr);
+    };
+
+    window.changeLanguage = function(lang) {
+      if (!STATE.settings) STATE.settings = {};
+      STATE.settings.lang = lang;
+      if (document.getElementById('set-lang')) {
+        document.getElementById('set-lang').value = lang;
+      }
+      
+      applyLanguage(lang);
+      saveSettings(); // save settings & push to Firestore
+    };
+
+    function applyLanguage(lang) {
+      if (document.getElementById('set-lang')) {
+        document.getElementById('set-lang').value = lang;
+      }
+      
+      // First restore the DOM back to Russian representation
+      translateDOM('ru');
+
+      if (lang === 'en') {
+        catLabels.password = 'Password';
+        catLabels.document = 'Document';
+        catLabels.personal = 'Personal';
+        catLabels.financial = 'Financial';
+        catLabels.medical = 'Medical';
+        catLabels.property = 'Property';
+
+        accessLabels.private = 'Only Me';
+        accessLabels.after_death = 'After Death';
+        accessLabels.heir = 'Heirs';
+        accessLabels.public = 'Everyone';
+
+        accessLabel.heir = 'Heir';
+        accessLabel.observer = 'Observer';
+        accessLabel.trusted = 'Trusted';
+        accessLabel.blocked = 'Blocked';
+
+        triggerLabels.death = 'After Death';
+        triggerLabels.date = 'On Date';
+        triggerLabels.wedding = 'On Wedding';
+        triggerLabels.birthday = 'On Jubilee';
+        triggerLabels.now = 'Immediately';
+      } else if (lang === 'kk') {
+        catLabels.password = 'Құпия сөз';
+        catLabels.document = 'Құжат';
+        catLabels.personal = 'Жеке';
+        catLabels.financial = 'Қаржы';
+        catLabels.medical = 'Медицина';
+        catLabels.property = 'Мүлік';
+
+        accessLabels.private = 'Тек өзіме';
+        accessLabels.after_death = 'Қайтыс болғаннан кейін';
+        accessLabels.heir = 'Мұрагерлерге';
+        accessLabels.public = 'Барлығына';
+
+        accessLabel.heir = 'Мұрагер';
+        accessLabel.observer = 'Бақылаушы';
+        accessLabel.trusted = 'Сенімді тұлға';
+        accessLabel.blocked = 'Бұғатталған';
+
+        triggerLabels.death = 'Қайтыс болғаннан кейін';
+        triggerLabels.date = 'Күні бойынша';
+        triggerLabels.wedding = 'Үйлену тойына';
+        triggerLabels.birthday = 'Мерейтойға';
+        triggerLabels.now = 'Дереу';
+      } else {
+        catLabels.password = 'Пароль';
+        catLabels.document = 'Документ';
+        catLabels.personal = 'Личное';
+        catLabels.financial = 'Финансы';
+        catLabels.medical = 'Медицина';
+        catLabels.property = 'Имущество';
+
+        accessLabels.private = 'Только я';
+        accessLabels.after_death = 'После смерти';
+        accessLabels.heir = 'Наследникам';
+        accessLabels.public = 'Всем';
+
+        accessLabel.heir = 'Наследник';
+        accessLabel.observer = 'Наблюдатель';
+        accessLabel.trusted = 'Доверенный';
+        accessLabel.blocked = 'Заблокирован';
+
+        triggerLabels.death = 'После смерти';
+        triggerLabels.date = 'В дату';
+        triggerLabels.wedding = 'На свадьбу';
+        triggerLabels.birthday = 'На юбилей';
+        triggerLabels.now = 'Сразу';
+      }
+
+      if (lang !== 'ru') {
+        translateDOM(lang);
+      }
+      
+      // Update UI components
+      renderSecrets();
+      renderCloudGrid();
+      updateDashStats();
+      renderBio();
+      renderMessages();
+      renderRelatives();
+      if (typeof renderTree === 'function') renderTree();
     }
 
     // ═══════════════════════════════════════════
@@ -9778,6 +10671,8 @@
       DB.save('settings_' + e, STATE.settings);
       DB.save('twin_history_' + e, STATE.twinChatHistory || []);
       DB.save('twin_settings_' + e, STATE.twinSettings || {});
+      DB.save('vault_seed_hash_' + e, STATE.user.vaultSeedHash || null);
+      DB.save('vault_password_hash_' + e, STATE.user.vaultPasswordHash || null);
       updateDbStats();
     }
 
@@ -9798,7 +10693,7 @@
           zkVersion: 2,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           // ↓ Всё ниже зашифровано AES-256 на устройстве
-          secrets: CryptoEngine.encrypt(STATE.secrets),
+          secrets: CryptoEngine.encryptVault(STATE.secrets),
           bio: CryptoEngine.encrypt(STATE.bio),
           messages: CryptoEngine.encrypt(STATE.messages),
           relatives: CryptoEngine.encrypt(STATE.relatives),
@@ -9808,7 +10703,12 @@
           swPeriod: STATE.swPeriod,
           swDays: STATE.swDays,
           planId: STATE.planId,
-          planExpiry: STATE.planExpiry
+          planExpiry: STATE.planExpiry,
+          cloudItems: STATE.cloudItems || [],
+          vaultSeedHash: (STATE.user && STATE.user.vaultSeedHash) ? STATE.user.vaultSeedHash : null,
+          vaultPasswordHash: (STATE.user && STATE.user.vaultPasswordHash) ? STATE.user.vaultPasswordHash : null,
+          lat: (STATE.user && STATE.user.lat !== undefined) ? STATE.user.lat : firebase.firestore.FieldValue.delete(),
+          lon: (STATE.user && STATE.user.lon !== undefined) ? STATE.user.lon : firebase.firestore.FieldValue.delete()
         }, { merge: true })
           .then(() => DB._addLog('OK', '🔒 Firestore: Zero-Knowledge sync завершён'))
           .catch(err => {
@@ -9835,6 +10735,8 @@
       STATE.planId = DB.load('planId_' + e, 'free');
       STATE.planExpiry = DB.load('planExp_' + e, 0);
       STATE.twinChatHistory = DB.load('twin_history_' + e, []);
+      STATE.cloudItems = DB.load('cloud_items_' + e, []);
+      setTimeout(() => applyLanguage(STATE.settings.lang || 'ru'), 50);
       STATE.twinSettings = DB.load('twin_settings_' + e, {
         consent: true,
         name: '',
@@ -9850,6 +10752,16 @@
         socials: '',
         uploadedFiles: []
       });
+      STATE.user.vaultSeedHash = DB.load('vault_seed_hash_' + e, null);
+      STATE.user.vaultPasswordHash = DB.load('vault_password_hash_' + e, null);
+      if (STATE.user.lat === undefined) {
+        const storedLat = DB.load('lat_' + e, null);
+        if (storedLat !== null) STATE.user.lat = storedLat;
+      }
+      if (STATE.user.lon === undefined) {
+        const storedLon = DB.load('lon_' + e, null);
+        if (storedLon !== null) STATE.user.lon = storedLon;
+      }
       DB._addLog('INFO', `Данные пользователя загружены (${e})`);
       if (STATE.settings && STATE.settings.zenlyActive) {
         setTimeout(() => { startZenlyTracking(); }, 1200);
@@ -10053,12 +10965,12 @@
       DB.save('user', demo);
       if (!DB.load('secrets_' + demo.email)) {
         STATE.secrets = [
-          { id: uid(), title: 'Пароль от банка', category: 'password', content: 'SuperSecret123', access: 'private', date: new Date().toLocaleDateString('ru') },
-          { id: uid(), title: 'Завещание', category: 'document', content: 'Квартира переходит старшему сыну...', access: 'after_death', date: new Date().toLocaleDateString('ru') },
-          { id: uid(), title: 'Тайна семьи', category: 'personal', content: 'Никто не знает что...', access: 'heir', date: new Date().toLocaleDateString('ru') },
+          { id: uid(), title: 'Пароль от банка', category: 'password', content: 'SuperSecret123', access: 'private', date: new Date().toLocaleDateString(getLocale()) },
+          { id: uid(), title: 'Завещание', category: 'document', content: 'Квартира переходит старшему сыну...', access: 'after_death', date: new Date().toLocaleDateString(getLocale()) },
+          { id: uid(), title: 'Тайна семьи', category: 'personal', content: 'Никто не знает что...', access: 'heir', date: new Date().toLocaleDateString(getLocale()) },
         ];
-        STATE.bio = [{ id: uid(), title: 'Детство', period: '1970–1985', content: 'Родился в небольшом городке...', date: new Date().toLocaleDateString('ru') }];
-        STATE.messages = [{ id: uid(), to: 'Сын', subject: 'На твою свадьбу', content: 'Дорогой сын...', trigger: 'wedding', date: new Date().toLocaleDateString('ru') }];
+        STATE.bio = [{ id: uid(), title: 'Детство', period: '1970–1985', content: 'Родился в небольшом городке...', date: new Date().toLocaleDateString(getLocale()) }];
+        STATE.messages = [{ id: uid(), to: 'Сын', subject: 'На твою свадьбу', content: 'Дорогой сын...', trigger: 'wedding', date: new Date().toLocaleDateString(getLocale()) }];
         const child1Id = uid();
         const child2Id = uid();
         const sisterId = uid();
@@ -10244,13 +11156,26 @@
 
       if (tempLockedData) {
         try {
-          const dec = CryptoEngine.decrypt(tempLockedData.secrets);
-          if (typeof dec === 'string' && dec.startsWith(ZK_PREFIX)) {
-            throw new Error('Incorrect password');
+          // Find any field that is encrypted with the master key (starts with ZK_PREFIX) to verify the password
+          let checkFieldVal = null;
+          const fieldsToCheck = ['secrets', 'bio', 'messages', 'relatives', 'executor'];
+          for (const field of fieldsToCheck) {
+            const val = tempLockedData[field];
+            if (val && typeof val === 'string' && val.startsWith(ZK_PREFIX)) {
+              checkFieldVal = val;
+              break;
+            }
+          }
+
+          if (checkFieldVal) {
+            const dec = CryptoEngine.decrypt(checkFieldVal);
+            if (typeof dec === 'string' && dec.startsWith(ZK_PREFIX)) {
+              throw new Error('Incorrect password');
+            }
           }
           closeModal('modal-session-unlock');
           
-          STATE.secrets = dec || [];
+          STATE.secrets = CryptoEngine.decryptVault(tempLockedData.secrets) || [];
           STATE.bio = CryptoEngine.decrypt(tempLockedData.bio) || [];
           STATE.messages = CryptoEngine.decrypt(tempLockedData.messages) || [];
           STATE.relatives = CryptoEngine.decrypt(tempLockedData.relatives) || [];
@@ -10292,15 +11217,18 @@
       if (chatMessagesUnsubscribe) { chatMessagesUnsubscribe(); chatMessagesUnsubscribe = null; }
       activeChatContact = null;
 
+      CryptoEngine._vaultKey = null;
+      localStorage.removeItem('sk_vaultkey_saved');
+
       if (STATE.user && STATE.user.isDemo) {
         DB.remove('user');
-        STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
+        STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null, cloudItems: [] };
         showLanding();
         return;
       }
       fbAuth.signOut().then(() => {
         DB.remove('user');
-        STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null };
+        STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null, cloudItems: [] };
         fbDb.clearPersistence().catch(() => {});
         showLanding();
       });
@@ -10487,7 +11415,7 @@
       setText('user-name-top', firstName);
       setText('dash-name', firstName);
       setText('user-avatar-btn', firstName.charAt(0).toUpperCase());
-      setText('dash-date', new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+      setText('dash-date', new Date().toLocaleDateString(getLocale(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
       fillSettings();
       renderAll();
 
@@ -10806,7 +11734,7 @@
         media: JSON.parse(document.getElementById('s-media-data-json').value || "[]"),
         access: document.getElementById('s-access').value,
         isVault: isVault,
-        date: new Date().toLocaleDateString('ru')
+        date: new Date().toLocaleDateString(getLocale())
       };
 
       STATE.secrets.unshift(secret);
@@ -10839,7 +11767,11 @@
       let list = STATE.secrets;
       if (secretFilter !== 'all') list = list.filter(s => s.category === secretFilter);
       if (secretSearch) list = list.filter(s => s.title.toLowerCase().includes(secretSearch) || (s.content || '').toLowerCase().includes(secretSearch));
-      if (!list.length) { el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-lock-key"></i></div><div class="empty-text">Сейф пуст</div><div class="empty-sub">Добавьте первую тайну</div></div>`; return; }
+      if (!list.length) {
+        el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-lock-key"></i></div><div class="empty-text">Сейф пуст</div><div class="empty-sub">Добавьте первую тайну</div></div>`;
+        translateDOM(STATE.settings.lang || 'ru', el);
+        return;
+      }
       el.innerHTML = list.map(s => `
     <div class="premium-list-item" onclick="viewSecret('${s.id}')">
       <div class="premium-list-icon">${catIcons[s.category] || '<i class="ph-light ph-folder"></i>'}</div>
@@ -10852,6 +11784,7 @@
         <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();deleteSecret('${s.id}')" style="color:var(--muted); font-size:1.1rem; padding:4px; line-height:1;"><i class="ph-light ph-trash"></i></button>
       </div>
     </div>`).join('');
+      translateDOM(STATE.settings.lang || 'ru', el);
     }
 
     function showDecryptedSecret(s, decryptedContent) {
@@ -10968,7 +11901,7 @@
 
         const chapter = {
           id: uid(), title, period, content, media,
-          date: new Date().toLocaleDateString('ru')
+          date: new Date().toLocaleDateString(getLocale())
         };
         STATE.bio.unshift(chapter);
         toast('<i class="ph-light ph-check"></i> Глава сохранена');
@@ -11093,6 +12026,7 @@
       }).join('');
       html += `</div>`;
       el.innerHTML = html;
+      translateDOM(STATE.settings.lang || 'ru', el);
     }
 
     function viewBio(id) {
@@ -11173,7 +12107,7 @@
         id: uid(), to, subject: subj,
         content: document.getElementById('m-content').value,
         trigger: document.getElementById('m-trigger').value,
-        date: new Date().toLocaleDateString('ru')
+        date: new Date().toLocaleDateString(getLocale())
       };
       STATE.messages.unshift(msg);
       saveUserData(); renderMessages(); updateDashStats(); updateBadges();
@@ -11198,6 +12132,7 @@
         <button class="btn btn-ghost btn-sm" onclick="deleteMsg('${m.id}')" style="color:var(--muted); font-size:1.1rem; padding:4px; line-height:1;"><i class="ph-light ph-trash"></i></button>
       </div>
     </div>`).join('');
+      translateDOM(STATE.settings.lang || 'ru', el);
     }
 
     function deleteMsg(id) {
@@ -11423,6 +12358,7 @@
         const list = relSearch ? STATE.relatives.filter(r => r.name.toLowerCase().includes(relSearch)) : STATE.relatives;
         if (!list.length) {
           el.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ph-light ph-users"></i></div><div class="empty-text">Древо пока пусто</div></div>`;
+          translateDOM(STATE.settings.lang || 'ru', el);
           return;
         }
         el.innerHTML = list.map(r => `
@@ -11439,6 +12375,7 @@
           <i class="ph-light ph-caret-right" style="color:var(--muted); margin-left:8px"></i>
         </div>
       </div>`).join('');
+        translateDOM(STATE.settings.lang || 'ru', el);
       });
     }
 
@@ -12328,7 +13265,7 @@
                             </div>
                             <div class="sub-meta-item">
                                 <div class="sub-meta-label">Следующее списание</div>
-                                <div class="sub-meta-value">${daysLeft > 0 ? new Date(expiry).toLocaleDateString('ru') : (planId === 'free' ? '—' : 'Требуется оплата')}</div>
+                                <div class="sub-meta-value">${daysLeft > 0 ? new Date(expiry).toLocaleDateString(getLocale()) : (planId === 'free' ? '—' : 'Требуется оплата')}</div>
                             </div>
                             <div class="sub-meta-item">
                                 <div class="sub-meta-label">Стоимость</div>
@@ -14930,6 +15867,7 @@ ${socialsContext}
       if (el('set-email')) el('set-email').value = STATE.user.email || '';
       if (el('set-birth')) el('set-birth').value = s.birth || '';
       if (el('set-city')) el('set-city').value = s.city || '';
+      if (el('set-lang')) el('set-lang').value = s.lang || 'ru';
       updateAvatarUI();
     }
 
@@ -14941,6 +15879,7 @@ ${socialsContext}
       localStorage.setItem('user_gemini_api_key', geminiKey);
       STATE.settings.birth = document.getElementById('set-birth').value;
       STATE.settings.city = document.getElementById('set-city').value;
+      STATE.settings.lang = document.getElementById('set-lang') ? document.getElementById('set-lang').value : 'ru';
       const users = DB.load('users', []);
       const idx = users.findIndex(u => u.email === STATE.user.email);
       if (idx >= 0) users[idx].name = name;
@@ -14985,7 +15924,7 @@ ${socialsContext}
         doc.setFontSize(14);
         doc.setTextColor(40, 40, 40);
         doc.text(`Владелец: ${STATE.user.name}`, 20, 40);
-        doc.text(`Дата экспорта: ${new Date().toLocaleDateString('ru')}`, 20, 50);
+        doc.text(`Дата экспорта: ${new Date().toLocaleDateString(getLocale())}`, 20, 50);
 
         doc.setDrawColor(212, 175, 55);
         doc.line(20, 55, 190, 55);
@@ -15088,6 +16027,17 @@ ${socialsContext}
       setText('d-rels', STATE.relatives.length);
       setText('d-bio', STATE.bio.length);
 
+      // Update Vault status badge on dashboard
+      const badgeEl = document.getElementById('dash-vault-status-badge');
+      if (badgeEl) {
+        const isProtected = !!(STATE.user && (STATE.user.vaultSeedHash || STATE.user.vaultPasswordHash));
+        if (isProtected) {
+          badgeEl.innerHTML = `<span class="tag tag-gold" style="cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-size: 0.62rem; border-radius: 4px; text-transform: uppercase; font-weight: 500;" onclick="window.setLegacyTab('secrets')"><i class="ph-fill ph-shield-check" style="font-size:0.75rem;"></i> Сейф защищен</span>`;
+        } else {
+          badgeEl.innerHTML = `<span class="tag tag-red" style="cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-size: 0.62rem; border-radius: 4px; text-transform: uppercase; font-weight: 500;" onclick="window.setLegacyTab('secrets')"><i class="ph-fill ph-warning-circle" style="font-size:0.75rem;"></i> Сейф не защищен (Настроить)</span>`;
+        }
+      }
+
       // Calculate Legacy Completion
       let completion = 0;
       if (STATE.secrets.length > 0) completion += 25;
@@ -15099,16 +16049,6 @@ ${socialsContext}
       const fillEl = document.getElementById('dash-health-fill');
       if (pctEl) pctEl.textContent = completion + '%';
       if (fillEl) fillEl.style.width = completion + '%';
-
-      const badgeEl = document.getElementById('dash-bip39-badge');
-      if (badgeEl) {
-        const hasSeed = STATE.user && STATE.user.vaultSeedHash;
-        if (hasSeed) {
-          badgeEl.innerHTML = `<span class="badge badge-gold" style="background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.4); color: var(--gold); padding: 0.2rem 0.5rem; border-radius: 8px; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 500;"><span style="width: 5px; height: 5px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 6px var(--gold);"></span>Защита BIP39: Запущена</span>`;
-        } else {
-          badgeEl.innerHTML = `<span class="badge badge-red" style="background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.4); color: #e74c3c; padding: 0.2rem 0.5rem; border-radius: 8px; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 500;"><span style="width: 5px; height: 5px; border-radius: 50%; background: #e74c3c; box-shadow: 0 0 6px #e74c3c;"></span>Защита BIP39: Не настроена</span>`;
-        }
-      }
     }
     function updateBadges() {
       const secretsCount = STATE.secrets.length;
@@ -15186,10 +16126,98 @@ ${socialsContext}
     // ═══════════════════════════════════════════
     let toastTimer;
     function toast(msg) {
-      const t = document.getElementById('toast');
-      t.innerHTML = msg; t.classList.add('show');
+      const tElement = document.getElementById('toast');
+      let tr = msg;
+      const lang = (STATE.settings && STATE.settings.lang) || 'ru';
+      if (lang === 'en') {
+        // Extract icon if present
+        let iconHtml = '';
+        let textPart = msg;
+        const iconMatch = msg.match(/^(\s*<i\b[^>]*><\/i>\s*)/i);
+        if (iconMatch) {
+          iconHtml = iconMatch[1];
+          textPart = msg.slice(iconHtml.length).trim();
+        }
+        
+        let translatedText = TRANSLATIONS.en[textPart] || textPart;
+        
+        if (translatedText === textPart) {
+          // Dynamic toast translations
+          if (textPart.startsWith('Ошибка входа через Google:')) {
+            translatedText = textPart.replace('Ошибка входа через Google:', 'Google login error:');
+          } else if (textPart.startsWith('Добро пожаловать, ') && textPart.endsWith('!')) {
+            translatedText = textPart.replace('Добро пожаловать, ', 'Welcome, ');
+          } else if (textPart.startsWith('Файл ') && textPart.endsWith(' слишком большой')) {
+            translatedText = textPart.replace('Файл ', 'File ').replace(' слишком большой', ' is too large');
+          } else if (textPart.includes('Лимит тарифа')) {
+            translatedText = textPart
+              .replace('Лимит тарифа', 'Plan limit')
+              .replace('максимум', 'maximum')
+              .replace('тайн. Перейдите на тариф «Хранитель» или «Наследие»', 'secrets. Upgrade to Keeper or Legacy plan')
+              .replace('глав. Апгрейдите тариф!', 'chapters. Upgrade your plan!')
+              .replace('посланий. Перейдите на расширенный тариф.', 'messages. Upgrade to a premium plan.');
+          } else if (textPart.startsWith('Связь установлена:')) {
+            translatedText = textPart
+              .replace('Связь установлена:', 'Connection established:')
+              .replace('отец', 'father of')
+              .replace('Вы', 'You')
+              .replace('Вас', 'you');
+          } else if (textPart.startsWith('Лимит тарифа: максимум ')) {
+            translatedText = textPart.replace('Лимит тарифа: максимум ', 'Plan limit: maximum ').replace('человек', 'people');
+          } else if (textPart.startsWith('Вы действительно хотите удалить')) {
+            translatedText = textPart.replace('Вы действительно хотите удалить', 'Are you sure you want to delete');
+          } else if (textPart.startsWith('Фото слишком тяжелое (макс ')) {
+            translatedText = textPart.replace('Фото слишком тяжелое (макс ', 'Photo is too heavy (max ').replace(')', ')');
+          }
+        }
+        tr = iconHtml + translatedText;
+      } else if (lang === 'kk') {
+        // Extract icon if present
+        let iconHtml = '';
+        let textPart = msg;
+        const iconMatch = msg.match(/^(\s*<i\b[^>]*><\/i>\s*)/i);
+        if (iconMatch) {
+          iconHtml = iconMatch[1];
+          textPart = msg.slice(iconHtml.length).trim();
+        }
+        
+        let translatedText = TRANSLATIONS.kk[textPart] || textPart;
+        
+        if (translatedText === textPart) {
+          // Dynamic toast translations
+          if (textPart.startsWith('Ошибка входа через Google:')) {
+            translatedText = textPart.replace('Ошибка входа через Google:', 'Google арқылы кіру қатесі:');
+          } else if (textPart.startsWith('Добро пожаловать, ') && textPart.endsWith('!')) {
+            translatedText = textPart.replace('Добро пожаловать, ', 'Қош келдіңіз, ');
+          } else if (textPart.startsWith('Файл ') && textPart.endsWith(' слишком большой')) {
+            translatedText = textPart.replace('Файл ', 'Файл ').replace(' слишком большой', ' тым үлкен');
+          } else if (textPart.includes('Лимит тарифа')) {
+            translatedText = textPart
+              .replace('Лимит тарифа', 'Тариф лимиті')
+              .replace('максимум', 'максимум')
+              .replace('тайн. Перейдите на тариф «Хранитель» или «Наследие»', 'құпия. «Хранитель» немесе «Наследие» тарифіне өтіңіз')
+              .replace('глав. Апгрейдите тариф!', 'тарау. Тарифті жаңартыңыз!')
+              .replace('посланий. Перейдите на расширенный тариф.', 'жолдау. Кеңейтілген тарифке өтіңіз.');
+          } else if (textPart.startsWith('Связь установлена:')) {
+            translatedText = textPart
+              .replace('Связь установлена:', 'Байланыс орнатылды:')
+              .replace('отец', 'әкесі')
+              .replace('Вы', 'Сіз')
+              .replace('Вас', 'Сізді');
+          } else if (textPart.startsWith('Лимит тарифа: максимум ')) {
+            translatedText = textPart.replace('Лимит тарифа: максимум ', 'Тариф лимиті: максимум ').replace('человек', 'адам');
+          } else if (textPart.startsWith('Вы действительно хотите удалить')) {
+            translatedText = textPart.replace('Вы действительно хотите удалить', 'Шынымен өшіргіңіз келе ме');
+          } else if (textPart.startsWith('Фото слишком тяжелое (макс ')) {
+            translatedText = textPart.replace('Фото слишком тяжелое (макс ', 'Фото суреті тым ауыр (макс ').replace(')', ')');
+          }
+        }
+        tr = iconHtml + translatedText;
+      }
+      
+      tElement.innerHTML = tr; tElement.classList.add('show');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+      toastTimer = setTimeout(() => tElement.classList.remove('show'), 3000);
     }
 
     // ═══════════════════════════════════════════
@@ -15312,7 +16340,7 @@ ${socialsContext}
 
       // Dash date
       const dd = document.getElementById('dash-date');
-      if (dd) dd.textContent = new Date().toLocaleDateString('ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      if (dd) dd.textContent = new Date().toLocaleDateString(getLocale(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
       // Background Switch Countdown (Demo: 1 day = 24 hours)
       setInterval(() => {
@@ -15986,7 +17014,7 @@ ${socialsContext}
       if (!email) return;
       if (DB.load('conn_demo_injected_' + email)) return;
       const pending = DB.load('conn_pending_' + email, []);
-      pending.push({ name: 'Алия Серікқызы', fromEmail: 'demo@family.sk', role: 'observer', relation: 'Сестра', date: new Date().toLocaleDateString('ru') });
+      pending.push({ name: 'Алия Серікқызы', fromEmail: 'demo@family.sk', role: 'observer', relation: 'Сестра', date: new Date().toLocaleDateString(getLocale()) });
       DB.save('conn_pending_' + email, pending);
       DB.save('conn_demo_injected_' + email, true);
     }
@@ -17071,10 +18099,7 @@ ${socialsContext}
       const box = document.getElementById('generated-seed-box');
       if (box) {
         box.innerHTML = generatedMnemonic.split(' ').map((w, i) => `
-          <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(212,175,55,0.12); border-radius:8px; padding:0.5rem 0.75rem; display:flex; align-items:center; justify-content:space-between; font-size:0.85rem; font-family:monospace; color:var(--ivory); box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);">
-            <span style="color:var(--gold); font-size:0.7rem; font-weight:600; text-shadow:0 0 5px rgba(212,175,55,0.2); margin-right:8px;">#${String(i+1).padStart(2, '0')}</span>
-            <span style="font-weight:500; letter-spacing:0.5px;">${w}</span>
-          </div>
+          <div style="font-size:0.75rem; color:var(--muted);"><span style="color:var(--gold); font-size:0.65rem; margin-right:4px;">${i+1}.</span>${w}</div>
         `).join('');
       }
       closeModal('modal-upgrade');
@@ -17188,45 +18213,34 @@ ${socialsContext}
           renderCloudGrid();
         } else {
           // Lock Secrets
-          if (lockOverlay) {
-            lockOverlay.style.display = 'flex';
-            lockOverlay.innerHTML = `
-              <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
-              <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Сейф заблокирован</h3>
-              <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Чтобы расшифровать ваши личные данные, введите секретную сид-фразу из 12 слов.</p>
-              
-              <div style="width:100%; max-width:400px; display:flex; flex-direction:column; gap:0.8rem;">
-                <textarea id="vault-seed-input" placeholder="Введите 12 слов через пробел..." style="width:100%; height:70px; border-radius:12px; padding:0.75rem; background:var(--ink3); border:1px solid rgba(201,168,76,0.25); color:var(--ivory); font-family:monospace; font-size:0.85rem; outline:none; resize:none;"></textarea>
-                <div style="display:flex; gap:0.5rem;">
-                  <button class="btn btn-primary" onclick="window.unlockVaultBySeed()" style="flex:1; padding:0.75rem;">Разблокировать</button>
-                </div>
-                <a href="#" onclick="window.resetVaultSeed(event)" style="font-size:0.75rem; color:var(--red); text-decoration:underline; margin-top:0.4rem; text-align:center; display:block;">Забыли сид-фразу? Сбросить сейф</a>
-              </div>
-            `;
-          }
+          if (lockOverlay) lockOverlay.style.display = 'flex';
           if (secretsWrap) secretsWrap.style.display = 'none';
           
           // Lock Cloud
+          if (cloudOverlay) cloudOverlay.style.display = 'flex';
           if (cloudOverlay) {
-            cloudOverlay.style.display = 'flex';
             cloudOverlay.innerHTML = `
               <i class="ph-fill ph-lock-keyholder" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem; filter:drop-shadow(0 0 15px rgba(212,175,55,0.3));"></i>
               <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Хранилище заблокировано</h3>
               <p style="font-size:0.8rem; color:var(--muted); max-width:320px; margin-bottom:1.5rem; line-height:1.4;">Введите секретную сид-фразу из 12 слов во вкладке "Цифровой Сейф" для разблокировки всего Наследия.</p>
-              <button class="btn btn-primary" onclick="window.setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к разблокировке</button>
+              <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к разблокировке</button>
             `;
           }
           if (cloudWrap) cloudWrap.style.display = 'none';
+          
+          // Show Create Seed option if hash not setup yet (fallback safety)
+          const setupBtn = document.getElementById('vault-init-setup-btn');
+          if (setupBtn) setupBtn.style.display = 'none';
         }
       } else {
         // Not protected yet -> Prompt setup
+        if (lockOverlay) lockOverlay.style.display = 'flex';
         if (lockOverlay) {
-          lockOverlay.style.display = 'flex';
           lockOverlay.innerHTML = `
             <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
             <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
             <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Для защиты Сейфа и Облака сгенерируйте секретную 12-значную сид-фразу по стандарту BIP39.</p>
-            <button class="btn btn-primary" onclick="window.initVaultSeedSetup()" style="padding:0.75rem 1.5rem;">Сгенерировать сид-фразу</button>
+            <button class="btn btn-primary" onclick="initVaultSeedSetup()" style="padding:0.75rem 1.5rem;">Сгенерировать сид-фразу</button>
           `;
         }
         if (secretsWrap) secretsWrap.style.display = 'none';
@@ -17237,7 +18251,7 @@ ${socialsContext}
             <i class="ph-fill ph-shield-checkered" style="font-size:3rem; color:var(--gold); margin-bottom:1.2rem;"></i>
             <h3 style="font-family:var(--serif); color:var(--ivory); font-size:1.2rem; margin-bottom:0.5rem;">Активация сверхзащиты Наследия</h3>
             <p style="font-size:0.8rem; color:var(--muted); max-width:340px; margin-bottom:1.5rem; line-height:1.4;">Сгенерируйте сид-фразу во вкладке "Цифровой Сейф" для начала работы с зашифрованным Облаком.</p>
-            <button class="btn btn-primary" onclick="window.setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к настройке</button>
+            <button class="btn btn-primary" onclick="setLegacyTab('secrets')" style="padding:0.75rem 1.5rem;">Перейти к настройке</button>
           `;
         }
         if (cloudWrap) cloudWrap.style.display = 'none';
@@ -17409,7 +18423,7 @@ ${socialsContext}
         const base64Data = CryptoEngine.decryptVault(encryptedText);
 
         if (!base64Data || !base64Data.startsWith('data:')) {
-          throw new Error('Не удалось расшифровать файл. Проверьте сид-фразу.');
+          throw new Error('Не удалось расшифровать файл. Проверьте пароль сейфа.');
         }
 
         // Trigger local view/download
@@ -17470,6 +18484,8 @@ ${socialsContext}
 
       if (!items.length) {
         grid.innerHTML = `<div class="empty" style="grid-column:1/-1; padding:3rem 1.5rem;"><div class="empty-icon"><i class="ph-light ph-folder-open"></i></div><div class="empty-text">Папка пуста</div><div class="empty-sub">Загрузите файлы или создайте подпапки</div></div>`;
+        translateDOM(STATE.settings.lang || 'ru', grid);
+        translateDOM(STATE.settings.lang || 'ru', breadcrumbs);
         return;
       }
 
@@ -17496,6 +18512,8 @@ ${socialsContext}
           </div>
         `;
       }).join('');
+      translateDOM(STATE.settings.lang || 'ru', grid);
+      translateDOM(STATE.settings.lang || 'ru', breadcrumbs);
     }
 
 
@@ -17503,29 +18521,8 @@ ${socialsContext}
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => {
-            console.log('Service Worker registered successfully:', reg.scope);
-            reg.onupdatefound = () => {
-              const installingWorker = reg.installing;
-              if (installingWorker) {
-                installingWorker.onstatechange = () => {
-                  if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    toast('Доступно обновление. Страница обновляется...');
-                    setTimeout(() => location.reload(), 1000);
-                  }
-                };
-              }
-            };
-          })
+          .then(reg => console.log('Service Worker registered successfully:', reg.scope))
           .catch(err => console.error('Service Worker registration failed:', err));
-      });
-
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
-        }
       });
     }
   </script>
@@ -17589,7 +18586,7 @@ ${socialsContext}
         <h4 style="font-family:var(--serif); color:var(--ivory); font-size:1.1rem; margin-bottom:0.5rem;">Сгенерирована секретная фраза</h4>
         <p style="font-size:0.75rem; color:var(--muted); line-height:1.4; margin-bottom:1.5rem; padding:0 0.5rem;">Запишите эти 12 слов на бумаге и храните в надежном месте. Они нужны для шифрования Сейфа и Облака. Если вы их потеряете, восстановить данные будет <strong>невозможно</strong>.</p>
         
-        <div id="generated-seed-box" style="background: rgba(10, 9, 15, 0.5); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 16px; padding: 1.2rem; margin-bottom: 1.5rem;"></div>
+        <div id="generated-seed-box" style="background:rgba(212,175,55,0.04); border:1px dashed rgba(212,175,55,0.25); border-radius:12px; padding:1rem; font-family:monospace; font-size:0.95rem; color:var(--gold2); margin-bottom:1.5rem; text-align:left;"></div>
 
         <button class="btn btn-primary" onclick="confirmSeedSaved()" style="width:100%; padding:0.8rem;">Я записал фразу</button>
       </div>
