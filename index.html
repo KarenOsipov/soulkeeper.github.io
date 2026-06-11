@@ -6160,9 +6160,9 @@
 
 @media (max-width: 768px) {
   #screen-landing { padding: 15px; text-align: center; }
-  .l-nav { flex-direction: column; gap: 10px; padding: 10px; }
-  .l-nav-logo { font-size: 1.5rem !important; margin-bottom: 10px; }
-  .l-nav-links { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 8px; font-size: 0.8rem; }
+  
+  
+  
   .l-hero-title { font-size: 2rem !important; line-height: 1.2 !important; margin-top: 20px; }
   .l-hero-subtitle { font-size: 1rem !important; padding: 0 10px; }
   #screen-landing .btn, .l-btn { padding: 12px 20px !important; font-size: 0.9rem !important; width: 100%; max-width: 300px; margin: 5px auto; display: block; }
@@ -6436,6 +6436,51 @@ input, textarea, select {
 .btn-gold, .btn-primary, .btn-primary-sm {
   box-sizing: border-box !important;
   max-width: 100% !important;
+}
+
+
+/* CRITICAL: FIX .page VISIBILITY (The HTML uses .page, not .app-page!) */
+.app-main > .page {
+  display: none !important;
+  opacity: 0;
+  z-index: 1;
+}
+.app-main > .page.active {
+  display: block !important;
+  opacity: 1;
+  z-index: 10;
+}
+
+
+/* RESTORE LANDING NAV TO HORIZONTAL */
+@media (max-width: 768px) {
+  .l-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px 15px !important;
+    height: auto !important;
+  }
+  .l-nav-logo {
+    margin-bottom: 0 !important;
+    font-size: 1.2rem !important;
+  }
+  .l-nav-links {
+    display: none !important; /* Hide links on mobile to save space */
+  }
+  .l-nav-right {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+  }
+  .l-nav-btn {
+    padding: 6px 12px !important;
+    font-size: 0.7rem !important;
+    width: auto !important;
+    margin: 0 !important;
+    display: inline-block !important;
+  }
 }
 
 </style>
@@ -7949,7 +7994,7 @@ input, textarea, select {
             </div>
           </div>
           
-          <div style="margin-top: 2.5rem;">
+          <div style="margin-top: 2.5rem; display: none !important;" class="stray-security-block-fixed">
             <div class="section-label">Как работает система безопасности</div>
             <div class="card-grid grid-3">
               <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; padding: 2rem; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
