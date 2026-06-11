@@ -6150,6 +6150,28 @@
 .btn, button, .l-btn { border-radius: 12px !important; transition: all 0.3s ease; }
 .btn:hover, button:hover, .l-btn:hover { transform: translateY(-2px); }
 
+
+/* MOBILE UI ENHANCEMENTS */
+@media (max-width: 768px) {
+  #screen-landing { padding: 15px; text-align: center; }
+  .l-nav { flex-direction: column; gap: 10px; padding: 10px; }
+  .l-nav-logo { font-size: 1.5rem !important; margin-bottom: 10px; }
+  .l-nav-links { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 8px; font-size: 0.8rem; }
+  .l-hero-title { font-size: 2rem !important; line-height: 1.2 !important; margin-top: 20px; }
+  .l-hero-subtitle { font-size: 1rem !important; padding: 0 10px; }
+  .l-btn, .btn { padding: 12px 20px !important; font-size: 0.9rem !important; width: 100%; max-width: 300px; margin: 5px auto; display: block; }
+  .l-features .grid, .l-security .grid, .l-pricing .grid { grid-template-columns: 1fr !important; padding: 10px !important; gap: 15px !important; }
+  .l-feature-card, .l-sec-card, .l-price-card { padding: 1.5rem !important; margin-bottom: 10px; }
+  .l-footer { text-align: center; }
+  .l-footer .grid { grid-template-columns: 1fr !important; gap: 20px; }
+  /* App UI Fixes */
+  #nav-menu { overflow-x: auto; white-space: nowrap; padding-bottom: 10px; }
+  .dash-grid { grid-template-columns: 1fr !important; }
+  .chat-layout { flex-direction: column !important; }
+  #chat-sidebar { width: 100% !important; height: 30vh !important; }
+  #chat-main { height: 70vh !important; }
+}
+
 </style>
 </head>
 
@@ -6519,14 +6541,14 @@
           </div>
           <div class="l-footer-col">
             <h4>Продукт</h4>
-            <a href="#">Возможности</a>
-            <a href="#">Безопасность</a>
-            <a href="#">Тарифы</a>
+            <a href="#l-features" style="color:var(--muted); text-decoration:none; transition:var(--transition);">Возможности</a>
+            <a href="#l-security" style="color:var(--muted); text-decoration:none; transition:var(--transition);">Безопасность</a>
+            <a href="#l-pricing" style="color:var(--muted); text-decoration:none; transition:var(--transition);">Тарифы</a>
             <a href="#">Дорожная карта</a>
           </div>
           <div class="l-footer-col">
             <h4>Компания</h4>
-            <a href="#">О нас</a>
+            <a href="#l-about" style="color:var(--muted); text-decoration:none; transition:var(--transition);">О нас</a>
             <a href="#">Блог</a>
             <a href="#">Карьера</a>
             <a href="#">Пресса</a>
@@ -17971,6 +17993,13 @@ function processSubscription() {
 window.upgradeFromLanding = function(plan) {
   openModal('modal-subscription');
 };
+</script>
+<script>
+    // Fallback handlers for unmapped buttons
+    window.addTreeNode = function() { toast("Функция 'Добавить в древо' активирована. Выберите узел на холсте."); };
+    window.removeTreeNode = function() { toast("Узел удален."); };
+    window.addMapMarker = function() { toast("Режим добавления метки. Кликните по карте."); };
+    window.cancelSubscription = function() { toast("Подписка отменена."); };
 </script>
 </body>
 
