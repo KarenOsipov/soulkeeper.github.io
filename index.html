@@ -6367,6 +6367,52 @@ input, textarea, select {
   id: chat-file-btn;
 }
 
+
+/* ==============================================================
+   FEATURE FIXES (TG VIDEO, LAYOUT CENTERING, NOTIFICATIONS)
+   ============================================================== */
+/* 1. Telegram-style Video Notes */
+.chat-video-note, .video-note, video[class*="video-note"] {
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  width: 200px !important;
+  height: 200px !important;
+  border: 3px solid var(--gold) !important;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3) !important;
+  display: block;
+  margin: 10px auto;
+}
+@media (max-width: 640px) {
+  .chat-video-note, .video-note, video[class*="video-note"] {
+    width: 150px !important;
+    height: 150px !important;
+  }
+}
+
+/* 2. Z-Index and Page Overlap Fixes */
+.app-page {
+  display: none !important; 
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+.app-page.active {
+  display: block !important;
+  opacity: 1;
+  z-index: 10;
+  position: relative;
+}
+.globe-legend, .globe-stats, .modal-overlay, .modal {
+  z-index: 10000 !important;
+}
+
+/* 3. Centering for "Подтвердить жизнь" and large buttons */
+.btn-gold, .btn-primary, .btn-primary-sm {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+}
+
 </style>
 </head>
 
@@ -7738,6 +7784,7 @@ input, textarea, select {
                 <button class="btn-gold" onclick="doCheckin()" style="width: 100%; max-width: 320px; font-weight: 600; padding: 1rem 2rem; border-radius: 16px; background: linear-gradient(135deg, var(--gold2), var(--gold)); color: var(--ink); border: none; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease; cursor: pointer;">
                   <i class="ph-bold ph-heartbeat" style="font-size: 1.2rem;"></i> Подтвердить жизнь
                 </button>
+                </div>
               </div>
             </div>
             
@@ -7766,6 +7813,15 @@ input, textarea, select {
                     <div class="settings-row-label" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Способ уведомления</div>
                     <div class="settings-row-sub" style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Push + Email + SMS оповещения</div>
                   </div>
+
+  <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04); margin-top:1rem;">
+    <div>
+      <div class="settings-row-label" style="font-family: var(--serif); color: var(--ivory); font-weight: 500;">Уведомления браузера</div>
+      <div class="settings-row-sub" style="font-size: 0.75rem; color: var(--muted); margin-top: 2px;">Разрешить получение Push-уведомлений</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="requestNotificationPermission()" style="border:1px solid var(--gold); color:var(--gold);">Включить</button>
+  </div>
+
                   <div class="toggle on" onclick="this.classList.toggle('on')" style="cursor: pointer;"></div>
                 </div>
                 
@@ -18195,6 +18251,23 @@ window.upgradeFromLanding = function(plan) {
     window.removeTreeNode = function() { toast("Узел удален."); };
     window.addMapMarker = function() { toast("Режим добавления метки. Кликните по карте."); };
     window.cancelSubscription = function() { toast("Подписка отменена."); };
+</script>
+<script>
+
+  window.requestNotificationPermission = function() {
+    if (!("Notification" in window)) {
+      toast("Ваш браузер не поддерживает уведомления");
+      return;
+    }
+    Notification.requestPermission().then(function (permission) {
+      if (permission === "granted") {
+        toast("Уведомления успешно включены!");
+      } else {
+        toast("Отказано в доступе к уведомлениям");
+      }
+    });
+  };
+  
 </script>
 </body>
 
