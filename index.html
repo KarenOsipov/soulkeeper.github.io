@@ -6502,13 +6502,32 @@ input, textarea, select {
   display: none !important;
 }
 
-#screen-app.active ~ #mob-bottom-nav,
+
+#screen-app.active ~ #mob-bottom-nav {
+  display: block !important; /* MUST BE BLOCK so inner flex row takes 100% width! */
+}
 #screen-app.active ~ #mob-fab {
   display: flex !important;
 }
 
+
 #screen-app.active ~ .mob-drawer.active {
   display: flex !important;
+}
+
+
+/* 11. HIDE SCROLLBAR ARTIFACT & INCREASE BOTTOM PADDING FOR FAB */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  background: transparent !important;
+}
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.app-main {
+  padding-bottom: 120px !important; /* Extra space so FAB doesn't cover content */
 }
 
 </style>
