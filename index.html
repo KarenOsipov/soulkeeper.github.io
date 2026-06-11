@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   <meta name="google-site-verification" content="googlea74d2bfe770f75a9" />
   <!-- 
     IMPORTANT FOR GITHUB PAGES:
@@ -6176,6 +6176,60 @@
   .chat-layout { flex-direction: column !important; }
   #chat-sidebar { width: 100% !important; height: 30vh !important; }
   #chat-main { height: 70vh !important; }
+}
+
+
+/* GLOBAL MOBILE SAFEGUARDS */
+html, body {
+  overflow-x: hidden !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  position: relative;
+}
+
+input, textarea, select {
+  font-size: 16px !important; /* Prevents iOS auto-zoom */
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Chat Input Specific Fix */
+#chat-input-wrap {
+  width: 100% !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+  padding: 10px !important;
+  display: flex !important;
+  gap: 8px !important;
+  align-items: center !important;
+  overflow: hidden !important;
+}
+
+#chat-input {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 0 !important; /* Prevents flex item from overflowing */
+}
+
+.chat-input-actions {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+/* App Header Fix */
+#app-header, .l-nav, .app-nav {
+  width: 100% !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+}
+
+/* Modal Fix */
+.modal {
+  width: 95% !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+  margin: 0 auto !important;
 }
 
 </style>
