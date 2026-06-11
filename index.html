@@ -6483,6 +6483,19 @@ input, textarea, select {
   }
 }
 
+
+/* FORCE DASH TO BE VISIBLE WHEN ACTIVE */
+#page-dash.active {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+/* FORCE APP MAIN CONTENT TO SCROLL */
+.app-main {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
 </style>
 </head>
 
@@ -7994,29 +8007,7 @@ input, textarea, select {
             </div>
           </div>
           
-          <div style="margin-top: 2.5rem; display: none !important;" class="stray-security-block-fixed">
-            <div class="section-label">Как работает система безопасности</div>
-            <div class="card-grid grid-3">
-              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; padding: 2rem; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
-                <div style="position: absolute; right: -5px; bottom: -5px; font-size: 5rem; color: rgba(255,255,255,0.015);"><i class="ph-light ph-check-circle"></i></div>
-                <div style="font-size: 2rem; color: var(--green); margin-bottom: 1rem;"><i class="ph-light ph-check-circle"></i></div>
-                <div style="font-family: var(--serif); font-size: 1.1rem; color: var(--ivory); margin-bottom: 0.5rem;">1. Мониторинг</div>
-                <div style="font-size: 0.8rem; color: var(--muted); line-height: 1.5;">Вы просто заходите в приложение или подтверждаете активность кнопкой. Таймер сбрасывается.</div>
-              </div>
-              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; padding: 2rem; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
-                <div style="position: absolute; right: -5px; bottom: -5px; font-size: 5rem; color: rgba(255,255,255,0.015);"><i class="ph-light ph-warning"></i></div>
-                <div style="font-size: 2rem; color: var(--gold); margin-bottom: 1rem;"><i class="ph-light ph-warning"></i></div>
-                <div style="font-family: var(--serif); font-size: 1.1rem; color: var(--ivory); margin-bottom: 0.5rem;">2. Предупреждение</div>
-                <div style="font-size: 0.8rem; color: var(--muted); line-height: 1.5;">Если период истёк, система отправляет вам повторные Push, Email и SMS уведомления.</div>
-              </div>
-              <div class="card" style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; padding: 2rem; position: relative; overflow: hidden; backdrop-filter: blur(10px);">
-                <div style="position: absolute; right: -5px; bottom: -5px; font-size: 5rem; color: rgba(255,255,255,0.015);"><i class="ph-light ph-lock-open"></i></div>
-                <div style="font-size: 2rem; color: #ef4444; margin-bottom: 1rem;"><i class="ph-light ph-lock-open"></i></div>
-                <div style="font-family: var(--serif); font-size: 1.1rem; color: var(--ivory); margin-bottom: 0.5rem;">3. Делегация ключей</div>
-                <div style="font-size: 0.8rem; color: var(--muted); line-height: 1.5;">Спустя 72 часа грейс-периода душеприказчик получает право передать ключи вашим наследникам.</div>
-              </div>
-            </div>
-          </div>
+          
         </div>
 
         <!-- ── AI ── -->
