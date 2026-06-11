@@ -6415,19 +6415,7 @@ input, textarea, select {
   }
 }
 
-/* 2. Z-Index and Page Overlap Fixes */
-.app-page {
-  display: none !important; 
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 1;
-}
-.app-page.active {
-  display: block !important;
-  opacity: 1;
-  z-index: 10;
-  position: relative;
-}
+
 .globe-legend, .globe-stats, .modal-overlay, .modal {
   z-index: 10000 !important;
 }
@@ -6439,17 +6427,7 @@ input, textarea, select {
 }
 
 
-/* CRITICAL: FIX .page VISIBILITY (The HTML uses .page, not .app-page!) */
-.app-main > .page {
-  display: none !important;
-  opacity: 0;
-  z-index: 1;
-}
-.app-main > .page.active {
-  display: block !important;
-  opacity: 1;
-  z-index: 10;
-}
+
 
 
 /* RESTORE LANDING NAV TO HORIZONTAL */
@@ -6486,7 +6464,6 @@ input, textarea, select {
 
 /* FORCE DASH TO BE VISIBLE WHEN ACTIVE */
 #page-dash.active {
-  display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
 }
@@ -6526,6 +6503,70 @@ input, textarea, select {
   }
   .app-main {
     padding-bottom: 120px !important; /* Extra space so FAB doesn't cover content */
+  }
+}
+
+/* ════════════════════════════════════════════
+   ROBUST DOCK & APP MAIN LAYOUT OVERRIDES (PC vs Mobile)
+════════════════════════════════════════════ */
+@media (min-width: 769px) {
+  /* Enforce stable left dock on PC */
+  .floating-dock {
+    display: flex !important;
+    position: fixed !important;
+    left: 1.5rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 9999 !important;
+    height: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  /* Ensure page content is offset and doesn't overlap the left dock on PC */
+  .app-main {
+    padding: 2rem 2rem 2rem 6.5rem !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    flex: 1 !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Remove specific page padding overrides to maintain consistent left offset */
+  .page {
+    padding: 0 !important;
+  }
+  
+  /* Specific page header positioning on PC */
+  .page-header {
+    margin-bottom: 2rem !important;
+  }
+
+  /* Make sure mobile bottom nav, mobile FAB, and mobile drawer are hidden on PC */
+  #mob-bottom-nav, #mob-fab, .mob-drawer {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Hide desktop left dock completely on mobile/tablet */
+  .floating-dock {
+    display: none !important;
+  }
+  
+  /* Remove desktop padding offset on mobile/tablet */
+  .app-main {
+    padding: 10px !important;
+    padding-bottom: 120px !important; /* space for mobile bottom nav and FAB */
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  
+  .page {
+    padding: 1rem 0.9rem !important;
   }
 }
 
