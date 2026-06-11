@@ -6232,6 +6232,141 @@ input, textarea, select {
   margin: 0 auto !important;
 }
 
+
+/* ==============================================================
+   PRODUCTION MOBILE ADAPTATION 
+   ============================================================== */
+@media (max-width: 768px) {
+  /* 1. FORCE VIEWPORT CONTAINMENT */
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    position: relative;
+    overscroll-behavior-x: none;
+  }
+  
+  * {
+    max-width: 100vw;
+  }
+
+  /* Prevent auto-zoom on iOS */
+  input, textarea, select {
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+    max-width: 100%;
+  }
+
+  /* 2. CHAT & MESSENGER INPUT BARS */
+  #chat-input-wrap, #chat-input-bar, .chat-input-container {
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    padding: 10px 15px !important;
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    overflow: hidden !important;
+    flex-wrap: nowrap !important;
+  }
+
+  /* Let the input shrink instead of pushing buttons out */
+  #chat-inp, #chat-message-input {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Action buttons should not shrink and have fixed max dimensions */
+  .chat-send, #chat-send-btn, #chat-voice-btn, #chat-video-btn, #chat-file-btn, .btn-ghost {
+    flex-shrink: 0 !important;
+    padding: 8px 12px !important;
+    min-width: auto !important;
+  }
+
+  /* 3. TREE PAGE FIXES */
+  #page-tree, .tree-layout-wrapper {
+    overflow-x: hidden !important;
+    width: 100% !important;
+  }
+
+  .tree-header-v5 {
+    padding: 15px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+
+  .tree-header-v5 > div {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  .tree-controls {
+    display: flex !important;
+    gap: 10px !important;
+    width: 100% !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .tree-controls button {
+    flex: 1 !important;
+    text-align: center !important;
+    padding: 10px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* 4. MAP PAGE FIXES */
+  #page-connections {
+    padding: 10px !important;
+  }
+  
+  #page-connections button {
+    width: 100% !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* 5. DASHBOARD CARDS FIXES */
+  .dash-stat-grid {
+    grid-template-columns: 1fr !important; /* Stack on small phones */
+    gap: 10px !important;
+  }
+
+  /* 6. TOP BAR FIXES */
+  .app-topbar {
+    width: calc(100% - 20px) !important;
+    margin: 10px auto !important;
+    border-radius: 12px !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  .app-logo {
+    font-size: 1.2rem !important;
+  }
+
+  .app-topbar-right button {
+    padding: 5px !important;
+  }
+
+  /* 7. BOTTOM NAV FIXES */
+  .mob-bottom-nav {
+    display: block !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    z-index: 9999 !important;
+  }
+}
+
+/* Fix missing id on file button in chat */
+[onclick="document.getElementById('chat-file-input').click()"] {
+  id: chat-file-btn;
+}
+
 </style>
 </head>
 
