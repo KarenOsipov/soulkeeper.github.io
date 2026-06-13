@@ -11682,6 +11682,13 @@
               }
               closeModal('modal-session-unlock');
 
+              if (STATE.user) {
+                STATE.user.vaultSeedHash = tempLockedData.vaultSeedHash || null;
+                STATE.user.vaultPasswordHash = tempLockedData.vaultPasswordHash || null;
+                if (tempLockedData.lat !== undefined) STATE.user.lat = tempLockedData.lat;
+                if (tempLockedData.lon !== undefined) STATE.user.lon = tempLockedData.lon;
+              }
+
               STATE.secrets = CryptoEngine.decryptVault(tempLockedData.secrets) || [];
               STATE.bio = CryptoEngine.decrypt(tempLockedData.bio) || [];
               STATE.messages = CryptoEngine.decrypt(tempLockedData.messages) || [];
@@ -11729,6 +11736,7 @@
 
               _saveLocalOnly();
               renderAll();
+              checkVaultLockState();
               tempLockedData = null;
               toast('<i class="ph-light ph-lock-open"></i> Данные успешно расшифрованы!');
             } catch (e) {
