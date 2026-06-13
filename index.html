@@ -9835,6 +9835,7 @@
         async function loadUserDataFromFirestore(uid) {
           if (!uid) return;
           try {
+            CryptoEngine.initFromSession(); // Восстанавливаем ключи из сессии при обновлении страницы
             const userDoc = await fbDb.collection('users').doc(uid).get();
             if (userDoc.exists) {
               const data = userDoc.data();
@@ -9842,7 +9843,8 @@
               // Проверяем, зашифрованы ли данные и есть ли ключ шифрования
               const isZk = (data.secrets && typeof data.secrets === 'string' && (data.secrets.startsWith(ZK_PREFIX) || data.secrets.startsWith('VAULT::'))) ||
                 (data.bio && typeof data.bio === 'string' && data.bio.startsWith(ZK_PREFIX)) ||
-                (data.messages && typeof data.messages === 'string' && data.messages.startsWith(ZK_PREFIX));
+                (data.messages && typeof data.messages === 'string' && data.messages.startsWith(ZK_PREFIX)) ||
+                (data.zkVerification && typeof data.zkVerification === 'string' && data.zkVerification.startsWith(ZK_PREFIX));
               if (isZk && !CryptoEngine.hasKey()) {
                 // Ключа в сессии нет, сохраняем зашифрованные данные во временную переменную и показываем форму разблокировки
                 tempLockedData = data;
@@ -9969,7 +9971,8 @@
               vaultSeedHash: (STATE.user && STATE.user.vaultSeedHash) ? STATE.user.vaultSeedHash : null,
               vaultPasswordHash: (STATE.user && STATE.user.vaultPasswordHash) ? STATE.user.vaultPasswordHash : null,
               lat: (STATE.user && STATE.user.lat !== undefined) ? STATE.user.lat : firebase.firestore.FieldValue.delete(),
-              lon: (STATE.user && STATE.user.lon !== undefined) ? STATE.user.lon : firebase.firestore.FieldValue.delete()
+              lon: (STATE.user && STATE.user.lon !== undefined) ? STATE.user.lon : firebase.firestore.FieldValue.delete(),
+              ...(CryptoEngine.hasKey() ? { zkVerification: CryptoEngine.encrypt("SoulKeeperVerification") } : {})
             }, { merge: true });
             DB._addLog('OK', '🔒 Данные зашифрованы и синхронизированы (Zero-Knowledge)');
           } catch (err) {
@@ -11161,7 +11164,8 @@
               vaultSeedHash: (STATE.user && STATE.user.vaultSeedHash) ? STATE.user.vaultSeedHash : null,
               vaultPasswordHash: (STATE.user && STATE.user.vaultPasswordHash) ? STATE.user.vaultPasswordHash : null,
               lat: (STATE.user && STATE.user.lat !== undefined) ? STATE.user.lat : firebase.firestore.FieldValue.delete(),
-              lon: (STATE.user && STATE.user.lon !== undefined) ? STATE.user.lon : firebase.firestore.FieldValue.delete()
+              lon: (STATE.user && STATE.user.lon !== undefined) ? STATE.user.lon : firebase.firestore.FieldValue.delete(),
+              ...(CryptoEngine.hasKey() ? { zkVerification: CryptoEngine.encrypt("SoulKeeperVerification") } : {})
             }, { merge: true })
               .then(() => DB._addLog('OK', '🔒 Firestore: Zero-Knowledge sync завершён'))
               .catch(err => {
@@ -11534,7 +11538,9 @@
                 name: name,
                 email: email.toLowerCase(),
                 code: _connCode(email.toLowerCase()),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                zkVersion: 2,
+                zkVerification: CryptoEngine.encrypt("SoulKeeperVerification")
               }, { merge: true });
             })
             .then(() => {
@@ -11557,6 +11563,7 @@
         // ── GOOGLE SIGN-IN & ZERO-KNOWLEDGE ─────────────────────────────
         let currentGoogleUser = null;
         let isGoogleNewUser = false;
+        let googleUserDocData = null;
 
         function doGoogleLogin() {
           const provider = new firebase.auth.GoogleAuthProvider();
@@ -11575,10 +11582,12 @@
               if (userDoc.exists && userDoc.data().zkVersion) {
                 // Пользователь уже зарегистрирован и данные зашифрованы
                 isGoogleNewUser = false;
+                googleUserDocData = userDoc.data();
                 showGoogleZKPrompt(false);
               } else {
                 // Новый пользователь
                 isGoogleNewUser = true;
+                googleUserDocData = null;
                 showGoogleZKPrompt(true);
               }
             })
@@ -11628,10 +11637,57 @@
                 email: currentGoogleUser.email.toLowerCase(),
                 code: _connCode(currentGoogleUser.email.toLowerCase()),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                zkVersion: 2
+                zkVersion: 2,
+                zkVerification: CryptoEngine.encrypt("SoulKeeperVerification")
               }, { merge: true });
             } catch (e) {
               console.error('Error creating user doc:', e);
+            }
+          } else if (!isGoogleNewUser && googleUserDocData && currentGoogleUser) {
+            // Валидируем пароль
+            let isValid = false;
+            if (googleUserDocData.zkVerification) {
+              const dec = CryptoEngine.decrypt(googleUserDocData.zkVerification);
+              if (dec === "SoulKeeperVerification") {
+                isValid = true;
+              }
+            } else {
+              // Фоллбек для старых пользователей без zkVerification
+              let checkFieldVal = null;
+              const fieldsToCheck = ['secrets', 'bio', 'messages', 'relatives', 'executor'];
+              for (const field of fieldsToCheck) {
+                const val = googleUserDocData[field];
+                if (val && typeof val === 'string' && val.startsWith(ZK_PREFIX)) {
+                  checkFieldVal = val;
+                  break;
+                }
+              }
+              if (checkFieldVal) {
+                const dec = CryptoEngine.decrypt(checkFieldVal);
+                if (typeof dec === 'string' && !dec.startsWith(ZK_PREFIX)) {
+                  isValid = true;
+                }
+              } else {
+                isValid = true; // Нет зашифрованных полей для проверки
+              }
+            }
+
+            if (!isValid) {
+              CryptoEngine._key = null;
+              sessionStorage.removeItem('sk_session_key');
+              toast('Неверный Мастер-Пароль. Попробуйте снова.');
+              return;
+            }
+
+            // Обновляем старый аккаунт с сохранением zkVerification
+            if (!googleUserDocData.zkVerification) {
+              try {
+                await fbDb.collection('users').doc(currentGoogleUser.uid).set({
+                  zkVerification: CryptoEngine.encrypt("SoulKeeperVerification")
+                }, { merge: true });
+              } catch (e) {
+                console.error('Error upgrading user doc with zkVerification:', e);
+              }
             }
           }
 
@@ -11663,23 +11719,49 @@
 
           if (tempLockedData) {
             try {
-              // Find any field that is encrypted with the master key (starts with ZK_PREFIX) to verify the password
-              let checkFieldVal = null;
-              const fieldsToCheck = ['secrets', 'bio', 'messages', 'relatives', 'executor'];
-              for (const field of fieldsToCheck) {
-                const val = tempLockedData[field];
-                if (val && typeof val === 'string' && val.startsWith(ZK_PREFIX)) {
-                  checkFieldVal = val;
-                  break;
+              let isValid = false;
+              if (tempLockedData.zkVerification) {
+                const dec = CryptoEngine.decrypt(tempLockedData.zkVerification);
+                if (dec === "SoulKeeperVerification") {
+                  isValid = true;
+                }
+              } else {
+                // Фоллбек для старых пользователей
+                let checkFieldVal = null;
+                const fieldsToCheck = ['secrets', 'bio', 'messages', 'relatives', 'executor'];
+                for (const field of fieldsToCheck) {
+                  const val = tempLockedData[field];
+                  if (val && typeof val === 'string' && val.startsWith(ZK_PREFIX)) {
+                    checkFieldVal = val;
+                    break;
+                  }
+                }
+
+                if (checkFieldVal) {
+                  const dec = CryptoEngine.decrypt(checkFieldVal);
+                  if (typeof dec === 'string' && !dec.startsWith(ZK_PREFIX)) {
+                    isValid = true;
+                  }
+                } else {
+                  isValid = true; // Нет зашифрованных полей для проверки
                 }
               }
 
-              if (checkFieldVal) {
-                const dec = CryptoEngine.decrypt(checkFieldVal);
-                if (typeof dec === 'string' && dec.startsWith(ZK_PREFIX)) {
-                  throw new Error('Incorrect password');
+              if (!isValid) {
+                throw new Error('Incorrect password');
+              }
+
+              // Записываем проверочное поле старым пользователям
+              if (!tempLockedData.zkVerification && STATE.user && STATE.user.uid) {
+                try {
+                  await fbDb.collection('users').doc(STATE.user.uid).set({
+                    zkVerification: CryptoEngine.encrypt("SoulKeeperVerification")
+                  }, { merge: true });
+                } catch (e) {
+                  console.error('Error saving zkVerification on unlock:', e);
                 }
               }
+
               closeModal('modal-session-unlock');
 
               if (STATE.user) {
