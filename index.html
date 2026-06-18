@@ -266,6 +266,7 @@
       cursor: pointer;
       transition: all var(--transition);
       font-weight: 400;
+      border-radius: 30px;
     }
 
     .l-nav-btn:hover {
@@ -6753,6 +6754,62 @@
         max-width: 100% !important;
       }
     }
+
+    /* ════════════════════════════════════════════
+       CUSTOM MOBILE & RESPONSIVE ADAPTATION OVERRIDES (ADDITIONAL)
+    ════════════════════════════════════════════ */
+    /* Ensure upper buttons on landing page are rounded */
+    .l-nav-btn,
+    .l-nav-btn.primary {
+      border-radius: 30px !important;
+    }
+
+    /* Ensure exit button at top right is rounded */
+    .tb-logout {
+      border-radius: 30px !important;
+    }
+
+    /* Completely hide the Digital Twin page */
+    #page-twin {
+      display: none !important;
+    }
+
+    @media (max-width: 768px) {
+      /* Hide redundant Life Guard widget on the dashboard on mobile/tablet */
+      #page-dash .dash-guard-card {
+        display: none !important;
+      }
+
+      /* Stack columns for 2-column grids on tablets and mobile screens to center widgets */
+      .grid-2,
+      .card-grid.grid-2 {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Enforce responsive padding on all application cards on mobile/tablet */
+      .page .card {
+        padding: 1.2rem !important;
+      }
+
+      /* Allow HUD circle on Life Guard page to render without boundary clipping */
+      #page-switch .card {
+        overflow: visible !important;
+      }
+
+      /* Scale down and center HUD circle container on mobile/tablet */
+      .sw-hud-container {
+        transform: scale(0.85) !important;
+        margin-bottom: 0.5rem !important;
+        margin-top: -1.5rem !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      /* Enforce smaller padding on all cards on narrow mobile screens */
+      .page .card {
+        padding: 0.9rem !important;
+      }
+    }
   </style>
 </head>
 
@@ -7400,8 +7457,6 @@
           class="dock-icon"><i class="ph-light ph-hourglass"></i></span></div>
       <div class="dock-item" onclick="goPage('ai')" id="nav-ai" data-tooltip="AI Ассистент"><span class="dock-icon"><i
             class="ph-light ph-robot"></i></span></div>
-      <div class="dock-item" onclick="goPage('twin')" id="nav-twin" data-tooltip="Цифровой Двойник"><span
-          class="dock-icon"><i class="ph-light ph-fingerprint"></i></span></div>
       <div class="dock-item" onclick="goPage('subscription')" id="nav-subscription" data-tooltip="Мои подписки"><span
           class="dock-icon"><i class="ph-light ph-diamond"></i></span></div>
       <div class="dock-item" onclick="goPage('settings')" id="nav-settings" data-tooltip="Настройки"><span
@@ -9585,7 +9640,7 @@
                   <div class="field">
                     <label
                       style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">API-ключ
-                      Google Gemini (ИИ Мудрец & Двойник)</label>
+                      Google Gemini (ИИ Мудрец)</label>
                     <input type="password" id="set-gemini-key" placeholder="Вставьте ваш API-ключ AIzaSy..."
                       style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none;">
                     <small style="font-size:0.7rem; color:var(--muted); margin-top:4px; display:block;">Вы можете
@@ -9998,10 +10053,7 @@
           <span class="mob-drawer-icon"><i class="ph-light ph-robot"></i></span><span
             class="mob-drawer-label">Мудрец</span>
         </button>
-        <button class="mob-drawer-item" onclick="goPage('twin');mobSetActive('twin');closeMobDrawer()">
-          <span class="mob-drawer-icon"><i class="ph-light ph-fingerprint"></i></span><span
-            class="mob-drawer-label">Двойник</span>
-        </button>
+
         <button class="mob-drawer-item" onclick="goPage('settings');mobSetActive('settings');closeMobDrawer()">
           <span class="mob-drawer-icon"><i class="ph-light ph-gear"></i></span><span
             class="mob-drawer-label">Настройки</span>
