@@ -6477,6 +6477,133 @@
         z-index: 9999 !important;
       }
     }
+
+    /* ════════════════════════════════════════════
+       CUSTOM MOBILE & RESPONSIVE ADAPTATION OVERRIDES
+    ════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* Pinned layout for Chat page to prevent overflow and keep inputs visible */
+      #page-chat-page.active {
+        display: flex !important;
+        flex-direction: column !important;
+        height: calc(100vh - 95px) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+      }
+      #page-chat-page .page-header {
+        padding: 0.8rem 1rem 0.4rem 1rem !important;
+        margin-bottom: 0 !important;
+        flex-shrink: 0 !important;
+      }
+      #page-chat-page .chat-wrapper {
+        flex: 1 !important;
+        height: auto !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        border-top: 1px solid rgba(201, 168, 76, 0.15) !important;
+        overflow: hidden !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      /* Phone specific scrollability for auth page */
+      #screen-auth {
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow-y: auto !important;
+        align-items: flex-start !important;
+        padding: 2rem 0 !important;
+      }
+
+      /* Adjust height on phone with bottom navigation bar */
+      #page-chat-page.active {
+        height: calc(100vh - 142px) !important;
+      }
+
+      /* Grid structure for messenger chat input bar - Places Input/Send on Row 1, Utilities on Row 2 */
+      .chat-wrapper.chat-active #chat-input-bar {
+        display: grid !important;
+        grid-template-columns: auto auto auto 1fr auto !important;
+        grid-template-rows: auto auto !important;
+        gap: 0.5rem !important;
+        padding: 0.6rem 0.8rem !important;
+        align-items: center !important;
+      }
+
+      #chat-message-input {
+        grid-row: 1 !important;
+        grid-column: 1 / 5 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        font-size: 16px !important;
+      }
+
+      #chat-send-btn {
+        grid-row: 1 !important;
+        grid-column: 5 !important;
+        margin: 0 !important;
+        flex-shrink: 0 !important;
+        min-width: 38px !important;
+        height: 38px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      #chat-input-bar > button:nth-of-type(1) {
+        grid-row: 2 !important;
+        grid-column: 1 !important;
+      }
+      #chat-voice-btn {
+        grid-row: 2 !important;
+        grid-column: 2 !important;
+      }
+      #chat-video-btn {
+        grid-row: 2 !important;
+        grid-column: 3 !important;
+      }
+
+      #chat-voice-status {
+        grid-row: 1 !important;
+        grid-column: 1 / 5 !important;
+        width: 100% !important;
+      }
+
+      /* Chatbot (AI Sage) adjustments */
+      .chat-wrap {
+        height: 400px !important;
+      }
+      .chat-input-wrap {
+        padding: 0.6rem 0.8rem !important;
+        gap: 0.5rem !important;
+      }
+      .chat-inp {
+        min-width: 0 !important;
+        font-size: 16px !important;
+      }
+      .chat-send {
+        padding: 0.6rem 1rem !important;
+        font-size: 0.75rem !important;
+      }
+
+      /* Digital twin call sizing */
+      .twin-container {
+        height: calc(100vh - 200px) !important;
+        min-height: 400px !important;
+      }
+      #twin-chat-inp {
+        min-width: 0 !important;
+        font-size: 16px !important;
+      }
+
+      /* Family tree labels */
+      .tree-edit-label {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 
