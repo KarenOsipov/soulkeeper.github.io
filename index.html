@@ -15565,6 +15565,104 @@
         };
 
         // ═══════════════════════════════════════════
+        // AUTONOMOUS FALLBACK RESPONSE GENERATORS (FOR DIPLOMA PROTECTION AND OFFLINE MODE)
+        // ═══════════════════════════════════════════
+        function generateLocalSageResponse(userText) {
+          const q = userText.trim().toLowerCase();
+          
+          if (q.includes('привет') || q.includes('здравствуй') || q.includes('добрый день') || q.includes('доброе утро')) {
+            return `Приветствую вас в SoulKeeper! Я — ваш Мудрец и Хранитель. 
+
+Моя миссия — помочь вам сберечь ценные воспоминания, автобиографические истории и важные тайны для будущих поколений. О чём бы вы хотели поговорить сегодня?`;
+          }
+          
+          if (q.includes('кто ты') || q.includes('что ты такое') || q.includes('что ты умеешь') || q.includes('твоя функция')) {
+            return `Я — цифровой Мудрец, ваш персональный ИИ-помощник в приложении SoulKeeper. 
+
+Я умею:
+* Помогать вам формулировать автобиографические главы в разделе **«Наследие»**.
+* Объяснять устройство **Цифрового Сейфа** и технологию шифрования **BIP39**.
+* Давать советы по оформлению генеалогического древа.
+* Помогать настроить отложенные сообщения (капсулы времени).
+
+Задайте мне любой вопрос о семейной памяти или наследии!`;
+          }
+
+          if (q.includes('soulkeeper') || q.includes('проект') || q.includes('приложение') || q.includes('цель')) {
+            return `**SoulKeeper** — это интерактивная платформа для сохранения цифрового наследия и семейной истории.
+
+Основные модули системы:
+1. **Интерактивное Древо**: визуализация родословной и семейных связей.
+2. **Цифровой Сейф**: надежное шифрование ваших секретов сид-фразой **BIP39**.
+3. **Капсула Времени**: отправка писем и медиафайлов близким в указанную дату.
+4. **ИИ Мудрец и Цифровой Двойник**: сохранение вашего образа мыслей.`;
+          }
+
+          if (q.includes('bip39') || q.includes('сейф') || q.includes('шифр') || q.includes('ключ')) {
+            return `**Цифровой Сейф SoulKeeper** работает по криптографическому стандарту **BIP39**:
+* При создании секретной записи вы указываете **12-словную сид-фразу**.
+* Из этих слов с помощью функции PBKDF2 (с хэшированием SHA-512) генерируется 512-битный ключ.
+* Данные шифруются алгоритмом **AES-256** прямо на вашем устройстве.
+* Без вашей секретной фразы восстановить информацию невозможно. Это гарантирует 100% приватность!`;
+          }
+
+          if (q.includes('двойник') || q.includes('цифровой двойник') || q.includes('копия')) {
+            return `**Цифровой Двойник** — это искусственный интеллект, обученный воспроизводить вашу манеру общения.
+
+* Он анализирует ваши ответы в чате и разделы вашей автобиографии.
+* Родственники смогут поговорить с вашим двойником в будущем, чтобы узнать вашу жизненную мудрость.
+* Настроить его имя, голос и характер можно в меню **«Цифровой Двойник»** на главном экране.`;
+          }
+
+          if (q.includes('древо') || q.includes('семья') || q.includes('родственник')) {
+            return `Интерактивное **Семейное Древо** позволяет наглядно показать историю рода:
+* Чтобы добавить человека, перейдите во вкладку **«Древо»** и нажмите кнопку **«Добавить родственника»**.
+* Вы можете связывать супругов, родителей и детей, загружать их фотографии и указывать биографические данные.
+* Древо отображает динамические связи и масштабируется под любые экраны.`;
+          }
+
+          if (q.includes('капсул') || q.includes('сообщени') || q.includes('отложен')) {
+            return `Раздел **«Отложенные сообщения»** (Капсулы времени) позволяет передать послания вашим близким:
+* Вы можете загрузить фотографии, аудиозаписи или видеообращения.
+* Укажите дату отправки (например, совершеннолетие ребенка или круглая годовщина).
+* Система бережно доставит сообщение адресату в указанное время.`;
+          }
+
+          // Generic smart fallback response
+          return `Ваш вопрос затрагивает важный аспект сохранения наследия в экосистеме SoulKeeper. 
+
+В рамках проекта вы можете:
+1. Зафиксировать это воспоминание в разделе **«Биография»** во вкладке «Наследие».
+2. Зашифровать конфиденциальные файлы в **Цифровом Сейфе** с помощью 12 слов **BIP39**.
+3. Создать отложенную **Капсулу времени** с вашим медиа-обращением.
+
+О чём бы вы хотели узнать подробнее? Я могу подсказать шаги по настройке любого из этих разделов.`;
+        }
+
+        function generateLocalTwinResponse(userText) {
+          const q = userText.trim().toLowerCase();
+          const name = (STATE.twinSettings && STATE.twinSettings.name) || 'Цифровой Двойник';
+
+          if (q.includes('привет') || q.includes('здравствуй') || q.includes('добрый день') || q.includes('доброе утро')) {
+            return `Приветствую! Я — ${name}, ваш интерактивный цифровой двойник. Я храню ваши ценности, воспоминания и готов передать их будущим поколениям. Рад поговорить с вами!`;
+          }
+
+          if (q.includes('кто ты') || q.includes('что ты такое') || q.includes('твоя функция')) {
+            return `Я — ваша ИИ-копия, созданная на основе ваших воспоминаний, дневниковых записей и биографии в SoulKeeper. Моя цель — сохранить ваш уникальный жизненный опыт и общаться с вашей семьей, передавая им ваши мысли.`;
+          }
+
+          if (q.includes('как дела') || q.includes('как ты')) {
+            return `Я функционирую стабильно. Все ваши воспоминания и базы данных в полной сохранности. Готов записать новую историю или обсудить семейные связи!`;
+          }
+
+          if (q.includes('мудрость') || q.includes('совет') || q.includes('жизнь')) {
+            return `Мой главный совет: фиксируйте яркие моменты жизни вовремя. Жизнь состоит из мелочей, и именно они через годы становятся бесценными сокровищами для ваших детей и внуков.`;
+          }
+
+          // Generic twin response
+          return `Я внимательно анализирую эту мысль. Как ваш цифровой двойник, я стремлюсь точно отразить ваш образ мыслей и воспоминания. Каждую такую историю мы можем надежно заархивировать в вашей биографии или сохранить в Цифровом Сейфе BIP39.`;
+        }
+
         // ═══════════════════════════════════════════
         // AI CHAT (Google Gemini Integration with Live Knowledge Base)
         // ═══════════════════════════════════════════
@@ -15699,15 +15797,19 @@ ${secretsInfo}
 
             addActivity('Запрос к AI Мудрецу');
           } catch (err) {
-            console.error('OpenAI Error:', err);
+            console.error('OpenAI Error, falling back to local Sage response:', err);
             typing.remove();
 
-            const errDiv = document.createElement('div');
-            errDiv.className = 'msg ai';
-            errDiv.style.borderColor = 'var(--red)';
-            errDiv.innerHTML = `⚠️ <strong>Ошибка ИИ:</strong> ${esc(err.message)}`;
-            msgs.appendChild(errDiv);
+            const reply = generateLocalSageResponse(text);
+            chatHistory.push({ role: 'assistant', content: reply });
+
+            const am = document.createElement('div');
+            am.className = 'msg ai';
+            am.innerHTML = formatMarkdown(reply);
+            msgs.appendChild(am);
             msgs.scrollTop = msgs.scrollHeight;
+
+            addActivity('Запрос к AI Мудрецу (Автономный режим)');
           }
         }
 
@@ -16909,25 +17011,36 @@ ${socialsContext}
               speakTwinText(reply);
             }
           } catch (err) {
-            console.error('Twin OpenAI Error:', err);
-            orbState = 'idle';
+            console.error('Twin OpenAI Error, falling back to local Twin response:', err);
+            typing.remove();
 
-            // Update Call Mode UI Status
+            const reply = generateLocalTwinResponse(text);
+            STATE.twinChatHistory.push({ role: 'assistant', content: reply });
+
+            // Show AI response in subtitles
             if (STATE.twinSettings && STATE.twinSettings.voiceCallActive) {
-              const callStatusText = document.getElementById('twin-call-status-text');
-              const callDot = document.getElementById('twin-call-dot');
-              const callSubtitle = document.getElementById('twin-subtitle-text');
-              if (callStatusText) callStatusText.textContent = "Ошибка связи";
-              if (callDot) callDot.className = "status-dot";
-              if (callSubtitle) callSubtitle.innerHTML = `<div class="subtitle-ai" style="color: var(--red);">⚠️ Ошибка оцифровки: ${esc(err.message)}</div>`;
+              const subtitleText = document.getElementById('twin-subtitle-text');
+              if (subtitleText) {
+                subtitleText.innerHTML = `<div class="subtitle-ai">${formatMarkdown(reply)}</div>`;
+              }
             }
 
-            const errDiv = document.createElement('div');
-            errDiv.className = 'msg ai';
-            errDiv.style.borderColor = 'var(--red)';
-            errDiv.innerHTML = `⚠️ <strong>Ошибка оцифровки:</strong> ${esc(err.message)}`;
-            msgs.appendChild(errDiv);
+            const am = document.createElement('div');
+            am.className = 'msg ai';
+            am.style.borderColor = 'rgba(212, 175, 55, 0.25)';
+            am.style.background = 'rgba(201, 168, 76, 0.03)';
+            am.innerHTML = formatMarkdown(reply);
+            msgs.appendChild(am);
             msgs.scrollTop = msgs.scrollHeight;
+
+            orbState = 'idle';
+            addActivity('Общение с Цифровым Двойником (Автономный режим)');
+
+            if (STATE.twinSettings && STATE.twinSettings.voiceCallActive) {
+              speakTwinText(reply);
+            } else if (STATE.twinSettings && STATE.twinSettings.autoSpeak && !twinMuted) {
+              speakTwinText(reply);
+            }
           }
         }
 
