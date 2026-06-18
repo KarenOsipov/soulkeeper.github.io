@@ -10129,16 +10129,14 @@
         </div>
         <div class="field"
           style="margin-top:1rem; padding:1rem; background:rgba(212,175,55,0.05); border:1px solid rgba(212,175,55,0.1); border-radius:12px;">
-          <label style="color:var(--gold); display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-            <i class="ph-light ph-shield-check"></i> Мастер-пароль тайны <span
-              style="font-size:0.65rem; font-weight:normal; opacity:0.7;">(Опционально)</span>
+          <label style="color:var(--gold); display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <span style="display:flex; align-items:center; gap:8px;"><i class="ph-light ph-shield-checkered"></i> Сид-фраза BIP39 (12 слов)</span>
+            <button type="button" onclick="generateSecretMnemonic()" style="background:transparent; border:none; color:var(--gold2); font-size:0.75rem; cursor:pointer; text-decoration:underline; font-family:var(--sans);">Сгенерировать</button>
           </label>
-          <input type="password" id="s-vault-pass" placeholder="Дополнительная защита..."
-            style="width:100%; background:var(--ink2); border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; color:var(--ivory); outline:none;">
+          <input type="text" id="s-vault-pass" placeholder="слово1 слово2 слово3..."
+            style="width:100%; background:var(--ink2); border:1px solid rgba(212,175,55,0.25); border-radius:8px; padding:10px; color:var(--ivory); outline:none; font-family:monospace; font-size:0.8rem;">
           <div style="font-size:0.65rem; color:var(--muted); margin-top:6px; line-height:1.4;">
-            <i class="ph-light ph-warning"></i> Если вы установите этот пароль, тайна будет зашифрована ДВАЖДЫ. Без
-            этого пароля её невозможно будет прочесть даже имея доступ к аккаунту. <b>Если вы его забудете, данные будут
-              потеряны навсегда.</b>
+            <i class="ph-light ph-warning"></i> Если вы укажете сид-фразу BIP39, эта тайна Сейфа будет зашифрована на основе ключа PBKDF2 (SHA-512). <b>Для её чтения потребуется ввести именно эту фразу.</b>
           </div>
         </div>
       </div>
@@ -12985,10 +12983,15 @@
           renderCloudGallery(media, galleryId, hiddenId);
         }
 
+        window.generateSecretMnemonic = function() {
+          document.getElementById('s-vault-pass').value = BIP39.generateMnemonic();
+        };
+
         function saveSecret() {
           const title = document.getElementById('s-title').value.trim();
           const content = document.getElementById('s-content').value;
-          const vaultPass = document.getElementById('s-vault-pass').value;
+          const vaultPassRaw = document.getElementById('s-vault-pass').value;
+          const vaultPass = vaultPassRaw.trim().toLowerCase().replace(/\s+/g, ' ');
 
           console.log('Saving secret. Vault pass length:', vaultPass.length);
 
@@ -13004,12 +13007,24 @@
           let finalContent = content;
           let isVault = false;
 
-          if (vaultPass && vaultPass.trim().length > 0) {
-            // Двойное шифрование
+          if (vaultPass && vaultPass.length > 0) {
+            // BIP39 Validation
+            const words = vaultPass.split(' ');
+            if (words.length !== 12) {
+              toast('<i class="ph-light ph-warning"></i> Сид-фраза должна состоять ровно из 12 слов!');
+              return;
+            }
+            if (!BIP39.validateMnemonic(vaultPass)) {
+              toast('<i class="ph-light ph-x-circle"></i> Некорректные слова сид-фразы BIP39!');
+              return;
+            }
+
+            // Шифрование на основе сид-фразы BIP39
             try {
-              finalContent = '<i class="ph-light ph-lock"></i>V2' + CryptoJS.AES.encrypt(content, vaultPass).toString();
+              const seedHex = BIP39.mnemonicToSeedHex(vaultPass, '');
+              finalContent = '<i class="ph-light ph-lock"></i>V2' + CryptoJS.AES.encrypt(content, seedHex).toString();
               isVault = true;
-              console.log('Double encryption enabled for:', title);
+              console.log('BIP39 encryption enabled for:', title);
             } catch (e) {
               console.error('Encryption error:', e);
               toast('<i class="ph-light ph-x-circle"></i> Ошибка шифрования');
@@ -13120,21 +13135,33 @@
 
         function unlockVaultSecret() {
           const id = document.getElementById('vault-prompt-id').value;
-          const pass = document.getElementById('vault-prompt-pass').value;
+          const passRaw = document.getElementById('vault-prompt-pass').value;
+          const pass = passRaw.trim().toLowerCase().replace(/\s+/g, ' ');
           const s = STATE.secrets.find(x => x.id === id);
           if (!s || !pass) return;
 
-          try {
-            const encryptedData = s.content.replace('<i class="ph-light ph-lock"></i>V2', '');
-            const decrypted = CryptoJS.AES.decrypt(encryptedData, pass).toString(CryptoJS.enc.Utf8);
+          // BIP39 Validation
+          const words = pass.split(' ');
+          if (words.length !== 12 || !BIP39.validateMnemonic(pass)) {
+            toast('<i class="ph-light ph-x-circle"></i> Неверный формат сид-фразы BIP39!');
+            const input = document.getElementById('vault-prompt-pass');
+            input.style.borderColor = 'var(--red)';
+            setTimeout(() => input.style.borderColor = '', 1000);
+            return;
+          }
 
-            if (!decrypted) throw new Error('Wrong password');
+          try {
+            const seedHex = BIP39.mnemonicToSeedHex(pass, '');
+            const encryptedData = s.content.replace('<i class="ph-light ph-lock"></i>V2', '');
+            const decrypted = CryptoJS.AES.decrypt(encryptedData, seedHex).toString(CryptoJS.enc.Utf8);
+
+            if (!decrypted) throw new Error('Wrong mnemonic');
 
             closeModal('modal-vault-prompt');
-            toast(`<i class="ph-light ph-shield-check"></i> Тайна раскрыта (v2.0)`);
+            toast(`<i class="ph-light ph-shield-check"></i> Тайна сейфа раскрыта (BIP39)`);
             showDecryptedSecret(s, decrypted);
           } catch (e) {
-            toast('<i class="ph-light ph-x-circle"></i> Неверный мастер-пароль');
+            toast('<i class="ph-light ph-x-circle"></i> Неверная сид-фраза BIP39');
             const input = document.getElementById('vault-prompt-pass');
             input.style.borderColor = 'var(--red)';
             setTimeout(() => input.style.borderColor = '', 1000);
@@ -20274,28 +20301,26 @@ ${socialsContext}
 
       <!-- Vault Password Prompt Modal -->
       <div class="modal-overlay" id="modal-vault-prompt">
-        <div class="modal" style="max-width:400px; text-align:center;">
+        <div class="modal" style="max-width:480px; text-align:center;">
           <div class="modal-head">
-            <div class="modal-title"><i class="ph-light ph-lock-key"></i> Доступ <em>защищен</em></div>
+            <div class="modal-title"><i class="ph-light ph-shield-checkered" style="color: var(--gold);"></i> Доступ <em>BIP39</em></div>
             <button class="modal-close" onclick="closeModal('modal-vault-prompt')">✕</button>
           </div>
           <div class="modal-body" style="padding: 2rem;">
             <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--gold);"><i
-                class="ph-light ph-shield-check"></i>
+                class="ph-light ph-key"></i>
             </div>
             <input type="hidden" id="vault-prompt-id">
             <div class="field">
-              <label style="display:block; margin-bottom:12px; font-size:0.9rem;">Введите мастер-пароль для этой
-                тайны</label>
-              <input type="password" id="vault-prompt-pass" placeholder="••••••••"
-                style="width:100%; background:var(--ink2); border:1px solid var(--gold); border-radius:12px; padding:15px; color:var(--ivory); font-size:1.2rem; text-align:center; outline:none; box-shadow:0 0 15px rgba(212,175,55,0.1);">
+              <label style="display:block; margin-bottom:12px; font-size:0.9rem; color: var(--gold2); font-weight: 500;">Введите 12 слов сид-фразы BIP39</label>
+              <input type="text" id="vault-prompt-pass" placeholder="слово1 слово2 слово3..."
+                style="width:100%; background:var(--ink2); border:1px solid var(--gold); border-radius:12px; padding:15px; color:var(--ivory); font-size:0.95rem; text-align:center; outline:none; box-shadow:0 0 15px rgba(212,175,55,0.1); font-family: monospace;">
             </div>
             <div style="font-size:0.7rem; color:var(--muted); margin-top:1rem; line-height:1.5;">
-              Это дополнительный уровень защиты. Данные хранятся в зашифрованном виде и не могут быть восстановлены без
-              этого пароля.
+              Данные хранятся в зашифрованном виде (AES-256) с ключом, полученным по алгоритму PBKDF2 (SHA-512) из вашей сид-фразы. Без фразы восстановить данные невозможно.
             </div>
-            <button class="btn-gold" style="width:100%; margin-top:1.5rem; padding:14px;"
-              onclick="unlockVaultSecret()">РАСКРЫТЬ ТАЙНУ</button>
+            <button class="btn-gold" style="width:100%; margin-top:1.5rem; padding:14px; font-weight:600;"
+              onclick="unlockVaultSecret()">РАСКРЫТЬ СЕЙФ</button>
           </div>
         </div>
       </div>
