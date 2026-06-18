@@ -9651,6 +9651,15 @@
                   </div>
 
                   <div class="field">
+                    <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">OpenAI API Key (Опционально)</label>
+                    <input type="password" id="set-openai-key" placeholder="sk-proj-..."
+                      style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none; font-family: monospace;">
+                    <div style="font-size: 0.6rem; color: var(--muted); margin-top: 4px;">
+                      Ключ для прямого обращения к ИИ (GPT-4o-mini). Если поле оставить пустым, Мудрец и Двойник будут работать в автономном режиме.
+                    </div>
+                  </div>
+
+                  <div class="field">
                     <label
                       style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">Язык
                       интерфейса / Interface Language</label>
@@ -15738,6 +15747,14 @@ ${secretsInfo}
           return html;
         }
 
+        function getOpenAiApiKey() {
+          const userKey = localStorage.getItem('user_openai_api_key');
+          if (userKey && userKey.trim().length > 10) {
+            return userKey.trim();
+          }
+          return "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";
+        }
+
         async function sendChat() {
           const inp = document.getElementById('chat-inp');
           const msgs = document.getElementById('chat-msgs');
@@ -15751,7 +15768,7 @@ ${secretsInfo}
           const typing = document.createElement('div'); typing.className = 'typing'; typing.textContent = 'Мудрец думает...'; msgs.appendChild(typing);
           msgs.scrollTop = msgs.scrollHeight;
 
-          const key = "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";
+          const key = getOpenAiApiKey();
           const system = buildAiSystemPrompt();
           const messages = [
             { role: 'system', content: system }
@@ -16948,7 +16965,7 @@ ${socialsContext}
           msgs.appendChild(typing);
           msgs.scrollTop = msgs.scrollHeight;
 
-          const key = "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";
+          const key = getOpenAiApiKey();
           const system = buildTwinSystemPrompt(text);
           const messages = [
             { role: 'system', content: system }
@@ -17176,7 +17193,7 @@ ${socialsContext}
           const s = STATE.settings;
           const el = id => document.getElementById(id);
           if (el('set-name')) el('set-name').value = STATE.user.name || '';
-          if (el('set-gemini-key')) el('set-gemini-key').value = localStorage.getItem('user_gemini_api_key') || '';
+          if (el('set-openai-key')) el('set-openai-key').value = localStorage.getItem('user_openai_api_key') || '';
           if (el('set-email')) el('set-email').value = STATE.user.email || '';
           if (el('set-birth')) el('set-birth').value = s.birth || '';
           if (el('set-city')) el('set-city').value = s.city || '';
@@ -17188,8 +17205,8 @@ ${socialsContext}
           const name = document.getElementById('set-name').value.trim();
           if (!name) { toast('Введите имя'); return; }
           STATE.user.name = name;
-          const geminiKey = document.getElementById('set-gemini-key') ? document.getElementById('set-gemini-key').value.trim() : '';
-          localStorage.setItem('user_gemini_api_key', geminiKey);
+          const openaiKey = document.getElementById('set-openai-key') ? document.getElementById('set-openai-key').value.trim() : '';
+          localStorage.setItem('user_openai_api_key', openaiKey);
           STATE.settings.birth = document.getElementById('set-birth').value;
           STATE.settings.city = document.getElementById('set-city').value;
           STATE.settings.lang = document.getElementById('set-lang') ? document.getElementById('set-lang').value : 'ru';
@@ -19392,7 +19409,13 @@ ${socialsContext}
               bin += entropy[i].toString(2).padStart(8, '0');
             }
 
-            const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(entropy));
+            // Safe convert Uint8Array to WordArray for CryptoJS
+            const words = [];
+            for (let i = 0; i < entropy.length; i += 4) {
+              words.push((entropy[i] << 24) | (entropy[i + 1] << 16) | (entropy[i + 2] << 8) | entropy[i + 3]);
+            }
+            const wordArray = CryptoJS.lib.WordArray.create(words, entropy.length);
+            const hash = CryptoJS.SHA256(wordArray);
             const hashHex = hash.toString(CryptoJS.enc.Hex);
             const checksumBin = parseInt(hashHex[0], 16).toString(2).padStart(4, '0');
 
@@ -19425,7 +19448,13 @@ ${socialsContext}
               entropyBytes[i] = parseInt(entropyBin.slice(i * 8, (i + 1) * 8), 2);
             }
 
-            const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(entropyBytes));
+            // Safe convert Uint8Array to WordArray for CryptoJS
+            const wordsArr = [];
+            for (let i = 0; i < entropyBytes.length; i += 4) {
+              wordsArr.push((entropyBytes[i] << 24) | (entropyBytes[i + 1] << 16) | (entropyBytes[i + 2] << 8) | entropyBytes[i + 3]);
+            }
+            const wordArray = CryptoJS.lib.WordArray.create(wordsArr, entropyBytes.length);
+            const hash = CryptoJS.SHA256(wordArray);
             const hashHex = hash.toString(CryptoJS.enc.Hex);
             const expectedChecksumBin = parseInt(hashHex[0], 16).toString(2).padStart(4, '0');
 
@@ -19503,7 +19532,11 @@ ${socialsContext}
             bytes[i] = parseInt(byteStr, 2);
           }
 
-          const wordArray = CryptoJS.lib.WordArray.create(bytes);
+          const words = [];
+          for (let i = 0; i < bytes.length; i += 4) {
+            words.push((bytes[i] << 24) | (bytes[i + 1] << 16) | (bytes[i + 2] << 8) | bytes[i + 3]);
+          }
+          const wordArray = CryptoJS.lib.WordArray.create(words, bytes.length);
           const hashHex = CryptoJS.SHA256(wordArray).toString(CryptoJS.enc.Hex);
           document.getElementById('bip39-entropy-hash').textContent = hashHex;
 
