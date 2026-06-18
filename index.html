@@ -6482,6 +6482,7 @@
        CUSTOM MOBILE & RESPONSIVE ADAPTATION OVERRIDES
     ════════════════════════════════════════════ */
     @media (max-width: 768px) {
+
       /* Pinned layout for Chat page to prevent overflow and keep inputs visible */
       #page-chat-page.active {
         display: flex !important;
@@ -6491,11 +6492,13 @@
         margin: 0 !important;
         overflow: hidden !important;
       }
+
       #page-chat-page .page-header {
         padding: 0.8rem 1rem 0.4rem 1rem !important;
         margin-bottom: 0 !important;
         flex-shrink: 0 !important;
       }
+
       #page-chat-page .chat-wrapper {
         flex: 1 !important;
         height: auto !important;
@@ -6505,9 +6508,16 @@
         border-top: 1px solid rgba(201, 168, 76, 0.15) !important;
         overflow: hidden !important;
       }
+
+      /* Force 1-column layouts on cards/grids that get squished */
+      .sub-comparison-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+      }
     }
 
     @media (max-width: 640px) {
+
       /* Phone specific scrollability for auth page */
       #screen-auth {
         height: auto !important;
@@ -6553,14 +6563,16 @@
         justify-content: center !important;
       }
 
-      #chat-input-bar > button:nth-of-type(1) {
+      #chat-input-bar>button:nth-of-type(1) {
         grid-row: 2 !important;
         grid-column: 1 !important;
       }
+
       #chat-voice-btn {
         grid-row: 2 !important;
         grid-column: 2 !important;
       }
+
       #chat-video-btn {
         grid-row: 2 !important;
         grid-column: 3 !important;
@@ -6576,32 +6588,169 @@
       .chat-wrap {
         height: 400px !important;
       }
+
       .chat-input-wrap {
         padding: 0.6rem 0.8rem !important;
         gap: 0.5rem !important;
       }
+
       .chat-inp {
         min-width: 0 !important;
         font-size: 16px !important;
       }
+
       .chat-send {
         padding: 0.6rem 1rem !important;
         font-size: 0.75rem !important;
       }
 
-      /* Digital twin call sizing */
+      /* Digital twin call sizing & control bar */
       .twin-container {
         height: calc(100vh - 200px) !important;
         min-height: 400px !important;
       }
+
       #twin-chat-inp {
         min-width: 0 !important;
         font-size: 16px !important;
       }
 
-      /* Family tree labels */
+      .twin-control-bar {
+        gap: 0.6rem !important;
+      }
+
+      .twin-control-bar .control-btn {
+        width: 42px !important;
+        height: 42px !important;
+        font-size: 1.1rem !important;
+      }
+
+      .twin-control-bar .control-btn.btn-call-inactive,
+      .twin-control-bar .control-btn.btn-call-active {
+        width: 52px !important;
+        height: 52px !important;
+        font-size: 1.35rem !important;
+      }
+
+      /* Family tree labels and header */
       .tree-edit-label {
         display: none !important;
+      }
+
+      .tree-header-v5 {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.6rem !important;
+        padding: 0.8rem 1rem !important;
+      }
+
+      .tree-header-left,
+      .tree-header-right,
+      .tree-header-center {
+        width: 100% !important;
+        flex: none !important;
+      }
+
+      .tree-header-right {
+        justify-content: flex-start !important;
+        gap: 0.5rem !important;
+      }
+
+      .tree-header-right button {
+        flex: 1 !important;
+      }
+
+      /* Grid systems: force single column on narrow viewports for grids 3 & 4 */
+      .grid-3,
+      .grid-4 {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Subscription page status card & details */
+      .sub-status-card {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 1.5rem !important;
+        gap: 1.5rem !important;
+      }
+
+      .sub-meta {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        margin-top: 1.2rem !important;
+      }
+
+      .sub-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.8rem !important;
+        align-items: stretch !important;
+      }
+
+      .sub-actions button {
+        margin: 0 !important;
+        width: 100% !important;
+      }
+
+      .sub-info-main h3 {
+        font-size: 2rem !important;
+      }
+
+      /* Connections page: align header buttons into a clean 2x2 grid */
+      #page-connections .page-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+      }
+
+      #page-connections .page-actions button {
+        margin: 0 !important;
+        width: 100% !important;
+        padding: 0.6rem 0.5rem !important;
+        font-size: 0.75rem !important;
+      }
+
+      /* Connection request/contact card stack formatting */
+      .conn-card {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.8rem !important;
+      }
+
+      .conn-right {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+        padding-top: 0.6rem !important;
+        margin-top: 0.2rem !important;
+      }
+
+      .conn-right button {
+        width: auto !important;
+      }
+
+      /* Database page layout fixes */
+      #page-db .page-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+      }
+
+      #page-db .page-actions button {
+        margin: 0 !important;
+        width: 100% !important;
+        padding: 0.6rem 0.5rem !important;
+        font-size: 0.75rem !important;
+      }
+
+      /* Prevent database schema block horizontal scrolling on container */
+      .db-schema {
+        overflow-x: auto !important;
+        max-width: 100% !important;
       }
     }
   </style>
