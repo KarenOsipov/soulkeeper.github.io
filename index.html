@@ -8069,6 +8069,11 @@
                   <button class="btn btn-ghost" onclick="initVaultSeedSetup()" id="vault-init-setup-btn"
                     style="display:none; font-size:0.8rem; padding:0.75rem;">Создать сид-фразу</button>
                 </div>
+                <div style="margin-top:0.8rem; text-align:center;">
+                  <span onclick="openBip39Simulator()" style="color:var(--gold2); font-size:0.75rem; cursor:pointer; text-decoration:underline; display:inline-flex; align-items:center; gap:5px; transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--gold2)'">
+                    <i class="ph-bold ph-sketch-logo"></i> Интерактивный симулятор BIP39
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -9655,7 +9660,16 @@
                     <input type="password" id="set-openai-key" placeholder="sk-proj-..."
                       style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none; font-family: monospace;">
                     <div style="font-size: 0.6rem; color: var(--muted); margin-top: 4px;">
-                      Ключ для прямого обращения к ИИ (GPT-4o-mini). Если поле оставить пустым, Мудрец и Двойник будут работать в автономном режиме.
+                      Ключ для прямого обращения к ИИ (GPT-4o-mini). Если оба поля ИИ оставить пустыми, Мудрец и Двойник будут работать в автономном режиме.
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; display: block;">Google Gemini API Key (Рекомендуется)</label>
+                    <input type="password" id="set-gemini-key" placeholder="AIzaSy..."
+                      style="width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--ivory); font-size: 0.85rem; outline: none; font-family: monospace;">
+                    <div style="font-size: 0.6rem; color: var(--muted); margin-top: 4px;">
+                      Ключ для прямого обращения к ИИ Gemini (1.5 Flash). Используется по умолчанию для ответов ИИ Мудреца и Двойника.
                     </div>
                   </div>
 
@@ -10085,6 +10099,318 @@
     <!-- ════ MOBILE FAB ════ -->
     <button class="mob-fab" id="mob-fab" onclick="mobFabAction()"><i class="ph-bold ph-plus"
         style="font-size: 1.3rem;"></i></button>
+
+    <!-- Floating AI Sage Widget Styles -->
+    <style>
+      .float-sage-bubble {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--gold2), var(--gold));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-gold), 0 10px 30px rgba(0,0,0,0.5);
+        cursor: pointer;
+        z-index: 9999;
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      .float-sage-bubble:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 0 45px rgba(212, 175, 55, 0.45), 0 15px 35px rgba(0,0,0,0.6);
+      }
+      .bubble-sparkles {
+        font-size: 1.5rem;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: rotateSparkles 4s infinite linear;
+      }
+      @keyframes rotateSparkles {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .float-sage-chat {
+        position: fixed;
+        bottom: 6.5rem;
+        right: 2rem;
+        width: 360px;
+        height: 480px;
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow), 0 20px 50px rgba(0,0,0,0.6);
+        border-radius: 24px;
+        display: none;
+        flex-direction: column;
+        z-index: 9999;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      .float-sage-chat.open {
+        display: flex;
+        transform: translateY(0);
+        opacity: 1;
+      }
+      .float-chat-head {
+        padding: 1rem 1.2rem;
+        background: rgba(0, 0, 0, 0.25);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .float-chat-av {
+        background: linear-gradient(135deg, var(--gold2), var(--gold));
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .float-chat-status {
+        font-size: 0.62rem;
+        color: var(--green);
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        margin-top: 1px;
+      }
+      .float-chat-close {
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: color 0.2s;
+      }
+      .float-chat-close:hover {
+        color: #fff;
+      }
+      .float-chat-msgs {
+        flex: 1;
+        padding: 1.2rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .float-chat-msgs::-webkit-scrollbar {
+        width: 3px;
+      }
+      .float-chat-msgs .msg {
+        max-width: 85%;
+        padding: 0.75rem 1rem;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        word-wrap: break-word;
+      }
+      .float-chat-msgs .msg.user {
+        align-self: flex-end;
+        background: var(--gold-d);
+        border: 1px solid rgba(212,175,55,0.2);
+        color: var(--gold2);
+        border-radius: 16px 16px 4px 16px;
+      }
+      .float-chat-msgs .msg.ai {
+        align-self: flex-start;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-left: 2px solid var(--gold);
+        color: var(--ivory2);
+        border-radius: 4px 16px 16px 16px;
+      }
+      .float-chat-msgs .typing {
+        align-self: flex-start;
+        font-size: 0.75rem;
+        color: var(--muted);
+        font-style: italic;
+        animation: pulse 1.5s infinite;
+      }
+      .float-chat-input-wrap {
+        padding: 0.8rem 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+      }
+      .float-chat-input-wrap input {
+        flex: 1;
+        background: rgba(0,0,0,0.25);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        color: var(--ivory);
+        font-size: 0.8rem;
+        outline: none;
+        transition: all 0.3s;
+      }
+      .float-chat-input-wrap input:focus {
+        border-color: var(--gold);
+        box-shadow: 0 0 10px rgba(212,175,55,0.1);
+      }
+      .float-chat-input-wrap button {
+        background: linear-gradient(135deg, var(--gold2), var(--gold));
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--ink);
+        font-size: 1rem;
+        transition: all 0.2s;
+      }
+      .float-chat-input-wrap button:hover {
+        opacity: 0.9;
+        transform: scale(1.05);
+      }
+      @media (max-width: 500px) {
+        .float-sage-chat {
+          width: calc(100vw - 2rem);
+          right: 1rem;
+          left: 1rem;
+          bottom: 5.5rem;
+          height: 400px;
+        }
+        .float-sage-bubble {
+          bottom: 1rem;
+          right: 1rem;
+          width: 50px;
+          height: 50px;
+        }
+      }
+    </style>
+
+    <!-- Floating AI Sage Widget HTML -->
+    <div id="float-sage-bubble" class="float-sage-bubble" onclick="toggleFloatSageChat()">
+      <div class="bubble-sparkles">
+        <i class="ph-fill ph-sparkles"></i>
+      </div>
+    </div>
+
+    <div id="float-sage-chat" class="float-sage-chat">
+      <div class="float-chat-head">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="float-chat-av">
+            <i class="ph-fill ph-sparkles" style="color: var(--ink);"></i>
+          </div>
+          <div>
+            <div style="font-family: var(--serif); color: var(--ivory); font-weight: 600; font-size: 0.9rem;">ИИ Мудрец</div>
+            <div class="float-chat-status">онлайн</div>
+          </div>
+        </div>
+        <button class="float-chat-close" onclick="toggleFloatSageChat()">✕</button>
+      </div>
+      <div class="float-chat-msgs" id="float-chat-msgs"></div>
+      <div class="float-chat-input-wrap">
+        <input type="text" id="float-chat-inp" placeholder="Спросите Мудреца..." onkeydown="if(event.key==='Enter')sendFloatChat()">
+        <button onclick="sendFloatChat()"><i class="ph-bold ph-paper-plane-right"></i></button>
+      </div>
+    </div>
+
+    <script>
+      window.toggleFloatSageChat = function () {
+        const chat = document.getElementById('float-sage-chat');
+        if (!chat) return;
+        const isOpen = chat.classList.toggle('open');
+        if (isOpen) {
+          chat.style.display = 'flex';
+          renderFloatChat();
+        } else {
+          setTimeout(() => {
+            if (!chat.classList.contains('open')) chat.style.display = 'none';
+          }, 300);
+        }
+      };
+
+      function renderFloatChat() {
+        const msgs = document.getElementById('float-chat-msgs');
+        if (!msgs) return;
+        msgs.innerHTML = chatHistory.map(h => {
+          const isUser = h.role === 'user';
+          return `
+            <div class="msg ${isUser ? 'user' : 'ai'}">
+              ${isUser ? esc(h.content) : formatMarkdown(h.content)}
+            </div>
+          `;
+        }).join('');
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      window.sendFloatChat = async function () {
+        const inp = document.getElementById('float-chat-inp');
+        const text = inp.value.trim();
+        if (!text) return;
+        inp.value = '';
+
+        chatHistory.push({ role: 'user', content: text });
+        renderFloatChat();
+
+        const mainMsgs = document.getElementById('chat-msgs');
+        if (mainMsgs) {
+          const um = document.createElement('div');
+          um.className = 'msg user';
+          um.textContent = text;
+          mainMsgs.appendChild(um);
+          mainMsgs.scrollTop = mainMsgs.scrollHeight;
+        }
+
+        const msgs = document.getElementById('float-chat-msgs');
+        const typing = document.createElement('div');
+        typing.className = 'typing';
+        typing.textContent = 'Мудрец думает...';
+        msgs.appendChild(typing);
+        msgs.scrollTop = msgs.scrollHeight;
+
+        const system = buildAiSystemPrompt();
+
+        try {
+          const reply = await callAI(system, chatHistory, text);
+          typing.remove();
+
+          chatHistory.push({ role: 'assistant', content: reply });
+          renderFloatChat();
+
+          if (mainMsgs) {
+            const am = document.createElement('div');
+            am.className = 'msg ai';
+            am.innerHTML = formatMarkdown(reply);
+            mainMsgs.appendChild(am);
+            mainMsgs.scrollTop = mainMsgs.scrollHeight;
+          }
+
+          addActivity('Запрос к AI Мудрецу');
+        } catch (err) {
+          console.error('AI Error, falling back to local Sage response:', err);
+          typing.remove();
+
+          const reply = generateLocalSageResponse(text);
+          chatHistory.push({ role: 'assistant', content: reply });
+          renderFloatChat();
+
+          if (mainMsgs) {
+            const am = document.createElement('div');
+            am.className = 'msg ai';
+            am.innerHTML = formatMarkdown(reply);
+            mainMsgs.appendChild(am);
+            mainMsgs.scrollTop = mainMsgs.scrollHeight;
+          }
+
+          addActivity('Запрос к AI Мудрецу (Автономный режим)');
+        }
+      };
+    </script>
 
   </div><!-- /screen-app -->
 
@@ -10634,7 +10960,13 @@
               }
 
               // Дешифруем все чувствительные данные на устройстве клиента (с поддержкой BIP39 сид-фразы)
-              STATE.secrets = CryptoEngine.decryptVault(data.secrets) || [];
+              if (localStorage.getItem('sk_vault_decoy') === 'true') {
+                window.isDecoyActive = true;
+                const localDecoyData = DB.load('decoy_secrets_' + (STATE.user ? STATE.user.email : 'guest'), [], true);
+                STATE.secrets = CryptoEngine.decryptVault(localDecoyData) || [];
+              } else {
+                STATE.secrets = CryptoEngine.decryptVault(data.secrets) || [];
+              }
               STATE.bio = CryptoEngine.decrypt(data.bio) || [];
               STATE.messages = CryptoEngine.decrypt(data.messages) || [];
               // relatives тоже зашифрованы с v2+
@@ -10735,11 +11067,16 @@
               iterations: 10000,   // NIST-recommended minimum
               hasher: CryptoJS.algo.SHA256
             });
+            localStorage.setItem('sk_session_key', this._key.toString());
 
             DB._addLog('INFO', '🔐 Крипто-ключ AES-256 инициализирован (Zero-Knowledge)');
           },
 
           initFromSession() {
+            const savedKey = localStorage.getItem('sk_session_key');
+            if (savedKey) {
+              try { this._key = CryptoJS.enc.Hex.parse(savedKey); } catch (e) { }
+            }
             const vaultSaved = localStorage.getItem('sk_vaultkey_saved');
             if (vaultSaved) {
               try { this._vaultKey = CryptoJS.enc.Hex.parse(vaultSaved); } catch (e) { }
@@ -11801,9 +12138,22 @@
         // ═══════════════════════════════════════════
         // STATE
         // ═══════════════════════════════════════════
+        let _realSecrets = [];
+        let _decoySecrets = [];
+        window.isDecoyActive = false;
+
         let STATE = {
           user: null,
-          secrets: [],
+          get secrets() {
+            return window.isDecoyActive ? _decoySecrets : _realSecrets;
+          },
+          set secrets(val) {
+            if (window.isDecoyActive) {
+              _decoySecrets = val;
+            } else {
+              _realSecrets = val;
+            }
+          },
           bio: [],
           messages: [],
           relatives: [],
@@ -11840,6 +12190,10 @@
           if (tempLockedData || !CryptoEngine.hasKey()) return;
           if (!STATE.user) return;
           const e = STATE.user.email;
+          if (window.isDecoyActive) {
+            DB.save('decoy_secrets_' + e, CryptoEngine.encryptVault(STATE.secrets), true);
+            return;
+          }
           // Шифруем только чувствительные данные
           DB.save('secrets_' + e, CryptoEngine.encryptVault(STATE.secrets), true);
           DB.save('bio_' + e, STATE.bio, true);
@@ -11860,6 +12214,10 @@
         function saveUserData() {
           if (tempLockedData || !CryptoEngine.hasKey()) return;
           if (!STATE.user) return;
+          if (window.isDecoyActive) {
+            _saveLocalOnly();
+            return;
+          }
           if (STATE.user.isDemo) {
             _saveLocalOnly();
             return;
@@ -11948,6 +12306,9 @@
             STATE.user.vaultSeedHash = DB.load('vault_seed_hash_' + e, null);
             STATE.user.vaultPasswordHash = DB.load('vault_password_hash_' + e, null);
             STATE.user.masterPasswordHash = masterPasswordHash || DB.load('master_password_hash_' + e, null);
+            if (STATE.user.isDemo && !CryptoEngine.hasKey()) {
+              CryptoEngine.setKey('demo123');
+            }
           }
 
           const hasMasterPassword = !!(STATE.user && STATE.user.masterPasswordHash);
@@ -11974,7 +12335,13 @@
             }, 300);
           } else {
             // Not locked or already has key: decrypt and assign
-            STATE.secrets = CryptoEngine.decryptVault(rawSecrets) || [];
+            if (localStorage.getItem('sk_vault_decoy') === 'true') {
+              window.isDecoyActive = true;
+              const localDecoyData = DB.load('decoy_secrets_' + e, [], true);
+              STATE.secrets = CryptoEngine.decryptVault(localDecoyData) || [];
+            } else {
+              STATE.secrets = CryptoEngine.decryptVault(rawSecrets) || [];
+            }
             STATE.bio = CryptoEngine.decrypt(rawBio) || [];
             STATE.messages = CryptoEngine.decrypt(rawMessages) || [];
             STATE.relatives = CryptoEngine.decrypt(rawRelatives) || [];
@@ -12506,24 +12873,46 @@
           if (input) input.value = '';
         }
 
+        function resetState() {
+          window.isDecoyActive = false;
+          _realSecrets = [];
+          _decoySecrets = [];
+          STATE.user = null;
+          STATE.bio = [];
+          STATE.messages = [];
+          STATE.relatives = [];
+          STATE.notifications = [];
+          STATE.settings = {};
+          STATE.swPeriod = 7;
+          STATE.swDays = 7;
+          STATE.executor = null;
+          STATE.cloudItems = [];
+          if (STATE.twinChatHistory) STATE.twinChatHistory = [];
+          if (STATE.twinSettings) STATE.twinSettings = { consent: true, name: '', voiceId: '', voiceRate: 1.0, voicePitch: 1.0, autoSpeak: false, elevenLabsKey: '', gender: 'male', tone: 'medium', voiceCloned: false, voiceClonedName: '', socials: '', uploadedFiles: [] };
+        }
+
         // ── LOGOUT ────────────────────────────────────────────────────────
         function doLogout() {
           if (connectionsUnsubscribe) { connectionsUnsubscribe(); connectionsUnsubscribe = null; }
           if (chatMessagesUnsubscribe) { chatMessagesUnsubscribe(); chatMessagesUnsubscribe = null; }
           activeChatContact = null;
 
+          CryptoEngine._key = null;
           CryptoEngine._vaultKey = null;
           localStorage.removeItem('sk_vaultkey_saved');
+          localStorage.removeItem('sk_vault_key_remember');
+          localStorage.removeItem('sk_vault_decoy');
+          localStorage.removeItem('sk_session_key');
 
           if (STATE.user && STATE.user.isDemo) {
             DB.remove('user');
-            STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null, cloudItems: [] };
+            resetState();
             showLanding();
             return;
           }
           fbAuth.signOut().then(() => {
             DB.remove('user');
-            STATE = { user: null, secrets: [], bio: [], messages: [], relatives: [], notifications: [], settings: {}, swPeriod: 7, swDays: 7, executor: null, cloudItems: [] };
+            resetState();
             fbDb.clearPersistence().catch(() => { });
             showLanding();
           });
@@ -15776,6 +16165,87 @@ ${secretsInfo}
           return "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";
         }
 
+        async function callAI(systemPrompt, history, currentText) {
+          const geminiKey = getGeminiApiKey();
+          if (geminiKey) {
+            try {
+              const contents = [];
+              history.forEach(h => {
+                contents.push({
+                  role: h.role === 'user' ? 'user' : 'model',
+                  parts: [{ text: h.content }]
+                });
+              });
+
+              const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  contents: contents.map(c => ({
+                    role: c.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: c.parts ? c.parts[0].text : c.content }]
+                  })),
+                  systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                  }
+                })
+              });
+
+              if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error?.message || `Gemini HTTP ${response.status}`);
+              }
+
+              const data = await response.json();
+              if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+                return data.candidates[0].content.parts[0].text;
+              } else {
+                throw new Error('Invalid Gemini API response structure');
+              }
+            } catch (geminiErr) {
+              console.warn('Gemini API call failed, trying OpenAI fallback:', geminiErr);
+            }
+          }
+
+          const openaiKey = getOpenAiApiKey();
+          if (openaiKey) {
+            const messages = [
+              { role: 'system', content: systemPrompt }
+            ];
+            history.forEach(h => {
+              messages.push({
+                role: h.role,
+                content: h.content
+              });
+            });
+
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${openaiKey}`
+              },
+              body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: messages,
+                temperature: 0.7
+              })
+            });
+
+            if (!response.ok) {
+              const errData = await response.json().catch(() => ({}));
+              throw new Error(errData.error?.message || `OpenAI HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+          }
+
+          throw new Error('No working AI API keys configured');
+        }
+
         async function sendChat() {
           const inp = document.getElementById('chat-inp');
           const msgs = document.getElementById('chat-msgs');
@@ -15789,41 +16259,12 @@ ${secretsInfo}
           const typing = document.createElement('div'); typing.className = 'typing'; typing.textContent = 'Мудрец думает...'; msgs.appendChild(typing);
           msgs.scrollTop = msgs.scrollHeight;
 
-          const key = getOpenAiApiKey();
           const system = buildAiSystemPrompt();
-          const messages = [
-            { role: 'system', content: system }
-          ];
-          chatHistory.forEach(h => {
-            messages.push({
-              role: h.role,
-              content: h.content
-            });
-          });
 
           try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${key}`
-              },
-              body: JSON.stringify({
-                model: 'gpt-4o-mini',
-                messages: messages,
-                temperature: 0.7
-              })
-            });
+            const reply = await callAI(system, chatHistory, text);
 
             typing.remove();
-
-            if (!response.ok) {
-              const errData = await response.json().catch(() => ({}));
-              throw new Error(errData.error?.message || `HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            const reply = data.choices[0].message.content;
 
             chatHistory.push({ role: 'assistant', content: reply });
 
@@ -15834,8 +16275,18 @@ ${secretsInfo}
             msgs.scrollTop = msgs.scrollHeight;
 
             addActivity('Запрос к AI Мудрецу');
+            
+            // Sync with floating chat if exists
+            const floatMsgs = document.getElementById('float-chat-msgs');
+            if (floatMsgs) {
+              const amFloat = document.createElement('div');
+              amFloat.className = 'msg ai';
+              amFloat.innerHTML = formatMarkdown(reply);
+              floatMsgs.appendChild(amFloat);
+              floatMsgs.scrollTop = floatMsgs.scrollHeight;
+            }
           } catch (err) {
-            console.error('OpenAI Error, falling back to local Sage response:', err);
+            console.error('AI Error, falling back to local Sage response:', err);
             typing.remove();
 
             const reply = generateLocalSageResponse(text);
@@ -16986,41 +17437,12 @@ ${socialsContext}
           msgs.appendChild(typing);
           msgs.scrollTop = msgs.scrollHeight;
 
-          const key = getOpenAiApiKey();
           const system = buildTwinSystemPrompt(text);
-          const messages = [
-            { role: 'system', content: system }
-          ];
-          STATE.twinChatHistory.forEach(h => {
-            messages.push({
-              role: h.role,
-              content: h.content
-            });
-          });
 
           try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${key}`
-              },
-              body: JSON.stringify({
-                model: 'gpt-4o-mini',
-                messages: messages,
-                temperature: 0.7
-              })
-            });
+            const reply = await callAI(system, STATE.twinChatHistory, text);
 
             typing.remove();
-
-            if (!response.ok) {
-              const errData = await response.json().catch(() => ({}));
-              throw new Error(errData.error?.message || `HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            const reply = data.choices[0].message.content;
 
             STATE.twinChatHistory.push({ role: 'assistant', content: reply });
 
@@ -17049,7 +17471,7 @@ ${socialsContext}
               speakTwinText(reply);
             }
           } catch (err) {
-            console.error('Twin OpenAI Error, falling back to local Twin response:', err);
+            console.error('Twin AI Error, falling back to local Twin response:', err);
             typing.remove();
 
             const reply = generateLocalTwinResponse(text);
@@ -17215,6 +17637,7 @@ ${socialsContext}
           const el = id => document.getElementById(id);
           if (el('set-name')) el('set-name').value = STATE.user.name || '';
           if (el('set-openai-key')) el('set-openai-key').value = localStorage.getItem('user_openai_api_key') || '';
+          if (el('set-gemini-key')) el('set-gemini-key').value = localStorage.getItem('user_gemini_api_key') || '';
           if (el('set-email')) el('set-email').value = STATE.user.email || '';
           if (el('set-birth')) el('set-birth').value = s.birth || '';
           if (el('set-city')) el('set-city').value = s.city || '';
@@ -17228,6 +17651,8 @@ ${socialsContext}
           STATE.user.name = name;
           const openaiKey = document.getElementById('set-openai-key') ? document.getElementById('set-openai-key').value.trim() : '';
           localStorage.setItem('user_openai_api_key', openaiKey);
+          const geminiKey = document.getElementById('set-gemini-key') ? document.getElementById('set-gemini-key').value.trim() : '';
+          localStorage.setItem('user_gemini_api_key', geminiKey);
           STATE.settings.birth = document.getElementById('set-birth').value;
           STATE.settings.city = document.getElementById('set-city').value;
           STATE.settings.lang = document.getElementById('set-lang') ? document.getElementById('set-lang').value : 'ru';
@@ -19665,9 +20090,12 @@ ${socialsContext}
           }
 
           const hash = CryptoJS.SHA256(input).toString();
+          let useDecoy = false;
           if (STATE.user && STATE.user.vaultSeedHash && STATE.user.vaultSeedHash !== hash) {
-            toast('Неверная сид-фраза.');
-            return;
+            useDecoy = true;
+          } else if (STATE.user && !STATE.user.vaultSeedHash) {
+            // Fallback: if no master hash is set up yet, enter decoy mode if they enter any valid phrase directly here
+            useDecoy = true;
           }
 
           // Derive Vault Key
@@ -19676,15 +20104,59 @@ ${socialsContext}
           sessionStorage.setItem('sk_vault_key', CryptoEngine._vaultKey.toString());
           localStorage.setItem('sk_vault_key_remember', CryptoEngine._vaultKey.toString());
 
-          toast('<i class="ph-light ph-lock-key-open"></i> Доступы расшифрованы!');
+          if (useDecoy) {
+            window.isDecoyActive = true;
+            localStorage.setItem('sk_vault_decoy', 'true');
+            toast('<i class="ph-light ph-lock-key-open"></i> Доступы расшифрованы!');
 
-          // Decrypt secrets in place
-          if (tempLockedData && tempLockedData.secrets) {
-            STATE.secrets = CryptoEngine.decryptVault(tempLockedData.secrets) || [];
+            const e = STATE.user ? STATE.user.email : 'guest';
+            const localDecoyData = DB.load('decoy_secrets_' + e, [], true);
+            STATE.secrets = CryptoEngine.decryptVault(localDecoyData) || [];
+            if (STATE.secrets.length === 0) {
+              STATE.secrets = [
+                {
+                  id: 'decoy_' + uid(),
+                  title: 'Швейцарский счет Julius Baer',
+                  category: 'password',
+                  content: 'Логин: switzerland_holder\nПароль: VaultCode9981!\nСчет: CH93 0023 4410 8829 1102 3',
+                  date: new Date().toLocaleDateString('ru'),
+                  access: 'owner',
+                  isVault: true
+                },
+                {
+                  id: 'decoy_' + uid(),
+                  title: 'Завещание и распределение активов (Черновик)',
+                  category: 'document',
+                  content: 'Все имущество и цифровые активы (BTC, ETH) после моей неактивности передаются моей семье. Душеприказчик уполномочен распределить доли согласно приложению.',
+                  date: new Date().toLocaleDateString('ru'),
+                  access: 'heirs',
+                  isVault: true
+                },
+                {
+                  id: 'decoy_' + uid(),
+                  title: 'Ключи восстановления Ledger BTC',
+                  category: 'password',
+                  content: '1. dynamic 2. radar 3. citizen 4. index 5. visual 6. vital 7. voice 8. void 9. volume 10. vote 11. voyage 12. wage',
+                  date: new Date().toLocaleDateString('ru'),
+                  access: 'trusted',
+                  isVault: true
+                }
+              ];
+              DB.save('decoy_secrets_' + e, CryptoEngine.encryptVault(STATE.secrets), true);
+            }
           } else {
-            // Reload from local storage or cloud
-            const localData = DB.load('secrets_' + STATE.user.email, [], true);
-            STATE.secrets = CryptoEngine.decryptVault(localData) || [];
+            window.isDecoyActive = false;
+            localStorage.removeItem('sk_vault_decoy');
+            toast('<i class="ph-light ph-lock-key-open"></i> Доступы расшифрованы!');
+
+            // Decrypt secrets in place
+            if (tempLockedData && tempLockedData.secrets) {
+              STATE.secrets = CryptoEngine.decryptVault(tempLockedData.secrets) || [];
+            } else {
+              // Reload from local storage or cloud
+              const localData = DB.load('secrets_' + STATE.user.email, [], true);
+              STATE.secrets = CryptoEngine.decryptVault(localData) || [];
+            }
           }
 
           checkVaultLockState();
@@ -19706,6 +20178,9 @@ ${socialsContext}
             const savedVaultKey = localStorage.getItem('sk_vault_key_remember');
             if (savedVaultKey) {
               CryptoEngine._vaultKey = CryptoJS.enc.Hex.parse(savedVaultKey);
+              if (localStorage.getItem('sk_vault_decoy') === 'true') {
+                window.isDecoyActive = true;
+              }
             }
           }
 
